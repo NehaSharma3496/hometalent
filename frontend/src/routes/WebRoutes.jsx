@@ -8,12 +8,14 @@ import Contact from '../pages/website/Contact';
 import Gallery from '../pages/website/Gallery';
 import Registration from '../auth/Registration';
 
+
 const WebRoutes = (
   <Route element={<MainLayout />}>
     <Route path="/" element={<Home />} />
     <Route path="/about" element={<About />} />
     <Route path="/contact" element={<Contact />} />
     <Route path="/gallery" element={<Gallery />} />
+   
     <Route path="/registration" element={<Registration />} />
   </Route>
 );

@@ -162,7 +162,7 @@ const Header = () => {
             </div>
               <div className="header-right-three pl-15 d-none d-lg-flex">
                     <div className="sign-btn">
-                    <Link href="/" className="btn-primary ">Log In</Link>
+                    <Link to="/login" className="btn-primary ">Log In</Link>
                   </div>
                 <div className="freesign-btn">
                             <Link to="/registration"  className="text-secondary" >Free sign up</Link>
