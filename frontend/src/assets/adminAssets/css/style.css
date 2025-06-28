@@ -6065,6 +6065,7 @@ div#searchs ul li:not(:last-child) {
     top: -3px;
     left: -2px;
 }
+
 .switch input:checked ~ label::after {
     translate: 30px 0;
     background: #ffffff;
