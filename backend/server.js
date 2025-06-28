@@ -9,7 +9,7 @@ const seedAll = require('./app/seeders');
 
 const app = express();
 
-
+//test
 const corsOptions = {
   origin: "http://localhost:3000",
   credentials: true,
