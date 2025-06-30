@@ -49,9 +49,13 @@ export default function AdminHeader() {
                     </div>
                     <div className="col-3">
                         <div className="right-header">
-                            <div>
-                                <Link to="#" className="setting-link"><i className="fa-solid fa-gear"></i></Link>
+                           <div>
+                                <Link to="#" className="setting-link"><i className="fa-solid fa-bell text-primary "></i></Link>
                             </div>
+                            <div>
+                                <Link to="#" className="setting-link"><i className="fa-solid fa-gear text-primary "></i></Link>
+                            </div>
+                             
                             <div>
                                 <div className="dropdown profile-dropdown-div">
                                     <Link className="dropdown-toggle" to="/" role="button" id="profile-dropdown" data-bs-toggle="dropdown" aria-expanded="false">

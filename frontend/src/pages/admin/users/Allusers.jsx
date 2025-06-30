@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import DataTable from "react-data-table-component";
+import Datatable from '../../../extracomponents/Datatable';
 
 export default function Allusers() {
 
@@ -236,7 +236,8 @@ export default function Allusers() {
 
             <div className="row">
                 <div className="col-md-12">
-                    <DataTable
+
+                    <Datatable
                         columns={columns}
                         data={data}
                         pagination

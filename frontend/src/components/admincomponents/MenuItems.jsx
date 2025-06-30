@@ -74,15 +74,15 @@ const Menuitems = [
       { label: 'Offers / Discounts', link: '/payments/offers' }
     ]
   },
-  {
-    icon: 'fa-solid fa-bell',
-    label: 'Notifications',
-    children: [
-      { label: 'All Notifications', link: '/notifications/all' },
-      { label: 'User Alerts', link: '/notifications/user-alerts' },
-      { label: 'Vendor Alerts', link: '/notifications/vendor-alerts' }
-    ]
-  },
+  // {
+  //   icon: 'fa-solid fa-bell',
+  //   label: 'Notifications',
+  //   children: [
+  //     { label: 'All Notifications', link: '/notifications/all' },
+  //     { label: 'User Alerts', link: '/notifications/user-alerts' },
+  //     { label: 'Vendor Alerts', link: '/notifications/vendor-alerts' }
+  //   ]
+  // },
   {
     icon: 'fa-solid fa-envelope',
     label: 'Enquiries & Leads',
@@ -92,16 +92,16 @@ const Menuitems = [
       { label: 'Conversion Reports', link: '/enquiries/reports' }
     ]
   },
-  {
-    icon: 'fa-solid fa-gear',
-    label: 'Settings',
-    children: [
-      { label: 'General Site Settings', link: '/settings/general' },
-      { label: 'Privacy & Terms', link: '/settings/privacy' },
-      { label: 'SEO & Meta Info', link: '/settings/seo' },
-      { label: 'Contact Info', link: '/settings/contact' }
-    ]
-  },
+  // {
+  //   icon: 'fa-solid fa-gear',
+  //   label: 'Settings',
+  //   children: [
+  //     { label: 'General Site Settings', link: '/settings/general' },
+  //     { label: 'Privacy & Terms', link: '/settings/privacy' },
+  //     { label: 'SEO & Meta Info', link: '/settings/seo' },
+  //     { label: 'Contact Info', link: '/settings/contact' }
+  //   ]
+  // },
   {
     icon: 'fa-solid fa-user-shield',
     label: 'Admin Users',
