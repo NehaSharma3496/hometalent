@@ -6146,3 +6146,6 @@ background-color: #2278b6 !important;
 {
     color: #fff;
 }
+.rdt_Table .rdt_TableHead .rdt_TableHeadRow .rdt_TableCol {
+    padding: 0 10px;
+}
