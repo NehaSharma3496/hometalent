@@ -1,8 +1,30 @@
 import React from 'react'
+import {Link} from 'react-router-dom'
+import Breadcrumbs from '../../../components/websitecomponents/Breadcrumbs';
+import catImg1 from '../../.././assets/websiteAssets/images/category/image.png';
+import catImg2 from '../../.././assets/websiteAssets/images/category/image-1.png';
+import catImg3 from '../../.././assets/websiteAssets/images/category/image-2.png';
+import catImg4 from '../../.././assets/websiteAssets/images/category/image-3.png';
+import catImg5 from '../../.././assets/websiteAssets/images/category/image-4.png';
+import catImg6 from '../../.././assets/websiteAssets/images/category/image-5.png';
+import catImg7 from '../../.././assets/websiteAssets/images/category/image-6.png';
+import catImg8 from '../../.././assets/websiteAssets/images/category/image-7.png';
+import catImg9 from '../../.././assets/websiteAssets/images/category/image-9.png';
+import catImg10 from '../../.././assets/websiteAssets/images/category/image-9.png';
+import news1  from '../../.././assets/websiteAssets/images/news/image-1.png';
+import news2  from '../../.././assets/websiteAssets/images/news/image-2.png';
+import news3  from '../../.././assets/websiteAssets/images/news/image-3.png';  
+
 
 const Category = () => {
+const breadcrumbLinks = [
+    { label: "Home", to: "/" },
+    { label: "Vendor", to: "#" }, // or current route
+  ];
+
   return (
     <div>
+              <Breadcrumbs title="Vendor" links={breadcrumbLinks} />
         <section className="tour-list-section top-bottom-padding2">
   <div className="container">
     <div className="row g-4">
@@ -32,7 +54,7 @@ const Category = () => {
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src="assets/images/new/hotel1.png" alt="travello" />
+                    <img src={catImg1} alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -89,7 +111,7 @@ const Category = () => {
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src="assets/images/new/hotel2.png" alt="travello" />
+                    <img src={catImg2} alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -146,7 +168,7 @@ const Category = () => {
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src="assets/images/new/hotel3.png" alt="travello" />
+                    <img src={catImg3} alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -203,7 +225,7 @@ const Category = () => {
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src="assets/images/new/hotel4.png" alt="travello" />
+                    <img src={catImg5} alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -260,7 +282,7 @@ const Category = () => {
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src="assets/images/new/hotel5.png" alt="travello" />
+                    <img src={catImg6} alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -317,7 +339,7 @@ const Category = () => {
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src="assets/images/new/hotel6.png" alt="travello" />
+                    <img src={catImg7} alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -374,7 +396,7 @@ const Category = () => {
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src="assets/images/new/hotel7.png" alt="travello" />
+                    <img src={catImg8} alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -431,7 +453,7 @@ const Category = () => {
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src="assets/images/new/hotel8.png" alt="travello" />
+                    <img src={catImg9} alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -488,7 +510,7 @@ const Category = () => {
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src="assets/images/new/hotel9.png" alt="travello" />
+                    <img src={catImg10} alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">

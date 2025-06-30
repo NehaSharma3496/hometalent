@@ -31156,7 +31156,7 @@ tr:last-child td {
 .hotel-card .hotel-img {
   position: relative;
   overflow: hidden;
-  height: 200px;
+  height: 250px;
 }
 .hotel-card .hotel-img img {
   -webkit-transition: 0.8s;

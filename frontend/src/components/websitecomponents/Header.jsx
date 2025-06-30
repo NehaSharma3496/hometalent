@@ -4,6 +4,34 @@ import logo from '../../assets/websiteAssets/images/logo/logo.png';
 
 
 const Header = () => {
+
+const categories = [
+  { name: "Cutlery", slug: "cutlery" },
+  { name: "Cosmetics", slug: "cosmetics" },
+  { name: "Dance Tutor, Choreographer", slug: "dance-tutor" },
+  { name: "Yoga Instructor", slug: "yoga-instructor" },
+  { name: "Education Tutor", slug: "education-tutor" },
+  { name: "Music Teacher", slug: "music-teacher" },
+  { name: "Art & Craft Teacher", slug: "art-craft-teacher" },
+  { name: "Nursery & Pottery", slug: "nursery-pottery" },
+  { name: "Art Work", slug: "art-work" },
+  { name: "Babysitter or Pet Care", slug: "babysitter" },
+  { name: "Fabric Painting", slug: "fabric-painting" },
+  { name: "Canvas Painting", slug: "canvas-painting" },
+  { name: "Mehandi Art", slug: "mehandi-art" },
+  { name: "Catering", slug: "catering" },
+  { name: "Cook/Chef on Call", slug: "cook-on-call" },
+  { name: "Bakery Item", slug: "bakery-item" },
+  { name: "Food (Namkeen, Sweets, Snacks)", slug: "food" },
+  { name: "Gift & Packaging", slug: "gift-packaging" },
+  { name: "Anchor", slug: "anchor" },
+  { name: "Clothes", slug: "clothes" },
+  { name: "Jewellery", slug: "jewellery" },
+  { name: "Beauty Services / Home Salon", slug: "beauty-services" },
+  { name: "Music Artist", slug: "music-artist" },
+];
+
+
   return (
     <header className="header-area-three">
   <div className="main-header">
@@ -44,49 +72,28 @@ const Header = () => {
                           <i className="ri-arrow-down-s-line" />
                         </a>
                         
-        <ul className="row submenu">
-  {/* Column 1 */}
-  <div className="col-lg-6 col-md-6 col-sm-6">
-    <ul className="single-list">
-      {/* Vendor Pages */}
-    
-
-      {/* Categories - Column 1 (12 items) */}
-      <li className="single-list"><Link to="/category/cutlery" className="single">Cutlery</Link></li>
-      <li className="single-list"><Link to="/category/cosmetics" className="single">Cosmetics</Link></li>
-      <li className="single-list"><Link to="/category/dance-tutor" className="single">Dance Tutor, Choreographer</Link></li>
-      <li className="single-list"><Link to="/category/yoga-instructor" className="single">Yoga Instructor</Link></li>
-      <li className="single-list"><Link to="/category/education-tutor" className="single">Education Tutor</Link></li>
-      <li className="single-list"><Link to="/category/music-teacher" className="single">Music Teacher</Link></li>
-      <li className="single-list"><Link to="/category/art-craft-teacher" className="single">Art & Craft Teacher</Link></li>
-      <li className="single-list"><Link to="/category/nursery-pottery" className="single">Nursery & Pottery</Link></li>
-      <li className="single-list"><Link to="/category/art-work" className="single">Art Work</Link></li>
-      <li className="single-list"><Link to="/category/babysitter" className="single">Babysitter or Pet Care</Link></li>
-      <li className="single-list"><Link to="/category/fabric-painting" className="single">Fabric Painting</Link></li>
-      <li className="single-list"><Link to="/category/canvas-painting" className="single">Canvas Painting</Link></li>
-    </ul>
-  </div>
-
-  {/* Column 2 */}
-  <div className="col-lg-6 col-md-6 col-sm-6">
-    <ul className="single-list">
-      {/* Vendor Payment */}
-
-      {/* Categories - Column 2 (12 items) */}
-      <li className="single-list"><Link to="/category/mehandi-art" className="single">Mehandi Art</Link></li>
-      <li className="single-list"><Link to="/category/catering" className="single">Catering</Link></li>
-      <li className="single-list"><Link to="/category/cook-on-call" className="single">Cook/Chef on Call</Link></li>
-      <li className="single-list"><Link to="/category/bakery-item" className="single">Bakery Item</Link></li>
-      <li className="single-list"><Link to="/category/food" className="single">Food (Namkeen, Sweets, Snacks)</Link></li>
-      <li className="single-list"><Link to="/category/gift-packaging" className="single">Gift & Packaging</Link></li>
-      <li className="single-list"><Link to="/category/anchor" className="single">Anchor</Link></li>
-      <li className="single-list"><Link to="/category/clothes" className="single">Clothes</Link></li>
-      <li className="single-list"><Link to="/category/jewellery" className="single">Jewellery</Link></li>
-      <li className="single-list"><Link to="/category/beauty-services" className="single">Beauty Services / Home Salon</Link></li>
-      <li className="single-list"><Link to="/category/music-artist" className="single">Music Artist</Link></li>
-    </ul>
-  </div>
+       <ul className="row submenu">
+  {Array.from({ length: 2 }, (_, colIndex) => (
+    <div className="col-lg-6 col-md-6 col-sm-6" key={colIndex}>
+      <ul className="single-list">
+        {categories
+          .filter((_, index) =>
+            colIndex === 0
+              ? index < Math.ceil(categories.length / 2)
+              : index >= Math.ceil(categories.length / 2)
+          )
+          .map((cat) => (
+            <li className="single-list" key={cat.slug}>
+              <Link to={`/${cat.slug}`} className="single">
+                {cat.name}
+              </Link>
+            </li>
+          ))}
+      </ul>
+    </div>
+  ))}
 </ul>
+
 
 
                           {/* <li className="single-list">
@@ -119,7 +126,7 @@ const Header = () => {
                         </a>
                         <ul className="submenu">
                           <li className="single-list">
-                            <a href="hotel-list.html" className="single">Blogs/Articles</a>
+                            <Link to="/blog" className="single">Blogs/Articles</Link>
                           </li>
                           
                         </ul>
@@ -217,4 +224,4 @@ const Header = () => {
   )
 }
 
-export default Header
+export default Header 
