@@ -17,7 +17,7 @@ const WebRoutes = (
     <Route path="/about" element={<About />} />
     <Route path="/contact" element={<Contact />} />
     <Route path="/gallery" element={<Gallery />} />
-    <Route path="/category" element={<Category/>}/>
+    <Route path="/:slug" element={<Category/>}/>
     <Route path='/blog' element={<Blog/>}/>
     <Route path="/registration" element={<Registration />} />
   </Route>
