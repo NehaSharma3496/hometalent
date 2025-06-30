@@ -210,11 +210,11 @@ a{
 #sidebar .sidebar-nav .nav-item a {
     color: #FFF;
     font-family: Lato;
-    font-size: 14px;
+    font-size: 17px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
-    letter-spacing: 1.12px;
+    
     
     display: flex;
     align-items: center;
@@ -3389,12 +3389,11 @@ a{
     margin: 0;
     color: #2278b6;
     font-family: Lato;
-    font-size: 15px;
+    font-size:20px;
     font-style: normal;
     font-weight: 800;
     line-height: normal;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
+  
 }
 
 
@@ -6138,4 +6137,12 @@ div#searchs ul li:not(:last-child) {
     position: absolute;
     bottom: 5px;
     width: 80%;
+}
+.rdt_TableHeadRow
+{
+background-color: #2278b6 !important; 
+}
+.rdt_TableCol
+{
+    color: #fff;
 }

@@ -1,5 +1,6 @@
 import React from 'react'
 import Breadcrumbs from '../components/websitecomponents/Breadcrumbs';
+import logo from '../assets/websiteAssets/images/logo/logo.png';
 
 
 const Registration = () => {
@@ -7,9 +8,16 @@ const Registration = () => {
   return (
    <div>
      
-       <section className="contact-area section-padding2">
-    <form className="container mt-4">
-      <div className="contact-card">
+       <section className="login-area section-padding2 ">
+
+    <form className="container mt-0">
+      
+      <div className="login-card">
+         <div className="logo mb-40 mx-auto w-50">
+                 <a href="index.html" className="mb-30 d-block mx-auto text-center">
+                   <img src={logo} alt="logo" className="changeLogo w-25" />
+                 </a>
+               </div>
     <div className="row">
       <div className="col-md-6 mb-3">
         <label htmlFor="ownerName" className="form-label">Owner Name*</label>
