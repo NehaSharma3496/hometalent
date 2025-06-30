@@ -142,7 +142,7 @@ export default function Allusers() {
     
 
   return (
-    <main id="main-content">
+   
         <div className="page-content">
 
             <div className="row align-items-center mb-3">
@@ -247,6 +247,6 @@ export default function Allusers() {
                 
         </div>
         </div>
-    </main>
+    
   )
 }

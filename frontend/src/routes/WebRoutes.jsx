@@ -7,6 +7,7 @@ import About from '../pages/website/About';
 import Contact from '../pages/website/Contact';
 import Gallery from '../pages/website/Gallery';
 import Registration from '../auth/Registration';
+import Category from '../pages/website/category/Category';
 
 
 const WebRoutes = (
@@ -15,7 +16,7 @@ const WebRoutes = (
     <Route path="/about" element={<About />} />
     <Route path="/contact" element={<Contact />} />
     <Route path="/gallery" element={<Gallery />} />
-   
+    <Route path="/category" element={<Category/>}/>
     <Route path="/registration" element={<Registration />} />
   </Route>
 );

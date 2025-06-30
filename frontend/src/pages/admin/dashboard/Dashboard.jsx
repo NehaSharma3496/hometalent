@@ -41,7 +41,7 @@ export default function Dashboard() {
 ];
 
   return (
-    <main id="main-content">
+  
         <div className="page-content">
 			<h1 className="page-heading">Dashboard</h1>
 			<div className='card'>
@@ -83,6 +83,6 @@ export default function Dashboard() {
 </div>
 		</div>
 		
-    </main>
+
   )
 }

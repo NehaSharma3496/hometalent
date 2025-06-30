@@ -9,7 +9,7 @@ const AdminLayout = () => {
   return (
     <>
       <AdminHeader />
-      <main>
+       <main id="main-content">
         <Outlet />
       </main>
     </>

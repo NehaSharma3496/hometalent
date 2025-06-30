@@ -5,17 +5,18 @@ const renderField = (field) => {
   switch (field.type) {
     case 'textarea':
       return (
+        
         <Field
           as="textarea"
           name={field.name}
           placeholder={field.placeholder}
-          className="form-control"
+          className="form-input form-control"
         />
       );
 
     case 'select':
       return (
-        <Field as="select" name={field.name} className="form-control">
+        <Field as="select" name={field.name} className="form-input form-control">
           <option value="">Select {field.label}</option>
           {field.options?.map((option) => (
             <option key={option.value} value={option.value}>
@@ -52,10 +53,10 @@ const renderField = (field) => {
       );
 case 'email':
       return (
-        <div className="form-check">
-          <Field type="emai" name={field.name} className="form-control" id={field.name} />
+      
+          <Field type="emai" name={field.name} className="form-input form-control" id={field.name} />
          
-        </div>
+        
       );
     default:
       return (
@@ -65,7 +66,7 @@ case 'email':
           type={field.type}
           name={field.name}
           placeholder={field.placeholder}
-          className="form-control"
+          className="form-input form-control"
         />
         </>
       );
@@ -74,18 +75,21 @@ case 'email':
 
 const ReusableForm = ({ initialValues, validationSchema, onSubmit, fields }) => {
   return (
-    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+    <Formik  initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {() => (
-        <Form className="row">
+        <Form className="row main-form">
           {fields.map((field) => (
             <div key={field.name} className={field.colClass || 'col-12 mb-3'}>
-              {field.type !== 'checkbox' && field.type !== 'radio' && (
-                <label htmlFor={field.name} className="form-label fw-semibold">
+                <div className='form-group'>
+              {/* {field.type !== 'checkbox' && field.type !== 'radio' && ( */}
+                <label htmlFor={field.name} className="input-label fw-semibold">
                   {field.label}
                 </label>
-              )}
+                
+              {/* )} */}
               {renderField(field)}
               <ErrorMessage name={field.name} component="div" className="text-danger small" />
+            </div>
             </div>
           ))}
 

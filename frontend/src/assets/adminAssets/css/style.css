@@ -1141,7 +1141,7 @@ a{
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-    margin-top: 30px;
+    /* margin-top: 30px; */
     margin-bottom: 10px;
     text-transform: capitalize;
     width: 100%;
@@ -1185,7 +1185,10 @@ a{
     line-height: normal;
     padding: 10px 20px;
 }
-
+.main-form .form-group
+{
+    margin:10px 0
+}
 .main-form select.form-input{
     height: 40px;
 }

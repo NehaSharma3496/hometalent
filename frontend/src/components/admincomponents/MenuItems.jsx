@@ -11,7 +11,7 @@ const Menuitems = [
     label: 'Users',
     children: [
       { label: 'All Users', link: '/admin/users/allusers' },
-      { label: 'Add User', link: '/users/add' },
+      { label: 'Add User', link: '/admin/users/adduser' },
       { label: 'Blocked Users', link: '/users/blocked' },
       { label: 'Feedback & Reviews', link: '/users/feedback' }
     ]
