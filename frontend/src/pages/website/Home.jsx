@@ -163,7 +163,7 @@ const Home = () => {
           </div>
           <div className="grid5-container">
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
+              <Link to="details-with-gallery.html" className="category-banner">
               
                 <img src={catImg1} alt="travello" />
                 <div className="category-content">
@@ -173,10 +173,10 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
+              <Link to="details-with-gallery.html" className="category-banner">
                 <img src={catImg2} alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
@@ -185,10 +185,10 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
+              <Link to="details-with-gallery.html" className="category-banner">
                 <img src={catImg3} alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
@@ -197,10 +197,10 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
+              <Link to="details-with-gallery.html" className="category-banner">
                 <img src={catImg4} alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
@@ -209,10 +209,10 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
+              <Link to="details-with-gallery.html" className="category-banner">
                 <img src={catImg5} alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15 py-3">
@@ -221,11 +221,11 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
          
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
+              <Link to="details-with-gallery.html" className="category-banner">
                 <img src={catImg6} alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
@@ -234,10 +234,10 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
+              <Link to="details-with-gallery.html" className="category-banner">
                 <img src={catImg7} alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-6">
@@ -247,10 +247,10 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href={catImg8} className="category-banner">
+              <Link to={catImg8} className="category-banner">
                 <img src={catImg8} alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
@@ -259,10 +259,10 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
+              <Link to="details-with-gallery.html" className="category-banner">
                 <img src={catImg9} alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
@@ -271,10 +271,10 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
+              <Link to="details-with-gallery.html" className="category-banner">
                 <img src={catImg10} alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15 py-3">
@@ -283,7 +283,7 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
           </div>
           <button className="btn-primary mx-auto d-block mt-4">
@@ -382,9 +382,9 @@ const Home = () => {
             <div className="col-xl-4 col-lg-4 col-sm-6">
               <article className="news-card-two">
                 <figure className="news-banner-two imgEffect">
-                  <a href="news-details.html">
+                  <Link to="news-details.html">
                     <img src={news1} alt="travello" />
-                  </a>
+                  </Link>
                 </figure>
                 <div className="news-content">
                   <div className="date d-lg-flex ">
@@ -397,7 +397,7 @@ const Home = () => {
                     </div>
                   </div>
                   <h4 className="title mb-2">
-                    <a href="news-details.html">Wedding arrangements</a>
+                    <Link to="news-details.html">Wedding arrangements</Link>
                   </h4>
 
                   <div className="news-description">
@@ -407,9 +407,9 @@ const Home = () => {
                     </p>
                   </div>
                   <div className="">
-                    <a href="news.html" className=" btn-primary-sm btn-primary">
+                    <Link to="news.html" className=" btn-primary-sm btn-primary">
                       Read More
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </article>
@@ -417,9 +417,9 @@ const Home = () => {
             <div className="col-xl-4 col-lg-4 col-sm-6">
               <article className="news-card-two">
                 <figure className="news-banner-two imgEffect">
-                  <a href="news-details.html">
+                  <Link to="news-details.html">
                     <img src={news2} alt="travello" />
-                  </a>
+                  </Link>
                 </figure>
                 <div className="news-content">
                   <div className="date d-lg-flex ">
@@ -432,7 +432,7 @@ const Home = () => {
                     </div>
                   </div>
                   <h4 className="title mb-2">
-                    <a href="news-details.html">Wedding arrangements</a>
+                    <Link to="news-details.html">Wedding arrangements</Link>
                   </h4>
 
                   <div className="news-description">
@@ -442,9 +442,9 @@ const Home = () => {
                     </p>
                   </div>
                   <div className="">
-                    <a href="news.html" className=" btn-primary-sm btn-primary">
+                    <Link to="news.html" className=" btn-primary-sm btn-primary">
                       Read More
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </article>
@@ -452,9 +452,9 @@ const Home = () => {
             <div className="col-xl-4 col-lg-4 col-sm-6">
               <article className="news-card-two">
                 <figure className="news-banner-two imgEffect">
-                  <a href="news-details.html">
+                  <Link to="news-details.html">
                     <img src={news3} alt="travello" />
-                  </a>
+                  </Link>
                 </figure>
                   <div className="news-content">
                   <div className="date d-lg-flex ">
@@ -467,7 +467,7 @@ const Home = () => {
                     </div>
                   </div>
                   <h4 className="title mb-2">
-                    <a href="news-details.html">Wedding arrangements</a>
+                    <Link to="news-details.html">Wedding arrangements</Link>
                   </h4>
 
                   <div className="news-description">
@@ -477,9 +477,9 @@ const Home = () => {
                     </p>
                   </div>
                   <div className="">
-                    <a href="news.html" className=" btn-primary-sm btn-primary">
+                    <Link to="news.html" className=" btn-primary-sm btn-primary">
                       Read More
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </article>

@@ -35148,7 +35148,7 @@ td .user .thumb {
 /* styles.css or inside a styled component */
 .grid5-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   padding: 1rem;
 }

@@ -14,17 +14,20 @@ import catImg10 from '../../.././assets/websiteAssets/images/category/image-9.pn
 import news1  from '../../.././assets/websiteAssets/images/news/image-1.png';
 import news2  from '../../.././assets/websiteAssets/images/news/image-2.png';
 import news3  from '../../.././assets/websiteAssets/images/news/image-3.png';  
+import { useParams } from 'react-router-dom';
 
 
 const Category = () => {
+const { slug } = useParams();
+
 const breadcrumbLinks = [
     { label: "Home", to: "/" },
-    { label: "Vendor", to: "#" }, // or current route
+    { label: slug , to: "#" }, // or current route
   ];
-
+ 
   return (
     <div>
-              <Breadcrumbs title="Vendor" links={breadcrumbLinks} />
+              <Breadcrumbs title={ slug } links={breadcrumbLinks} />
         <section className="tour-list-section top-bottom-padding2">
   <div className="container">
     <div className="row g-4">
