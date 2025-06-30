@@ -19,7 +19,7 @@ const WebRoutes = (
     <Route path="/gallery" element={<Gallery />} />
     <Route path="/:slug" element={<Category/>}/>
     <Route path='/blog' element={<Blog/>}/>
-    <Route path="/registration" element={<Registration />} />
+   
   </Route>
 );
 

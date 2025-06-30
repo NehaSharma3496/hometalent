@@ -3,13 +3,10 @@ import Breadcrumbs from '../components/websitecomponents/Breadcrumbs';
 
 
 const Registration = () => {
-   const breadcrumbLinks = [
-    { label: "Home", to: "/" },
-    { label: "Register", to: "#" }, // or current route
-  ];
+
   return (
    <div>
-       <Breadcrumbs title="Register" links={breadcrumbLinks} /> 
+     
        <section className="contact-area section-padding2">
     <form className="container mt-4">
       <div className="contact-card">
