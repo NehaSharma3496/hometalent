@@ -5,31 +5,6 @@ import logo from '../../assets/websiteAssets/images/logo/logo.png';
 
 const Header = () => {
 
-const categories = [
-  { name: "Cutlery", slug: "cutlery" },
-  { name: "Cosmetics", slug: "cosmetics" },
-  { name: "Dance Tutor, Choreographer", slug: "dance-tutor" },
-  { name: "Yoga Instructor", slug: "yoga-instructor" },
-  { name: "Education Tutor", slug: "education-tutor" },
-  { name: "Music Teacher", slug: "music-teacher" },
-  { name: "Art & Craft Teacher", slug: "art-craft-teacher" },
-  { name: "Nursery & Pottery", slug: "nursery-pottery" },
-  { name: "Art Work", slug: "art-work" },
-  { name: "Babysitter or Pet Care", slug: "babysitter" },
-  { name: "Fabric Painting", slug: "fabric-painting" },
-  { name: "Canvas Painting", slug: "canvas-painting" },
-  { name: "Mehandi Art", slug: "mehandi-art" },
-  { name: "Catering", slug: "catering" },
-  { name: "Cook/Chef on Call", slug: "cook-on-call" },
-  { name: "Bakery Item", slug: "bakery-item" },
-  { name: "Food (Namkeen, Sweets, Snacks)", slug: "food" },
-  { name: "Gift & Packaging", slug: "gift-packaging" },
-  { name: "Anchor", slug: "anchor" },
-  { name: "Clothes", slug: "clothes" },
-  { name: "Jewellery", slug: "jewellery" },
-  { name: "Beauty Services / Home Salon", slug: "beauty-services" },
-  { name: "Music Artist", slug: "music-artist" },
-];
 
 
   return (
@@ -84,9 +59,10 @@ const categories = [
           )
           .map((cat) => (
             <li className="single-list" key={cat.slug}>
-              <Link to={`/${cat.slug}`} className="single">
-                {cat.name}
-              </Link>
+             
+              
+             <Link to={`/category/${cat.slug}`} className="single">  {cat.name}</Link>
+
             </li>
           ))}
       </ul>
