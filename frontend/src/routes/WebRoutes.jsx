@@ -12,6 +12,8 @@ import Blog from '../pages/website/weddingVogue/Blog';
 import Faq from '../pages/website/Faq';
 import PrivacyPolicy from '../pages/website/PrivacyPolicy';
 import TermsCondition from '../pages/website/TermsCondition';
+import CategoryDetail from '../pages/website/category/CategoryDetail';
+import BlogDetail from '../pages/website/weddingVogue/BlogDetail';
 
 
 const WebRoutes = (
@@ -26,6 +28,9 @@ const WebRoutes = (
     <Route path="/faq" element={<Faq/>}/>
     <Route path="/privacypolicy" element={<PrivacyPolicy/>}/>
     <Route path="/termscondition" element={< TermsCondition/>}/>
+    <Route path="/categorydetail/:slug" element={<CategoryDetail/>}/>
+    <Route path='/blogdetail/:id' element={<BlogDetail/>}/>
+     <Route path="*" element={<Home />} />
   </Route>
 );
 
