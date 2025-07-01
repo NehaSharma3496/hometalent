@@ -9,6 +9,9 @@ import Gallery from '../pages/website/Gallery';
 import Registration from '../auth/Registration';
 import Category from '../pages/website/category/Category';
 import Blog from '../pages/website/weddingVogue/Blog';
+import Faq from '../pages/website/Faq';
+import PrivacyPolicy from '../pages/website/PrivacyPolicy';
+import TermsCondition from '../pages/website/TermsCondition';
 
 
 const WebRoutes = (
@@ -20,6 +23,9 @@ const WebRoutes = (
     <Route path="/:slug" element={<Category/>}/>
     <Route path='/blog' element={<Blog/>}/>
     <Route path="/registration" element={<Registration />} />
+    <Route path="/faq" element={<Faq/>}/>
+    <Route path="/privacypolicy" element={<PrivacyPolicy/>}/>
+    <Route path="/termscondition" element={< TermsCondition/>}/>
   </Route>
 );
 

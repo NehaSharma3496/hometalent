@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import facebook from "../../assets/websiteAssets/images/footer/facebook.png";
 import twitter from "../../assets/websiteAssets/images/footer/twitter.png";   
 import instagram from "../../assets/websiteAssets/images/footer/instagram.png";
@@ -78,7 +79,7 @@ const Footer = () => {
                         <a href="contact.html">Feedback</a>
                       </li>
                       <li className="single-lsit">
-                        <a href="contact.html">FAQs</a>
+                        <Link to="/faq">FAQs</Link>
                       </li>
                       <li className="single-lsit">
                         <a href="contact.html">Gallery</a>
@@ -147,12 +148,13 @@ const Footer = () => {
                     HomeTalent4u All Rights Reserved reserved
                   </p>
                   <div className="footer-menu d-flex gap-20">
-                    <a href="index.html">
-                      <p className="pera">Terms and conditions</p>
-                    </a>
-                    <a href="index.html">
+                    <Link to="/termscondition">
+                      <p className="pera">
+                        Terms and conditions</p>
+                    </Link>
+                    <Link to="/privacypolicy">
                       <p className="pera">Privacy policy</p>
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
