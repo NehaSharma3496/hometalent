@@ -1,6 +1,6 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
-import {categories} from '../../../components/websitecomponents/Header'
+
 import Breadcrumbs from '../../../components/websitecomponents/Breadcrumbs';
 import catImg1 from '../../.././assets/websiteAssets/images/category/image.png';
 import catImg2 from '../../.././assets/websiteAssets/images/category/image-1.png';
@@ -18,7 +18,7 @@ import news3  from '../../.././assets/websiteAssets/images/news/image-3.png';
 import { useParams, Navigate } from 'react-router-dom';
 
 
-const Category = () => {
+const Category = ({ categories }) => {
 const { slug } = useParams();
 
   const category = categories.find(cat => cat.slug === slug);
