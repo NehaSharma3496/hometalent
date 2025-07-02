@@ -24,7 +24,7 @@ const { slug } = useParams();
   const category = categories.find(cat => cat.slug === slug);
 
   if (!category) {
-    return <Navigate to="/" />;
+    return <Navigate to="*" />;
   }
 
 const breadcrumbLinks = [
