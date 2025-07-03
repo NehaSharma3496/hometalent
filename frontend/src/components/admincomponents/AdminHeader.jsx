@@ -6,8 +6,13 @@ import userimg from '../../assets/adminAssets/images/user-img.png'
 import MenuItems from '../admincomponents/MenuItems.jsx'
 
 export default function AdminHeader() {
+
+  const role = localStorage.getItem('role') || 'admin'; // or useContext/auth
+
+  const MenuData = MenuItems[role]; // Get only relevant menu array
+
      const [sidebarToggled, setSidebarToggled] = useState(false);
-// Auto-toggle on mobile
+
 
 
 
@@ -78,34 +83,39 @@ export default function AdminHeader() {
 
       <aside id="sidebar">
      
-      <ul className="sidebar-nav">
-        {MenuItems.map((item, idx) => (
-          <li key={idx} className={`nav-item ${item.children ? 'menu-dropdown' : ''}`}>
-            {item.children ? (
-              <>
-                <Link to="#" className="dropdown-menu-link dropdown-toggle" data-bs-toggle="dropdown">
-                  <div>
-                    <i className={item.icon}></i>
-                    <span>{item.label}</span>
-                  </div>
-                  <i className="fa-regular fa-angle-down"></i>
-                </Link>
-                <ul className="sub-menu dropdown-menu">
-                  {item.children.map((child, cIdx) => (
-                    <li key={cIdx}><Link to={child.link}>{child.label}</Link></li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <Link to={item.link}>
-                <i className={item.icon}></i>
-                <span>{item.label}</span>
+    <ul className="sidebar-nav">
+      {MenuData.map((item, idx) => (
+        <li key={idx} className={`nav-item ${item.children ? 'menu-dropdown' : ''}`}>
+          {item.children ? (
+            <>
+              <Link
+                to="#"
+                className="dropdown-menu-link dropdown-toggle"
+                data-bs-toggle="dropdown"
+              >
+                <div>
+                  <i className={item.icon}></i>
+                  <span>{item.label}</span>
+                </div>
+                <i className="fa-regular fa-angle-down"></i>
               </Link>
-            )}
-          </li>
-          
-        ))}
-      </ul>
+              <ul className="sub-menu dropdown-menu">
+                {item.children.map((child, cIdx) => (
+                  <li key={cIdx}>
+                    <Link to={child.link}>{child.label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <Link to={item.link}>
+              <i className={item.icon}></i>
+              <span>{item.label}</span>
+            </Link>
+          )}
+        </li>
+      ))}
+    </ul>
       <img src={footerlogo} className="footer-logo" />
     </aside>
     </>

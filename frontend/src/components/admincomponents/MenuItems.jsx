@@ -1,6 +1,8 @@
 // src/config/menuConfig.js
 
-const Menuitems = [
+export const  MenuItems = {
+
+   admin:[
   {
     icon: 'fa-solid fa-grid-2',
     label: 'Dashboard',
@@ -116,6 +118,26 @@ const Menuitems = [
   //   label: 'Logout',
   //   link: '/logout'
   // }
-];
 
-export default Menuitems;
+
+],
+vendor:[
+  {
+    icon: 'fa-solid fa-grid-2',
+    label: 'Dashboard',
+    link: '/vendor/dashboard'
+  },
+  {
+    icon: 'fa-solid fa-user',
+    label: 'Users',
+    children: [
+      { label: 'All Users', link: '/vendor/users/allusers' },
+      { label: 'Add User', link: '/vendor/users/adduser' },
+      { label: 'Blocked Users', link: '/users/blocked' },
+      { label: 'Feedback & Reviews', link: '/users/feedback' }
+    ]
+  },
+  
+]
+}
+  export default MenuItems;
