@@ -1,43 +1,37 @@
 import React from 'react'
+import catImg1 from '../../.././assets/websiteAssets/images/category/image.png'
+import Breadcrumbs from '../../../components/websitecomponents/Breadcrumbs'
 
 const CategoryDetail = () => {
+ const breadcrumbLinks = [
+    { label: "Home", to: "/" },
+    { label: "Category Detail", to: "#" }, // or current route
+  ];
+
   return (
-    <div>       <section className="tour-details-section section-padding2">
+    <div>    
+           <Breadcrumbs title="Category Detail" links={breadcrumbLinks} /> 
+         <section className="tour-details-section section-padding">
     <div className="tour-details-area">
       {/* Details Banner Slider */}
-      <div className="tour-details-banner">
-        <div className="swiper tourSwiper-active">
-          <div className="swiper-wrapper">
-            <div className="swiper-slide">
-              <img src="assets/images/gallery/tour-details-banner-three.png" alt="travello" />
-            </div>
-            <div className="swiper-slide">
-              <img src="assets/images/gallery/tour-details-banner.png" alt="travello" />
-            </div>
-            <div className="swiper-slide">
-              <img src="assets/images/gallery/tour-details-banner-two.png" alt="travello" />
-            </div>
-            <div className="swiper-slide">
-              <img src="assets/images/gallery/tour-details-banner-three.png" alt="travello" />
-            </div>
-            <div className="swiper-slide">
-              <img src="assets/images/gallery/tour-details-banner.png" alt="travello" />
-            </div>
-            <div className="swiper-slide">
-              <img src="assets/images/gallery/tour-details-banner-two.png" alt="travello" />
-            </div>
-          </div>
-          <div className="swiper-button-next"><i className="ri-arrow-right-s-line" /></div>
-          <div className="swiper-button-prev"><i className="ri-arrow-left-s-line" /></div>
-        </div>
-      </div>
+  
       {/* / Slider*/}
       <div className="tour-details-container">
         <div className="container">
+          
           {/* Details Heading */}
-          <div className="details-heading">
+          
+          {/* / Details Heading */}
+       
+          <div className="mt-30">
+            <div className="row g-4">
+              {/* Left content */}
+              <div className="col-xl-8 col-lg-7">
+
+<div className="details-heading">
             <div className="d-flex flex-column">
-              <h4 className="title text-capitalize">Travello Tour - Best of Samyan Bangkok</h4>
+              <img src={catImg1} className='w-100'/>
+              <h4 className="title text-capitalize mt-5">Travello Tour - Best of Samyan Bangkok</h4>
               <div className="d-flex flex-wrap align-items-center gap-30 mt-16">
                 <div className="location">
                   <i className="ri-map-pin-line" />
@@ -56,22 +50,9 @@ const CategoryDetail = () => {
                 </div>
               </div>
             </div>
-            <div className="price-review">
-              <div className="d-flex gap-10 align-items-end">
-                <p className="light-pera">From</p>
-                <p className="pera">$451</p>
-              </div>
-              <div className="rating">
-                <i className="ri-star-s-fill" />
-                <p className="pera">4.7 (20 Reviews)</p>
-              </div>
-            </div>
+         
           </div>
-          {/* / Details Heading */}
-          <div className="mt-30">
-            <div className="row g-4">
-              {/* Left content */}
-              <div className="col-xl-8 col-lg-7">
+
                 {/* About tour */}
                 <div className="tour-details-content">
                   <h4 className="title">About</h4>
@@ -314,7 +295,8 @@ const CategoryDetail = () => {
               </div>
               {/* Right content */}
               <div className="col-xl-4 col-lg-5">
-                <div className="date-travel-card position-sticky top-0">
+
+         <div className="date-travel-card position-sticky top-0">
                   <div className="price-review">
                     <div className="d-flex gap-10 align-items-end">
                       <p className="light-pera">From</p>
@@ -399,10 +381,10 @@ const CategoryDetail = () => {
                     <p className="pera">Up to 24 hours in advance</p>
                   </div>
                 </div>
-              </div>
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   </section></div>

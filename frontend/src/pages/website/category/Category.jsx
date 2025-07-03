@@ -63,9 +63,9 @@ const breadcrumbLinks = [
             <div className="col-xl-4 col-lg-4 col-sm-6">
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
-                  <a href="hotel-details-with-slider.html">
+                  <Link to="/categorydetail">
                     <img src={catImg1} alt="travello" />
-                  </a>
+                  </Link>
                   <div className="rating-badge-car">
                     <div className="rating">
                       <i className="ri-star-s-fill" />
@@ -75,7 +75,8 @@ const breadcrumbLinks = [
                 </div>
                 <div className="hotel-content">
                   <h4 className="area-name">
-                    <a href="hotel-details-with-slider.html">Sunny Sands | Miami Beach</a>
+                     <Link to="/categorydetail">Sunny Sands | Miami Beach</Link>
+                  
                   </h4>
                   <div className="location">
                     <i className="ri-map-pin-line" />
@@ -120,9 +121,9 @@ const breadcrumbLinks = [
             <div className="col-xl-4 col-lg-4 col-sm-6">
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
-                  <a href="hotel-details-with-slider.html">
+                 <Link to="/categorydetail">
                     <img src={catImg2} alt="travello" />
-                  </a>
+                  </Link>
                   <div className="rating-badge-car">
                     <div className="rating">
                       <i className="ri-star-s-fill" />
@@ -132,7 +133,7 @@ const breadcrumbLinks = [
                 </div>
                 <div className="hotel-content">
                   <h4 className="area-name">
-                    <a href="hotel-details-with-slider.html">Mountain Escape | Swiss Alps</a>
+                 <Link to="/categorydetail">Mountain Escape | Swiss Alps</Link>
                   </h4>
                   <div className="location">
                     <i className="ri-map-pin-line" />

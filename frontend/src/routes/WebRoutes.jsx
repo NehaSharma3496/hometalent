@@ -29,8 +29,8 @@ const WebRoutes = (
     <Route path="/faq" element={<Faq/>}/>
     <Route path="/privacypolicy" element={<PrivacyPolicy/>}/>
     <Route path="/termscondition" element={< TermsCondition/>}/>
-    <Route path="/categorydetail/:slug" element={<CategoryDetail/>}/>
-    <Route path='/blogdetail/:id' element={<BlogDetail/>}/>
+    <Route path="/categorydetail" element={<CategoryDetail/>}/>
+    <Route path='/blogdetail' element={<BlogDetail/>}/>
      <Route path="/:slug" element={<Category categories={categories} />} />
     
   </Route>

@@ -16164,7 +16164,7 @@ object {
 
 /*-- Section Padding -- */
 .section-padding {
-  padding-top: 98px;
+  padding-top: 50px;
   padding-bottom: 98px;
 }
 @media (max-width: 991px) {
@@ -29079,7 +29079,7 @@ line-height: 30px; /* 230.769% */
 }
 
 .tour-details-container .details-heading {
-  padding-top: 40px;
+  /* padding-top: 40px; */
   padding-bottom: 32px;
   border-bottom: 1px solid var(--tertiary-border);
   display: -webkit-box;
