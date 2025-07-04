@@ -150,7 +150,7 @@ const Home = () => {
           </div>
           <div className="grid5-container">
             <div className="grid-item ">
-              <Link to="details-with-gallery.html" className="category-banner">
+              <Link to="/categorydetail" className="category-banner">
               
                 <img src='../assets/images//category/image.png' alt="travello" />
                 <div className="category-content">
@@ -163,7 +163,7 @@ const Home = () => {
               </Link>
             </div>
             <div className="grid-item ">
-              <Link to="details-with-gallery.html" className="category-banner">
+              <Link to="/categorydetail" className="category-banner">
                 <img src='../assets/images//category/image-1.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
@@ -175,7 +175,7 @@ const Home = () => {
               </Link>
             </div>
             <div className="grid-item ">
-              <Link to="details-with-gallery.html" className="category-banner">
+              <Link to="/categorydetail" className="category-banner">
                 <img src='../assets/images//category/image-2.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
@@ -187,7 +187,7 @@ const Home = () => {
               </Link>
             </div>
             <div className="grid-item ">
-              <Link to="details-with-gallery.html" className="category-banner">
+              <Link to="/categorydetail" className="category-banner">
                 <img src='../assets/images//category/image-3.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
@@ -199,7 +199,7 @@ const Home = () => {
               </Link>
             </div>
             <div className="grid-item ">
-              <Link to="details-with-gallery.html" className="category-banner">
+              <Link to="/categorydetail" className="category-banner">
                 <img src='../assets/images//category/image-4.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15 py-3">
@@ -212,7 +212,7 @@ const Home = () => {
             </div>
          
             <div className="grid-item ">
-              <Link to="details-with-gallery.html" className="category-banner">
+              <Link to="/categorydetail" className="category-banner">
                 <img src='../assets/images//category/image-5.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
@@ -224,7 +224,7 @@ const Home = () => {
               </Link>
             </div>
             <div className="grid-item ">
-              <Link to="details-with-gallery.html" className="category-banner">
+              <Link to="/categorydetail" className="category-banner">
                 <img src='../assets/images//category/image-6.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-6">
@@ -237,7 +237,7 @@ const Home = () => {
               </Link>
             </div>
             <div className="grid-item ">
-              <Link to='../assets/images//category/image-7.png' className="category-banner">
+              <Link to='/categorydetail' className="category-banner">
                 <img src='../assets/images//category/image-7.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
@@ -249,7 +249,7 @@ const Home = () => {
               </Link>
             </div>
             <div className="grid-item ">
-              <Link to="details-with-gallery.html" className="category-banner">
+              <Link to="/categorydetail" className="category-banner">
                 <img src='../assets/images//category/image-8.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
@@ -261,7 +261,7 @@ const Home = () => {
               </Link>
             </div>
             <div className="grid-item ">
-              <Link to="details-with-gallery.html" className="category-banner">
+              <Link to="/categorydetail" className="category-banner">
                 <img src='../assets/images//category/image-9.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15 py-3">

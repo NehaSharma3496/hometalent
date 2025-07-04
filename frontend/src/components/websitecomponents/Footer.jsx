@@ -18,7 +18,7 @@ const Footer = () => {
                         <a href="#">
                           <div className="d-flex gap-12 align-items-center">
                             <img
-                              src="assets/websiteAssets/images/footer/map.png"
+                              src="../assets/images/footer/map.png"
                               alt="location"
                               width="20"
                               height="20"
@@ -31,7 +31,7 @@ const Footer = () => {
                         <a href="#">
                           <div className="d-flex gap-12 align-items-center">
                             <img
-                              src="assets/websiteAssets/images/footer/phone.png"
+                              src="../assets/images/footer/phone.png"
                               alt="phone"
                               width="20"
                               height="20"
@@ -44,7 +44,7 @@ const Footer = () => {
                         <a href="#">
                           <div className="d-flex gap-12 align-items-center">
                             <img
-                              src="assets/websiteAssets/images/footer/email.png"
+                              src="../assets/images/footer/email.png"
                               alt="email"
                               width="20"
                               height="20"
@@ -92,7 +92,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="index.html">
                           <img
-                            src='../assets/images//footer/facebook.png'
+                            src='../assets/images/footer/facebook.png'
                             alt="facebook"
                           />
                         </a>
@@ -100,7 +100,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="about.html">
                           <img
-                            src='../assets/images//footer/twitter.png'
+                            src='../assets/images/footer/twitter.png'
                             alt="twitter"
                           />
                         </a>
@@ -108,7 +108,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="contact.html">
                           <img
-                            src='../assets/images//footer/youtube.png'
+                            src='../assets/images/footer/youtube.png'
                             alt="youtube"
                           />
                         </a>
@@ -116,7 +116,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="contact.html">
                           <img
-                            src='../assets/images//footer/instagram.png'
+                            src='../assets/images/footer/instagram.png'
                             alt="instagram"
                           />
                         </a>
@@ -125,7 +125,7 @@ const Footer = () => {
                   </div>
                 </div>
                 <div className="footer-image float-lg-end">
-                  <img src='../assets/images//footer/footer-img.png' alt="footer" />
+                  <img src='../assets/images/footer/footer-img.png' alt="footer" />
                 </div>
               </div>
             </div>
