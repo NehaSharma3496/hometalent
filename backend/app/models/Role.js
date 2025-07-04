@@ -12,13 +12,13 @@ const Role = sequelize.define('Role', {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-        comment: 'e.g., Admin, User, Vendor, etc.',
+        comment: 'e.g., Admin,Vendor.',
     },
     role: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-        comment: 'e.g., Admin, User, Vendor, etc.',
+        comment: 'e.g., Admin, Vendor.',
     },
     status: {
         type: DataTypes.INTEGER,

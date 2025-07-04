@@ -7,83 +7,91 @@ const User = sequelize.define('User', {
         primaryKey: true,
         autoIncrement: true,
     },
-    first_name: {
+    owner_name: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    last_name: {
+    profile_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    state_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'states',
+            key: 'id',
+        },
+    },
+    city_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'cities',
+            key: 'id',
+        },
+    },
+    pin_code: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+        defaultValue: null,
+    },
+    phone: {
         type: DataTypes.STRING,
         allowNull: false,
     },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
-        validate: {
-            isEmail: true,
-        },
     },
     password: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     },
-    phone: {
+    price_range: {
         type: DataTypes.STRING,
+        allowNull: true,
+    },
+    short_description: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    category_id: {
+        type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+            model: 'categories',
+            key: 'id',
+        },
+    },
+    experience_since: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    long_description: {
+        type: DataTypes.TEXT("long"),
+        allowNull: true,
+    },
+    image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    video: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    social_media_link: {
+       type: DataTypes.TEXT("long"),
+       allowNull: true,
     },
     role_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 2, // Assuming 2 is 'User'
+        defaultValue: 2, // Assuming 2 is 'Vendor'
         references: {
             model: 'roles',
             key: 'id',
         },
-    },
-    kyc_verified: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-    },
-    wallet_balance: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false,
-        defaultValue: 0.00,
-    },
-    date_of_birth: {
-        type: DataTypes.DATEONLY,
-        allowNull: true,
-        defaultValue: null,
-    },
-    gender: {
-        type: DataTypes.STRING(20),
-        allowNull: true,
-        defaultValue: null,
-    },
-    profile_picture_url: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-        defaultValue: null,
-    },
-    last_login_at: {
-        type: DataTypes.DATE,
-        allowNull: true,
-        defaultValue: null,
-
-    },
-    verification_status: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
-    web_token: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-        defaultValue: null,
-    },
-    app_token: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-        defaultValue: null,
     },
     status: {
         type: DataTypes.INTEGER,
@@ -102,11 +110,13 @@ const User = sequelize.define('User', {
 
 User.associate = (models) => {
     User.belongsTo(models.Role, { foreignKey: 'role_id' });
-    User.hasMany(models.Order, { foreignKey: 'user_id' });
-    User.hasMany(models.Category, { foreignKey: 'user_id' });
-    User.hasMany(models.Product, { foreignKey: 'user_id' });
-    User.hasMany(models.Store, { foreignKey: 'user_id' });
-    User.hasMany(models.ActivityLogs, { foreignKey: 'user_id' });
+    User.belongsTo(models.State, { foreignKey: 'state_id' });
+    User.belongsTo(models.City, { foreignKey: 'City_id' });
+    // User.hasMany(models.Order, { foreignKey: 'user_id' });
+    User.belongsTo(models.Category, { foreignKey: 'category_id' });
+    // User.hasMany(models.Product, { foreignKey: 'user_id' });
+    // User.hasMany(models.Store, { foreignKey: 'user_id' });
+    // User.hasMany(models.ActivityLogs, { foreignKey: 'user_id' });
     
 };
 
