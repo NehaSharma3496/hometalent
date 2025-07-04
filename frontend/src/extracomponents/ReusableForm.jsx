@@ -25,7 +25,37 @@ const renderField = (field) => {
           ))}
         </Field>
       );
+ case 'multiSelect': // ✅ multi-select dropdown
+      const MultiSelect = ({ field }) => {
+        const [formikField, , helpers] = useField(field.name);
 
+        const handleChange = (e) => {
+          const selectedValues = Array.from(e.target.selectedOptions, option => option.value);
+          helpers.setValue(selectedValues);
+        };
+
+        return (
+          <>
+            <select
+              name={field.name}
+              multiple
+              className="form-input form-control"
+              value={formikField.value}
+              onChange={handleChange}
+            >
+              {field.options.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <small className="text-muted">Hold Ctrl or Cmd to select multiple</small>
+          </>
+        );
+      };
+
+      return <MultiSelect field={field} />;
+      
     case 'radio':
       return field.options?.map((option) => (
         <div key={option.value} className="form-check form-check-inline">

@@ -15419,6 +15419,11 @@ table tbody .border-bottom-warning td {
   background: linear-gradient(90deg, #aa3475, #cb7326 99%);
 }
 
+
+main {
+    padding-top: 101px;
+}
+
 /*-------------  Color Witch Class Name  --------------*/
 .section-bg-one {
   background: var(--section-bg-one) !important;
@@ -16622,7 +16627,7 @@ object {
 }
 
 /* Sticky*/
-/* .sticky-bar {
+.sticky-bar {
   left: 0;
   margin: auto;
   position: fixed;
@@ -16634,7 +16639,7 @@ object {
   -webkit-animation: 300ms ease-in-out 0s normal none 1 running fadeInDown;
   animation: 300ms ease-in-out 0s normal none 1 running fadeInDown;
   -webkit-box-shadow: 0 10px 15px rgba(25, 25, 25, 0.1);
-} */
+}
 
 /* Sticky end */
 .lineBreak {
@@ -20004,9 +20009,9 @@ button.applyBtn.btn.btn-sm.btn-primary {
   background-color: var(--white);
 }
 @media (max-width: 991px) {
-  .header-sticky.sticky-bar {
+  /* .header-sticky.sticky-bar {
     display: none;
-  }
+  } */
 }
 .header-sticky.sticky-bar .main-menu .listing .single-list .active {
   background-color: var(--white);

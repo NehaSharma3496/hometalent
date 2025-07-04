@@ -38,7 +38,7 @@ const Header = () => {
     <header className="header-area-three">
   <div className="main-header">
     {/* Header Top */}
-    <div className="header-top header-sticky">
+    <div className="header-top header-sticky sticky-bar">
       <div className="container">
         <div className="row">
           <div className="col-lg-12">
@@ -188,7 +188,7 @@ const Header = () => {
       </div>
     </div>
     {/* Header Bottom */}
-    <div className="header-bottom header-sticky">
+    <div className="header-bottom header-sticky sticky-bar">
       <div className="container">
         <div className="row">
           <div className="col-lg-12">
