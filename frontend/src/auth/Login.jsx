@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logo from '../assets/websiteAssets/images/logo/logo.png';
+
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -34,7 +34,7 @@ const Login = () => {
           {/* Logo */}
           <div className="logo mb-40">
             <a href="index.html" className="mb-30 d-block">
-              <img src={logo} alt="logo" className="changeLogo w-25" />
+              <img src='../assets/images//logo/logo.png' alt="logo" className="changeLogo w-25" />
             </a>
           </div>
           {/* Form */}

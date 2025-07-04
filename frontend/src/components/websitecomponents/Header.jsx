@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import logo from '../../assets/websiteAssets/images/logo/logo.png';
+
 
 
 export const categories = [
@@ -45,7 +45,7 @@ const Header = () => {
             <div className="top-menu-wrapper d-flex align-items-center justify-content-between">
               <div className="top-header-right">
                 <div className="logo">
-                <a href="index.html"><img src={logo}  width="100" alt="logo" className="changeLogo" /></a>
+                <a href="index.html"><img src='../assets/images//logo/logo.png'  width="100" alt="logo" className="changeLogo" /></a>
               </div>
               </div>
               {/* Top Left Side */}
@@ -197,7 +197,7 @@ const Header = () => {
             <div className="div">
                <div className=" d-block d-lg-none">
                  <div className="logo mt-3">
-                <a href="index.html"><img src={logo}  width="100" alt="logo" className="changeLogo" /></a>
+                <a href="index.html"><img src='../assets/images//logo/logo.png'  width="100" alt="logo" className="changeLogo" /></a>
               </div>
               </div>
               <div className="mobile_menu d-block d-lg-none" />

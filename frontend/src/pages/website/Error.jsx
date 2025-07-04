@@ -1,5 +1,5 @@
 import React from 'react'
-import errorimg from '../../assets/websiteAssets/images/404_page-not-found.png';
+
 import { Link } from 'react-router-dom';
 
 
@@ -9,7 +9,7 @@ const Error = () => {
   <div><div className="error-container">
     <div className="main-content">
       <div className="left-content lg-none">
-        <img src={errorimg} alt="img" className="error-image" />
+        <img src='../assets/images//404_page-not-found.png' alt="img" className="error-image" />
       </div>
       <div className="right-content lg-w-100">
         <h1 className="error-sign">404</h1>

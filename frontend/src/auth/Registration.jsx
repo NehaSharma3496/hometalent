@@ -1,6 +1,6 @@
 import React from 'react'
 import Breadcrumbs from '../components/websitecomponents/Breadcrumbs';
-import logo from '../assets/websiteAssets/images/logo/logo.png';
+
 import ReusableForm from '../extracomponents/ReusableForm';
 import * as Yup from 'yup';
 

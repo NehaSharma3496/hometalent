@@ -1,5 +1,5 @@
 import React from 'react'
-import catImg1 from '../../.././assets/websiteAssets/images/category/image.png'
+
 import Breadcrumbs from '../../../components/websitecomponents/Breadcrumbs'
 
 const CategoryDetail = () => {
@@ -30,7 +30,7 @@ const CategoryDetail = () => {
 
 <div className="details-heading">
             <div className="d-flex flex-column">
-              <img src={catImg1} className='w-100'/>
+              <img src='../assets/images//category/image.png' className='w-100'/>
               <h4 className="title text-capitalize mt-5">Travello Tour - Best of Samyan Bangkok</h4>
               <div className="d-flex flex-wrap align-items-center gap-30 mt-16">
                 <div className="location">

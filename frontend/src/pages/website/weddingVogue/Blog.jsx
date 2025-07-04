@@ -2,7 +2,7 @@ import React from 'react'
 import {Link} from 'react-router-dom'
 import Breadcrumbs from '../../../components/websitecomponents/Breadcrumbs'
 
-import news from '../../.././assets/websiteAssets/images/news/banner-1.png';
+
  
 const Blog = () => {
 const breadcrumbLinks = [
@@ -22,7 +22,7 @@ const breadcrumbLinks = [
         <article className="news-card-two">
           <figure className="news-banner-two imgEffect">
             <Link to="/blogdetail">
-              <img src={news} alt="travello" />
+              <img src='../assets/images//news/banner-1.png' alt="travello" />
             </Link>
           </figure>
           <div className="news-content">
@@ -42,7 +42,7 @@ const breadcrumbLinks = [
         <article className="news-card-two">
           <figure className="news-banner-two imgEffect">
             <Link to="/blogdetail">
-              <img src={news} alt="travello" />
+              <img src='../assets/images//news/banner-1.png' alt="travello" />
             </Link>
           </figure>
           <div className="news-content">
@@ -62,7 +62,7 @@ const breadcrumbLinks = [
         <article className="news-card-two">
           <figure className="news-banner-two imgEffect">
             <Link to="/blogdetail">
-              <img src={news} alt="travello" />
+              <img src='../assets/images//news/banner-1.png' alt="travello" />
             </Link>
           </figure>
           <div className="news-content">
@@ -82,7 +82,7 @@ const breadcrumbLinks = [
         <article className="news-card-two">
           <figure className="news-banner-two imgEffect">
             <Link to="/blogdetail">
-              <img src={news} alt="travello" />
+              <img src='../assets/images//news/banner-1.png' alt="travello" />
             </Link>
           </figure>
           <div className="news-content">
@@ -102,7 +102,7 @@ const breadcrumbLinks = [
         <article className="news-card-two">
           <figure className="news-banner-two imgEffect">
             <Link to="/blogdetail">
-              <img src={news} alt="travello" />
+              <img src='../assets/images//news/banner-1.png' alt="travello" />
             </Link>
           </figure>
           <div className="news-content">
@@ -122,7 +122,7 @@ const breadcrumbLinks = [
         <article className="news-card-two">
           <figure className="news-banner-two imgEffect">
             <Link to="/blogdetail">
-              <img src={news} alt="travello" />
+              <img src='../assets/images//news/banner-1.png' alt="travello" />
             </Link>
           </figure>
           <div className="news-content">
@@ -142,7 +142,7 @@ const breadcrumbLinks = [
         <article className="news-card-two">
           <figure className="news-banner-two imgEffect">
             <Link to="/blogdetail">
-              <img src={news} alt="travello" />
+              <img src='../assets/images//news/banner-1.png' alt="travello" />
             </Link>
           </figure>
           <div className="news-content">

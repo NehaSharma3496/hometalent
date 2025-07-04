@@ -1,8 +1,6 @@
 import React ,{useState,useEffect} from 'react'
 import { Link } from 'react-router-dom'
-import logo from '../../assets/adminAssets/images/logo/logo.png'
-import footerlogo from '../../assets/adminAssets/images/logo/footer-img.png'
-import userimg from '../../assets/adminAssets/images/user-img.png'
+
 import MenuItems from '../admincomponents/MenuItems.jsx'
 
 export default function AdminHeader() {
@@ -44,7 +42,7 @@ export default function AdminHeader() {
                     <div className="col-9">
                         <div className="left-header">
                             <div className="logo-div me-5">
-                                <Link to="/"><img src={logo} style={{width:'100px'}}/></Link>
+                                <Link to="/"><img src='../assets/images/logo/logo.png' style={{width:'100px'}}/></Link>
                             </div>
                             <span className="toggle-sidebar-btn  px-5 ms-5" onClick={handleToggle}>
         <i className="fa-solid fa-angle-left"></i>
@@ -64,8 +62,7 @@ export default function AdminHeader() {
                             <div>
                                 <div className="dropdown profile-dropdown-div">
                                     <Link className="dropdown-toggle" to="/" role="button" id="profile-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <img src={userimg} className="user-img" />
-                                        <img src="assets/images/dropdow-arrow.png" className="drop-down-arrow" />
+                                        <img src='../assets/images/admin/user-img.png' className="user-img" />
                                         <i className="fa-solid fa-angle-down"></i>
                                     </Link>
 
@@ -116,7 +113,7 @@ export default function AdminHeader() {
         </li>
       ))}
     </ul>
-      <img src={footerlogo} className="footer-logo" />
+      <img src='../assets/images/admin/logo/footer-img.png' className='w-100'/>
     </aside>
     </>
   )

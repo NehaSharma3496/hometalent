@@ -2,19 +2,7 @@ import React from 'react'
 import {Link} from 'react-router-dom'
 
 import Breadcrumbs from '../../../components/websitecomponents/Breadcrumbs';
-import catImg1 from '../../.././assets/websiteAssets/images/category/image.png';
-import catImg2 from '../../.././assets/websiteAssets/images/category/image-1.png';
-import catImg3 from '../../.././assets/websiteAssets/images/category/image-2.png';
-import catImg4 from '../../.././assets/websiteAssets/images/category/image-3.png';
-import catImg5 from '../../.././assets/websiteAssets/images/category/image-4.png';
-import catImg6 from '../../.././assets/websiteAssets/images/category/image-5.png';
-import catImg7 from '../../.././assets/websiteAssets/images/category/image-6.png';
-import catImg8 from '../../.././assets/websiteAssets/images/category/image-7.png';
-import catImg9 from '../../.././assets/websiteAssets/images/category/image-9.png';
-import catImg10 from '../../.././assets/websiteAssets/images/category/image-9.png';
-import news1  from '../../.././assets/websiteAssets/images/news/image-1.png';
-import news2  from '../../.././assets/websiteAssets/images/news/image-2.png';
-import news3  from '../../.././assets/websiteAssets/images/news/image-3.png';  
+
 import { useParams, Navigate } from 'react-router-dom';
 
 
@@ -72,7 +60,7 @@ const breadcrumbLinks = [
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <Link to="/categorydetail">
-                    <img src={catImg1} alt="travello" />
+                    <img src='../assets/images//category/image.png' alt="travello" />
                   </Link>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -130,7 +118,7 @@ const breadcrumbLinks = [
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                  <Link to="/categorydetail">
-                    <img src={catImg2} alt="travello" />
+                    <img src='../assets/images//category/image-1.png' alt="travello" />
                   </Link>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -187,7 +175,7 @@ const breadcrumbLinks = [
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src={catImg3} alt="travello" />
+                    <img src='../assets/images//category/image-2.png' alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -244,7 +232,7 @@ const breadcrumbLinks = [
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src={catImg5} alt="travello" />
+                    <img src='../assets/images//category/image-4.png' alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -301,7 +289,7 @@ const breadcrumbLinks = [
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src={catImg6} alt="travello" />
+                    <img src='../assets/images//category/image-5.png' alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -358,7 +346,7 @@ const breadcrumbLinks = [
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src={catImg7} alt="travello" />
+                    <img src='../assets/images//category/image-6.png' alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -415,7 +403,7 @@ const breadcrumbLinks = [
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src={catImg8} alt="travello" />
+                    <img src='../assets/images//category/image-7.png' alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -472,7 +460,7 @@ const breadcrumbLinks = [
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src={catImg9} alt="travello" />
+                    <img src='../assets/images//category/image-8.png' alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">
@@ -529,7 +517,7 @@ const breadcrumbLinks = [
               <div className="hotel-card">
                 <div className="hotel-img imgEffect4">
                   <a href="hotel-details-with-slider.html">
-                    <img src={catImg10} alt="travello" />
+                    <img src='../assets/images//category/image-9.png' alt="travello" />
                   </a>
                   <div className="rating-badge-car">
                     <div className="rating">

@@ -1,6 +1,5 @@
 import React from 'react'
 import Breadcrumbs from "../../../components/websitecomponents/Breadcrumbs";
-import catImg1 from '../../.././assets/websiteAssets/images/category/image.png';
 import { Link } from "react-router-dom";
 
 const RealWedding = () => {
@@ -101,7 +100,7 @@ const RealWedding = () => {
                 <div className="package-card">
                   <div className="package-img imgEffect4">
                     <a href="details-with-slider.html">
-                      <img src={catImg1} alt="travello" />
+                      <img src='../assets/images//category/image.png' alt="travello" />
                     </a>
                   
                   </div>
@@ -118,7 +117,7 @@ const RealWedding = () => {
                 <div className="package-card">
                   <div className="package-img imgEffect4">
                     <a href="details-with-slider.html">
-                      <img src={catImg1} alt="travello" />
+                      <img src='../assets/images//category/image.png' alt="travello" />
                     </a>
                   
                   </div>
@@ -135,7 +134,7 @@ const RealWedding = () => {
                 <div className="package-card">
                   <div className="package-img imgEffect4">
                     <a href="details-with-slider.html">
-                      <img src={catImg1} alt="travello" />
+                      <img src='../assets/images//category/image.png' alt="travello" />
                     </a>
                   
                   </div>
@@ -152,7 +151,7 @@ const RealWedding = () => {
                 <div className="package-card">
                   <div className="package-img imgEffect4">
                     <a href="details-with-slider.html">
-                      <img src={catImg1} alt="travello" />
+                      <img src='../assets/images//category/image.png' alt="travello" />
                     </a>
                   
                   </div>
@@ -169,7 +168,7 @@ const RealWedding = () => {
                 <div className="package-card">
                   <div className="package-img imgEffect4">
                     <a href="details-with-slider.html">
-                      <img src={catImg1} alt="travello" />
+                      <img src='../assets/images//category/image.png' alt="travello" />
                     </a>
                   
                   </div>
@@ -186,7 +185,7 @@ const RealWedding = () => {
                 <div className="package-card">
                   <div className="package-img imgEffect4">
                     <a href="details-with-slider.html">
-                      <img src={catImg1} alt="travello" />
+                      <img src='../assets/images//category/image.png' alt="travello" />
                     </a>
                   
                   </div>
@@ -203,7 +202,7 @@ const RealWedding = () => {
                 <div className="package-card">
                   <div className="package-img imgEffect4">
                     <a href="details-with-slider.html">
-                      <img src={catImg1} alt="travello" />
+                      <img src='../assets/images//category/image.png' alt="travello" />
                     </a>
                   
                   </div>
@@ -220,7 +219,7 @@ const RealWedding = () => {
                 <div className="package-card">
                   <div className="package-img imgEffect4">
                     <a href="details-with-slider.html">
-                <img src={catImg1} alt="travello" />
+                <img src='../assets/images//category/image.png' alt="travello" />
 
                     </a>
                   
@@ -238,7 +237,7 @@ const RealWedding = () => {
                 <div className="package-card">
                   <div className="package-img imgEffect4">
                     <a href="details-with-slider.html">
-                      <img src={catImg1} alt="travello" />
+                      <img src='../assets/images//category/image.png' alt="travello" />
                     </a>
                   
                   </div>

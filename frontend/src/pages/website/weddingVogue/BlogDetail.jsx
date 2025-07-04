@@ -1,5 +1,4 @@
 import React from 'react'
-import news from '../../.././assets/websiteAssets/images/news/banner-1.png';
 
 const BlogDetail = () => {
   return (
@@ -8,13 +7,13 @@ const BlogDetail = () => {
       <div className="row g-4">
         <div className="col-xl-8 col-lg-7">
           <div className="news-details-banner imgEffect">
-            <img src={news} alt="travello" />
+            <img src='../assets/images//news/banner-1.png' alt="travello" />
           </div>
           <div className="news-details-content">
             <div className="d-flex flex-wrap align-items-center gap-20">
               <div className="d-flex gap-10 align-items-center">
                 <div className="author-img">
-                  <img src={news} alt="travello" />
+                  <img src='../assets/images//news/banner-1.png' alt="travello" />
                 </div>
                 <p className="name">Crish Jorden</p>
               </div>
@@ -118,7 +117,7 @@ const BlogDetail = () => {
           <div className="comment-section">
             <div className="main-profile">
               <div className="user-img-lg">
-                <img src={news} alt="travello" />
+                <img src='../assets/images//news/banner-1.png' alt="travello" />
               </div>
               <div className="user-info">
                 <h4 className="name">Chris Jordan</h4>
@@ -131,7 +130,7 @@ const BlogDetail = () => {
             <h4 className="comment-count">( 3 ) Comments</h4>
             <div className="main-profile-two">
               <div className="user-img-sm">
-                <img src={news}alt="travello" />
+                <img src='../assets/images//news/banner-1.png'alt="travello" />
               </div>
               <div className="user-info">
                 <h4 className="name-sm">David Warner</h4>
@@ -156,7 +155,7 @@ const BlogDetail = () => {
             <div className="replied-profile">
               <div className="main-profile-two">
                 <div className="user-img-sm">
-                  <img src={news} alt="travello" />
+                  <img src='../assets/images//news/banner-1.png' alt="travello" />
                 </div>
                 <div className="user-info">
                   <h4 className="name-sm">Jenney Bairstow</h4>
@@ -181,7 +180,7 @@ const BlogDetail = () => {
               </div>
               <div className="main-profile-two">
                 <div className="user-img-sm">
-                  <img src={news} alt="travello" />
+                  <img src='../assets/images//news/banner-1.png' alt="travello" />
                 </div>
                 <div className="user-info">
                   <h4 className="name-sm">Steven Smith</h4>

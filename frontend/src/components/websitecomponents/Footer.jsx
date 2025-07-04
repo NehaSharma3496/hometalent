@@ -1,10 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import facebook from "../../assets/websiteAssets/images/footer/facebook.png";
-import twitter from "../../assets/websiteAssets/images/footer/twitter.png";   
-import instagram from "../../assets/websiteAssets/images/footer/instagram.png";
-import youtube from "../../assets/websiteAssets/images/footer/youtube.png";
-import footerLogo from "../../assets/websiteAssets/images/footer/footer-img.png";
+
 
 const Footer = () => {
   return (
@@ -96,7 +92,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="index.html">
                           <img
-                            src={facebook}
+                            src='../assets/images//footer/facebook.png'
                             alt="facebook"
                           />
                         </a>
@@ -104,7 +100,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="about.html">
                           <img
-                            src={twitter}
+                            src='../assets/images//footer/twitter.png'
                             alt="twitter"
                           />
                         </a>
@@ -112,7 +108,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="contact.html">
                           <img
-                            src={youtube}
+                            src='../assets/images//footer/youtube.png'
                             alt="youtube"
                           />
                         </a>
@@ -120,7 +116,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="contact.html">
                           <img
-                            src={instagram}
+                            src='../assets/images//footer/instagram.png'
                             alt="instagram"
                           />
                         </a>
@@ -129,7 +125,7 @@ const Footer = () => {
                   </div>
                 </div>
                 <div className="footer-image float-lg-end">
-                  <img src={footerLogo} alt="footer" />
+                  <img src='../assets/images//footer/footer-img.png' alt="footer" />
                 </div>
               </div>
             </div>
