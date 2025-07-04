@@ -3,20 +3,7 @@ import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import catImg1 from '../../assets/websiteAssets/images/category/image.png';
-import catImg2 from '../../assets/websiteAssets/images/category/image-1.png';
-import catImg3 from '../../assets/websiteAssets/images/category/image-2.png';
-import catImg4 from '../../assets/websiteAssets/images/category/image-3.png';
-import catImg5 from '../../assets/websiteAssets/images/category/image-4.png';
-import catImg6 from '../../assets/websiteAssets/images/category/image-5.png';
-import catImg7 from '../../assets/websiteAssets/images/category/image-6.png';
-import catImg8 from '../../assets/websiteAssets/images/category/image-7.png';
-import catImg9 from '../../assets/websiteAssets/images/category/image-9.png';
-import catImg10 from '../../assets/websiteAssets/images/category/image-9.png';
-import news1  from '../../assets/websiteAssets/images/news/image-1.png';
-import news2  from '../../assets/websiteAssets/images/news/image-2.png';
-import news3  from '../../assets/websiteAssets/images/news/image-3.png';  
-import quote from '../../assets/websiteAssets/images/testimonial/iconoir_quote.png';
+
 
 const Home = () => {
   const testimonials = [
@@ -163,9 +150,9 @@ const Home = () => {
           </div>
           <div className="grid5-container">
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
+              <Link to="/categorydetail" className="category-banner">
               
-                <img src={catImg1} alt="travello" />
+                <img src='../assets/images//category/image.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
                     <div className="category-name">
@@ -173,11 +160,11 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
-                <img src={catImg2} alt="travello" />
+              <Link to="/categorydetail" className="category-banner">
+                <img src='../assets/images//category/image-1.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
                     <div className="category-name">
@@ -185,11 +172,11 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
-                <img src={catImg3} alt="travello" />
+              <Link to="/categorydetail" className="category-banner">
+                <img src='../assets/images//category/image-2.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
                     <div className="category-name">
@@ -197,11 +184,11 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
-                <img src={catImg4} alt="travello" />
+              <Link to="/categorydetail" className="category-banner">
+                <img src='../assets/images//category/image-3.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
                     <div className="category-name">
@@ -209,11 +196,11 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
-                <img src={catImg5} alt="travello" />
+              <Link to="/categorydetail" className="category-banner">
+                <img src='../assets/images//category/image-4.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15 py-3">
                     <div className="category-name">
@@ -221,12 +208,12 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
          
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
-                <img src={catImg6} alt="travello" />
+              <Link to="/categorydetail" className="category-banner">
+                <img src='../assets/images//category/image-5.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
                     <div className="category-name">
@@ -234,11 +221,11 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
-                <img src={catImg7} alt="travello" />
+              <Link to="/categorydetail" className="category-banner">
+                <img src='../assets/images//category/image-6.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-6">
                     <div className="category-name">
@@ -247,11 +234,11 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href={catImg8} className="category-banner">
-                <img src={catImg8} alt="travello" />
+              <Link to='/categorydetail' className="category-banner">
+                <img src='../assets/images//category/image-7.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
                     <div className="category-name">
@@ -259,11 +246,11 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
-                <img src={catImg9} alt="travello" />
+              <Link to="/categorydetail" className="category-banner">
+                <img src='../assets/images//category/image-8.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
                     <div className="category-name">
@@ -271,11 +258,11 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <div className="grid-item ">
-              <a href="details-with-gallery.html" className="category-banner">
-                <img src={catImg10} alt="travello" />
+              <Link to="/categorydetail" className="category-banner">
+                <img src='../assets/images//category/image-9.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15 py-3">
                     <div className="category-name">
@@ -283,7 +270,7 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
           </div>
           <button className="btn-primary mx-auto d-block mt-4">
@@ -336,7 +323,7 @@ const Home = () => {
               <div className="testimonial-card" key={index}>
                 <div className="quote-icon">
                   <img src=
-                    {quote}
+                    '../assets/images//testimonial/iconoir_quote.png'
                     alt="quote"
                   />
                 </div>
@@ -382,9 +369,9 @@ const Home = () => {
             <div className="col-xl-4 col-lg-4 col-sm-6">
               <article className="news-card-two">
                 <figure className="news-banner-two imgEffect">
-                  <a href="news-details.html">
-                    <img src={news1} alt="travello" />
-                  </a>
+                  <Link to="news-details.html">
+                    <img src='../assets/images//news/image-1.png' alt="travello" />
+                  </Link>
                 </figure>
                 <div className="news-content">
                   <div className="date d-lg-flex ">
@@ -397,7 +384,7 @@ const Home = () => {
                     </div>
                   </div>
                   <h4 className="title mb-2">
-                    <a href="news-details.html">Wedding arrangements</a>
+                    <Link to="news-details.html">Wedding arrangements</Link>
                   </h4>
 
                   <div className="news-description">
@@ -407,9 +394,9 @@ const Home = () => {
                     </p>
                   </div>
                   <div className="">
-                    <a href="news.html" className=" btn-primary-sm btn-primary">
+                    <Link to="news.html" className=" btn-primary-sm btn-primary">
                       Read More
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </article>
@@ -417,9 +404,9 @@ const Home = () => {
             <div className="col-xl-4 col-lg-4 col-sm-6">
               <article className="news-card-two">
                 <figure className="news-banner-two imgEffect">
-                  <a href="news-details.html">
-                    <img src={news2} alt="travello" />
-                  </a>
+                  <Link to="news-details.html">
+                    <img src='../assets/images//news/image-2.png' alt="travello" />
+                  </Link>
                 </figure>
                 <div className="news-content">
                   <div className="date d-lg-flex ">
@@ -432,7 +419,7 @@ const Home = () => {
                     </div>
                   </div>
                   <h4 className="title mb-2">
-                    <a href="news-details.html">Wedding arrangements</a>
+                    <Link to="news-details.html">Wedding arrangements</Link>
                   </h4>
 
                   <div className="news-description">
@@ -442,9 +429,9 @@ const Home = () => {
                     </p>
                   </div>
                   <div className="">
-                    <a href="news.html" className=" btn-primary-sm btn-primary">
+                    <Link to="news.html" className=" btn-primary-sm btn-primary">
                       Read More
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </article>
@@ -452,9 +439,9 @@ const Home = () => {
             <div className="col-xl-4 col-lg-4 col-sm-6">
               <article className="news-card-two">
                 <figure className="news-banner-two imgEffect">
-                  <a href="news-details.html">
-                    <img src={news3} alt="travello" />
-                  </a>
+                  <Link to="news-details.html">
+                    <img src='../assets/images//news/image-3.png' alt="travello" />
+                  </Link>
                 </figure>
                   <div className="news-content">
                   <div className="date d-lg-flex ">
@@ -467,7 +454,7 @@ const Home = () => {
                     </div>
                   </div>
                   <h4 className="title mb-2">
-                    <a href="news-details.html">Wedding arrangements</a>
+                    <Link to="news-details.html">Wedding arrangements</Link>
                   </h4>
 
                   <div className="news-description">
@@ -477,9 +464,9 @@ const Home = () => {
                     </p>
                   </div>
                   <div className="">
-                    <a href="news.html" className=" btn-primary-sm btn-primary">
+                    <Link to="news.html" className=" btn-primary-sm btn-primary">
                       Read More
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </article>

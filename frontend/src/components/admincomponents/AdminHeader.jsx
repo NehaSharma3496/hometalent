@@ -1,13 +1,16 @@
 import React ,{useState,useEffect} from 'react'
 import { Link } from 'react-router-dom'
-import logo from '../../assets/adminAssets/images/logo/logo.png'
-import footerlogo from '../../assets/adminAssets/images/logo/footer-img.png'
-import userimg from '../../assets/adminAssets/images/user-img.png'
+
 import MenuItems from '../admincomponents/MenuItems.jsx'
 
 export default function AdminHeader() {
+
+  const role = localStorage.getItem('role') || 'admin'; // or useContext/auth
+
+  const MenuData = MenuItems[role]; // Get only relevant menu array
+
      const [sidebarToggled, setSidebarToggled] = useState(false);
-// Auto-toggle on mobile
+
 
 
 
@@ -39,7 +42,7 @@ export default function AdminHeader() {
                     <div className="col-9">
                         <div className="left-header">
                             <div className="logo-div me-5">
-                                <Link to="/"><img src={logo} style={{width:'100px'}}/></Link>
+                                <Link to="/"><img src='../assets/images/logo/logo.png' style={{width:'100px'}}/></Link>
                             </div>
                             <span className="toggle-sidebar-btn  px-5 ms-5" onClick={handleToggle}>
         <i className="fa-solid fa-angle-left"></i>
@@ -49,14 +52,17 @@ export default function AdminHeader() {
                     </div>
                     <div className="col-3">
                         <div className="right-header">
-                            <div>
-                                <Link to="#" className="setting-link"><i className="fa-solid fa-gear"></i></Link>
+                           <div>
+                                <Link to="#" className="setting-link"><i className="fa-solid fa-bell text-primary "></i></Link>
                             </div>
+                            <div>
+                                <Link to="#" className="setting-link"><i className="fa-solid fa-gear text-primary "></i></Link>
+                            </div>
+                             
                             <div>
                                 <div className="dropdown profile-dropdown-div">
                                     <Link className="dropdown-toggle" to="/" role="button" id="profile-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <img src={userimg} className="user-img" />
-                                        <img src="assets/images/dropdow-arrow.png" className="drop-down-arrow" />
+                                        <img src='../assets/images/admin/user-img.png' className="user-img" />
                                         <i className="fa-solid fa-angle-down"></i>
                                     </Link>
 
@@ -74,35 +80,40 @@ export default function AdminHeader() {
 
       <aside id="sidebar">
      
-      <ul className="sidebar-nav">
-        {MenuItems.map((item, idx) => (
-          <li key={idx} className={`nav-item ${item.children ? 'menu-dropdown' : ''}`}>
-            {item.children ? (
-              <>
-                <Link to="#" className="dropdown-menu-link dropdown-toggle" data-bs-toggle="dropdown">
-                  <div>
-                    <i className={item.icon}></i>
-                    <span>{item.label}</span>
-                  </div>
-                  <i className="fa-regular fa-angle-down"></i>
-                </Link>
-                <ul className="sub-menu dropdown-menu">
-                  {item.children.map((child, cIdx) => (
-                    <li key={cIdx}><Link to={child.link}>{child.label}</Link></li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <Link to={item.link}>
-                <i className={item.icon}></i>
-                <span>{item.label}</span>
+    <ul className="sidebar-nav">
+      {MenuData.map((item, idx) => (
+        <li key={idx} className={`nav-item ${item.children ? 'menu-dropdown' : ''}`}>
+          {item.children ? (
+            <>
+              <Link
+                to="#"
+                className="dropdown-menu-link dropdown-toggle"
+                data-bs-toggle="dropdown"
+              >
+                <div>
+                  <i className={item.icon}></i>
+                  <span>{item.label}</span>
+                </div>
+                <i className="fa-regular fa-angle-down"></i>
               </Link>
-            )}
-          </li>
-          
-        ))}
-      </ul>
-      <img src={footerlogo} className="footer-logo" />
+              <ul className="sub-menu dropdown-menu">
+                {item.children.map((child, cIdx) => (
+                  <li key={cIdx}>
+                    <Link to={child.link}>{child.label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <Link to={item.link}>
+              <i className={item.icon}></i>
+              <span>{item.label}</span>
+            </Link>
+          )}
+        </li>
+      ))}
+    </ul>
+      <img src='../assets/images/admin/logo/footer-img.png' className='w-100'/>
     </aside>
     </>
   )

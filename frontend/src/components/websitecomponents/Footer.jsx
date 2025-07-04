@@ -1,9 +1,6 @@
 import React from "react";
-import facebook from "../../assets/websiteAssets/images/footer/facebook.png";
-import twitter from "../../assets/websiteAssets/images/footer/twitter.png";   
-import instagram from "../../assets/websiteAssets/images/footer/instagram.png";
-import youtube from "../../assets/websiteAssets/images/footer/youtube.png";
-import footerLogo from "../../assets/websiteAssets/images/footer/footer-img.png";
+import { Link } from "react-router-dom";
+
 
 const Footer = () => {
   return (
@@ -21,7 +18,7 @@ const Footer = () => {
                         <a href="#">
                           <div className="d-flex gap-12 align-items-center">
                             <img
-                              src="assets/websiteAssets/images/footer/map.png"
+                              src="../assets/images/footer/map.png"
                               alt="location"
                               width="20"
                               height="20"
@@ -34,7 +31,7 @@ const Footer = () => {
                         <a href="#">
                           <div className="d-flex gap-12 align-items-center">
                             <img
-                              src="assets/websiteAssets/images/footer/phone.png"
+                              src="../assets/images/footer/phone.png"
                               alt="phone"
                               width="20"
                               height="20"
@@ -47,7 +44,7 @@ const Footer = () => {
                         <a href="#">
                           <div className="d-flex gap-12 align-items-center">
                             <img
-                              src="assets/websiteAssets/images/footer/email.png"
+                              src="../assets/images/footer/email.png"
                               alt="email"
                               width="20"
                               height="20"
@@ -78,7 +75,7 @@ const Footer = () => {
                         <a href="contact.html">Feedback</a>
                       </li>
                       <li className="single-lsit">
-                        <a href="contact.html">FAQs</a>
+                        <Link to="/faq">FAQs</Link>
                       </li>
                       <li className="single-lsit">
                         <a href="contact.html">Gallery</a>
@@ -95,7 +92,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="index.html">
                           <img
-                            src={facebook}
+                            src='../assets/images/footer/facebook.png'
                             alt="facebook"
                           />
                         </a>
@@ -103,7 +100,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="about.html">
                           <img
-                            src={twitter}
+                            src='../assets/images/footer/twitter.png'
                             alt="twitter"
                           />
                         </a>
@@ -111,7 +108,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="contact.html">
                           <img
-                            src={youtube}
+                            src='../assets/images/footer/youtube.png'
                             alt="youtube"
                           />
                         </a>
@@ -119,7 +116,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="contact.html">
                           <img
-                            src={instagram}
+                            src='../assets/images/footer/instagram.png'
                             alt="instagram"
                           />
                         </a>
@@ -128,7 +125,7 @@ const Footer = () => {
                   </div>
                 </div>
                 <div className="footer-image float-lg-end">
-                  <img src={footerLogo} alt="footer" />
+                  <img src='../assets/images/footer/footer-img.png' alt="footer" />
                 </div>
               </div>
             </div>
@@ -147,12 +144,13 @@ const Footer = () => {
                     HomeTalent4u All Rights Reserved reserved
                   </p>
                   <div className="footer-menu d-flex gap-20">
-                    <a href="index.html">
-                      <p className="pera">Terms and conditions</p>
-                    </a>
-                    <a href="index.html">
+                    <Link to="/termscondition">
+                      <p className="pera">
+                        Terms and conditions</p>
+                    </Link>
+                    <Link to="/privacypolicy">
                       <p className="pera">Privacy policy</p>
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
