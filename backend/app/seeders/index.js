@@ -1,10 +1,10 @@
 const seedRoles = require('./seedRoles');
-const seedServiceTypes = require('./seedServiceType');
+// const seedServiceTypes = require('./seedServiceType');
 // const seedPermissions = require('./seedPermissions');
 
 async function seedAll() {
   await seedRoles();
-  await seedServiceTypes();
+  // await seedServiceTypes();
     // await seedPermissions();
     
 }
