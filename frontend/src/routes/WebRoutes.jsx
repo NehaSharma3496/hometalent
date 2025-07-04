@@ -14,6 +14,7 @@ import PrivacyPolicy from '../pages/website/PrivacyPolicy';
 import TermsCondition from '../pages/website/TermsCondition';
 import CategoryDetail from '../pages/website/category/CategoryDetail';
 import BlogDetail from '../pages/website/weddingVogue/BlogDetail';
+import RealWedding from '../pages/website/realWedding/RealWedding';
 
 
 
@@ -31,7 +32,8 @@ const WebRoutes = (
     <Route path="/termscondition" element={< TermsCondition/>}/>
     <Route path="/categorydetail" element={<CategoryDetail/>}/>
     <Route path='/blogdetail' element={<BlogDetail/>}/>
-     <Route path="/:slug" element={<Category categories={categories} />} />
+    <Route path="/:slug" element={<Category categories={categories} />} />
+    <Route path="/realwedding" element={ <RealWedding/>}/>
     
   </Route>
 );

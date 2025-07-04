@@ -135,9 +135,9 @@ const Header = () => {
                         </ul>
                       </li>
                        <li className="single-list">
-                        <a href="#" className="single">
+                        <Link to="/realwedding" className="single">
                           Real Weddings
-                        </a>
+                        </Link>
                        
                       </li>
                       <li className="single-list">
