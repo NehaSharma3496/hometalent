@@ -5,7 +5,6 @@ import WebRoutes from './routes/WebRoutes.jsx';
 import AdminRoutes from './routes/AdminRoutes.jsx';
 import VendorRoutes from './routes/VendorRoutes.jsx';
 import Login from './auth/Login.jsx';
-import Registration from './auth/Registration.jsx';
 import Error from './pages/website/Error.jsx';
 
 
@@ -16,7 +15,7 @@ function App() {
         <Routes>
 
           <Route path="/login" element={<Login />} />
-          <Route path="/registration" element={<Registration />} />
+        
           <Route path="*" element={<Error />} />
           {WebRoutes}
           {AdminRoutes}

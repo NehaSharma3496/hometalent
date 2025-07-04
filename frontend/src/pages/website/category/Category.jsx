@@ -49,12 +49,20 @@ const breadcrumbLinks = [
               </svg>
             </div>
             <div className="sorting-dropdown">
-              <select className="select2 select2-hidden-accessible" tabIndex={-1} aria-hidden="true">
+              <select className="form-select " tabIndex={-1} aria-hidden="true">
                 <option value="popular"> Sort by Popular</option>
                 <option value="low">Price low to high</option>
                 <option value="high">Price high to low</option>
                 <option value="new">Sort by Newset</option>
-              </select><span className="select2 select2-container select2-container--default select2-container--below" dir="ltr" style={{width: '100%'}}><span className="selection"><span className="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="false" tabIndex={0} aria-labelledby="select2-5p3b-container"><span className="select2-selection__rendered" id="select2-5p3b-container" title="Price low to high">Price low to high</span><span className="select2-selection__arrow" role="presentation"><b role="presentation" /></span></span></span><span className="dropdown-wrapper" aria-hidden="true" /></span>
+              </select>
+            </div>
+              <div className="sorting-dropdown">
+              <select className="form-select " tabIndex={-1} aria-hidden="true">
+                <option value="popular"> Sort by Popular</option>
+                <option value="low">Price low to high</option>
+                <option value="high">Price high to low</option>
+                <option value="new">Sort by Newset</option>
+              </select>
             </div>
           </div>
         </div>

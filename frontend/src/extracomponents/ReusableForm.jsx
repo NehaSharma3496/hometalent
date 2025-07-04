@@ -1,5 +1,7 @@
 import React from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage, useField } from 'formik';
+import Select from 'react-select';
+
 
 const renderField = (field) => {
   switch (field.type) {
@@ -10,13 +12,13 @@ const renderField = (field) => {
           as="textarea"
           name={field.name}
           placeholder={field.placeholder}
-          className="form-input form-control"
+          className="form-control contact-input"
         />
       );
 
     case 'select':
       return (
-        <Field as="select" name={field.name} className="form-input form-control">
+        <Field as="select" name={field.name} className="form-control contact-input">
           <option value="">Select {field.label}</option>
           {field.options?.map((option) => (
             <option key={option.value} value={option.value}>
@@ -25,37 +27,29 @@ const renderField = (field) => {
           ))}
         </Field>
       );
- case 'multiSelect': // ✅ multi-select dropdown
-      const MultiSelect = ({ field }) => {
-        const [formikField, , helpers] = useField(field.name);
+case 'multiSelect':
+  return (
+    <Field name={field.name}>
+      {({ field: { value }, form }) => (
+        <Select
+          isMulti
+          name={field.name}
+          options={field.options}
+          className="basic-multi-select"
+          classNamePrefix="select"
+          value={field.options.filter(option => value.includes(option.value))}
+          onChange={(selectedOptions) =>
+            form.setFieldValue(
+              field.name,
+              selectedOptions.map((option) => option.value)
+            )
+          }
+          onBlur={() => form.setFieldTouched(field.name, true)}
+        />
+      )}
+    </Field>
+  );
 
-        const handleChange = (e) => {
-          const selectedValues = Array.from(e.target.selectedOptions, option => option.value);
-          helpers.setValue(selectedValues);
-        };
-
-        return (
-          <>
-            <select
-              name={field.name}
-              multiple
-              className="form-input form-control"
-              value={formikField.value}
-              onChange={handleChange}
-            >
-              {field.options.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <small className="text-muted">Hold Ctrl or Cmd to select multiple</small>
-          </>
-        );
-      };
-
-      return <MultiSelect field={field} />;
-      
     case 'radio':
       return field.options?.map((option) => (
         <div key={option.value} className="form-check form-check-inline">
@@ -84,7 +78,7 @@ const renderField = (field) => {
 case 'email':
       return (
       
-          <Field type="emai" name={field.name} className="form-input form-control" id={field.name} />
+          <Field type="emai" name={field.name} className="form-control contact-input" id={field.name} />
          
         
       );
@@ -96,7 +90,7 @@ case 'email':
           type={field.type}
           name={field.name}
           placeholder={field.placeholder}
-          className="form-input form-control"
+          className="form-control contact-input"
         />
         </>
       );
@@ -112,7 +106,7 @@ const ReusableForm = ({ initialValues, validationSchema, onSubmit, fields }) => 
             <div key={field.name} className={field.colClass || 'col-12 mb-3'}>
                 <div className='form-group'>
               {/* {field.type !== 'checkbox' && field.type !== 'radio' && ( */}
-                <label htmlFor={field.name} className="input-label fw-semibold">
+                <label htmlFor={field.name} className="contact-label ">
                   {field.label}
                 </label>
                 

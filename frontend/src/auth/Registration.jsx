@@ -1,106 +1,113 @@
 import React from 'react'
 import Breadcrumbs from '../components/websitecomponents/Breadcrumbs';
 import logo from '../assets/websiteAssets/images/logo/logo.png';
+import ReusableForm from '../extracomponents/ReusableForm';
+import * as Yup from 'yup';
+
+
+
+const initialValues = {
+  ownerName: '',
+  profileName: '',
+  state: '',
+  city: '',
+  pin: '',
+  phone: '',
+  email: '',
+  priceRange: '',
+  shortDesc: '',
+  category: [],
+  experience: '',
+  longDesc: '',
+  images: [],
+  videos: [],
+  socialLinks: '',
+  terms: false,
+  
+};
+
+
+const validationSchema = Yup.object({
+  ownerName: Yup.string().required('Owner Name is required'),
+  state: Yup.string().required('State is required'),
+  city: Yup.string().required('City is required'),
+  pin: Yup.string().required('Pin Code is required'),
+  phone: Yup.string().required('Phone is required'),
+  email: Yup.string().email('Invalid email').required('Email is required'),
+  category: Yup.array().min(1, 'Select at least one category'),
+  terms: Yup.boolean().oneOf([true], 'You must accept terms'),
+});
+
+const onSubmit = (values) => {
+  console.log('Form submitted:', values);
+  // You can send to API or further process here
+};
+
+const fields = [
+  { name: 'ownerName', label: 'Owner Name*', type: 'text', colClass: 'col-md-4 mb-3' },
+  { name: 'profileName', label: 'Profile Name', type: 'text', colClass: 'col-md-4 mb-3' },
+  { name: 'state', label: 'State', type: 'text', colClass: 'col-md-4 mb-3' },
+  { name: 'city', label: 'City', type: 'text', colClass: 'col-md-4 mb-3' },
+  { name: 'pin', label: 'Pin Code', type: 'text', colClass: 'col-md-4 mb-3' },
+  { name: 'phone', label: 'Phone (Hidden in profile)', type: 'text', colClass: 'col-md-4 mb-3' },
+  { name: 'email', label: 'Email', type: 'email', colClass: 'col-md-4 mb-3' },
+  { name: 'priceRange', label: 'Estimated Price Range', type: 'text', colClass: 'col-md-4 mb-3' },
+  
+  {
+    name: 'category',
+    label: 'Category Select* (max 2)',
+     type: 'multiSelect',
+    colClass: 'col-md-4 mb-3',
+    options: [
+      { value: 'fashion', label: 'Fashion' },
+      { value: 'electronics', label: 'Electronics' },
+      { value: 'grocery', label: 'Grocery' },
+      { value: 'services', label: 'Services' },
+      { value: 'others', label: 'Others' },
+    ],
+  },
+  { name: 'shortDesc', label: 'One Line Description', type: 'text', colClass: 'col-md-12 mb-3' },
+  { name: 'longDesc', label: 'Large Description', type: 'textarea', colClass: 'col-12 mb-3' },
+  { name: 'images', label: 'Images (Max 30)', type: 'file', colClass: 'col-md-6 mb-3' },
+  { name: 'videos', label: 'Videos (Max 3)', type: 'file', colClass: 'col-md-6 mb-3' },
+  { name: 'socialLinks', label: 'Social Media Links', type: 'text', colClass: 'col-md-6 mb-3' },
+    { name: 'experience', label: 'Experience Since', type: 'text', colClass: 'col-md-6 mb-3' },
+
+  { name: 'terms', label: 'I accept Terms & Privacy Policy', type: 'checkbox', colClass: 'col-md-12 mb-3' },
+];
+
+
+
 
 
 const Registration = () => {
 
+    const breadcrumbLinks = [
+    { label: "Home", to: "/home" },
+    { label: "Vendor Registration", to: "#" }, // or current route
+  ];
+
+
   return (
    <div>
-     
-       <section className="login-area section-padding2 ">
+      <Breadcrumbs title="Vendor Registration" links={breadcrumbLinks} />
+       <section className="login-area section-padding ">
+    {/* <img src={logo} className=' mx-auto d-block' style={{width:'150px'}}/> */}
 
-    <form className="container mt-0">
+
+    <div className="container mt-4">
       
-      <div className="login-card">
-         <div className="logo mb-40 mx-auto w-50">
-                 <a href="index.html" className="mb-30 d-block mx-auto text-center">
-                   <img src={logo} alt="logo" className="changeLogo w-25" />
-                 </a>
-               </div>
-    <div className="row">
-      <div className="col-md-6 mb-3">
-        <label htmlFor="ownerName" className="form-label">Owner Name*</label>
-        <input type="text" className="custom-form" id="ownerName" required />
-      </div>
-      <div className="col-md-6 mb-3">
-        <label htmlFor="profileName" className="form-label">Profile Name</label>
-        <input type="text" className="custom-form" id="profileName" />
-      </div>
-      <div className="col-md-6 mb-3">
-        <label htmlFor="state" className="form-label">State*</label>
-        <input type="text" className="custom-form" id="state" required />
-      </div>
-      <div className="col-md-6 mb-3">
-        <label htmlFor="city" className="form-label">City*</label>
-        <input type="text" className="custom-form" id="city" required />
-      </div>
-      <div className="col-md-6 mb-3">
-        <label htmlFor="pin" className="form-label">Pin Code*</label>
-        <input type="text" className="custom-form" id="pin" required />
-      </div>
-      <div className="col-md-6 mb-3">
-        <label htmlFor="phone" className="form-label">Phone* (Hidden in profile)</label>
-        <input type="tel" className="custom-form" id="phone" required />
-      </div>
-      <div className="col-md-6 mb-3">
-        <label htmlFor="email" className="form-label">Email*</label>
-        <input type="email" className="custom-form" id="email" required />
-      </div>
-     
-        <div className="col-md-6 mb-3">
-        <label htmlFor="priceRange" className="form-label">Estimated Price Range</label>
-        <input type="text" className="custom-form" id="priceRange" />
-      </div>
-      <div className="col-md-12 mb-3">
-        <label htmlFor="shortDesc" className="form-label">One Line Description</label>
-        <input type="text" className="custom-form" id="shortDesc" />
-      </div>
-     <div className="col-md-6 mb-3">
-        <label htmlFor="category" className="form-label">Category Select* (max 2)</label>
-        <select className="form-select" id="category" multiple required>
-          <option value="fashion">Fashion</option>
-          <option value="electronics">Electronics</option>
-          <option value="grocery">Grocery</option>
-          <option value="services">Services</option>
-          <option value="others">Others</option>
-        </select>
-        <small className="text-muted">Hold Ctrl or Cmd to select multiple</small>
-      </div>
-      <div className="col-md-6 mb-3">
-        <label htmlFor="experience" className="form-label">Experience Since</label>
-        <input type="text" className="custom-form" id="experience" />
-      </div>
-      <div className="col-12 mb-3">
-        <label htmlFor="longDesc" className="form-label">Large Description (About shop or product)</label>
-        <textarea className="custom-form-textarea" id="longDesc" rows={4} defaultValue={""} />
-      </div>
-      <div className="col-md-6 mb-3">
-        <label htmlFor="images" className="form-label">Images (Max 30)</label>
-        <input type="file" className="custom-form" id="images" multiple accept="image/*" />
-        <small className="text-muted">Max 30 images allowed</small>
-      </div>
-      <div className="col-md-6 mb-3">
-        <label htmlFor="videos" className="form-label">Videos (Max 3)</label>
-        <input type="file" className="custom-form" id="videos" multiple accept="video/*" />
-        <small className="text-muted">Max 3 videos allowed</small>
-      </div>
-      <div className="col-12 mb-3">
-        <label htmlFor="socialLinks" className="form-label">Social Media Links</label>
-        <input type="text" className="custom-form" id="socialLinks" placeholder="Facebook, Instagram, etc." />
-      </div>
-      <div className="col-12 mb-3 form-check">
-        <input type="checkbox" className="form-check-input" id="terms" required />
-        <label className="form-check-label" htmlFor="terms">
-          I accept the <a href="#">Terms and Conditions</a> and have read the <a href="#">Privacy Policy</a>.
-        </label>
-      </div>
-      <div className="col-12 text-end">
-        <button type="submit" className="btn btn-primary">Submit Registration</button>
-      </div>
+      <div className=" col-lg-12 mx-auto">
+        <div className="login-card">
+      <ReusableForm
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={onSubmit}
+        fields={fields}
+      />
     </div>
      </div>
-  </form>
+  </div>
  </section>
 </div>
 
