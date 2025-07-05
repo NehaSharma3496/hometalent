@@ -48,6 +48,10 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: true,
     },
+    show_password: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     price_range: {
         type: DataTypes.STRING,
         allowNull: true,
