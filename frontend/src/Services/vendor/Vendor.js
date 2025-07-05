@@ -59,3 +59,46 @@ export async function VendorRegister(data) {
     throw error?.response?.data || error;
   }
 }
+
+
+export async function GetCategories(token) {
+    try {
+        const res = await axios.get(`${Config.base_url}vendor/categories`, {
+            headers: {
+                'Authorization': `${token}`
+            },
+        });
+
+        return res?.data;
+    } catch (err) {
+        return err;
+    }
+}
+
+export async function GetStates(token) {
+    try {
+        const res = await axios.get(`${Config.base_url}vendor/states`, {
+            headers: {
+                'Authorization': `${token}`
+            },
+        });
+
+        return res?.data;
+    } catch (err) {
+        return err;
+    }
+}
+
+export async function GetCities(token, stateId) {
+  try {
+    const res = await axios.get(`${Config.base_url}vendor/cities?state_id=${stateId}`, {
+      headers: {
+        'Authorization': `${token}`
+      },
+    });
+
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}

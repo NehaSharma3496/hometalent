@@ -16,17 +16,31 @@ const renderField = (field) => {
         />
       );
 
-    case 'select':
-      return (
-        <Field as="select" name={field.name} className="form-control contact-input">
+case 'select':
+  return (
+    <Field name={field.name}>
+      {({ field: formikField, form }) => (
+        <select
+          {...formikField}
+          className="form-control contact-input"
+          onChange={(e) => {
+            form.setFieldValue(field.name, e.target.value);
+            if (field.onChange) {
+              field.onChange(e, form.setFieldValue); 
+            }
+          }}
+        >
           <option value="">Select {field.label}</option>
           {field.options?.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
           ))}
-        </Field>
-      );
+        </select>
+      )}
+    </Field>
+  );
+
 case 'multiSelect':
   return (
     <Field name={field.name}>
@@ -78,7 +92,14 @@ case 'multiSelect':
 case 'email':
       return (
       
-          <Field type="emai" name={field.name} className="form-control contact-input" id={field.name} />
+          <Field type="emali" name={field.name} className="form-control contact-input" id={field.name} />
+         
+        
+      );
+      case 'password':
+      return (
+      
+          <Field type="password" name={field.name} className="form-control contact-input" id={field.name}  autoComplete/>
          
         
       );
@@ -91,6 +112,8 @@ case 'email':
           name={field.name}
           placeholder={field.placeholder}
           className="form-control contact-input"
+
+           autoComplete={field.autoComplete}
         />
         </>
       );
