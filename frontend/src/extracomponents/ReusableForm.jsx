@@ -78,7 +78,14 @@ case 'multiSelect':
 case 'email':
       return (
       
-          <Field type="emai" name={field.name} className="form-control contact-input" id={field.name} />
+          <Field type="emali" name={field.name} className="form-control contact-input" id={field.name} />
+         
+        
+      );
+      case 'password':
+      return (
+      
+          <Field type="password" name={field.name} className="form-control contact-input" id={field.name}  autoComplete/>
          
         
       );
@@ -91,6 +98,8 @@ case 'email':
           name={field.name}
           placeholder={field.placeholder}
           className="form-control contact-input"
+
+           autoComplete={field.autoComplete}
         />
         </>
       );
