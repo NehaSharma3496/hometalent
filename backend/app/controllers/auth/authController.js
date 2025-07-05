@@ -36,22 +36,16 @@ exports.createUser = async (req, res) => {
       role_id
     } = req.body;
 
-    // Handle files (assuming you're using multer.single('file'))
-    const uploadedFile = req.file;
-    let image = null;
-    let video = null;
-    let password = generateRandomPassword()
+    // ✅ Access image and video from req.files
+    const imageFile = req.files?.image?.[0];
+    const videoFile = req.files?.video?.[0];
 
-    // Decide file type
-    if (uploadedFile) {
-      if (uploadedFile.mimetype.startsWith('image/')) {
-        image = uploadedFile.filename;
-      } else if (uploadedFile.mimetype.startsWith('video/')) {
-        video = uploadedFile.filename;
-      }
-    }
+    let image = imageFile ? imageFile.filename : null;
+    let video = videoFile ? videoFile.filename : null;
 
-    // Check if email or phone already exists
+    var password = generateRandomPassword();
+
+    // ✅ Check if user already exists
     const existingUser = await User.findOne({
       where: {
         [Op.or]: [{ email }, { phone }]
@@ -66,6 +60,8 @@ exports.createUser = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // ✅ Create user
     const user = await User.create({
       owner_name,
       profile_name,
@@ -94,14 +90,17 @@ exports.createUser = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("Error in createUser:", error);
     res.json({ status: false, msg: error.message });
   }
 };
 
-exports.loginUser = async (req, res) => {
+
+exports.login = async (req, res) => {
   try {
     const { identifier, password } = req.body; // identifier = email or phone
-
+    console.log("Login attempt with identifier:", req.body);
+    
     const user = await User.findOne({
       where: {
         [Op.or]: [{ email: identifier }, { phone: identifier }]

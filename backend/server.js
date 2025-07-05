@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const sequelize = require('./app/config/db.config');
 const routes = require('./app/routes');
-// const seedAll = require('./app/seeders');
+
 
 const app = express();
 
