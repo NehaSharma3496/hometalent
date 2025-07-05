@@ -1,7 +1,7 @@
 import React from "react";
 import Breadcrumbs from "../../components/websitecomponents/Breadcrumbs";
 import { Link } from "react-router-dom";
-import aboutimg from '../../assets/websiteAssets/images/gallery/about-banner-three.png';
+
 
 const About = () => {
   const breadcrumbLinks = [
@@ -64,7 +64,7 @@ const About = () => {
               <div className="about-count-section about-count-before-bg">
                 <div className="banner">
                   <img
-                    src={aboutimg}
+                    src='../assets/images//gallery/about-banner-three.png'
                     alt="travello"
                   />
                 </div>

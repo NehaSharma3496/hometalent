@@ -1,14 +1,13 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import '../../assets/websiteAssets/css/main-style.css'; // ✅ Main website styles
-import Header from '../../components/websitecomponents/Header'; // ✅ Website header
-import Footer from '../../components/websitecomponents/Footer'; // ✅ Website footer
+import Header from '../../components/websitecomponents/Header';
+import Footer from '../../components/websitecomponents/Footer';
 
 const MainLayout = () => {
   return (
     <>
       <Header />
-      <main>
+      <main className='main-website'>
         <Outlet />
       </main>
       <Footer />
