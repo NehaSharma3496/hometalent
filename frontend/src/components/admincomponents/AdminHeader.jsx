@@ -42,7 +42,7 @@ export default function AdminHeader() {
                     <div className="col-9">
                         <div className="left-header">
                             <div className="logo-div me-5">
-                                <Link to="/"><img src='../assets/images/logo/logo.png' style={{width:'100px'}}/></Link>
+                                <Link to="/"><img src='/assets/images/logo/logo.png' style={{width:'100px'}}/></Link>
                             </div>
                             <span className="toggle-sidebar-btn  px-5 ms-5" onClick={handleToggle}>
         <i className="fa-solid fa-angle-left"></i>
