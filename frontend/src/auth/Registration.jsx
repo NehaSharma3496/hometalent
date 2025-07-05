@@ -2,8 +2,13 @@ import React, { useEffect, useState } from "react";
 import Breadcrumbs from "../components/websitecomponents/Breadcrumbs";
 import ReusableForm from "../extracomponents/ReusableForm";
 import * as Yup from "yup";
-import Swal from 'sweetalert2';
-import { VendorRegister,GetCategories, GetStates, GetCities } from "../Services/vendor/Vendor";
+import Swal from "sweetalert2";
+import {
+  VendorRegister,
+  GetCategories,
+  GetStates,
+  GetCities,
+} from "../Services/vendor/Vendor";
 
 const Registration = () => {
   const [categoryData, setCategoryData] = useState([]);
@@ -41,8 +46,6 @@ const Registration = () => {
     category: Yup.array().min(1, "Select at least one category"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
   });
-
-
 
   // 👇 Only define fields after categoryData is available
   const fields = [
@@ -139,56 +142,48 @@ const Registration = () => {
     },
   ];
 
+  const onSubmit = async (values) => {
+    const payload = {
+      owner_name: values.ownerName,
+      profile_name: values.profileName,
+      state_id: values.state,
+      city_id: values.city,
+      pin_code: values.pin,
+      phone: values.phone,
+      email: values.email,
+      price_range: values.priceRange,
+      short_description: values.shortDesc,
+      category_id: values.category.join(","),
+      experience_since: values.experience,
+      long_description: values.longDesc,
+      social_media_link: values.socialLinks,
+      image: null,
+      video: null,
+      role_id: 2,
+      password: values.password,
+      show_password: values.password,
+    };
 
+    try {
+      const res = await VendorRegister(payload);
 
-const onSubmit = async (values) => {
-  const payload = {
-    owner_name: values.ownerName,
-    profile_name: values.profileName,
-    state_id: values.state,
-    city_id: values.city,
-    pin_code: values.pin,
-    phone: values.phone,
-    email: values.email,
-    price_range: values.priceRange,
-    short_description: values.shortDesc,
-    category_id: values.category.join(','),
-    experience_since: values.experience,
-    long_description: values.longDesc,
-    social_media_link: values.socialLinks,
-    image: null,
-    video: null,
-    role_id: 2,
-    password: values.password,
-    show_password: values.password,
-  };
+      console.log("API SUCCESS RESPONSE:", res?.data);
 
-  try {
-    const res = await VendorRegister(payload);
-
-    console.log('API SUCCESS RESPONSE:', res?.data);
-
-    if (res?.data?.status) {
-      Swal.fire('Success', res?.data?.msg || 'User registered!', 'success');
-    } else {
-      Swal.fire('Error', res?.data?.msg || 'Something went wrong', 'error');
+      if (res?.data?.status) {
+        Swal.fire("Success", res?.data?.msg || "User registered!", "success");
+      } else {
+        Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+      }
+    } catch (err) {
+      console.error("API ERROR:", err);
+      Swal.fire(
+        "Error",
+        err?.response?.data?.msg || err.message || "Something went wrong",
+        "error"
+      );
     }
-
-  } catch (err) {
-    console.error('API ERROR:', err);
-    Swal.fire(
-      'Error',
-      err?.response?.data?.msg || err.message || 'Something went wrong',
-      'error'
-    );
-  }
-};
-
-  useEffect(() => {
-
-
-
-    const fetchCategories = async () => {
+  };
+ const fetchCategories = async () => {
       try {
         const res = await GetCategories();
         const catformatted = res.data.map((cat) => ({
@@ -201,7 +196,7 @@ const onSubmit = async (values) => {
       }
     };
 
-    fetchCategories();
+   
 
     const fetchStates = async () => {
       try {
@@ -217,11 +212,7 @@ const onSubmit = async (values) => {
       }
     };
 
-    fetchStates();
-  }, []);
-
-  useEffect(() => {
-    const fetchCities = async () => {
+      const fetchCities = async () => {
       if (!selectedStateId) return; // Skip if no state selected
 
       try {
@@ -237,6 +228,11 @@ const onSubmit = async (values) => {
       }
     };
 
+
+  useEffect(() => {
+  
+fetchCategories();
+    fetchStates();
     fetchCities();
   }, [selectedStateId]);
 
