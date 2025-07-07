@@ -1,39 +1,55 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { GetStateCity } from "../../Services/webService/Web";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { getcategoryplan, getcitiesplan } from "../../Services/webService/Web";
+import { GetCategories, getcitiesplan } from "../../Services/webService/Web";
 
 const Home = () => {
 
-  const [categories, setCategories] = useState([]);
-  const [cities, setCities] = useState([]);
+  const [categories, setCategories] = useState([])
+
+  const [statecity, setStateCity] = React.useState([]);
+
 
   const token = localStorage.getItem('token');
 
-  const getcategories = async () => {
+  const fetchcategories = async () => {
     try {
-      const response = await getcategoryplan(token);
+      const response = await GetCategories(token);
       setCategories(response.data);
     } catch (error) {
       console.log("Error fetching services", error);
     }
   }
 
-  const getcities = async () => {
-    try {
-      const response = await getcitiesplan(token);
-      setCities(response.data);
-    } catch (error) {
-      console.log("Error fetching cities", error);
-    }
-  }
+  // const fetchstatecity = async () => {
+  //   try {
+  //     const response = await GetStateCity();
+  //     setStateCity(response.data);
+  //     console.log("City", response.data[1].name);
+  //   }
+  //   catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
   useEffect(() => {
-    getcities();  
-    getcategories();
+    // fetchstatecity();
+    fetchcategories();
   }, [])
+
+
+
+
+
+
+
+
+
+
+
 
   const testimonials = [
     {
