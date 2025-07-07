@@ -9,7 +9,7 @@ const Home = () => {
 
   const [categories, setCategories] = useState([]);
 
-  const token=localStorage.getItem('token');
+  const token = localStorage.getItem('token');
 
   const getcategories = async () => {
     try {
@@ -21,8 +21,8 @@ const Home = () => {
   }
 
   useEffect(() => {
-    getcategories();  
-  }, [categories])
+    getcategories();
+  }, [])
 
   const testimonials = [
     {
@@ -124,12 +124,13 @@ const Home = () => {
                       </div>
                       <div className="col-xl-5 col-lg-12">
                         <div className="destination-flex">
-                          <select className="form-select">
-                            <option>Search Cetagory</option>
-                            <option value="1">Istanbul</option>
-                            <option value="2">Ankara</option>
-                            <option value="3">Izmir</option>
-                            <option value="4">Bursa</option>
+                          <select className="form-select" >
+                            <option value="">Select Category</option>
+                            {categories.map((cat) => (
+                              <option key={cat.id} value={cat.id}>
+                                {cat.name}
+                              </option>
+                            ))}
                           </select>
                         </div>
                       </div>
