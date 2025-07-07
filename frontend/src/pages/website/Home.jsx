@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { GetStateCity } from "../../Services/webService/Web";
+import select from "react-select";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -18,6 +19,7 @@ const Home = () => {
     try {
       const response = await GetStateCity();
       setStateCity(response.data);
+     
     }
     catch (error) {
       console.log("Error fetching cities", error);
