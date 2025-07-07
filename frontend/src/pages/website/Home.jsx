@@ -1,11 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-
+import { getcategoryplan } from "../../Services/webService/Web";
 
 const Home = () => {
+
+  const [categories, setCategories] = useState([]);
+
+  const token=localStorage.getItem('token');
+
+  const getcategories = async () => {
+    try {
+      const response = await getcategoryplan(token);
+      setCategories(response.data);
+    } catch (error) {
+      console.log("Error fetching services", error);
+    }
+  }
+
+  useEffect(() => {
+    getcategories();  
+  }, [categories])
+
   const testimonials = [
     {
       name: "Jacob Jones",
@@ -118,7 +136,7 @@ const Home = () => {
                       <div className="col-xl-2 col-lg-3">
                         <div className="sign-btn text-right">
                           <a
-                          style={{ height: "54px",lineHeight: "30px" }}
+                            style={{ height: "54px", lineHeight: "30px" }}
                             href="tour-list.html"
                             className="btn-primary w-100 text-center"
                           >
@@ -151,7 +169,7 @@ const Home = () => {
           <div className="grid5-container">
             <div className="grid-item ">
               <Link to="/categorydetail" className="category-banner">
-              
+
                 <img src='../assets/images//category/image.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
@@ -210,7 +228,7 @@ const Home = () => {
                 </div>
               </Link>
             </div>
-         
+
             <div className="grid-item ">
               <Link to="/categorydetail" className="category-banner">
                 <img src='../assets/images//category/image-5.png' alt="travello" />
@@ -230,7 +248,7 @@ const Home = () => {
                   <div className="category-info py-6">
                     <div className="category-name">
                       <p className="pera mb-0">Food </p>
-                      <p className="small-text mt-0 text-black" style={{fontSize: "11px"}}>(Namkeen,Sweets, snacks)</p>
+                      <p className="small-text mt-0 text-black" style={{ fontSize: "11px" }}>(Namkeen,Sweets, snacks)</p>
                     </div>
                   </div>
                 </div>
@@ -339,9 +357,8 @@ const Home = () => {
                   {[...Array(5)].map((_, i) => (
                     <i
                       key={i}
-                      className={`ri-star-fill ${
-                        i < item.rating ? "active" : ""
-                      }`}
+                      className={`ri-star-fill ${i < item.rating ? "active" : ""
+                        }`}
                     />
                   ))}
                 </div>
@@ -443,7 +460,7 @@ const Home = () => {
                     <img src='../assets/images//news/image-3.png' alt="travello" />
                   </Link>
                 </figure>
-                  <div className="news-content">
+                <div className="news-content">
                   <div className="date d-lg-flex ">
                     <div className="news-info">
                       <p className="date-time">12 Jan 2023</p>
@@ -472,7 +489,7 @@ const Home = () => {
               </article>
             </div>
           </div>
-     
+
         </div>
       </section>
     </div>
