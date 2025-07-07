@@ -3,14 +3,14 @@ import { Route } from 'react-router-dom';
 import AdminLayout from '../layouts/adminlayout/AdminLayout';
 
 import Dashboard from '../pages/admin/dashboard/Dashboard';
-import Allusers from '../pages/admin/users/Allusers';
-import Adduser from '../pages/admin/users/Adduser';
+import Allvendors from '../pages/admin/vendor/Allvendors';
+import Adduser from '../pages/admin/vendor/Adduser';
 
 
 const AdminRoutes = (
   <Route path="/admin" element={<AdminLayout />}>
     <Route path="dashboard" element={<Dashboard />} />
-    <Route path="users/allusers" element={<Allusers />} />
+    <Route path="vendor/allvendors" element={<Allvendors />} />
     <Route path="users/adduser" element={<Adduser />} />
     {/* <Route path="clients" element={<Clients />} /> */}
   </Route>

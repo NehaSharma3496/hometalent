@@ -1,8 +1,28 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
+import {GetVendoreList } from '../../../Services/admin/Admin'
 import Datatable from '../../../extracomponents/Datatable';
 
-export default function Allusers() {
+export default function Allvendors() {
+
+const [vendors, setVendors] = React.useState([])
+
+const fetchVendors = async()=>
+{
+    try{
+        const response= await GetVendoreList();
+        setVendors(response.data)
+        console.log("Vendor list", response.data)
+    }
+    catch(error)
+    {
+  console.log("error")
+    }
+}
+useEffect(() => {
+fetchVendors();
+}, [])
+
 
     const columns = [
         {
@@ -11,8 +31,8 @@ export default function Allusers() {
             sortable: true,
         },
         {
-            name: "User Name",
-            selector: (row) => row.username,
+            name: "Owner Name",
+            selector: (row) => row.owner_name,
             sortable: true,
         },
         {
@@ -21,13 +41,13 @@ export default function Allusers() {
             sortable: true,
         },
         {
-            name: "Full Name",
-            selector: (row) => row.fullname,
+            name: "Category Names",
+            selector: (row) => row.category_names,
             sortable: true,
         },
         {
-            name: "Client Key",
-            selector: (row) => row.clientkey,
+            name: "Profile Name",
+            selector: (row) => row.profile_name,
             sortable: true,
         },
         {
@@ -107,38 +127,7 @@ export default function Allusers() {
     ];
 
 
-    const data = [
-        {
-            sno: 1,
-            username: "john_doe",
-            email: "john.doe@example.com",
-            fullname: "John Doe",
-            clientkey: "CK12345",
-            phonenumber: "1234567890",
-            broker: "Broker A",
-            month: "January",
-            gotodashboard: "Link",
-            tradingstatus: "Trading",
-            createdate: "2023-01-01",
-            startdate: "2023-01-10",
-            enddate: "2023-12-31",
-        },
-        {
-            sno: 2,
-            username: "jane_smith",
-            email: "jane.smith@example.com",
-            fullname: "Jane Smith",
-            clientkey: "CK67890",
-            phonenumber: "9876543210",
-            broker: "Broker B",
-            month: "February",
-            gotodashboard: "Link",
-            tradingstatus: "Not Trading",
-            createdate: "2023-02-01",
-            startdate: "2023-02-15",
-            enddate: "2023-11-30",
-        },
-    ];
+  
     
 
   return (
@@ -149,7 +138,7 @@ export default function Allusers() {
                 <div className="col-md-6">
                     <div className="add-page-heading-div">
                         <Link to="/"><i className="fa-sharp fa-regular fa-arrow-left"></i></Link>
-                        <h2 className="add-page-heading">All Users</h2>
+                        <h2 className="add-page-heading">All Vendor</h2>
                     </div>
                 </div>
                 <div className="col-md-6 text-end">
@@ -163,7 +152,7 @@ export default function Allusers() {
                         <input className="form-input" type="text" placeholder="Search Something Here" />
                     </div>
                 </div>
-                <div className="col-lg-2">
+                {/* <div className="col-lg-2">
                     <div className="form-row">
                         <select className="form-input">
                             <option>Client Type</option>
@@ -208,8 +197,8 @@ export default function Allusers() {
                             <option value="27">shoonya</option>
                         </select>
                     </div>
-                </div>
-                <div className="col-lg-2">
+                </div> */}
+                {/* <div className="col-lg-2">
                     <div className="form-row">
                     <select className="form-input">
                         <option>Strategies</option>
@@ -228,10 +217,10 @@ export default function Allusers() {
                         <option value="675fcde8c1b5a6ab5f2298da">Tesrt01</option>
                     </select>
                     </div>
-                </div>
-                <div className="col-lg-2">
+                </div> */}
+                {/* <div className="col-lg-2">
                     <button type="button" className="filter-reset-btn" title="Export To Excel"><i className="fa fa-download" aria-hidden="true"></i> Export Excel</button>
-                </div>
+                </div> */}
             </div>
 
             <div className="row">
@@ -239,7 +228,7 @@ export default function Allusers() {
 
                     <Datatable
                         columns={columns}
-                        data={data}
+                        data={vendors}
                         pagination
                     />
                 </div>

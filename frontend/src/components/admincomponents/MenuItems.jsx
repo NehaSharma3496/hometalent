@@ -22,7 +22,7 @@ export const  MenuItems = {
     icon: 'fa-solid fa-user-tie',
     label: 'Vendors',
     children: [
-      { label: 'All Vendors', link: '/vendors/all' },
+      { label: 'All Vendors', link: '/admin/vendor/allvendors' },
       { label: 'Add Vendor', link: '/vendors/add' },
       { label: 'Approve Listings', link: '/vendors/approve' },
       { label: 'Sponsored Vendors', link: '/vendors/sponsored' },
