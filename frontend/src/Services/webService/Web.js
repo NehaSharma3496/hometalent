@@ -14,3 +14,20 @@ export async function GetCategories(token) {
     return err;
   }
 }
+
+
+export async function GetStateCity(token) {
+  try {
+    const res = await axios.get(`${Config.base_url}front/state_city_list`, {
+      headers: {
+        'Authorization': `${token}`
+      }
+    });
+
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
+

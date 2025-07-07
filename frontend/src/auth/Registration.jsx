@@ -217,7 +217,7 @@ const Registration = () => {
 
       try {
         const res = await GetCities(token, selectedStateId);
-        console.log("City", res.data);
+        // console.log("City", res.data);
         const formatted = res.data.map((city) => ({
           value: city.id.toString(),
           label: city.name,
