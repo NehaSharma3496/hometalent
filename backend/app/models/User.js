@@ -61,12 +61,8 @@ const User = sequelize.define('User', {
         allowNull: true,
     },
     category_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
-        references: {
-            model: 'categories',
-            key: 'id',
-        },
     },
     experience_since: {
         type: DataTypes.STRING,
@@ -100,12 +96,27 @@ const User = sequelize.define('User', {
     status: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 0, // 0: Inactive, 1: Active
+        defaultValue: 0, // 0 = pending, 1 = approved, 2 = blocked
         validate: {
-            isIn: [[0, 1]], // Validates that the value is either 0 or 1
+            isIn: [[0, 1, 2]], // Validates that the value is either 0 or 1
         },
         comment: '0 = pending, 1 = approved, 2 = blocked',
     },
+        is_sponsored: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0, // 1 = sponsored vendor, 0 = not sponsored
+        validate: {
+            isIn: [[0, 1]], // Validates that the value is either 0 or 1
+        },
+        comment: '1 = sponsored vendor, 0 = not sponsored',
+    },
+
+    sponsor_rank: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0, // 1 = sponsored vendor, 0 = not sponsored
+    },  
 },
     {
         tableName: 'users',
@@ -120,7 +131,7 @@ User.associate = (models) => {
     User.belongsTo(models.State, { foreignKey: 'state_id' });
     User.belongsTo(models.City, { foreignKey: 'City_id' });
     // User.hasMany(models.Order, { foreignKey: 'user_id' });
-    User.belongsTo(models.Category, { foreignKey: 'category_id' });
+    //User.belongsTo(models.Category, { foreignKey: 'category_id' });
     // User.hasMany(models.Product, { foreignKey: 'user_id' });
     // User.hasMany(models.Store, { foreignKey: 'user_id' });
     // User.hasMany(models.ActivityLogs, { foreignKey: 'user_id' });
