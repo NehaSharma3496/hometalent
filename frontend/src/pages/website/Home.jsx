@@ -3,11 +3,12 @@ import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { getcategoryplan } from "../../Services/webService/Web";
+import { getcategoryplan, getcitiesplan } from "../../Services/webService/Web";
 
 const Home = () => {
 
   const [categories, setCategories] = useState([]);
+  const [cities, setCities] = useState([]);
 
   const token = localStorage.getItem('token');
 
@@ -20,7 +21,17 @@ const Home = () => {
     }
   }
 
+  const getcities = async () => {
+    try {
+      const response = await getcitiesplan(token);
+      setCities(response.data);
+    } catch (error) {
+      console.log("Error fetching cities", error);
+    }
+  }
+
   useEffect(() => {
+    getcities();
     getcategories();
   }, [])
 
@@ -115,11 +126,12 @@ const Home = () => {
                     <div className="row g-4 justify-content-end">
                       <div className="col-xl-5 col-lg-12">
                         <select className="form-select ">
-                          <option>Search City</option>
-                          <option value="1">Istanbul</option>
-                          <option value="2">Ankara</option>
-                          <option value="3">Izmir</option>
-                          <option value="4">Bursa</option>
+                          <option value="">Search City</option>
+                          {cities.map((city) => (
+                            <option key={city._id} value={city._id}>
+                              {city.name}
+                            </option>
+                          ))}
                         </select>
                       </div>
                       <div className="col-xl-5 col-lg-12">
@@ -127,7 +139,7 @@ const Home = () => {
                           <select className="form-select" >
                             <option value="">Select Category</option>
                             {categories.map((cat) => (
-                              <option key={cat.id} value={cat.id}>
+                              <option key={cat._id} value={cat._id}>
                                 {cat.name}
                               </option>
                             ))}
