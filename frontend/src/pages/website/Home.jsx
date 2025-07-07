@@ -1,10 +1,11 @@
 import React, {useEffect}from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { GetStateCity } from "../../Services/webService/Web";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-
+import { getcategoryplan, getcitiesplan } from "../../Services/webService/Web";
 
 const Home = () => {
 
@@ -39,6 +40,33 @@ useEffect(() => {
 
 
 
+  const [categories, setCategories] = useState([]);
+  const [cities, setCities] = useState([]);
+
+  const token = localStorage.getItem('token');
+
+  const getcategories = async () => {
+    try {
+      const response = await getcategoryplan(token);
+      setCategories(response.data);
+    } catch (error) {
+      console.log("Error fetching services", error);
+    }
+  }
+
+  const getcities = async () => {
+    try {
+      const response = await getcitiesplan(token);
+      setCities(response.data);
+    } catch (error) {
+      console.log("Error fetching cities", error);
+    }
+  }
+
+  useEffect(() => {
+    getcities();
+    getcategories();
+  }, [])
 
   const testimonials = [
     {
@@ -131,28 +159,30 @@ useEffect(() => {
                     <div className="row g-4 justify-content-end">
                       <div className="col-xl-5 col-lg-12">
                         <select className="form-select ">
-                          <option>Search City</option>
-                          <option value="1">Istanbul</option>
-                          <option value="2">Ankara</option>
-                          <option value="3">Izmir</option>
-                          <option value="4">Bursa</option>
+                          <option value="">Search City</option>
+                          {cities.map((city) => (
+                            <option key={city._id} value={city._id}>
+                              {city.name}
+                            </option>
+                          ))}
                         </select>
                       </div>
                       <div className="col-xl-5 col-lg-12">
                         <div className="destination-flex">
-                          <select className="form-select">
-                            <option>Search Cetagory</option>
-                            <option value="1">Istanbul</option>
-                            <option value="2">Ankara</option>
-                            <option value="3">Izmir</option>
-                            <option value="4">Bursa</option>
+                          <select className="form-select" >
+                            <option value="">Select Category</option>
+                            {categories.map((cat) => (
+                              <option key={cat._id} value={cat._id}>
+                                {cat.name}
+                              </option>
+                            ))}
                           </select>
                         </div>
                       </div>
                       <div className="col-xl-2 col-lg-3">
                         <div className="sign-btn text-right">
                           <a
-                          style={{ height: "54px",lineHeight: "30px" }}
+                            style={{ height: "54px", lineHeight: "30px" }}
                             href="tour-list.html"
                             className="btn-primary w-100 text-center"
                           >
@@ -185,7 +215,7 @@ useEffect(() => {
           <div className="grid5-container">
             <div className="grid-item ">
               <Link to="/categorydetail" className="category-banner">
-              
+
                 <img src='../assets/images//category/image.png' alt="travello" />
                 <div className="category-content">
                   <div className="category-info py-15">
@@ -244,7 +274,7 @@ useEffect(() => {
                 </div>
               </Link>
             </div>
-         
+
             <div className="grid-item ">
               <Link to="/categorydetail" className="category-banner">
                 <img src='../assets/images//category/image-5.png' alt="travello" />
@@ -264,7 +294,7 @@ useEffect(() => {
                   <div className="category-info py-6">
                     <div className="category-name">
                       <p className="pera mb-0">Food </p>
-                      <p className="small-text mt-0 text-black" style={{fontSize: "11px"}}>(Namkeen,Sweets, snacks)</p>
+                      <p className="small-text mt-0 text-black" style={{ fontSize: "11px" }}>(Namkeen,Sweets, snacks)</p>
                     </div>
                   </div>
                 </div>
@@ -373,9 +403,8 @@ useEffect(() => {
                   {[...Array(5)].map((_, i) => (
                     <i
                       key={i}
-                      className={`ri-star-fill ${
-                        i < item.rating ? "active" : ""
-                      }`}
+                      className={`ri-star-fill ${i < item.rating ? "active" : ""
+                        }`}
                     />
                   ))}
                 </div>
@@ -477,7 +506,7 @@ useEffect(() => {
                     <img src='../assets/images//news/image-3.png' alt="travello" />
                   </Link>
                 </figure>
-                  <div className="news-content">
+                <div className="news-content">
                   <div className="date d-lg-flex ">
                     <div className="news-info">
                       <p className="date-time">12 Jan 2023</p>
@@ -506,7 +535,7 @@ useEffect(() => {
               </article>
             </div>
           </div>
-     
+
         </div>
       </section>
     </div>
