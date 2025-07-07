@@ -99,8 +99,7 @@ exports.createUser = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { identifier, password } = req.body; // identifier = email or phone
-    console.log("Login attempt with identifier:", req.body);
-    
+
     const user = await User.findOne({
       where: {
         [Op.or]: [{ email: identifier }, { phone: identifier }]
@@ -109,6 +108,11 @@ exports.login = async (req, res) => {
 
     if (!user) {
       return res.json({ status: false, msg: 'User not found' });
+    }
+
+    // 🔒 Check if user is inactive
+    if (user.status !== 1) {
+      return res.json({ status: false, msg: 'Your account is inactive. Please contact support.' });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -132,4 +136,5 @@ exports.login = async (req, res) => {
     res.json({ status: false, msg: error.message });
   }
 };
+
 
