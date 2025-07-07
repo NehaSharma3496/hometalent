@@ -100,8 +100,11 @@ const User = sequelize.define('User', {
     status: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 1,
-        comment: '1: Active, 0: Inactive',
+        defaultValue: 0, // 0: Inactive, 1: Active
+        validate: {
+            isIn: [[0, 1]], // Validates that the value is either 0 or 1
+        },
+        comment: '0 = pending, 1 = approved, 2 = blocked',
     },
 },
     {
