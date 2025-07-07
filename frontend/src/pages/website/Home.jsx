@@ -31,7 +31,7 @@ const Home = () => {
   }
 
   useEffect(() => {
-    getcities();
+    getcities();  
     getcategories();
   }, [])
 
