@@ -33029,7 +33029,7 @@ textarea::-ms-input-placeholder {
 input,
 input::placeholder,
 textarea::placeholder {
-  text-transform: capitalize;
+  /* text-transform: capitalize; */
 }
 
 input::-webkit-input-placeholder {

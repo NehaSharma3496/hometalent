@@ -2,7 +2,8 @@ import React from 'react'
 import {Link} from 'react-router-dom'
 
 export default function Dashboard() {
-	const cards = [
+
+  const cards = [
   {
     title: "Total Users",
     value: "12,540",

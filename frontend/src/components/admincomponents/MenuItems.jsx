@@ -2,7 +2,7 @@
 
 export const  MenuItems = {
 
-   admin:[
+   1:[
   {
     icon: 'fa-solid fa-grid-2',
     label: 'Dashboard',
@@ -121,7 +121,7 @@ export const  MenuItems = {
 
 
 ],
-vendor:[
+2:[
   {
     icon: 'fa-solid fa-grid-2',
     label: 'Dashboard',

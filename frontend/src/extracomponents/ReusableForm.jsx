@@ -99,7 +99,7 @@ case 'email':
       case 'password':
       return (
       
-          <Field type="password" name={field.name} className="form-control contact-input" id={field.name}  autoComplete/>
+          <Field type="password" name={field.name}  placeholder={field.placeholder} className="form-control contact-input" id={field.name}  autoComplete/>
          
         
       );
