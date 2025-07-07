@@ -19,7 +19,7 @@ const Category = sequelize.define('Category', {
 Category.associate = (models) => {
     // Category.hasMany(models.Category, { foreignKey: 'parent_category_id', as: 'subcategories' });
     // Category.belongsTo(models.Category, { foreignKey: 'parent_category_id', as: 'parent_category' });
-    Category.hasMany(models.User, { foreignKey: 'category_id' });
+    //Category.hasMany(models.User, { foreignKey: 'category_id' });
     // Category.belongsTo(models.ServiceType, { foreignKey: 'service_type' });
     // Category.belongsTo(Category, {
     //     as: 'parentCategory',
