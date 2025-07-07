@@ -99,8 +99,7 @@ exports.createUser = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { identifier, password } = req.body; // identifier = email or phone
-    console.log("Login attempt with identifier:", req.body);
-    
+ 
     const user = await User.findOne({
       where: {
         [Op.or]: [{ email: identifier }, { phone: identifier }]
