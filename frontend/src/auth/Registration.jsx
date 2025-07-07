@@ -201,7 +201,7 @@ const Registration = () => {
     const fetchStates = async () => {
       try {
         const res = await GetStates();
-        console.log("State", res.data);
+        // console.log("State", res.data);
         const stateformatted = res.data.map((cat) => ({
           value: cat.id.toString(),
           label: cat.name,

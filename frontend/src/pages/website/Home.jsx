@@ -1,11 +1,45 @@
-import React from "react";
+import React, {useEffect}from "react";
 import { Link } from "react-router-dom";
+import { GetStateCity } from "../../Services/webService/Web";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 
 const Home = () => {
+
+const [statecity, setStateCity] = React.useState([]);
+
+
+const fetchstatecity = async () =>
+{
+try{
+  const response= await GetStateCity();
+  setStateCity(response.data);
+  console.log("City", response.data[1].name);
+}
+catch(error)
+{
+  console.log(error);
+}
+}
+
+useEffect(() => {
+ fetchstatecity();
+  
+}, [])
+
+
+
+
+
+
+
+
+
+
+
+
   const testimonials = [
     {
       name: "Jacob Jones",
