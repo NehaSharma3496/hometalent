@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-// import { GetStateCity } from "../../Services/webService/Web";
+import { GetStateCity } from "../../Services/webService/Web";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -9,41 +9,23 @@ import { GetCategories } from "../../Services/webService/Web";
 
 const Home = () => {
 
-const [statecity, setStateCity] = React.useState([]);
- const [categories, setCategories] = useState([]);
-
-// const fetchstatecity = async () =>
-// {
-// try{
-//   const response= await GetStateCity();
-//   setStateCity(response.data);
-//   console.log("City", response.data[1].name);
-// }
-// catch(error)
-// {
-//   console.log(error);
-// }
-// }
-
-// useEffect(() => {
-//  fetchstatecity();
-  
-// }, [])
-
-
-
-
-
-
-
-
-
-
-
- 
+  const [statecity, setStateCity] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   const token = localStorage.getItem('token');
 
+  const fetchstatecity = async () => {
+    try {
+      const response = await GetStateCity();
+      setStateCity(response.data);
+    }
+    catch (error) {
+      console.log("Error fetching cities", error);
+    }
+  }
+
+
+  
   const fetchcategories = async () => {
     try {
       const response = await GetCategories(token);
@@ -53,10 +35,9 @@ const [statecity, setStateCity] = React.useState([]);
     }
   }
 
- 
 
   useEffect(() => {
-
+    fetchstatecity();
     fetchcategories();
   }, [])
 
@@ -152,11 +133,11 @@ const [statecity, setStateCity] = React.useState([]);
                       <div className="col-xl-5 col-lg-12">
                         <select className="form-select ">
                           <option value="">Search City</option>
-                          {/* {cities.map((city) => (
+                          {statecity.map((city) => (
                             <option key={city._id} value={city._id}>
                               {city.name}
                             </option>
-                          ))} */}
+                          ))}
                         </select>
                       </div>
                       <div className="col-xl-5 col-lg-12">
