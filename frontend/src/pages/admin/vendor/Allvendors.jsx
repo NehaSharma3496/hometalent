@@ -27,7 +27,7 @@ fetchVendors();
     const columns = [
         {
             name: "SR.NO.",
-            selector: (row) => row.sno,
+            selector: (row) => row.id,
             sortable: true,
         },
         {
@@ -52,17 +52,17 @@ fetchVendors();
         },
         {
             name: "Phone Number",
-            selector: (row) => row.phonenumber,
+            selector: (row) => row.phone,
             sortable: true,
         },
         {
-            name: "Broker",
-            selector: (row) => row.broker,
+            name: "Price Range",
+            selector: (row) => row.price_range,
             sortable: true,
         },
         {
-            name: "Month",
-            selector: (row) => row.month,
+            name: "Short Description",
+            selector: (row) => row.short_description,
             sortable: true,
         },
         {
