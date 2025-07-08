@@ -140,3 +140,19 @@ exports.approveVendor = async (req, res) => {
   }
 };
 
+exports.active_vendors = async (req, res) => {
+  try {
+    const vendors = await User.findAll({
+      where: {
+        role_id: 2,
+        status: 1
+      },
+      order: [['createdAt', 'DESC']]
+    });
+
+    res.json({ status: true, data: vendors });
+  } catch (error) {
+    res.json({ status: false, msg: error.message });
+  }
+};
+

@@ -22,4 +22,7 @@ router.get('/vendors/blocked', adminController.listBlockedVendors);
 // 🔁 Optional: Generic update status (0 = unapproved, 1 = approved, 2 = blocked)
 router.post('/vendors/update-status', adminController.updateVendorStatus);
 
+router.get('/active_vendors', adminController.active_vendors);
+
+
 module.exports = router;

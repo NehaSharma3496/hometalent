@@ -6,5 +6,6 @@ const uploadMedia = require('../middleware/uploadMedia');
 
 // Route to Login
 router.get('/state_city_list', frontController.listStatesAndCities);
+router.get('/vendors-by-category/:category_id', frontController.getVendorsByCategoryId);
 
 module.exports = router;
