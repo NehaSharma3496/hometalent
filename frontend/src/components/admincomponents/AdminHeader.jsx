@@ -63,7 +63,7 @@ const MenuData = MenuItems[role] || [];
                             <div>
                                 <div className="dropdown profile-dropdown-div">
                                     <Link className="dropdown-toggle" to="/" role="button" id="profile-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <img src='../assets/images/admin/user-img.png' className="user-img" />
+                                        <img src='/assets/images/admin/user-img.png' className="user-img" />
                                         <i className="fa-solid fa-angle-down"></i>
                                     </Link>
 
@@ -115,7 +115,7 @@ const MenuData = MenuItems[role] || [];
   ))}
 </ul>
 
-      <img src='../assets/images/admin/logo/footer-img.png' className='w-100'/>
+      <img src='/assets/images/admin/logo/footer-img.png' className='w-100'/>
     </aside>
     </>
   )
