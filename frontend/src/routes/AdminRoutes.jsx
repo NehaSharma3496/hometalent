@@ -13,7 +13,7 @@ const AdminRoutes = (
   <Route path="/admin" element={<AdminLayout />}>
     <Route path="dashboard" element={<Dashboard />} />
     <Route path="vendor/allvendors" element={<Allvendors />} />
-     <Route path="vendor/blockedvendor" element={<BlockedVendors />} />
+     <Route path="vendor/blockedvendors" element={<BlockedVendors />} />
      <Route path='vendor/sponsoredvendors' element= {<SponsoredVendors />}/>
 
     {/* <Route path="users/adduser" element={<Adduser />} /> */}

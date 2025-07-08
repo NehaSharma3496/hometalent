@@ -23,12 +23,12 @@ export const  MenuItems = {
     label: 'Vendors',
     children: [
       { label: 'All Vendors', link: '/admin/vendor/allvendors' },
-      { label: 'Add Vendor', link: '/vendors/add' },
-      { label: 'Approve Listings', link: '/vendors/approve' },
-      { label: 'Sponsored Vendors', link: '/vendors/sponsored' },
-      { label: 'Blocked Vendors', link: '/vendors/blocked' },
-      { label: 'Shuffle Vendor Order', link: '/vendors/shuffle-order' },
-      { label: 'Leads & Inquiries', link: '/vendors/leads' }
+      { label: 'Add Vendor', link: '/vendors/addvendors' },
+      { label: 'Approve Listings', link: '/admin/vendor/approvevendors' },
+      { label: 'Sponsored Vendors', link: '/admin/vendor/sponsoredvendors' },
+      { label: 'Blocked Vendors', link: '/admin/vendor/blockedvendors' },
+      { label: 'Shuffle Vendor Order', link: '/admin/vendor/shuffle-order' },
+      { label: 'Leads & Inquiries', link: '/admin/vendor/leads' }
     ]
   },
   {

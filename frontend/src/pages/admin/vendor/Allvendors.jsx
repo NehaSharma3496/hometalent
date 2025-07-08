@@ -12,7 +12,7 @@ const fetchVendors = async()=>
     try{
         const response= await GetVendoreList();
         setVendors(response.data)
-        console.log("Vendor list", response.data)
+
     }
     catch(error)
     {
