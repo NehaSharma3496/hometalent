@@ -4,14 +4,14 @@ import AdminLayout from '../layouts/adminlayout/AdminLayout';
 
 import Dashboard from '../pages/admin/dashboard/Dashboard';
 import Allvendors from '../pages/admin/vendor/Allvendors';
-import Adduser from '../pages/admin/vendor/Adduser';
+// import Adduser from '../pages/admin/vendor/Adduser';
 
 
 const AdminRoutes = (
   <Route path="/admin" element={<AdminLayout />}>
     <Route path="dashboard" element={<Dashboard />} />
     <Route path="vendor/allvendors" element={<Allvendors />} />
-    <Route path="users/adduser" element={<Adduser />} />
+    {/* <Route path="users/adduser" element={<Adduser />} /> */}
     {/* <Route path="clients" element={<Clients />} /> */}
   </Route>
 );

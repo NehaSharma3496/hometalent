@@ -26,7 +26,7 @@ fetchVendors();
 
     const columns = [
         {
-            name: "SR.NO.",
+            name: "Sr.No.",
             selector: (row) => row.id,
             sortable: true,
         },
@@ -40,11 +40,14 @@ fetchVendors();
             selector: (row) => row.email,
             sortable: true,
         },
-        {
-            name: "Category Names",
-            selector: (row) => row.category_names,
-            sortable: true,
-        },
+     {
+    name: "Category Names",
+    selector: (row) => Array.isArray(row.category_names) 
+        ? row.category_names.join(", ") 
+        : row.category_names,
+    sortable: true,
+},
+
         {
             name: "Profile Name",
             selector: (row) => row.profile_name,
@@ -76,30 +79,21 @@ fetchVendors();
             sortable: false,
         },
         {
-            name: "Go To Dashboard",
-            selector: (row) => row.gotodashboard,
+            name: "Social Media Link",
+            selector: (row) => row.social_media_link,
             sortable: true,
         },
         {
-            name: "Trading Status",
+            name: "Pin Code",
             selector: (row) => row.tradingstatus,
             sortable: true,
         },
         {
-            name: "Create Date",
-            selector: (row) => row.createdate,
+            name: "Experience Since",
+            selector: (row) => row.experience_since,
             sortable: true,
         },
-        {
-            name: "Start Date",
-            selector: (row) => row.startdate,
-            sortable: true,
-        },
-        {
-            name: "End Date",
-            selector: (row) => row.enddate,
-            sortable: true,
-        },
+        
         {
             name: "Actions",
             selector: (row) => row.action,
@@ -111,15 +105,9 @@ fetchVendors();
                     <a title="Delete" href="#">
                         <i className="fa-solid fa-trash-can"></i>
                     </a>
-                    <a title="Trading Status" href="#" className="trading-status-download">
-                        <i className="fa-solid fa-arrow-down-to-bracket"></i>
-                    </a>
-                    <a title="Broker Response" href="#" className="broker-response-download">
-                        <i className="fa-solid fa-arrow-down-to-bracket"></i>
-                    </a>
-                    <a title="Trading Status" href="#">
-                        <i className="fa-regular fa-star"></i>
-                    </a>
+                   
+                   
+                   
                 </div>
             ),
             sortable: false,
