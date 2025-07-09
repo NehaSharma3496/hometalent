@@ -1,14 +1,15 @@
 import axios from 'axios';
-// import * as Config from "../Utils/config";
-import * as Config from "../../../Utils/config"
+import * as Config from "../../Utils/config";
 const qs = require('qs');
 
 
 
 
-export async function GetClient(token) {
+
+
+export async function GetVendoreList(token) {
     try {
-        const res = await axios.get(`${Config.base_url}client/listfive`, {
+        const res = await axios.get(`${Config.base_url}admin/vendors`, {
             headers: {
                 'Authorization': `${token}`
             },
@@ -20,22 +21,30 @@ export async function GetClient(token) {
     }
 }
 
-
-
-export async function AddStaffClient(data, token) {
+export async function GetSponsoredVendors(token) {
     try {
-        const res = await axios.post(`${Config.base_url}user/add`, data, {
+        const res = await axios.get(`${Config.base_url}admin/vendors/sponsored`, {
             headers: {
-                data: {},
-                'Authorization': `${token}`,
+                'Authorization': `${token}`
             },
-
         });
 
         return res?.data;
     } catch (err) {
-        return err.response?.data || err.message;
+        return err;
     }
 }
 
+export async function GetBlockedVendore(token) {
+    try {
+        const res = await axios.get(`${Config.base_url}admin/vendors/blocked`, {
+            headers: {
+                'Authorization': `${token}`
+            },
+        });
 
+        return res?.data;
+    } catch (err) {
+        return err;
+    }
+}

@@ -13,6 +13,15 @@ const Home = () => {
   const [statecity, setStateCity] = useState([]);
   const [categories, setCategories] = useState([]);
 
+  const [search, setSearch] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const handleCitySelect = (name) => {
+    setSearch(name);
+    setShowDropdown(false);
+    // you can also store city id or pass it to parent
+  };
+
   const token = localStorage.getItem('token');
 
   const fetchstatecity = async () => {
@@ -26,8 +35,6 @@ const Home = () => {
     }
   }
 
-
-  
   const fetchcategories = async () => {
     try {
       const response = await GetCategories(token);
@@ -36,6 +43,59 @@ const Home = () => {
       console.log("Error fetching services", error);
     }
   }
+
+
+  function groupedFilteredData(data, search = "") {
+    const searchLower = search.toLowerCase();
+    const groups = [];
+
+    let currentGroup = null;
+
+    data.forEach(item => {
+      if (item.type === "state") {
+        currentGroup = {
+          state: item,
+          cities: []
+        };
+        groups.push(currentGroup);
+      } else if (item.type === "city" && currentGroup) {
+        currentGroup.cities.push(item);
+      }
+    });
+
+    if (search.trim()) {
+      return groups
+        .map(group => {
+          const stateMatch = group.state.name.toLowerCase().includes(searchLower);
+          const matchedCities = group.cities.filter(city =>
+            city.name.toLowerCase().includes(searchLower)
+          );
+
+          if (stateMatch) return group;
+          if (matchedCities.length > 0) return { state: group.state, cities: matchedCities };
+          return null;
+        })
+        .filter(Boolean);
+    }
+
+    return groups;
+  }
+
+
+  function splitByContentSize(groups, columns = 3) {
+    const result = Array.from({ length: columns }, () => []);
+    const columnHeights = Array(columns).fill(0);
+
+    groups.forEach((group) => {
+      const size = 1 + group.cities.length; // 1 for state name + number of cities
+      const targetIndex = columnHeights.indexOf(Math.min(...columnHeights));
+      result[targetIndex].push(group);
+      columnHeights[targetIndex] += size;
+    });
+
+    return result;
+  }
+
 
 
   useEffect(() => {
@@ -103,6 +163,8 @@ const Home = () => {
       },
     ],
   };
+
+  console.log("statecity", statecity)
   return (
     <div>
       <section className="hero-padding-for-three video-overlay position-relative hero-area">
@@ -132,16 +194,58 @@ const Home = () => {
                 <div className="choose-plan-nav">
                   <div className="">
                     <div className="row g-4 justify-content-end">
-                      <div className="col-xl-5 col-lg-12">
-                        <select className="form-select ">
-                          <option value="">Search City</option>
-                          {statecity.map((city) => (
-                            <option key={city._id} value={city._id}>
-                              {city.name}
-                            </option>
-                          ))}
-                        </select>
+                      <div className="col-xl-5 col-lg-12 position-relative">
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Search City"
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          onFocus={() => setShowDropdown(true)}
+                          onBlur={() => setTimeout(() => setShowDropdown(false), 200)} // slight delay to allow click
+                        />
+
+                        {showDropdown && (
+                          <div
+                            className="border bg-white p-3 mt-1 shadow position-absolute w-100"
+                            style={{
+                              maxHeight: "300px",
+                              overflowY: "auto",
+                              zIndex: 10,
+                              minWidth: "500px",
+                            }}
+                          >
+                            <div className="d-flex gap-3">
+                              {splitByContentSize(groupedFilteredData(statecity, search), 3).map((column, colIdx) => (
+                                <div key={colIdx} style={{ flex: 1 }}>
+                                  {column.map((group) => (
+                                    <div key={`group-${group.state.id}`} className="mb-3">
+                                      <div className="fw-bold text-danger mb-1">
+                                        {group.state.name} →
+                                      </div>
+                                      <div className="d-flex flex-wrap">
+                                        {group.cities.map((city) => (
+                                          <div
+                                            key={`city-${city.id}`}
+                                            className="me-3 mb-1 text-nowrap "
+                                            style={{ cursor: "pointer" }}
+                                            onClick={() => handleCitySelect(city.name)}
+                                          >
+                                            ↳ {city.name}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
+
+
+
                       <div className="col-xl-5 col-lg-12">
                         <div className="destination-flex">
                           <select className="form-select" >

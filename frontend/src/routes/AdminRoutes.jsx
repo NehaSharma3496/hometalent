@@ -3,15 +3,20 @@ import { Route } from 'react-router-dom';
 import AdminLayout from '../layouts/adminlayout/AdminLayout';
 
 import Dashboard from '../pages/admin/dashboard/Dashboard';
-import Allusers from '../pages/admin/users/Allusers';
-import Adduser from '../pages/admin/users/Adduser';
+import Allvendors from '../pages/admin/vendor/Allvendors';
+import BlockedVendors from '../pages/admin/vendor/BlockedVendors';
+import SponsoredVendors from '../pages/admin/vendor/SponsoredVendors';
+// import Adduser from '../pages/admin/vendor/Adduser';
 
 
 const AdminRoutes = (
   <Route path="/admin" element={<AdminLayout />}>
     <Route path="dashboard" element={<Dashboard />} />
-    <Route path="users/allusers" element={<Allusers />} />
-    <Route path="users/adduser" element={<Adduser />} />
+    <Route path="vendor/allvendors" element={<Allvendors />} />
+     <Route path="vendor/blockedvendors" element={<BlockedVendors />} />
+     <Route path='vendor/sponsoredvendors' element= {<SponsoredVendors />}/>
+
+    {/* <Route path="users/adduser" element={<Adduser />} /> */}
     {/* <Route path="clients" element={<Clients />} /> */}
   </Route>
 );
