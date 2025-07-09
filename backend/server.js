@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const sequelize = require('./app/config/db.config');
 const routes = require('./app/routes');
-
+const path = require('path');
 
 const app = express();
 
@@ -20,7 +20,7 @@ app.use(cookieParser());
 app.use(bodyParser.json({ limit: '50mb', extended: true }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
-
+app.use('/media', express.static(path.join(__dirname, 'app/media')));
 
 const PORT = process.env.PORT || 9999;
 

@@ -36,13 +36,30 @@ const storage = multer.diskStorage({
 });
 
 // ✅ Accept both fields: image and video
-const uploadMedia = multer({
-  storage,
-  fileFilter: mediaFilter,
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
-}).fields([
-  { name: 'image', maxCount: 1 },
-  { name: 'video', maxCount: 1 }
-]);
+const uploadHandler = (req, res, next) => {
+  const multerUpload = multer({
+    storage,
+    fileFilter: mediaFilter,
+    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
+  }).fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'video', maxCount: 1 }
+  ]);
 
-module.exports = uploadMedia;
+  multerUpload(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          status: false,
+          msg: 'File too large. Maximum allowed size is 50MB.'
+        });
+      }
+      return res.status(400).json({ status: false, msg: err.message });
+    } else if (err) {
+      return res.status(400).json({ status: false, msg: err.message });
+    }
+    next();
+  });
+};
+
+module.exports = uploadHandler;
