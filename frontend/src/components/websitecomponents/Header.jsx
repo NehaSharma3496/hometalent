@@ -74,8 +74,9 @@ const Header = () => {
                           <i className="ri-arrow-down-s-line" />
                         </a>
                         
-    <ul className="row submenu">
-        {Array.from({ length: 2 }, (_, colIndex) => (
+    <ul className="row submenu">\
+      
+        {/* {Array.from({ length: 2 }, (_, colIndex) => (
           <div className="col-lg-6" key={colIndex}>
             <ul className="single-list">
               {categories
@@ -91,10 +92,10 @@ const Header = () => {
                     </Link>
                   </li>
                 ))
-              }
+              } 
             </ul>
           </div>
-        ))}
+        ))}*/}
       </ul>
 
 
