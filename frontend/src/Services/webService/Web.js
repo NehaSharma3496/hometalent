@@ -28,3 +28,16 @@ export async function GetStateCity(token){
         return err;
     }
 }
+
+export async function GetVendorsByCategory(token, categoryId){
+  try{
+    const res=await axios.get(`${Config.base_url}front/vendors-by-category/${categoryId}`,{
+      headers:{
+        'Authorization':`${token}`
+      }
+    })
+    return res?.data;
+    }catch(err){
+        return err;
+    }
+}

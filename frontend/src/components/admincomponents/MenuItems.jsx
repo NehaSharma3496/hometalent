@@ -70,7 +70,7 @@ export const  MenuItems = {
     icon: 'fa-solid fa-credit-card',
     label: 'Payments',
     children: [
-      { label: 'Subscription Packages', link: '/payments/packages' },
+      { label: 'Subscription Packages', link: '/admin/payments/packages' },
       { label: 'Payment History', link: '/payments/history' },
       { label: 'Renewals', link: '/payments/renewals' },
       { label: 'Offers / Discounts', link: '/payments/offers' }
