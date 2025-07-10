@@ -233,14 +233,16 @@ const Home = () => {
 
                       <div className="col-xl-5 col-lg-12">
                         <div className="destination-flex">
-                          <select className="form-select">
-                            <option value="">Select Category</option>
-                            {categories.map((cat) => (
-                              <option key={cat._id} value={cat._id}>
-                                {cat.name}
-                              </option>
-                            ))}
-                          </select>
+                         <select className="form-select">
+  <option value="">Select Category</option>
+  {Array.isArray(categories) &&
+    categories.map((cat) => (
+      <option key={cat._id} value={cat._id}>
+        {cat.name}
+      </option>
+    ))}
+</select>
+
                         </div>
                       </div>
                       <div className="col-xl-2 col-lg-3">
