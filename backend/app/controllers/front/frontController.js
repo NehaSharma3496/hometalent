@@ -43,8 +43,7 @@ exports.listStatesAndCities = async (req, res) => {
 };
 
 exports.getVendorsByCategoryId = async (req, res) => {
-
-  //HHH
+  
   try {
     const { category_id } = req.params;
 
