@@ -25,4 +25,7 @@ router.post('/vendors/update-status', adminController.updateVendorStatus);
 router.get('/active_vendors', adminController.active_vendors);
 
 
+router.post('/update-sponsor-ranks', adminController.updateSponsorRanks);
+
+
 module.exports = router;

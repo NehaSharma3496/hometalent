@@ -129,7 +129,7 @@ const User = sequelize.define('User', {
 User.associate = (models) => {
     User.belongsTo(models.Role, { foreignKey: 'role_id' });
     User.belongsTo(models.State, { foreignKey: 'state_id' });
-    User.belongsTo(models.City, { foreignKey: 'City_id' });
+    User.belongsTo(models.City, { foreignKey: 'city_id' });
     // User.hasMany(models.Order, { foreignKey: 'user_id' });
     //User.belongsTo(models.Category, { foreignKey: 'category_id' });
     // User.hasMany(models.Product, { foreignKey: 'user_id' });

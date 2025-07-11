@@ -6,12 +6,12 @@ const bodyParser = require('body-parser');
 const sequelize = require('./app/config/db.config');
 const routes = require('./app/routes');
 const path = require('path');
-
+// const seedAll = require('./app/seeders'); 
 const app = express();
 
 //test
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "http://localhost:8888",
   credentials: true,
 };
 
@@ -35,7 +35,7 @@ app.use(routes);
 sequelize.sync({ force: false })
   .then(async () => {
     console.log("Database & tables created!");
-    // await seedAll();
+    //  await seedAll();
     app.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
     });

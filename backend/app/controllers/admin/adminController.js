@@ -156,3 +156,33 @@ exports.active_vendors = async (req, res) => {
   }
 };
 
+exports.updateSponsorRanks = async (req, res) => {
+  try {
+    const { vendors } = req.body;
+
+    if (!Array.isArray(vendors) || vendors.length === 0) {
+      return res.status(400).json({ status: false, msg: "vendors array is required" });
+    }
+
+    // Validate all entries
+    for (const v of vendors) {
+      if (!v.vendor_id || typeof v.sponsor_rank !== 'number') {
+        return res.status(400).json({ status: false, msg: "Each item must include vendor_id and sponsor_rank" });
+      }
+    }
+
+    // Update vendors one by one
+    for (const v of vendors) {
+      await User.update(
+        { sponsor_rank: v.sponsor_rank, is_sponsored: 1 },
+        { where: { id: v.vendor_id, role_id: 2 } }
+      );
+    }
+
+    res.json({ status: true, msg: "Sponsor ranks updated successfully" });
+
+  } catch (error) {
+    res.json({ status: false, msg: error.message });
+  }
+};
+

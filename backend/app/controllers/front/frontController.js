@@ -43,6 +43,8 @@ exports.listStatesAndCities = async (req, res) => {
 };
 
 exports.getVendorsByCategoryId = async (req, res) => {
+
+  //HHH
   try {
     const { category_id } = req.params;
 
@@ -50,11 +52,25 @@ exports.getVendorsByCategoryId = async (req, res) => {
       return res.status(400).json({ status: false, msg: 'category_id is required' });
     }
 
-    // Find vendors whose comma-separated category_id column contains the requested id
-    const vendors = await User.findAll({
+    // Get sponsored vendors first (ordered by sponsor_rank)
+    const sponsoredVendors = await User.findAll({
       where: {
         role_id: 2,
         status: 1,
+        is_sponsored: 1,
+        category_id: {
+          [Op.like]: `%${category_id}%`
+        }
+      },
+      order: [['sponsor_rank', 'ASC'], ['createdAt', 'DESC']]
+    });
+
+    // Get non-sponsored vendors (will be shuffled)
+    const nonSponsoredVendors = await User.findAll({
+      where: {
+        role_id: 2,
+        status: 1,
+        is_sponsored: 0,
         category_id: {
           [Op.like]: `%${category_id}%`
         }
@@ -62,8 +78,14 @@ exports.getVendorsByCategoryId = async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
 
+    // Shuffle non-sponsored vendors
+    const shuffledNonSponsored = nonSponsoredVendors.sort(() => Math.random() - 0.5);
+
+    // Combine sponsored vendors first, then shuffled non-sponsored vendors
+    const allVendors = [...sponsoredVendors, ...shuffledNonSponsored];
+
     // Get all category names for each vendor
-    for (const v of vendors) {
+    for (const v of allVendors) {
       const ids = (v.category_id || '').split(',').map(id => id.trim());
       const categoryNames = await Category.findAll({
         where: { id: ids },
@@ -72,7 +94,7 @@ exports.getVendorsByCategoryId = async (req, res) => {
       v.dataValues.category_names = categoryNames.map(c => c.name);
     }
 
-    res.json({ status: true, data: vendors });
+    res.json({ status: true, data: allVendors });
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
