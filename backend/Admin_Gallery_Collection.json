@@ -1,0 +1,226 @@
+{
+	"info": {
+		"_postman_id": "admin-gallery-collection",
+		"name": "Admin Gallery Management",
+		"description": "Collection for admin self gallery management functions",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Upload Admin Gallery Files",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "multipart/form-data",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "admin_id",
+							"value": "1",
+							"type": "text",
+							"description": "Admin user ID"
+						},
+						{
+							"key": "images",
+							"type": "file",
+							"description": "Image files (JPEG, PNG, JPG, WebP)"
+						},
+						{
+							"key": "videos",
+							"type": "file",
+							"description": "Video files (MP4, MPEG, QuickTime, AVI, MKV)"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/admin/admin-gallery/upload",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"admin",
+						"admin-gallery",
+						"upload"
+					]
+				},
+				"description": "Upload images and videos to admin gallery (no approval needed)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Admin Gallery",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/admin/admin-gallery/my-gallery?admin_id=1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"admin",
+						"admin-gallery",
+						"my-gallery"
+					],
+					"query": [
+						{
+							"key": "admin_id",
+							"value": "1",
+							"description": "Admin user ID"
+						}
+					]
+				},
+				"description": "Get admin's own gallery items"
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Admin Gallery Item",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"admin_id\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/admin/admin-gallery/remove/1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"admin",
+						"admin-gallery",
+						"remove",
+						"1"
+					],
+					"variable": [
+						{
+							"key": "gallery_id",
+							"value": "1",
+							"description": "Gallery item ID to remove"
+						}
+					]
+				},
+				"description": "Remove a specific gallery item from admin's gallery"
+			},
+			"response": []
+		},
+		{
+			"name": "Update Admin Gallery Order",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"admin_id\": 1,\n  \"items\": [\n    {\n      \"id\": 1,\n      \"sort_order\": 1\n    },\n    {\n      \"id\": 2,\n      \"sort_order\": 2\n    },\n    {\n      \"id\": 3,\n      \"sort_order\": 3\n    }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/admin/admin-gallery/update-order",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"admin",
+						"admin-gallery",
+						"update-order"
+					]
+				},
+				"description": "Update the sort order of admin gallery items"
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Admin Galleries",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/admin/admin-gallery/all?page=1&limit=20",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"admin",
+						"admin-gallery",
+						"all"
+					],
+					"query": [
+						{
+							"key": "admin_id",
+							"value": "",
+							"description": "Optional: Filter by specific admin ID",
+							"disabled": true
+						},
+						{
+							"key": "page",
+							"value": "1",
+							"description": "Page number for pagination"
+						},
+						{
+							"key": "limit",
+							"value": "20",
+							"description": "Number of items per page"
+						}
+					]
+				},
+				"description": "Get all admin galleries (for super admin use)"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string",
+			"description": "Base URL for the API"
+		}
+	]
+} 

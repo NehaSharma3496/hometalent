@@ -26,11 +26,13 @@ exports.uploadAdminGalleryFiles = async (req, res) => {
     // Handle images
     if (req.files.images) {
       for (const file of req.files.images) {
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const image = file ? `${baseUrl}/media/${file.filename}` : null;
         const galleryItem = await Gallery.create({
           user_id: admin_id,
           file_name: file.originalname,
           file_type: 'image',
-          file_path: file.filename,
+          file_path: image,
           file_size: file.size,
           status: 'approved', // Admin files are auto-approved
           sort_order: 0
@@ -42,11 +44,13 @@ exports.uploadAdminGalleryFiles = async (req, res) => {
     // Handle videos
     if (req.files.videos) {
       for (const file of req.files.videos) {
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const video = file ? `${baseUrl}/media/${file.filename}` : null;
         const galleryItem = await Gallery.create({
           user_id: admin_id,
           file_name: file.originalname,
           file_type: 'video',
-          file_path: file.filename,
+          file_path: video,
           file_size: file.size,
           status: 'approved', // Admin files are auto-approved
           sort_order: 0
@@ -215,6 +219,173 @@ exports.getAllAdminGalleries = async (req, res) => {
         current_page: parseInt(page),
         total_pages: Math.ceil(gallery.count / limit)
       }
+    });
+
+  } catch (error) {
+    res.json({ status: false, msg: error.message });
+  }
+};
+
+// Get all gallery requests (for admin approval)
+exports.getAllGalleryRequests = async (req, res) => {
+  try {
+    const { page = 1, limit = 20, status } = req.query;
+    const offset = (page - 1) * limit;
+
+    const whereClause = {};
+    if (status) {
+      whereClause.status = status;
+    }
+
+    const gallery = await Gallery.findAndCountAll({
+      where: whereClause,
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone']
+        }
+      ]
+    });
+
+    res.json({ 
+      status: true, 
+      data: {
+        gallery: gallery.rows,
+        total: gallery.count,
+        current_page: parseInt(page),
+        total_pages: Math.ceil(gallery.count / limit)
+      }
+    });
+
+  } catch (error) {
+    res.json({ status: false, msg: error.message });
+  }
+};
+
+// Get pending gallery requests
+exports.getPendingGalleryRequests = async (req, res) => {
+  try {
+    const { page = 1, limit = 20 } = req.query;
+    const offset = (page - 1) * limit;
+
+    const gallery = await Gallery.findAndCountAll({
+      where: { status: 'pending' },
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone']
+        }
+      ]
+    });
+
+    res.json({ 
+      status: true, 
+      data: {
+        gallery: gallery.rows,
+        total: gallery.count,
+        current_page: parseInt(page),
+        total_pages: Math.ceil(gallery.count / limit)
+      }
+    });
+
+  } catch (error) {
+    res.json({ status: false, msg: error.message });
+  }
+};
+
+// Process gallery request (approve/reject)
+exports.processGalleryRequest = async (req, res) => {
+  try {
+    const { gallery_id, action, admin_id, remarks } = req.body;
+    
+    if (!gallery_id || !action || !admin_id) {
+      return res.status(400).json({ 
+        status: false, 
+        msg: 'gallery_id, action, and admin_id are required' 
+      });
+    }
+
+    if (!['approve', 'reject'].includes(action)) {
+      return res.status(400).json({ 
+        status: false, 
+        msg: 'Action must be either "approve" or "reject"' 
+      });
+    }
+
+    const galleryItem = await Gallery.findByPk(gallery_id);
+    if (!galleryItem) {
+      return res.status(404).json({ 
+        status: false, 
+        msg: 'Gallery item not found' 
+      });
+    }
+
+    const newStatus = action === 'approve' ? 'approved' : 'rejected';
+    
+    await galleryItem.update({
+      status: newStatus,
+      admin_remarks: remarks || null,
+      admin_id: admin_id,
+      processed_at: new Date()
+    });
+
+    res.json({ 
+      status: true, 
+      msg: `Gallery request ${action}d successfully`,
+      data: {
+        id: galleryItem.id,
+        status: newStatus,
+        processed_at: galleryItem.processed_at
+      }
+    });
+
+  } catch (error) {
+    res.json({ status: false, msg: error.message });
+  }
+};
+
+// Get user complete profile with gallery
+exports.getUserCompleteProfile = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+    
+    if (!user_id) {
+      return res.status(400).json({ 
+        status: false, 
+        msg: 'user_id is required' 
+      });
+    }
+
+    const user = await User.findByPk(user_id, {
+      include: [
+        {
+          model: Gallery,
+          as: 'gallery',
+          where: { status: 'approved' },
+          required: false,
+          order: [['sort_order', 'ASC'], ['createdAt', 'DESC']]
+        }
+      ]
+    });
+
+    if (!user) {
+      return res.status(404).json({ 
+        status: false, 
+        msg: 'User not found' 
+      });
+    }
+
+    res.json({ 
+      status: true, 
+      data: user 
     });
 
   } catch (error) {

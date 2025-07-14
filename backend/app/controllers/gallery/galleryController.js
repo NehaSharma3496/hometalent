@@ -30,11 +30,13 @@ exports.uploadGalleryFiles = async (req, res) => {
     // Handle images
     if (req.files.images) {
       for (const file of req.files.images) {
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const image = file ? `${baseUrl}/media/${file.filename}` : null;
         const galleryItem = await Gallery.create({
           user_id,
           file_name: file.originalname,
           file_type: 'image',
-          file_path: file.filename,
+          file_path: image,
           file_size: file.size,
           status: 'pending'
         });
@@ -45,11 +47,13 @@ exports.uploadGalleryFiles = async (req, res) => {
     // Handle videos
     if (req.files.videos) {
       for (const file of req.files.videos) {
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const video = file ? `${baseUrl}/media/${file.filename}` : null;
         const galleryItem = await Gallery.create({
           user_id,
           file_name: file.originalname,
           file_type: 'video',
-          file_path: file.filename,
+          file_path: video,
           file_size: file.size,
           status: 'pending'
         });

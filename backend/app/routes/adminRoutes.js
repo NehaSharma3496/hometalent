@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/admin/adminController');
-const galleryAdminController = require('../controllers/admin/galleryAdminController');
 const adminGalleryController = require('../controllers/admin/adminGalleryController');
 const authController = require('../controllers/auth/authController');
 const { verifyToken } = require('../middleware/authMiddleware');
@@ -38,12 +37,12 @@ router.get('/profile-update-requests/:request_id', adminController.getProfileUpd
 router.post('/profile-update-requests/process', adminController.processProfileUpdateRequest);
 
 // Gallery management routes
-router.get('/gallery-requests', galleryAdminController.getAllGalleryRequests);
-router.get('/gallery-requests/pending', galleryAdminController.getPendingGalleryRequests);
-router.post('/gallery-requests/process', galleryAdminController.processGalleryRequest);
+router.get('/gallery-requests', adminGalleryController.getAllGalleryRequests);
+router.get('/gallery-requests/pending', adminGalleryController.getPendingGalleryRequests);
+router.post('/gallery-requests/process', adminGalleryController.processGalleryRequest);
 
 // User profile routes
-router.get('/user-profile/:user_id', galleryAdminController.getUserCompleteProfile);
+router.get('/user-profile/:user_id', adminGalleryController.getUserCompleteProfile);
 
 // Admin Gallery routes (no approval needed)
 router.post('/admin-gallery/upload', galleryUpload, adminGalleryController.uploadAdminGalleryFiles);
