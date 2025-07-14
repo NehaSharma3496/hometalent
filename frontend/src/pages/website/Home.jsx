@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { GetStateCity } from "../../Services/webService/Web";
@@ -9,31 +8,28 @@ import "slick-carousel/slick/slick-theme.css";
 import { GetCategories } from "../../Services/webService/Web";
 
 const Home = () => {
-
   const [statecity, setStateCity] = useState([]);
   const [categories, setCategories] = useState([]);
 
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
 
-  const handleCitySelect = (name) => {
-    setSearch(name);
-    setShowDropdown(false);
-    // you can also store city id or pass it to parent
+  const [selectedCity, setSelectedCity] = useState("");
+
+  const handleCitySelect = (cityName) => {
+    console.log("cityName", cityName);
   };
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
 
   const fetchstatecity = async () => {
     try {
       const response = await GetStateCity();
       setStateCity(response.data);
-     
-    }
-    catch (error) {
+    } catch (error) {
       console.log("Error fetching cities", error);
     }
-  }
+  };
 
   const fetchcategories = async () => {
     try {
@@ -42,8 +38,7 @@ const Home = () => {
     } catch (error) {
       console.log("Error fetching services", error);
     }
-  }
-
+  };
 
   function groupedFilteredData(data, search = "") {
     const searchLower = search.toLowerCase();
@@ -51,11 +46,11 @@ const Home = () => {
 
     let currentGroup = null;
 
-    data.forEach(item => {
+    data.forEach((item) => {
       if (item.type === "state") {
         currentGroup = {
           state: item,
-          cities: []
+          cities: [],
         };
         groups.push(currentGroup);
       } else if (item.type === "city" && currentGroup) {
@@ -65,14 +60,17 @@ const Home = () => {
 
     if (search.trim()) {
       return groups
-        .map(group => {
-          const stateMatch = group.state.name.toLowerCase().includes(searchLower);
-          const matchedCities = group.cities.filter(city =>
+        .map((group) => {
+          const stateMatch = group.state.name
+            .toLowerCase()
+            .includes(searchLower);
+          const matchedCities = group.cities.filter((city) =>
             city.name.toLowerCase().includes(searchLower)
           );
 
           if (stateMatch) return group;
-          if (matchedCities.length > 0) return { state: group.state, cities: matchedCities };
+          if (matchedCities.length > 0)
+            return { state: group.state, cities: matchedCities };
           return null;
         })
         .filter(Boolean);
@@ -81,27 +79,10 @@ const Home = () => {
     return groups;
   }
 
-
-  function splitByContentSize(groups, columns = 3) {
-    const result = Array.from({ length: columns }, () => []);
-    const columnHeights = Array(columns).fill(0);
-
-    groups.forEach((group) => {
-      const size = 1 + group.cities.length; // 1 for state name + number of cities
-      const targetIndex = columnHeights.indexOf(Math.min(...columnHeights));
-      result[targetIndex].push(group);
-      columnHeights[targetIndex] += size;
-    });
-
-    return result;
-  }
-
-
-
   useEffect(() => {
     fetchstatecity();
     fetchcategories();
-  }, [])
+  }, []);
 
   const testimonials = [
     {
@@ -164,7 +145,6 @@ const Home = () => {
     ],
   };
 
-  console.log("statecity", statecity)
   return (
     <div>
       <section className="hero-padding-for-three video-overlay position-relative hero-area">
@@ -194,68 +174,75 @@ const Home = () => {
                 <div className="choose-plan-nav">
                   <div className="">
                     <div className="row g-4 justify-content-end">
-                      <div className="col-xl-5 col-lg-12 position-relative">
+                      <div className="col-xl-5 col-lg-12 position-relative destination-flex">
                         <input
                           type="text"
-                          className="form-control"
+                          className="form-control form-select"
                           placeholder="Search City"
                           value={search}
                           onChange={(e) => setSearch(e.target.value)}
                           onFocus={() => setShowDropdown(true)}
-                          onBlur={() => setTimeout(() => setShowDropdown(false), 200)} // slight delay to allow click
+                          onBlur={() =>
+                            setTimeout(() => setShowDropdown(false), 200)
+                          }
                         />
 
                         {showDropdown && (
-                          <div
-                            className="border bg-white p-3 mt-1 shadow position-absolute w-100"
+                          <div 
+                            className="border bg-white p-3 pt-3 shadow position-absolute w-100"
                             style={{
                               maxHeight: "300px",
                               overflowY: "auto",
                               zIndex: 10,
                               minWidth: "500px",
+                              marginTop:'55px'
                             }}
                           >
-                            <div className="d-flex gap-3">
-                              {splitByContentSize(groupedFilteredData(statecity, search), 3).map((column, colIdx) => (
-                                <div key={colIdx} style={{ flex: 1 }}>
-                                  {column.map((group) => (
-                                    <div key={`group-${group.state.id}`} className="mb-3">
-                                      <div className="fw-bold text-danger mb-1">
-                                        {group.state.name} →
-                                      </div>
-                                      <div className="d-flex flex-wrap">
-                                        {group.cities.map((city) => (
-                                          <div
-                                            key={`city-${city.id}`}
-                                            className="me-3 mb-1 text-nowrap "
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => handleCitySelect(city.name)}
+                            <ul
+                              className="list-unstyled"
+                              style={{ columnCount: 3 }}
+                            >
+                              {groupedFilteredData(statecity, search).map(
+                                (group) => (
+                                  <li key={`group-${group.state.id}`}>
+                                    <h6 className="text-danger mb-1 mt-2">
+                                      {group.state.name}{" "}
+                                    </h6>
+                                    <ul className="list-unstyled ms-3 ps-0">
+                                      {group.cities.map((city) => (
+                                        <li key={`city-${city.id}`}>
+                                          <button
+                                            type="button"
+                                            className="dropdown-item py-1 text-nowrap ..."
+                                            onClick={() =>
+                                              setSearch(city.name)
+                                            }
                                           >
-                                            ↳ {city.name}
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              ))}
-                            </div>
+                                            * {city.name}
+                                          </button>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </li>
+                                )
+                              )}
+                            </ul>
                           </div>
                         )}
                       </div>
 
-
-
                       <div className="col-xl-5 col-lg-12">
                         <div className="destination-flex">
-                          <select className="form-select" >
-                            <option value="">Select Category</option>
-                            {categories.map((cat) => (
-                              <option key={cat._id} value={cat._id}>
-                                {cat.name}
-                              </option>
-                            ))}
-                          </select>
+                         <select className="form-select">
+  <option value="">Select Category</option>
+  {Array.isArray(categories) &&
+    categories.map((cat) => (
+      <option key={cat._id} value={cat._id}>
+        {cat.name}
+      </option>
+    ))}
+</select>
+
                         </div>
                       </div>
                       <div className="col-xl-2 col-lg-3">
@@ -294,8 +281,10 @@ const Home = () => {
           <div className="grid5-container">
             <div className="grid-item ">
               <Link to="/categorydetail" className="category-banner">
-
-                <img src='../assets/images//category/image.png' alt="travello" />
+                <img
+                  src="../assets/images//category/image.png"
+                  alt="travello"
+                />
                 <div className="category-content">
                   <div className="category-info py-15">
                     <div className="category-name">
@@ -307,7 +296,10 @@ const Home = () => {
             </div>
             <div className="grid-item ">
               <Link to="/categorydetail" className="category-banner">
-                <img src='../assets/images//category/image-1.png' alt="travello" />
+                <img
+                  src="../assets/images//category/image-1.png"
+                  alt="travello"
+                />
                 <div className="category-content">
                   <div className="category-info py-15">
                     <div className="category-name">
@@ -319,7 +311,10 @@ const Home = () => {
             </div>
             <div className="grid-item ">
               <Link to="/categorydetail" className="category-banner">
-                <img src='../assets/images//category/image-2.png' alt="travello" />
+                <img
+                  src="../assets/images//category/image-2.png"
+                  alt="travello"
+                />
                 <div className="category-content">
                   <div className="category-info py-15">
                     <div className="category-name">
@@ -331,7 +326,10 @@ const Home = () => {
             </div>
             <div className="grid-item ">
               <Link to="/categorydetail" className="category-banner">
-                <img src='../assets/images//category/image-3.png' alt="travello" />
+                <img
+                  src="../assets/images//category/image-3.png"
+                  alt="travello"
+                />
                 <div className="category-content">
                   <div className="category-info py-15">
                     <div className="category-name">
@@ -343,7 +341,10 @@ const Home = () => {
             </div>
             <div className="grid-item ">
               <Link to="/categorydetail" className="category-banner">
-                <img src='../assets/images//category/image-4.png' alt="travello" />
+                <img
+                  src="../assets/images//category/image-4.png"
+                  alt="travello"
+                />
                 <div className="category-content">
                   <div className="category-info py-15 py-3">
                     <div className="category-name">
@@ -356,7 +357,10 @@ const Home = () => {
 
             <div className="grid-item ">
               <Link to="/categorydetail" className="category-banner">
-                <img src='../assets/images//category/image-5.png' alt="travello" />
+                <img
+                  src="../assets/images//category/image-5.png"
+                  alt="travello"
+                />
                 <div className="category-content">
                   <div className="category-info py-15">
                     <div className="category-name">
@@ -368,20 +372,31 @@ const Home = () => {
             </div>
             <div className="grid-item ">
               <Link to="/categorydetail" className="category-banner">
-                <img src='../assets/images//category/image-6.png' alt="travello" />
+                <img
+                  src="../assets/images//category/image-6.png"
+                  alt="travello"
+                />
                 <div className="category-content">
                   <div className="category-info py-6">
                     <div className="category-name">
                       <p className="pera mb-0">Food </p>
-                      <p className="small-text mt-0 text-black" style={{ fontSize: "11px" }}>(Namkeen,Sweets, snacks)</p>
+                      <p
+                        className="small-text mt-0 text-black"
+                        style={{ fontSize: "11px" }}
+                      >
+                        (Namkeen,Sweets, snacks)
+                      </p>
                     </div>
                   </div>
                 </div>
               </Link>
             </div>
             <div className="grid-item ">
-              <Link to='/categorydetail' className="category-banner">
-                <img src='../assets/images//category/image-7.png' alt="travello" />
+              <Link to="/categorydetail" className="category-banner">
+                <img
+                  src="../assets/images//category/image-7.png"
+                  alt="travello"
+                />
                 <div className="category-content">
                   <div className="category-info py-15">
                     <div className="category-name">
@@ -393,7 +408,10 @@ const Home = () => {
             </div>
             <div className="grid-item ">
               <Link to="/categorydetail" className="category-banner">
-                <img src='../assets/images//category/image-8.png' alt="travello" />
+                <img
+                  src="../assets/images//category/image-8.png"
+                  alt="travello"
+                />
                 <div className="category-content">
                   <div className="category-info py-15">
                     <div className="category-name">
@@ -405,7 +423,10 @@ const Home = () => {
             </div>
             <div className="grid-item ">
               <Link to="/categorydetail" className="category-banner">
-                <img src='../assets/images//category/image-9.png' alt="travello" />
+                <img
+                  src="../assets/images//category/image-9.png"
+                  alt="travello"
+                />
                 <div className="category-content">
                   <div className="category-info py-15 py-3">
                     <div className="category-name">
@@ -465,8 +486,8 @@ const Home = () => {
             {testimonials.map((item, index) => (
               <div className="testimonial-card" key={index}>
                 <div className="quote-icon">
-                  <img src=
-                    '../assets/images//testimonial/iconoir_quote.png'
+                  <img
+                    src="../assets/images//testimonial/iconoir_quote.png"
                     alt="quote"
                   />
                 </div>
@@ -482,8 +503,9 @@ const Home = () => {
                   {[...Array(5)].map((_, i) => (
                     <i
                       key={i}
-                      className={`ri-star-fill ${i < item.rating ? "active" : ""
-                        }`}
+                      className={`ri-star-fill ${
+                        i < item.rating ? "active" : ""
+                      }`}
                     />
                   ))}
                 </div>
@@ -512,7 +534,10 @@ const Home = () => {
               <article className="news-card-two">
                 <figure className="news-banner-two imgEffect">
                   <Link to="news-details.html">
-                    <img src='../assets/images//news/image-1.png' alt="travello" />
+                    <img
+                      src="../assets/images//news/image-1.png"
+                      alt="travello"
+                    />
                   </Link>
                 </figure>
                 <div className="news-content">
@@ -536,7 +561,10 @@ const Home = () => {
                     </p>
                   </div>
                   <div className="">
-                    <Link to="news.html" className=" btn-primary-sm btn-primary">
+                    <Link
+                      to="news.html"
+                      className=" btn-primary-sm btn-primary"
+                    >
                       Read More
                     </Link>
                   </div>
@@ -547,7 +575,10 @@ const Home = () => {
               <article className="news-card-two">
                 <figure className="news-banner-two imgEffect">
                   <Link to="news-details.html">
-                    <img src='../assets/images//news/image-2.png' alt="travello" />
+                    <img
+                      src="../assets/images//news/image-2.png"
+                      alt="travello"
+                    />
                   </Link>
                 </figure>
                 <div className="news-content">
@@ -571,7 +602,10 @@ const Home = () => {
                     </p>
                   </div>
                   <div className="">
-                    <Link to="news.html" className=" btn-primary-sm btn-primary">
+                    <Link
+                      to="news.html"
+                      className=" btn-primary-sm btn-primary"
+                    >
                       Read More
                     </Link>
                   </div>
@@ -582,7 +616,10 @@ const Home = () => {
               <article className="news-card-two">
                 <figure className="news-banner-two imgEffect">
                   <Link to="news-details.html">
-                    <img src='../assets/images//news/image-3.png' alt="travello" />
+                    <img
+                      src="../assets/images//news/image-3.png"
+                      alt="travello"
+                    />
                   </Link>
                 </figure>
                 <div className="news-content">
@@ -606,7 +643,10 @@ const Home = () => {
                     </p>
                   </div>
                   <div className="">
-                    <Link to="news.html" className=" btn-primary-sm btn-primary">
+                    <Link
+                      to="news.html"
+                      className=" btn-primary-sm btn-primary"
+                    >
                       Read More
                     </Link>
                   </div>
@@ -614,7 +654,6 @@ const Home = () => {
               </article>
             </div>
           </div>
-
         </div>
       </section>
     </div>

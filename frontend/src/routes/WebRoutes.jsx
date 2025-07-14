@@ -32,7 +32,7 @@ const WebRoutes = (
     <Route path="/termscondition" element={< TermsCondition/>}/>
     <Route path="/categorydetail" element={<CategoryDetail/>}/>
     <Route path='/blogdetail' element={<BlogDetail/>}/>
-    <Route path="/:slug" element={<Category categories={categories} />} />
+    <Route path="/category" element={<Category />} />
     <Route path="/realwedding" element={ <RealWedding/>}/>
     
   </Route>
