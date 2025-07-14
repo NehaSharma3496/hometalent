@@ -32,7 +32,6 @@ exports.createUser = async (req, res) => {
       category_id,
       experience_since,
       long_description,
-      social_media_link,
       role_id
     } = req.body;
 
@@ -74,7 +73,6 @@ exports.createUser = async (req, res) => {
       category_id,
       experience_since,
       long_description,
-      social_media_link,
       image,
       video,
       role_id: role_id || 2,

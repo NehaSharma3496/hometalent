@@ -1,0 +1,882 @@
+{
+	"info": {
+		"_postman_id": "hometalent-api-collection",
+		"name": "HomeTalent API Collection",
+		"description": "Complete API collection for HomeTalent vendor profile and gallery management system",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Vendor APIs",
+			"item": [
+				{
+					"name": "Profile Management",
+					"item": [
+						{
+							"name": "Submit Profile Update Request",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "multipart/form-data"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "vendor_id",
+											"value": "123",
+											"type": "text",
+											"description": "Vendor's user ID"
+										},
+										{
+											"key": "owner_name",
+											"value": "John Doe",
+											"type": "text",
+											"description": "Owner's name"
+										},
+										{
+											"key": "profile_name",
+											"value": "John's Professional Services",
+											"type": "text",
+											"description": "Profile display name"
+										},
+										{
+											"key": "phone",
+											"value": "9876543210",
+											"type": "text",
+											"description": "Phone number"
+										},
+										{
+											"key": "email",
+											"value": "john@example.com",
+											"type": "text",
+											"description": "Email address"
+										},
+										{
+											"key": "state_id",
+											"value": "1",
+											"type": "text",
+											"description": "State ID"
+										},
+										{
+											"key": "city_id",
+											"value": "1",
+											"type": "text",
+											"description": "City ID"
+										},
+										{
+											"key": "pin_code",
+											"value": "123456",
+											"type": "text",
+											"description": "PIN code"
+										},
+										{
+											"key": "price_range",
+											"value": "1000-5000",
+											"type": "text",
+											"description": "Price range"
+										},
+										{
+											"key": "short_description",
+											"value": "Professional services provider with 5+ years experience",
+											"type": "text",
+											"description": "Short description"
+										},
+										{
+											"key": "category_id",
+											"value": "1,2,3",
+											"type": "text",
+											"description": "Category IDs (comma-separated)"
+										},
+										{
+											"key": "experience_since",
+											"value": "2020",
+											"type": "text",
+											"description": "Experience since year"
+										},
+										{
+											"key": "long_description",
+											"value": "We provide high-quality professional services with attention to detail and customer satisfaction. Our team has extensive experience in various domains.",
+											"type": "text",
+											"description": "Long description"
+										},
+										{
+											"key": "facebook_link",
+											"value": "https://facebook.com/johndoe",
+											"type": "text",
+											"description": "Facebook profile link"
+										},
+										{
+											"key": "instagram_link",
+											"value": "https://instagram.com/johndoe",
+											"type": "text",
+											"description": "Instagram profile link"
+										},
+										{
+											"key": "twitter_link",
+											"value": "https://twitter.com/johndoe",
+											"type": "text",
+											"description": "Twitter profile link"
+										},
+										{
+											"key": "linkedin_link",
+											"value": "https://linkedin.com/in/johndoe",
+											"type": "text",
+											"description": "LinkedIn profile link"
+										},
+										{
+											"key": "youtube_link",
+											"value": "https://youtube.com/channel/johndoe",
+											"type": "text",
+											"description": "YouTube channel link"
+										},
+										{
+											"key": "website_link",
+											"value": "https://johndoe.com",
+											"type": "text",
+											"description": "Website link"
+										},
+										{
+											"key": "image",
+											"type": "file",
+											"description": "Profile image file (optional)"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/api/vendor/profile-update-request",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"vendor",
+										"profile-update-request"
+									]
+								},
+								"description": "Submit profile update request for admin approval"
+							}
+						},
+						{
+							"name": "Get Profile Update Status",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/vendor/profile-update-status?vendor_id=123",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"vendor",
+										"profile-update-status"
+									],
+									"query": [
+										{
+											"key": "vendor_id",
+											"value": "123",
+											"description": "Vendor's user ID"
+										}
+									]
+								},
+								"description": "Get all profile update requests for a vendor"
+							}
+						}
+					]
+				},
+				{
+					"name": "Gallery Management",
+					"item": [
+						{
+							"name": "Upload Gallery Files",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "multipart/form-data"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "user_id",
+											"value": "123",
+											"type": "text",
+											"description": "User ID"
+										},
+										{
+											"key": "images[]",
+											"type": "file",
+											"description": "Image files (multiple)"
+										},
+										{
+											"key": "videos[]",
+											"type": "file",
+											"description": "Video files (multiple)"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/api/gallery/upload",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"gallery",
+										"upload"
+									]
+								},
+								"description": "Upload multiple images and videos to gallery"
+							}
+						},
+						{
+							"name": "Get My Gallery",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/gallery/my-gallery?user_id=123&status=approved",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"gallery",
+										"my-gallery"
+									],
+									"query": [
+										{
+											"key": "user_id",
+											"value": "123",
+											"description": "User ID"
+										},
+										{
+											"key": "status",
+											"value": "approved",
+											"description": "Filter by status (pending/approved/rejected)"
+										}
+									]
+								},
+								"description": "Get user's gallery with status filtering"
+							}
+						},
+						{
+							"name": "Remove Gallery Item",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"user_id\": 123\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/gallery/remove/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"gallery",
+										"remove",
+										"1"
+									]
+								},
+								"description": "Remove a gallery item (only if pending or rejected)"
+							}
+						},
+						{
+							"name": "Update Gallery Order",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"user_id\": 123,\n  \"items\": [\n    { \"id\": 1, \"sort_order\": 1 },\n    { \"id\": 2, \"sort_order\": 2 },\n    { \"id\": 3, \"sort_order\": 3 }\n  ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/gallery/update-order",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"gallery",
+										"update-order"
+									]
+								},
+								"description": "Update the display order of gallery items"
+							}
+						}
+					]
+				},
+				{
+					"name": "Basic APIs",
+					"item": [
+						{
+							"name": "List Categories",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/vendor/categories",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"vendor",
+										"categories"
+									]
+								},
+								"description": "Get all categories"
+							}
+						},
+						{
+							"name": "List States",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/vendor/states",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"vendor",
+										"states"
+									]
+								},
+								"description": "Get all states"
+							}
+						},
+						{
+							"name": "List Cities by State",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/vendor/cities?state_id=1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"vendor",
+										"cities"
+									],
+									"query": [
+										{
+											"key": "state_id",
+											"value": "1",
+											"description": "State ID"
+										}
+									]
+								},
+								"description": "Get cities by state ID"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin APIs",
+			"item": [
+				{
+					"name": "Profile Update Requests",
+					"item": [
+						{
+							"name": "Get All Profile Update Requests",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/admin/profile-update-requests?status=pending&page=1&limit=10",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"profile-update-requests"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "pending",
+											"description": "Filter by status (pending/approved/rejected)"
+										},
+										{
+											"key": "page",
+											"value": "1",
+											"description": "Page number"
+										},
+										{
+											"key": "limit",
+											"value": "10",
+											"description": "Items per page"
+										}
+									]
+								},
+								"description": "Get all profile update requests with pagination and filtering"
+							}
+						},
+						{
+							"name": "Get Pending Profile Update Requests",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/admin/profile-update-requests/pending",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"profile-update-requests",
+										"pending"
+									]
+								},
+								"description": "Get only pending profile update requests"
+							}
+						},
+						{
+							"name": "Get Profile Update Request Details",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/admin/profile-update-requests/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"profile-update-requests",
+										"1"
+									]
+								},
+								"description": "Get detailed information about a specific profile update request"
+							}
+						},
+						{
+							"name": "Process Profile Update Request",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"request_id\": 1,\n  \"action\": \"approve\",\n  \"remarks\": \"Approved by admin\",\n  \"admin_id\": 1\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/admin/profile-update-requests/process",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"profile-update-requests",
+										"process"
+									]
+								},
+								"description": "Approve or reject a profile update request"
+							}
+						}
+					]
+				},
+				{
+					"name": "Gallery Management",
+					"item": [
+						{
+							"name": "Get All Gallery Requests",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/admin/gallery-requests?status=pending&user_id=123&page=1&limit=20",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"gallery-requests"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "pending",
+											"description": "Filter by status (pending/approved/rejected)"
+										},
+										{
+											"key": "user_id",
+											"value": "123",
+											"description": "Filter by specific user"
+										},
+										{
+											"key": "page",
+											"value": "1",
+											"description": "Page number"
+										},
+										{
+											"key": "limit",
+											"value": "20",
+											"description": "Items per page"
+										}
+									]
+								},
+								"description": "Get all gallery requests with filtering and pagination"
+							}
+						},
+						{
+							"name": "Get Pending Gallery Requests",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/admin/gallery-requests/pending",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"gallery-requests",
+										"pending"
+									]
+								},
+								"description": "Get only pending gallery requests"
+							}
+						},
+						{
+							"name": "Process Gallery Requests",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"gallery_ids\": [1, 2, 3],\n  \"action\": \"approve\",\n  \"remarks\": \"Approved by admin\",\n  \"admin_id\": 1\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/admin/gallery-requests/process",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"gallery-requests",
+										"process"
+									]
+								},
+								"description": "Approve or reject multiple gallery items"
+							}
+						}
+					]
+				},
+				{
+					"name": "User Management",
+					"item": [
+						{
+							"name": "Get User Complete Profile",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/admin/user-profile/123",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"user-profile",
+										"123"
+									]
+								},
+								"description": "Get complete user profile with all details and gallery"
+							}
+						},
+						{
+							"name": "List All Vendors",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/admin/vendors",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"vendors"
+									]
+								},
+								"description": "Get all vendors with category information"
+							}
+						},
+						{
+							"name": "List Pending Vendors",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/admin/vendors/pending",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"vendors",
+										"pending"
+									]
+								},
+								"description": "Get vendors with pending status"
+							}
+						},
+						{
+							"name": "List Sponsored Vendors",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/admin/vendors/sponsored",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"vendors",
+										"sponsored"
+									]
+								},
+								"description": "Get sponsored vendors"
+							}
+						},
+						{
+							"name": "List Blocked Vendors",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/admin/vendors/blocked",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"vendors",
+										"blocked"
+									]
+								},
+								"description": "Get blocked vendors"
+							}
+						},
+						{
+							"name": "Approve Vendor",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"vendor_id\": 123\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/admin/vendors/approve",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"vendors",
+										"approve"
+									]
+								},
+								"description": "Approve a vendor and send login credentials"
+							}
+						},
+						{
+							"name": "Update Vendor Status",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"vendor_id\": 123,\n  \"status\": 1\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/admin/vendors/update-status",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"vendors",
+										"update-status"
+									]
+								},
+								"description": "Update vendor status (0=pending, 1=approved, 2=blocked)"
+							}
+						},
+						{
+							"name": "Get Active Vendors",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/admin/active_vendors",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"active_vendors"
+									]
+								},
+								"description": "Get active vendors"
+							}
+						},
+						{
+							"name": "Update Sponsor Ranks",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"vendors\": [\n    { \"vendor_id\": 1, \"sponsor_rank\": 1 },\n    { \"vendor_id\": 2, \"sponsor_rank\": 2 },\n    { \"vendor_id\": 3, \"sponsor_rank\": 3 }\n  ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/admin/update-sponsor-ranks",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"update-sponsor-ranks"
+									]
+								},
+								"description": "Update sponsor ranks for multiple vendors"
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	]
+} 
