@@ -102,3 +102,39 @@ export async function GetCities(token, stateId) {
     return err;
   }
 }
+
+export async function GetGallery(token,userId){
+  try{
+    const res= await axios.get(`${Config.base_url}gallery/my-gallery?user_id=${userId}&status=approved`,{
+      headers:{
+        'Authorization':`${token}`
+      },
+    });
+    return res?.data;
+  }catch(err){
+    return err;
+  }
+}
+
+
+export async function GalleryUpload(data) {
+  try {
+    const response = await axios.post(`${Config.base_url}gallery/upload`, data);
+    return response;
+  } catch (error) {
+    throw error?.response?.data || error;
+  }
+}
+
+export async function RemoveGalleryItem(token, id) {
+  try {
+    const response = await axios.delete(`${Config.base_url}gallery/remove/${id}`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    throw error?.response?.data || error;
+  }
+}

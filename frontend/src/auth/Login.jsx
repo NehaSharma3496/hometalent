@@ -6,88 +6,91 @@ import * as Yup from "yup";
 import { LoginApi } from "../Services/auth/Login";
 import ReusableForm from "../extracomponents/ReusableForm";
 
-
-
-
 const Login = () => {
   const navigate = useNavigate();
   const initialValues = {
-  identifier: "",
-  password: "",
-};
-
-//  Validation schema
-const validationSchema = Yup.object({
-  identifier: Yup.string().required("Email or phone is required"),
-  password: Yup.string().required("Password is required"),
-});
-
-//  Field definitions
-const fields = [
-  {
-    name: "identifier",
-    label: "Email/phone",
-    type: "text",
-    placeholder: "Enter your email",
-  },
-  {
-    name: "password",
-    label: "Password",
-    type: "password",
-    placeholder: "Enter your password",
-  },
-];
-
-const handleSubmit = async (values) => {
-  const payload = {
-    identifier: values.identifier,
-    password: values.password,
+    identifier: "",
+    password: "",
   };
- 
-  try {
-    const response = await LoginApi(payload);
 
-    if (response.status === true) {
-      const user = response.user;
-      const roleId = user.role_id; 
+  //  Validation schema
+  const validationSchema = Yup.object({
+    identifier: Yup.string().required("Email or phone is required"),
+    password: Yup.string().required("Password is required"),
+  });
 
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("role", roleId.toString());
-      localStorage.setItem("user", JSON.stringify(user));
+  //  Field definitions
+  const fields = [
+    {
+      name: "identifier",
+      label: "Email/phone",
+      type: "text",
+      placeholder: "Enter your email",
+    },
+    {
+      name: "password",
+      label: "Password",
+      type: "password",
+      placeholder: "Enter your password",
+    },
+  ];
 
-      Swal.fire({
-        title: "Login Success",
-        text: "You have been logged in",
-        icon: "success",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          if (roleId === 1) {
-            navigate("/admin/dashboard");
-          } else if (roleId === 2) {
-            navigate("/vendor/dashboard");
-          } else {
-            navigate("/login");
-          }
+  const handleSubmit = async (values) => {
+    const payload = {
+      identifier: values.identifier,
+      password: values.password,
+    };
+
+    try {
+      const response = await LoginApi(payload);
+
+      console.log("Login API response:", response);
+
+      if (response.status === true) {
+        const user = response.user;
+        const roleId = user.role_id;
+
+        localStorage.setItem("token", response.token);
+        localStorage.setItem("role", roleId.toString());
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("userId", user.id);
+
+        if (user?.id) {
+          localStorage.setItem("userId", user.id.toString());
+        } else {
+          console.log("User ID not found in response:", user);
         }
-      });
-    } else {
+
+        Swal.fire({
+          title: "Login Success",
+          text: "You have been logged in",
+          icon: "success",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            if (roleId === 1) {
+              navigate("/admin/dashboard");
+            } else if (roleId === 2) {
+              navigate("/vendor/dashboard");
+            } else {
+              navigate("/login");
+            }
+          }
+        });
+      } else {
+        Swal.fire({
+          title: "Error",
+          text: response.msg || "Invalid credentials",
+          icon: "error",
+        });
+      }
+    } catch (error) {
       Swal.fire({
         title: "Error",
-        text: response.msg || "Invalid credentials",
+        text: error.response?.data?.msg || "Invalid credentials",
         icon: "error",
       });
     }
-  } catch (error) {
-    Swal.fire({
-      title: "Error",
-      text: error.response?.data?.msg || "Invalid credentials",
-      icon: "error",
-    });
-  }
-};
-
-
-
+  };
 
   return (
     <div className="login-area section-padding">
@@ -103,7 +106,7 @@ const handleSubmit = async (values) => {
                 />
               </div>
 
-             <ReusableForm
+              <ReusableForm
                 initialValues={initialValues}
                 validationSchema={validationSchema}
                 onSubmit={handleSubmit}

@@ -31,8 +31,8 @@ const Registration = () => {
     experience: "",
     longDesc: "",
     images: [],
-    videos: [],
-    socialLinks: "",
+    // videos: [],
+    // socialLinks: "",
     terms: false,
   };
 
@@ -116,18 +116,18 @@ const Registration = () => {
       type: "file",
       colClass: "col-md-6 mb-3",
     },
-    {
-      name: "videos",
-      label: "Videos (Max 3)",
-      type: "file",
-      colClass: "col-md-6 mb-3",
-    },
-    {
-      name: "socialLinks",
-      label: "Social Media Links",
-      type: "text",
-      colClass: "col-md-6 mb-3",
-    },
+    // {
+    //   name: "videos",
+    //   label: "Videos (Max 3)",
+    //   type: "file",
+    //   colClass: "col-md-6 mb-3",
+    // },
+    // {
+    //   name: "socialLinks",
+    //   label: "Social Media Links",
+    //   type: "text",
+    //   colClass: "col-md-6 mb-3",
+    // },
     {
       name: "experience",
       label: "Experience Since",
@@ -142,47 +142,92 @@ const Registration = () => {
     },
   ];
 
-  const onSubmit = async (values) => {
-    const payload = {
-      owner_name: values.ownerName,
-      profile_name: values.profileName,
-      state_id: values.state,
-      city_id: values.city,
-      pin_code: values.pin,
-      phone: values.phone,
-      email: values.email,
-      price_range: values.priceRange,
-      short_description: values.shortDesc,
-      category_id: values.category.join(","),
-      experience_since: values.experience,
-      long_description: values.longDesc,
-      social_media_link: values.socialLinks,
-      image: null,
-      video: null,
-      role_id: 2,
-      password: values.password,
-      show_password: values.password,
-    };
+  // const onSubmit = async (values) => {
+  //   const payload = {
+  //     owner_name: values.ownerName,
+  //     profile_name: values.profileName,
+  //     state_id: values.state,
+  //     city_id: values.city,
+  //     pin_code: values.pin,
+  //     phone: values.phone,
+  //     email: values.email,
+  //     price_range: values.priceRange,
+  //     short_description: values.shortDesc,
+  //     category_id: values.category.join(","),
+  //     experience_since: values.experience,
+  //     long_description: values.longDesc,
+  //     // social_media_link: values.socialLinks,
+  //     image: values.images,
+  //     // video: null,
+  //     role_id: 2,
+  //     password: values.password,
+  //     show_password: values.password,
+  //   };
 
-    try {
-      const res = await VendorRegister(payload);
+  //   try {
+  //     const res = await VendorRegister(payload);
 
-      console.log("API SUCCESS RESPONSE:", res?.data);
+  //     console.log("API SUCCESS RESPONSE:", res?.data);
 
-      if (res?.data?.status) {
-        Swal.fire("Success", res?.data?.msg || "User registered!", "success");
-      } else {
-        Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
-      }
-    } catch (err) {
-      console.error("API ERROR:", err);
-      Swal.fire(
-        "Error",
-        err?.response?.data?.msg || err.message || "Something went wrong",
-        "error"
-      );
+  //     if (res?.data?.status) {
+  //       Swal.fire("Success", res?.data?.msg || "User registered!", "success");
+  //     } else {
+  //       Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+  //     }
+  //   } catch (err) {
+  //     console.error("API ERROR:", err);
+  //     Swal.fire(
+  //       "Error",
+  //       err?.response?.data?.msg || err.message || "Something went wrong",
+  //       "error"
+  //     );
+  //   }
+  // };
+
+const onSubmit = async (values) => {
+  try {
+    const formData = new FormData();
+
+    formData.append("owner_name", values.ownerName);
+    formData.append("profile_name", values.profileName);
+    formData.append("state_id", values.state);
+    formData.append("city_id", values.city);
+    formData.append("pin_code", values.pin);
+    formData.append("phone", values.phone);
+    formData.append("email", values.email);
+    formData.append("price_range", values.priceRange);
+    formData.append("short_description", values.shortDesc);
+    formData.append("category_id", values.category.join(","));
+    formData.append("experience_since", values.experience);
+    formData.append("long_description", values.longDesc);
+    // formData.append("social_media_link", values.socialLinks || "");
+    formData.append("role_id", 2);
+    formData.append("password", values.password);
+    formData.append("show_password", values.password);
+
+    // Append all selected images (multiple file support)
+    for (let i = 0; i < values.images.length; i++) {
+      formData.append("image", values.images[i]);
     }
-  };
+
+    const res = await VendorRegister(formData); // <-- must handle FormData in this function
+
+    if (res?.data?.status) {
+      Swal.fire("Success", res?.data?.msg || "User registered!", "success");
+    } else {
+      Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+    }
+  } catch (err) {
+    console.error("API ERROR:", err);
+    Swal.fire(
+      "Error",
+      err?.response?.data?.msg || err.message || "Something went wrong",
+      "error"
+    );
+  }
+};
+
+
  const fetchCategories = async () => {
       try {
         const res = await GetCategories();

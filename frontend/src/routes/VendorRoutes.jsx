@@ -7,6 +7,8 @@ import Allusers from "../pages/vendor/users/Allusers";
 import Adduser from "../pages/vendor/users/Adduser";
 import BlockedUser from "../pages/vendor/users/BlockedUser";
 import FeedbackandReview from "../pages/vendor/users/FeedbackandReview";
+import ViewGallery from "../pages/vendor/gallery/ViewGallery";
+import UploadGallery from "../pages/vendor/gallery/UploadGallery";
 
 // for vendor routing
 
@@ -17,6 +19,8 @@ const AdminRoutes = (
     <Route path="users/adduser" element={<Adduser />} />
     <Route path="users/blocked" element={<BlockedUser />} />
     <Route path="users/feedback" element={<FeedbackandReview />} />
+    <Route path="gallery" element={<ViewGallery/>}/>
+    <Route path="gallery/upload" element={<UploadGallery/>}/>
     {/* <Route path="clients" element={<Clients />} /> */}
   </Route>
 );

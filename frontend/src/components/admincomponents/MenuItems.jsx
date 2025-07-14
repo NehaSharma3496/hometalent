@@ -134,6 +134,16 @@ export const MenuItems = {
         { label: "Feedback & Reviews", link: "/vendor/users/feedback" },
       ],
     },
+
+    {
+      icon: "fa-solid fa-image",
+      label: "Gallery",
+      children: [
+        { label: "My Gallery", link: "/vendor/gallery" },
+        { label: "Upload Media", link: "/vendor/gallery/upload" },
+      ],
+    },
+
     {
       icon: "fa-solid fa-list",
       label: "Listing",
