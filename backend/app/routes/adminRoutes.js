@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/admin/adminController');
+const galleryAdminController = require('../controllers/admin/galleryAdminController');
+const adminGalleryController = require('../controllers/admin/adminGalleryController');
 const authController = require('../controllers/auth/authController');
 const { verifyToken } = require('../middleware/authMiddleware');
+const uploadMedia = require('../middleware/UploadMedia');
+const galleryUpload = require('../middleware/GalleryUpload');
 
 // 🧑‍💼 1. All Vendors
 router.get('/vendors', adminController.listAllVendors);
@@ -27,5 +31,25 @@ router.get('/active_vendors', adminController.active_vendors);
 
 router.post('/update-sponsor-ranks', adminController.updateSponsorRanks);
 
+// Profile update request routes
+router.get('/profile-update-requests', adminController.getAllProfileUpdateRequests);
+router.get('/profile-update-requests/pending', adminController.getPendingProfileUpdateRequests);
+router.get('/profile-update-requests/:request_id', adminController.getProfileUpdateRequestDetails);
+router.post('/profile-update-requests/process', adminController.processProfileUpdateRequest);
+
+// Gallery management routes
+router.get('/gallery-requests', galleryAdminController.getAllGalleryRequests);
+router.get('/gallery-requests/pending', galleryAdminController.getPendingGalleryRequests);
+router.post('/gallery-requests/process', galleryAdminController.processGalleryRequest);
+
+// User profile routes
+router.get('/user-profile/:user_id', galleryAdminController.getUserCompleteProfile);
+
+// Admin Gallery routes (no approval needed)
+router.post('/admin-gallery/upload', galleryUpload, adminGalleryController.uploadAdminGalleryFiles);
+router.get('/admin-gallery/my-gallery', adminGalleryController.getAdminGallery);
+router.delete('/admin-gallery/remove/:gallery_id', adminGalleryController.removeAdminGalleryItem);
+router.put('/admin-gallery/update-order', adminGalleryController.updateAdminGalleryOrder);
+router.get('/admin-gallery/all', adminGalleryController.getAllAdminGalleries);
 
 module.exports = router;
