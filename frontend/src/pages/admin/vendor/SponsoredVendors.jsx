@@ -125,7 +125,7 @@ fetchVendors();
             <div className="row align-items-center mb-3">
                 <div className="col-md-6">
                     <div className="add-page-heading-div">
-                        <Link to="/"><i className="fa-sharp fa-regular fa-arrow-left"></i></Link>
+                        <Link to="/admin/dashboard"><i className="fa-sharp fa-regular fa-arrow-left"></i></Link>
                         <h2 className="add-page-heading">Sponsored Vendors
 </h2>
                     </div>
