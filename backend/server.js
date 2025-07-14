@@ -10,9 +10,16 @@ const path = require('path');
 const app = express();
 
 //test
+// const corsOptions = {
+//   origin: "http://localhost:3000",
+//   credentials: true,
+// };
+
 const corsOptions = {
-  origin: "http://localhost:8888",
+  origin: ["http://localhost:3002", "*"],
   credentials: true,
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],
 };
 
 app.use(cors(corsOptions));
