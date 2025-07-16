@@ -11,6 +11,9 @@ import Allusers from "../pages/vendor/users/Allusers";
 import Adduser from "../pages/admin/vendor/Adduser";
 import BlockedUser from "../pages/vendor/users/BlockedUser";
 import FeedbackandReview from "../pages/vendor/users/FeedbackandReview";
+import ApprovedVendors from "../pages/admin/vendor/ApprovedVendors";
+import ProfileUpdateRequest from "../pages/admin/profileupdaterequest/ProfileUpdateRequest";
+import VendorDetails from "../pages/admin/vendor/VendorDetails";
 
 const AdminRoutes = (
   <Route path="/admin" element={<AdminLayout />}>
@@ -23,6 +26,10 @@ const AdminRoutes = (
     <Route path="users/allusers" element={<Allusers/>}/>
     <Route path="users/blocked" element={<BlockedUser/>}/>
     <Route path="users/feedback" element={<FeedbackandReview/>}/>
+    <Route path="vendor/approvevendors" element={<ApprovedVendors />} />
+    <Route path="profileupdaterequest" element={<ProfileUpdateRequest />} />
+    <Route path="vendor/:id" element={<VendorDetails />} />
+
     {/* <Route path="clients" element={<Clients />} /> */}
   </Route>
 );

@@ -9,6 +9,8 @@ const Datatable = ({ columns, data }) => {
                columns={columns}
                 data={data}
                 pagination
+                searchable
+                fixedHeader
                 // paginationPerPage={paginationPerPage}
                 // paginationPage={paginationPage}
                 // onChangePage={handlePageChange}

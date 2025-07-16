@@ -1,146 +1,192 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'
-import {GetVendoreList } from '../../../Services/admin/Admin'
-import Datatable from '../../../extracomponents/Datatable';
+import React, { useState, useEffect } from "react";
+import Swal from 'sweetalert2';
+
+import { Link } from "react-router-dom";
+import { GetVendoreList,GetApproveVendor } from "../../../Services/admin/Admin";
+import Datatable from "../../../extracomponents/Datatable";
 
 export default function Allvendors() {
+  const [vendors, setVendors] = React.useState([]);
 
-const [vendors, setVendors] = React.useState([])
-
-const fetchVendors = async()=>
-{
-    try{
-        const response= await GetVendoreList();
-        setVendors(response.data)
-
+  const fetchVendors = async () => {
+    try {
+      const response = await GetVendoreList();
+      
+      setVendors(response.data);
+    } catch (error) {
+      console.log("error");
     }
-    catch(error)
-    {
-  console.log("error")
+  };
+
+
+const handleApproveVendor = async (vendorId) => {
+  try {
+    const confirm = await Swal.fire({
+      title: 'Approve Vendor?',
+      text: 'Are you sure you want to approve this vendor?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, approve it!',
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    const token = localStorage.getItem("token");
+    const response = await GetApproveVendor(vendorId, token);
+
+    if (response.status === true || response.status === "true") {
+      await Swal.fire('Approved!', 'Vendor approved successfully.', 'success');
+      fetchVendors(); // refresh table
+    } else {
+      await Swal.fire('Failed!', 'Failed to approve vendor.', 'error');
     }
-}
-useEffect(() => {
-fetchVendors();
-}, [])
 
+  } catch (error) {
+    console.error("Error approving vendor:", error);
+    await Swal.fire('Error!', 'Something went wrong.', 'error');
+  }
+};
 
-    const columns = [
-        {
-            name: "Sr.No.",
-            selector: (row) => row.id,
-            sortable: true,
-        },
-        {
-            name: "Owner Name",
-            selector: (row) => row.owner_name,
-            sortable: true,
-        },
-        {
-            name: "Email",
-            selector: (row) => row.email,
-            sortable: true,
-        },
-     {
-    name: "Category Names",
-    selector: (row) => Array.isArray(row.category_names) 
-        ? row.category_names.join(", ") 
-        : row.category_names,
-    sortable: true,
-},
-
-        {
-            name: "Profile Name",
-            selector: (row) => row.profile_name,
-            sortable: true,
-        },
-        {
-            name: "Phone Number",
-            selector: (row) => row.phone,
-            sortable: true,
-        },
-        {
-            name: "Price Range",
-            selector: (row) => row.price_range,
-            sortable: true,
-        },
-        {
-            name: "Short Description",
-            selector: (row) => row.short_description,
-            sortable: true,
-        },
-        {
-            name: "Status",
-            cell: (row) => (
-                <span className="switch">
-                    <input id={`switch-${row.sno}`} type="checkbox" />
-                    <label for={`switch-${row.sno}`}></label>
-                </span>
-            ),
-            sortable: false,
-        },
-        {
-            name: "Social Media Link",
-            selector: (row) => row.social_media_link,
-            sortable: true,
-        },
-        {
-            name: "Pin Code",
-            selector: (row) => row.tradingstatus,
-            sortable: true,
-        },
-        {
-            name: "Experience Since",
-            selector: (row) => row.experience_since,
-            sortable: true,
-        },
-        
-        {
-            name: "Actions",
-            selector: (row) => row.action,
-            cell: (row) => (
-                <div className="action-div">
-                    <a title="Edit" href="#">
-                        <i className="fa-regular fa-pen-line"></i>
-                    </a>
-                    <a title="Delete" href="#">
-                        <i className="fa-solid fa-trash-can"></i>
-                    </a>
-                   
-                   
-                   
-                </div>
-            ),
-            sortable: false,
-        }
-    ];
-
-
-  
+  useEffect(() => {
+    fetchVendors();
     
+  }, []);
+  
+  const columns = [
+    {
+      name: "Sr.No.",
+      selector: (row) => row.id,
+      sortable: true,
+    },
+    {
+      name: "Owner Name",
+      selector: (row) => row.owner_name,
+      sortable: true,
+    },
+    {
+      name: "Email",
+      selector: (row) => row.email,
+      sortable: true,
+    },
+    {
+      name: "Category Names",
+      selector: (row) =>
+        Array.isArray(row.category_names)
+          ? row.category_names.join(", ")
+          : row.category_names,
+      sortable: true,
+    },
+
+    
+    {
+      name: "Phone ",
+      selector: (row) => row.phone,
+      sortable: true,
+    },
+    {
+      name: "Price Range",
+      selector: (row) => row.price_range,
+      sortable: true,
+    },
+    {
+      name: "Short Description",
+      selector: (row) => row.short_description,
+      sortable: true,
+    },
+     {
+      name: "Image",
+      selector: (row) => row.image,
+      cell: (row) =>
+        row.image ? (
+          <img
+            src={row.image}
+            alt={row.profile_name}
+            style={{ width: "50px", height: "50px", objectFit: "cover" }}
+          />
+        ) : (
+          "N/A"
+        ),
+    },
+    // {
+    //   name: "Status",
+    //   cell: (row) => (
+    //     <span className="switch">
+    //       <input id={`switch-${row.sno}`} type="checkbox" />
+    //       <label for={`switch-${row.sno}`}></label>
+    //     </span>
+    //   ),
+    //   sortable: false,
+    // },
+    
+    {
+      name: "Experience Since",
+      selector: (row) => row.experience_since,
+      sortable: true,
+    },
+
+   {
+  name: "Actions",
+  cell: (row) => (
+    <div className="action-div">
+      <a title="Edit" href="#">
+        <i className="fa-regular fa-pen-line"></i>
+      </a>
+      <a title="Delete" href="#">
+        <i className="fa-solid fa-trash-can"></i>
+      </a>
+
+      <button
+        className="btn btn-sm btn-info me-1"
+        onClick={() => window.location.href = `/admin/vendor/${row.id}`}
+      >
+        View
+      </button>
+
+      <button
+        className="btn btn-sm btn-primary"
+        onClick={() => handleApproveVendor(row.id)}
+      >
+        Approve
+      </button>
+    </div>
+  ),
+  width: "200px",
+  sortable: false,
+}
+
+  ];
 
   return (
-   
-        <div className="page-content">
-
-            <div className="row align-items-center mb-3">
-                <div className="col-md-6">
-                    <div className="add-page-heading-div">
-                        <Link to="//admin/dashboard"><i className="fa-sharp fa-regular fa-arrow-left"></i></Link>
-                        <h2 className="add-page-heading">All Vendor</h2>
-                    </div>
-                </div>
-                <div className="col-md-6 text-end">
-                    <Link to="/addclient" className="add-btn-head">+ Add User</Link>
-                </div>
+    <div className="page-content">
+      <div className="row align-items-center mb-3">
+        <div className="col-md-6">
+          <div className="add-page-heading-div">
+            <Link to="//admin/dashboard">
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </Link>
+            <h2 className="add-page-heading">All Vendor</h2>
+          </div>
+        </div>
+        <div className="col-md-6 text-end">
+          <Link to="/addclient" className="add-btn-head">
+            + Add User
+          </Link>
+        </div>
+      </div>
+      <div className="card">
+        <div className="row filter-forms ">
+          <div className="col-lg-2">
+            <div className="form-row">
+              <input
+                className="form-input"
+                type="text"
+                placeholder="Search Something Here"
+              />
             </div>
-<div className='card'>
-            <div className="row filter-forms ">
-                <div className="col-lg-2">
-                    <div className="form-row">
-                        <input className="form-input" type="text" placeholder="Search Something Here" />
-                    </div>
-                </div>
-                {/* <div className="col-lg-2">
+          </div>
+          {/* <div className="col-lg-2">
                     <div className="form-row">
                         <select className="form-input">
                             <option>Client Type</option>
@@ -186,7 +232,7 @@ fetchVendors();
                         </select>
                     </div>
                 </div> */}
-                {/* <div className="col-lg-2">
+          {/* <div className="col-lg-2">
                     <div className="form-row">
                     <select className="form-input">
                         <option>Strategies</option>
@@ -206,24 +252,17 @@ fetchVendors();
                     </select>
                     </div>
                 </div> */}
-                {/* <div className="col-lg-2">
+          {/* <div className="col-lg-2">
                     <button type="button" className="filter-reset-btn" title="Export To Excel"><i className="fa fa-download" aria-hidden="true"></i> Export Excel</button>
                 </div> */}
-            </div>
-
-            <div className="row">
-                <div className="col-md-12">
-
-                    <Datatable
-                        columns={columns}
-                        data={vendors}
-                        pagination
-                    />
-                </div>
-            </div>
-                
         </div>
+
+        <div className="row">
+          <div className="col-md-12">
+            <Datatable columns={columns} data={vendors} pagination />
+          </div>
         </div>
-    
-  )
+      </div>
+    </div>
+  );
 }

@@ -8,6 +8,9 @@ import Adduser from "../pages/vendor/users/Adduser";
 import BlockedUser from "../pages/vendor/users/BlockedUser";
 import FeedbackandReview from "../pages/vendor/users/FeedbackandReview";
 
+import Allvendors from "../pages/admin/vendor/Allvendors";
+
+
 // for vendor routing
 
 const AdminRoutes = (
@@ -17,6 +20,8 @@ const AdminRoutes = (
     <Route path="users/adduser" element={<Adduser />} />
     <Route path="users/blocked" element={<BlockedUser />} />
     <Route path="users/feedback" element={<FeedbackandReview />} />
+    
+    
     {/* <Route path="clients" element={<Clients />} /> */}
   </Route>
 );
