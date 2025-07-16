@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const sequelize = require('./app/config/db.config');
 const routes = require('./app/routes');
 const path = require('path');
-
+// const seedAll = require('./app/seeders'); 
 const app = express();
 
 //test
@@ -16,7 +16,7 @@ const app = express();
 // };
 
 const corsOptions = {
-  origin: ["http://localhost:3002", "*"],
+  origin: ["http://localhost:3000", "*"],
   credentials: true,
   methods: ["GET", "POST"],
   allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],

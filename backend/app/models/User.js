@@ -76,13 +76,29 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: true,
     },
-    video: {
+    facebook_link: {
         type: DataTypes.STRING,
         allowNull: true,
     },
-    social_media_link: {
-       type: DataTypes.TEXT("long"),
-       allowNull: true,
+    instagram_link: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    twitter_link: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    linkedin_link: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    youtube_link: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    website_link: {
+        type: DataTypes.STRING,
+        allowNull: true,
     },
     role_id: {
         type: DataTypes.INTEGER,
@@ -129,7 +145,8 @@ const User = sequelize.define('User', {
 User.associate = (models) => {
     User.belongsTo(models.Role, { foreignKey: 'role_id' });
     User.belongsTo(models.State, { foreignKey: 'state_id' });
-    User.belongsTo(models.City, { foreignKey: 'City_id' });
+    User.belongsTo(models.City, { foreignKey: 'city_id' });
+    User.hasMany(models.Gallery, { foreignKey: 'user_id', as: 'gallery' });
     // User.hasMany(models.Order, { foreignKey: 'user_id' });
     //User.belongsTo(models.Category, { foreignKey: 'category_id' });
     // User.hasMany(models.Product, { foreignKey: 'user_id' });

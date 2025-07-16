@@ -49,7 +49,7 @@ const Adduser = () => {
      <div className="page-content">
         
                 <div className="add-page-heading-div mb-4">
-                    <Link to="/"><i className="fa-sharp fa-regular fa-arrow-left"></i></Link>
+                    <Link to="/vendor/dashboard"><i className="fa-sharp fa-regular fa-arrow-left"></i></Link>
                     <h2 className="add-page-heading">Add User</h2>
                 </div>
     <div className="card">
