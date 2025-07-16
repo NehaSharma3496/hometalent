@@ -210,7 +210,7 @@ a{
 #sidebar .sidebar-nav .nav-item a {
     color: #FFF;
     font-family: Lato;
-    font-size: 17px;
+    font-size: 15px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
@@ -218,7 +218,7 @@ a{
     
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 }
 
 #sidebar .sidebar-nav .nav-item.menu-dropdown .dropdown-menu-link {
@@ -227,7 +227,7 @@ a{
 
 #sidebar .sidebar-nav .nav-item.menu-dropdown .dropdown-menu-link div {
     display: flex;
-    gap: 12px;
+    gap: 8px;
 }
 
 #sidebar .sidebar-nav .nav-item a i {
