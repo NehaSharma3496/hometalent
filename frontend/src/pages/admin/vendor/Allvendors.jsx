@@ -138,14 +138,15 @@ const handleApproveVendor = async (vendorId) => {
       </a>
 
       <button
-        className="btn btn-sm btn-info me-1"
+        className="btn action-btn btn-warning  me-1"
         onClick={() => window.location.href = `/admin/vendor/${row.id}`}
       >
-        View
+               View
+
       </button>
 
       <button
-        className="btn btn-sm btn-primary"
+        className="btn action-btn btn-primary"
         onClick={() => handleApproveVendor(row.id)}
       >
         Approve
