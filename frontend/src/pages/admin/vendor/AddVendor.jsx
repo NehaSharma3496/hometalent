@@ -1,0 +1,245 @@
+import React, { useEffect, useState } from "react";
+import ReusableForm from "../../../extracomponents/ReusableForm";
+import * as Yup from "yup";
+import Swal from "sweetalert2";
+import { Link } from "react-router-dom";
+import {
+  VendorRegister,
+  GetCategories,
+  GetStates,
+  GetCities,
+} from "../../../Services/vendor/Vendor";
+
+export default function AddVendor() {
+  const [categoryData, setCategoryData] = useState([]);
+  const [statesData, setStatesData] = useState([]);
+  const [cityData, setCityData] = useState([]);
+  const [selectedStateId, setSelectedStateId] = useState("");
+  const token = localStorage.getItem("token");
+
+  const initialValues = {
+    ownerName: "",
+    profileName: "",
+    state: "",
+    city: "",
+    pin: "",
+    phone: "",
+    email: "",
+    priceRange: "",
+    shortDesc: "",
+    category: [],
+    experience: "",
+    longDesc: "",
+    images: [],
+    terms: false,
+    password: "",
+  };
+
+  const validationSchema = Yup.object({
+    ownerName: Yup.string().required("Owner Name is required"),
+    state: Yup.string().required("State is required"),
+    city: Yup.string().required("City is required"),
+    pin: Yup.string().required("Pin Code is required"),
+    phone: Yup.string().required("Phone is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    category: Yup.array().min(1, "Select at least one category"),
+    terms: Yup.boolean().oneOf([true], "You must accept terms"),
+    password: Yup.string().required("Password is required"),
+  });
+
+  const fields = [
+    {
+      name: "ownerName",
+      label: "Owner Name*",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "profileName",
+      label: "Profile Name",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "state",
+      label: "State*",
+      type: "select",
+      options: statesData,
+      colClass: "col-md-4 mb-3",
+      onChange: (e) => setSelectedStateId(e.target.value),
+    },
+    {
+      name: "city",
+      label: "City*",
+      type: "select",
+      options: cityData,
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "pin",
+      label: "Pin Code*",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    { name: "phone", label: "Phone*", type: "text", colClass: "col-md-4 mb-3" },
+    {
+      name: "email",
+      label: "Email*",
+      type: "email",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "priceRange",
+      label: "Price Range",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "category",
+      label: "Categories (max 2)*",
+      type: "multiSelect",
+      options: categoryData,
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "shortDesc",
+      label: "Short Description",
+      type: "text",
+      colClass: "col-md-12 mb-3",
+    },
+    {
+      name: "longDesc",
+      label: "Full Description",
+      type: "textarea",
+      colClass: "col-md-12 mb-3",
+    },
+    {
+      name: "experience",
+      label: "Experience Since",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "images",
+      label: "Images (Max 30)",
+      type: "file",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "password",
+      label: "Password*",
+      type: "password",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "terms",
+      label: "I confirm vendor details",
+      type: "checkbox",
+      colClass: "col-md-12 mb-3",
+    },
+  ];
+
+  const onSubmit = async (values) => {
+    try {
+      const formData = new FormData();
+      formData.append("owner_name", values.ownerName);
+      formData.append("profile_name", values.profileName);
+      formData.append("state_id", values.state);
+      formData.append("city_id", values.city);
+      formData.append("pin_code", values.pin);
+      formData.append("phone", values.phone);
+      formData.append("email", values.email);
+      formData.append("price_range", values.priceRange);
+      formData.append("short_description", values.shortDesc);
+      formData.append("category_id", values.category.join(","));
+      formData.append("experience_since", values.experience);
+      formData.append("long_description", values.longDesc);
+      formData.append("role_id", 2);
+      formData.append("password", values.password);
+      formData.append("show_password", values.password);
+
+      for (let i = 0; i < values.images.length; i++) {
+        formData.append("image", values.images[i]);
+      }
+
+      const res = await VendorRegister(formData);
+      if (res?.data?.status) {
+        Swal.fire("Success", res?.data?.msg || "Vendor added!", "success");
+      } else {
+        Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+      }
+    } catch (err) {
+      console.error("API ERROR:", err);
+      Swal.fire(
+        "Error",
+        err?.response?.data?.msg || "Something went wrong",
+        "error"
+      );
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await GetCategories();
+      const formatted = res.data.map((cat) => ({
+        value: cat.id.toString(),
+        label: cat.name,
+      }));
+      setCategoryData(formatted);
+    } catch (error) {
+      console.log("Category fetch error:", error);
+    }
+  };
+
+  const fetchStates = async () => {
+    try {
+      const res = await GetStates();
+      const formatted = res.data.map((state) => ({
+        value: state.id.toString(),
+        label: state.name,
+      }));
+      setStatesData(formatted);
+    } catch (error) {
+      console.log("State fetch error:", error);
+    }
+  };
+
+  const fetchCities = async () => {
+    if (!selectedStateId) return;
+    try {
+      const res = await GetCities(token, selectedStateId);
+      const formatted = res.data.map((city) => ({
+        value: city.id.toString(),
+        label: city.name,
+      }));
+      setCityData(formatted);
+    } catch (error) {
+      console.log("City fetch error:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+    fetchStates();
+    fetchCities();
+  }, [selectedStateId]);
+
+  return (
+    <div className="page-content">
+      <div className="add-page-heading-div mb-4">
+        <Link to="/admin/vendor">
+          <i className="fa-sharp fa-regular fa-arrow-left"></i>
+        </Link>
+        <h2 className="add-page-heading">Add Vendor</h2>
+      </div>
+      <div className="card">
+        <ReusableForm
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={onSubmit}
+          fields={fields}
+        />
+      </div>
+    </div>
+  );
+}

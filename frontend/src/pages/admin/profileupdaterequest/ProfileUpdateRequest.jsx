@@ -7,23 +7,26 @@ import { GetProfileUpdateRequests } from "../../../Services/admin/Admin";
 export default function ProfileUpdateRequests() {
   const [requests, setRequests] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
-const fetchRequests = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    const page = 1;
-    const limit = 100;
+  const fetchRequests = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const page = 1;
+      const limit = 100;
 
-    // Now use status as path param
-    const res = await GetProfileUpdateRequests(token, statusFilter, page, limit);
+      // Now use status as path param
+      const res = await GetProfileUpdateRequests(
+        token,
+        statusFilter,
+        page,
+        limit
+      );
 
-    const data = res?.data?.requests || [];
-    setRequests(data);
-  } catch (err) {
-    console.error("Failed to fetch requests:", err);
-  }
-};
-
-
+      const data = res?.data?.requests || [];
+      setRequests(data);
+    } catch (err) {
+      console.error("Failed to fetch requests:", err);
+    }
+  };
 
   useEffect(() => {
     fetchRequests();
@@ -51,8 +54,12 @@ const fetchRequests = async () => {
     {
       name: "Actions",
       cell: (row) => (
-        <button className="btn btn-sm btn-info" onClick={() => viewDetails(row)}>
-          View
+        <button
+          className="btn action-btn btn-warning me-1"
+          onClick={() => (window.location.href = `/admin/vendor/${row.id}`)}
+          title="View"
+        >
+          <i className="fa-regular fa-eye"></i>
         </button>
       ),
     },
@@ -77,40 +84,37 @@ const fetchRequests = async () => {
 
   return (
     <div className="page-content">
-    <div className="add-page-heading-div mb-3">
-            <Link to="//admin/dashboard">
-              <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
-            <h2 className="add-page-heading">Profile Update Requests</h2>
-          </div>
-  <div className="card">
-    
-       <div className="row mb-3">
-        <div className="col-md-3">
-          <select
-            className="form-control"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-          </select>
-        </div>
+      <div className="add-page-heading-div mb-3">
+        <Link to="//admin/dashboard">
+          <i className="fa-sharp fa-regular fa-arrow-left"></i>
+        </Link>
+        <h2 className="add-page-heading">Profile Update Requests</h2>
       </div>
+      <div className="card">
+        <div className="row mb-3">
+          <div className="col-md-3">
+            <select
+              className="form-control"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
 
-      <Datatable
-        columns={columns}
-        data={requests}
-        pagination
-        highlightOnHover
-        striped
-        noDataComponent="No profile update requests found."
-      />
+        <Datatable
+          columns={columns}
+          data={requests}
+          pagination
+          highlightOnHover
+          striped
+          noDataComponent="No profile update requests found."
+        />
+      </div>
     </div>
-  </div>
-     
-    
   );
 }

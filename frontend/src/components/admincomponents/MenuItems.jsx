@@ -22,19 +22,25 @@ export const MenuItems = {
       label: "Vendors",
       children: [
         { label: "All Vendors", link: "/admin/vendor/allvendors" },
-        { label: "Add Vendor", link: "/vendors/addvendors" },
+        { label: "Add Vendor", link: "/admin/vendor/addvendors" },
+        { label: "Active Vendor", link: "/admin/vendor/activevendors" },
         { label: "Approve Vendores", link: "/admin/vendor/approvevendors" },
         { label: "Sponsored Vendors", link: "/admin/vendor/sponsoredvendors" },
         { label: "Blocked Vendors", link: "/admin/vendor/blockedvendors" },
+        { label: "Pending Vendors", link: "/admin/vendor/pendingvendors" },
         { label: "Shuffle Vendor Order", link: "/admin/vendor/shuffle-order" },
         { label: "Leads & Inquiries", link: "/admin/vendor/leads" },
       ],
     },
-      {
+    {
       icon: "fa-solid fa-user-tie",
       label: "Profile Management",
       children: [
-        { label: "Profile Update Requests", link: "/admin/profileupdaterequest" },
+        {
+          label: "Profile Update Requests",
+          link: "/admin/profileupdaterequest",
+        },
+        { label: "Galary Request", link: "/admin/galleryUpdateRequest" },
         { label: "Add Vendor", link: "/vendors/addvendors" },
         { label: "Approve Vendores", link: "/admin/vendor/approvevendors" },
         { label: "Sponsored Vendors", link: "/admin/vendor/sponsoredvendors" },

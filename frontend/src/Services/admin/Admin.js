@@ -1,89 +1,88 @@
-import axios from 'axios';
+import axios from "axios";
 import * as Config from "../../Utils/config";
-const qs = require('qs');
-
-
-
-
-
+const qs = require("qs");
 
 export async function GetVendoreList(token) {
-    try {
-        const res = await axios.get(`${Config.base_url}admin/vendors`, {
-            headers: {
-                'Authorization': `${token}`
-            },
-        });
+  try {
+    const res = await axios.get(`${Config.base_url}admin/vendors`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
 
-        return res?.data;
-    } catch (err) {
-        return err;
-    }
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
 }
 
 export async function GetSponsoredVendors(token) {
-    try {
-        const res = await axios.get(`${Config.base_url}admin/vendors/sponsored`, {
-            headers: {
-                'Authorization': `${token}`
-            },
-        });
+  try {
+    const res = await axios.get(`${Config.base_url}admin/vendors/sponsored`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
 
-        return res?.data;
-    } catch (err) {
-        return err;
-    }
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
 }
 
 export async function GetBlockedVendore(token) {
-    try {
-        const res = await axios.get(`${Config.base_url}admin/vendors/blocked`, {
-            headers: {
-                'Authorization': `${token}`
-            },
-        });
+  try {
+    const res = await axios.get(`${Config.base_url}admin/vendors/blocked`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
 
-        return res?.data;
-    } catch (err) {
-        return err;
-    }
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
 }
 
-
-export async function GetApproveVendor(vendorId ,token) {
-   try {
+export async function GetApproveVendor(vendorId, token) {
+  try {
     const res = await axios.post(
       `${Config.base_url}admin/vendors/approve`,
-      { vendor_id: vendorId }, 
+      { vendor_id: vendorId },
       {
         headers: {
-          'Authorization': `${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
         },
       }
     );
 
-        return res?.data;
-    } catch (err) {
-        return err;
-    }
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
 }
 
 export async function GetApproveVendoreList(token) {
-    try {
-        const res = await axios.get(`${Config.base_url}admin/active_vendors`, {
-            headers: {
-                'Authorization': `${token}`
-            },
-        });
+  try {
+    const res = await axios.get(`${Config.base_url}admin/active_vendors`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
 
-        return res?.data;
-    } catch (err) {
-        return err;
-    }
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
 }
 
-export async function GetProfileUpdateRequests(token, status = "all", page = 1, limit = 100) {
+export async function GetProfileUpdateRequests(
+  token,
+  status = "all",
+  page = 1,
+  limit = 100
+) {
   try {
     const endpoint =
       status === "all"
@@ -103,21 +102,106 @@ export async function GetProfileUpdateRequests(token, status = "all", page = 1, 
   }
 }
 
-export async function GetGalleryUpdateRequests(token,status="all",page=1,limit=100){
-    try {
-        const endpoint=status==="all"
-        ?`${Config.base_url}admin/gallery-requests`
-        :`${Config.base_url}admin/gallery-requests/${status}`;
-    
-    const res=await axios.get(endpoint,{
-        params:{page,limit},
-        headers:{
-            Authorization:token,
+export async function GetGalleryUpdateRequests({
+  token,
+  statusFilter,
+  page,
+  limit,
+}) {
+  try {
+    const endpoint = `${Config.base_url}admin/gallery-requests`;
+
+    const res = await axios.get(endpoint, {
+      params: {
+        status: statusFilter === "all" ? "" : statusFilter,
+        page,
+        limit,
+      },
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+
+    return res?.data;
+  } catch (err) {
+    console.error("API error:", err);
+    return err;
+  }
+}
+
+export async function ProcessGalleryUpdateRequests(
+  gallery_id,
+  action,
+  remarks,
+  admin_id,
+  token
+) {
+  try {
+    const res = await axios.post(
+      `${Config.base_url}admin/gallery-requests/process`,
+      {
+        gallery_id,
+        action,
+        remarks,
+        admin_id,
+      },
+      {
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
         },
+      }
+    );
+
+    return res?.data;
+  } catch (err) {
+    console.error("Gallery process API error:", err.response?.data || err);
+    return err.response?.data || { status: false, message: "Request failed" };
+  }
+}
+
+export async function GetPendingVendoreList(token) {
+  try {
+    const res = await axios.get(`${Config.base_url}admin/vendors/pending`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
+export async function UpdateVendorStatus(vendorId, vendorStatus, token) {
+  try {
+    const res = await axios.post(
+      `${Config.base_url}admin/vendors/update-status`,
+      { vendor_id: vendorId, status: vendorStatus },
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
+export async function GetActiveVendors(token) {
+  try {
+    const res = await axios.get(`${Config.base_url}admin/active_vendors`, {
+      headers: {
+        Authorization: `${token}`,
+      },
     });
     return res?.data;
-    
-    }catch(err){
-        return err;
-    }
+  } catch (err) {
+    return err;
+  }
 }

@@ -1,116 +1,189 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
-import Datatable from "../../../extracomponents/Datatable";
-import { GetProfileUpdateRequests } from "../../../Services/admin/Admin";
+import {
+  GetGalleryUpdateRequests,
+  ProcessGalleryUpdateRequests,
+} from "../../../Services/admin/Admin";
 
-export default function ProfileUpdateRequests() {
-  const [requests, setRequests] = useState([]);
+export default function GalleryUpdateRequest() {
+  const [gallery, setGallery] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
-const fetchRequests = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    const page = 1;
-    const limit = 100;
+  const [selectedIds, setSelectedIds] = useState([]);
 
-    // Now use status as path param
-    const res = await GetProfileUpdateRequests(token, statusFilter, page, limit);
+  const token = localStorage.getItem("token");
 
-    const data = res?.data?.requests || [];
-    setRequests(data);
-  } catch (err) {
-    console.error("Failed to fetch requests:", err);
-  }
-};
+  const fetchGallery = async () => {
+    try {
+      const res = await GetGalleryUpdateRequests({
+        token,
+        statusFilter,
+        page: 1,
+        limit: 100,
+      });
 
-
+      if (res.status) {
+        setGallery(res.data.gallery || []);
+      }
+    } catch (err) {
+      console.error("Fetch gallery error:", err);
+    }
+  };
 
   useEffect(() => {
-    fetchRequests();
+    fetchGallery();
+    setSelectedIds([]);
   }, [statusFilter]);
 
-  const columns = [
-    {
-      name: "Vendor Name",
-      selector: (row) => row.vendor?.owner_name || "N/A",
-      sortable: true,
-    },
-    {
-      name: "Email",
-      selector: (row) => row.vendor?.email || "N/A",
-    },
-    {
-      name: "Phone",
-      selector: (row) => row.vendor?.phone || "N/A",
-    },
-    {
-      name: "Status",
-      selector: (row) => row.status,
-      sortable: true,
-    },
-    {
-      name: "Actions",
-      cell: (row) => (
-        <button className="btn btn-sm btn-info" onClick={() => viewDetails(row)}>
-          View
-        </button>
-      ),
-    },
-  ];
+  const handleCheckboxChange = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
 
-  const viewDetails = (row) => {
-    const requestData = row.request_data ? JSON.parse(row.request_data) : {};
+  const processRequests = async (action, ids = selectedIds) => {
+    if (!ids || (Array.isArray(ids) && ids.length === 0)) return;
 
+    const galleryIds = Array.isArray(ids) ? ids : [ids];
+    let successCount = 0;
+
+    for (const id of galleryIds) {
+      const res = await ProcessGalleryUpdateRequests(
+        id, // single gallery_id
+        action,
+        `${action}d by admin`,
+        1, // admin_id (can be dynamic later)
+        token
+      );
+
+      if (res?.status) successCount++;
+    }
+
+    if (successCount > 0) {
+      Swal.fire(
+        "Success",
+        `${successCount} request(s) ${action}d successfully`,
+        "success"
+      );
+      fetchGallery();
+    } else {
+      Swal.fire("Error", `Failed to ${action} request(s)`, "error");
+    }
+  };
+
+  const viewDetails = (item) => {
     Swal.fire({
-      title: row.vendor?.owner_name || "Request Details",
+      title: item.user?.owner_name || "Gallery Request Details",
       html: `
-        <p><b>Email:</b> ${row.vendor?.email}</p>
-        <p><b>Phone:</b> ${row.vendor?.phone}</p>
-        <p><b>Status:</b> ${row.status}</p>
-        <hr />
-        <p><b>Short Desc:</b> ${requestData.short_description || "N/A"}</p>
-        <p><b>Price Range:</b> ${requestData.price_range || "N/A"}</p>
-        <p><b>Experience Since:</b> ${requestData.experience_since || "N/A"}</p>
+        <p><b>File Name:</b> ${item.file_name}</p>
+        <p><b>Type:</b> ${item.file_type}</p>
+        <p><b>Size:</b> ${(item.file_size / 1024).toFixed(2)} KB</p>
+        <p><b>Status:</b> ${item.status}</p>
+        <hr/>
+        <p><b>Uploaded By:</b> ${item.user?.owner_name || "N/A"}</p>
+        <p><b>Created At:</b> ${new Date(item.createdAt).toLocaleString()}</p>
       `,
+      imageUrl: item.file_path,
+      imageWidth: 300,
+      imageAlt: "Gallery Image",
     });
   };
 
   return (
     <div className="page-content">
-    <div className="add-page-heading-div mb-3">
-            <Link to="//admin/dashboard">
-              <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
-            <h2 className="add-page-heading">Profile Update Requests</h2>
-          </div>
-  <div className="card">
-    
-       <div className="row mb-3">
-        <div className="col-md-3">
+      <div className="add-page-heading-div mb-3 d-flex align-items-center justify-content-between">
+        <h2 className="add-page-heading">Gallery Update Requests</h2>
+
+        <div className="d-flex align-items-center gap-2">
           <select
-            className="form-control"
+            className="form-select form-select-sm"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
+            style={{ width: "150px" }}
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
           </select>
+
+          {statusFilter === "pending" && (
+            <>
+              <button
+                className="btn btn-success btn-sm"
+                onClick={() => processRequests("approve")}
+                disabled={selectedIds.length === 0}
+              >
+                Approve Selected
+              </button>
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={() => processRequests("reject")}
+                disabled={selectedIds.length === 0}
+              >
+                Reject Selected
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      <Datatable
-        columns={columns}
-        data={requests}
-        pagination
-        highlightOnHover
-        striped
-        noDataComponent="No profile update requests found."
-      />
+      <div className="row">
+        {gallery.length === 0 ? (
+          <div className="col-12 text-center">No records found.</div>
+        ) : (
+          gallery.map((item) => (
+            <div className="col-md-4 mb-4" key={item.id}>
+              <div className="card h-100 shadow-sm position-relative">
+                {statusFilter === "pending" && (
+                  <div className="position-absolute top-0 end-0 m-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(item.id)}
+                      onChange={() => handleCheckboxChange(item.id)}
+                    />
+                  </div>
+                )}
+                <img
+                  src={item.file_path}
+                  className="card-img-top"
+                  alt={item.file_name}
+                  style={{ height: "200px", objectFit: "cover" }}
+                />
+                <div className="card-body">
+                  <h5 className="card-title">{item.file_name}</h5>
+                  <p className="card-text mb-1">
+                    <strong>Vendor:</strong> {item.user?.owner_name || "N/A"}
+                  </p>
+                  <p className="card-text mb-1">
+                    <strong>Status:</strong> {item.status}
+                  </p>
+                  <p className="card-text">
+                    <strong>Date:</strong>{" "}
+                    {new Date(item.createdAt).toLocaleDateString()}
+                  </p>
+                  <div className="d-flex justify-content-between">
+                    <button
+                      className="btn btn-sm btn-info"
+                      onClick={() => viewDetails(item)}
+                    >
+                      View
+                    </button>
+
+                    {item.status === "pending" && (
+                      <button
+                        className="btn btn-sm btn-success"
+                        onClick={() => processRequests("approve", item.id)}
+                      >
+                        Approve
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
-  </div>
-     
-    
   );
 }

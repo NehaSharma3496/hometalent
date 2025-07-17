@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 import { Link } from "react-router-dom";
-import { GetVendoreList,GetApproveVendor } from "../../../Services/admin/Admin";
+import {
+  GetVendoreList,
+  GetApproveVendor,
+  UpdateVendorStatus,
+} from "../../../Services/admin/Admin";
 import Datatable from "../../../extracomponents/Datatable";
 
 export default function Allvendors() {
@@ -11,49 +15,78 @@ export default function Allvendors() {
   const fetchVendors = async () => {
     try {
       const response = await GetVendoreList();
-      
+
       setVendors(response.data);
     } catch (error) {
       console.log("error");
     }
   };
 
+  const handleApproveVendor = async (vendorId) => {
+    try {
+      const confirm = await Swal.fire({
+        title: "Approve Vendor?",
+        text: "Are you sure you want to approve this vendor?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, approve it!",
+      });
 
-const handleApproveVendor = async (vendorId) => {
-  try {
-    const confirm = await Swal.fire({
-      title: 'Approve Vendor?',
-      text: 'Are you sure you want to approve this vendor?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, approve it!',
+      if (!confirm.isConfirmed) return;
+
+      const token = localStorage.getItem("token");
+      const response = await GetApproveVendor(vendorId, token);
+
+      if (response.status === true || response.status === "true") {
+        await Swal.fire(
+          "Approved!",
+          "Vendor approved successfully.",
+          "success"
+        );
+        fetchVendors(); // refresh table
+      } else {
+        await Swal.fire("Failed!", "Failed to approve vendor.", "error");
+      }
+    } catch (error) {
+      console.error("Error approving vendor:", error);
+      await Swal.fire("Error!", "Something went wrong.", "error");
+    }
+  };
+
+  const handleStatusChange = async (vendorId, newStatus) => {
+    console.log("Sending to API:", {
+      vendorId,
+      newStatus,
+      type: typeof newStatus,
     });
 
-    if (!confirm.isConfirmed) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await UpdateVendorStatus(vendorId, newStatus, token);
 
-    const token = localStorage.getItem("token");
-    const response = await GetApproveVendor(vendorId, token);
-
-    if (response.status === true || response.status === "true") {
-      await Swal.fire('Approved!', 'Vendor approved successfully.', 'success');
-      fetchVendors(); // refresh table
-    } else {
-      await Swal.fire('Failed!', 'Failed to approve vendor.', 'error');
+      if (res?.status === true || res?.status === "true") {
+        await Swal.fire("Success", "Vendor status updated.", "success");
+        fetchVendors();
+      } else {
+        throw new Error();
+      }
+      console.log("Sending status update:", {
+        id: vendorId,
+        status: newStatus,
+        type: typeof newStatus,
+      });
+    } catch (err) {
+      console.error(err);
+      await Swal.fire("Error", "Failed to update status.", "error");
     }
-
-  } catch (error) {
-    console.error("Error approving vendor:", error);
-    await Swal.fire('Error!', 'Something went wrong.', 'error');
-  }
-};
+  };
 
   useEffect(() => {
     fetchVendors();
-    
   }, []);
-  
+
   const columns = [
     {
       name: "Sr.No.",
@@ -79,7 +112,6 @@ const handleApproveVendor = async (vendorId) => {
       sortable: true,
     },
 
-    
     {
       name: "Phone ",
       selector: (row) => row.phone,
@@ -95,7 +127,7 @@ const handleApproveVendor = async (vendorId) => {
       selector: (row) => row.short_description,
       sortable: true,
     },
-     {
+    {
       name: "Image",
       selector: (row) => row.image,
       cell: (row) =>
@@ -119,44 +151,75 @@ const handleApproveVendor = async (vendorId) => {
     //   ),
     //   sortable: false,
     // },
-    
+
     {
       name: "Experience Since",
       selector: (row) => row.experience_since,
       sortable: true,
     },
 
-   {
-  name: "Actions",
-  cell: (row) => (
-    <div className="action-div">
-      <a title="Edit" href="#">
-        <i className="fa-regular fa-pen-line"></i>
-      </a>
-      <a title="Delete" href="#">
-        <i className="fa-solid fa-trash-can"></i>
-      </a>
+    {
+      name: "Status",
+      cell: (row) => (
+        <select
+          className="form-select form-select-sm"
+          style={{
+            padding: "4px 8px",
+            fontSize: "14px",
+            borderRadius: "6px",
+            border: "1px solid #ced4da",
+            width: "130px",
+            backgroundColor:
+              row.status === 1
+                ? "#d4edda"
+                : row.status === 2
+                ? "#f8d7da"
+                : "#fff3cd",
+          }}
+          value={row.status}
+          onChange={
+            (e) => handleStatusChange(row.id, parseInt(e.target.value)) // ✅ parse to number
+          }
+        >
+          <option value={0}>Pending</option>
+          <option value={1}>Approved</option>
+          <option value={2}>Blocked</option>
+        </select>
+      ),
+      sortable: false,
+      width: "160px",
+    },
 
-      <button
-        className="btn action-btn btn-warning  me-1"
-        onClick={() => window.location.href = `/admin/vendor/${row.id}`}
-      >
-               View
+    {
+      name: "Actions",
+      cell: (row) => (
+        <div className="action-div">
+          <a title="Edit" href="#">
+            <i className="fa-regular fa-pen-line"></i>
+          </a>
+          <a title="Delete" href="#">
+            <i className="fa-solid fa-trash-can"></i>
+          </a>
 
-      </button>
+          <button
+            className="btn action-btn btn-warning me-1"
+            onClick={() => (window.location.href = `/admin/vendor/${row.id}`)}
+            title="View"
+          >
+            <i className="fa-regular fa-eye"></i>
+          </button>
 
-      <button
-        className="btn action-btn btn-primary"
-        onClick={() => handleApproveVendor(row.id)}
-      >
-        Approve
-      </button>
-    </div>
-  ),
-  width: "200px",
-  sortable: false,
-}
-
+          <button
+            className="btn action-btn btn-primary"
+            onClick={() => handleApproveVendor(row.id)}
+          >
+            Approve
+          </button>
+        </div>
+      ),
+      width: "250px",
+      sortable: false,
+    },
   ];
 
   return (

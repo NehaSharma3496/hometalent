@@ -14,6 +14,10 @@ import FeedbackandReview from "../pages/vendor/users/FeedbackandReview";
 import ApprovedVendors from "../pages/admin/vendor/ApprovedVendors";
 import ProfileUpdateRequest from "../pages/admin/profileupdaterequest/ProfileUpdateRequest";
 import VendorDetails from "../pages/admin/vendor/VendorDetails";
+import GalleryUpdateRequest from "../pages/admin/galleryUpdateRequest/GalleryUpdateRequest";
+import PendingVendor from "../pages/admin/vendor/Pendingvendor";
+import ActiveVendor from "../pages/admin/vendor/ActiveVendor";
+import AddVendor from "../pages/admin/vendor/AddVendor";
 
 const AdminRoutes = (
   <Route path="/admin" element={<AdminLayout />}>
@@ -23,13 +27,16 @@ const AdminRoutes = (
     <Route path="vendor/sponsoredvendors" element={<SponsoredVendors />} />
     <Route path="payments/packages" element={<Packages />} />
     <Route path="users/adduser" element={<Adduser />} />
-    <Route path="users/allusers" element={<Allusers/>}/>
-    <Route path="users/blocked" element={<BlockedUser/>}/>
-    <Route path="users/feedback" element={<FeedbackandReview/>}/>
+    <Route path="users/allusers" element={<Allusers />} />
+    <Route path="users/blocked" element={<BlockedUser />} />
+    <Route path="users/feedback" element={<FeedbackandReview />} />
     <Route path="vendor/approvevendors" element={<ApprovedVendors />} />
     <Route path="profileupdaterequest" element={<ProfileUpdateRequest />} />
     <Route path="vendor/:id" element={<VendorDetails />} />
-
+    <Route path="galleryUpdateRequest" element={<GalleryUpdateRequest />} />
+    <Route path="vendor/pendingvendors" element={<PendingVendor />} />
+    <Route path="vendor/activevendors" element={<ActiveVendor />} />
+    <Route path="vendor/addvendors" element={<AddVendor />} />
     {/* <Route path="clients" element={<Clients />} /> */}
   </Route>
 );
