@@ -163,11 +163,11 @@ const fetchcategories = async () => {
                                 </li>
                               </ul>
                             </li>
-                            <li className="single-list">
+                            {/* <li className="single-list">
                               <Link to="/realwedding" className="single">
                                 Real Weddings
                               </Link>
-                            </li>
+                            </li> */}
                             <li className="single-list">
                               <Link to="/gallery" className="single">
                                 Gallery

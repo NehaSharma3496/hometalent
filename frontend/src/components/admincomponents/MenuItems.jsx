@@ -7,23 +7,36 @@ export const MenuItems = {
       label: "Dashboard",
       link: "/admin/dashboard",
     },
-    {
-      icon: "fa-solid fa-user",
-      label: "Users",
-      children: [
-        { label: "All Users", link: "/admin/users/allusers" },
-        { label: "Add User", link: "/admin/users/adduser" },
-        { label: "Blocked Users", link: "/admin/users/blocked" },
-        { label: "Feedback & Reviews", link: "/admin/users/feedback" },
-      ],
-    },
+    // {
+    //   icon: "fa-solid fa-user",
+    //   label: "Users",
+    //   children: [
+    //     { label: "All Users", link: "/admin/users/allusers" },
+    //     { label: "Add User", link: "/admin/users/adduser" },
+    //     { label: "Blocked Users", link: "/admin/users/blocked" },
+    //     { label: "Feedback & Reviews", link: "/admin/users/feedback" },
+    //   ],
+    // },
     {
       icon: "fa-solid fa-user-tie",
       label: "Vendors",
       children: [
         { label: "All Vendors", link: "/admin/vendor/allvendors" },
         { label: "Add Vendor", link: "/vendors/addvendors" },
-        { label: "Approve Listings", link: "/admin/vendor/approvevendors" },
+        { label: "Approve Vendores", link: "/admin/vendor/approvevendors" },
+        { label: "Sponsored Vendors", link: "/admin/vendor/sponsoredvendors" },
+        { label: "Blocked Vendors", link: "/admin/vendor/blockedvendors" },
+        { label: "Shuffle Vendor Order", link: "/admin/vendor/shuffle-order" },
+        { label: "Leads & Inquiries", link: "/admin/vendor/leads" },
+      ],
+    },
+      {
+      icon: "fa-solid fa-user-tie",
+      label: "Profile Management",
+      children: [
+        { label: "Profile Update Requests", link: "/admin/profileupdaterequest" },
+        { label: "Add Vendor", link: "/vendors/addvendors" },
+        { label: "Approve Vendores", link: "/admin/vendor/approvevendors" },
         { label: "Sponsored Vendors", link: "/admin/vendor/sponsoredvendors" },
         { label: "Blocked Vendors", link: "/admin/vendor/blockedvendors" },
         { label: "Shuffle Vendor Order", link: "/admin/vendor/shuffle-order" },
