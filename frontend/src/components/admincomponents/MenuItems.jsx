@@ -40,7 +40,7 @@ export const MenuItems = {
           label: "Profile Update Requests",
           link: "/admin/profileupdaterequest",
         },
-        { label: "Galary Request", link: "/admin/galleryUpdateRequest" },
+        { label: "Admin Galary", link: "/admin/adminGallery" },
         { label: "Add Vendor", link: "/vendors/addvendors" },
         { label: "Approve Vendores", link: "/admin/vendor/approvevendors" },
         { label: "Sponsored Vendors", link: "/admin/vendor/sponsoredvendors" },
