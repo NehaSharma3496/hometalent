@@ -102,3 +102,22 @@ export async function GetProfileUpdateRequests(token, status = "all", page = 1, 
     return err;
   }
 }
+
+export async function GetGalleryUpdateRequests(token,status="all",page=1,limit=100){
+    try {
+        const endpoint=status==="all"
+        ?`${Config.base_url}admin/gallery-requests`
+        :`${Config.base_url}admin/gallery-requests/${status}`;
+    
+    const res=await axios.get(endpoint,{
+        params:{page,limit},
+        headers:{
+            Authorization:token,
+        },
+    });
+    return res?.data;
+    
+    }catch(err){
+        return err;
+    }
+}
