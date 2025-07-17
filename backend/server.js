@@ -41,7 +41,7 @@ app.use(routes);
 
 sequelize.sync({ force: false })
   .then(async () => {
-    console.log("Database & tables created!");
+    console.log("Database & tables created!"); 
     // await seedAll();
     app.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
