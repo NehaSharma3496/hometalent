@@ -31,15 +31,10 @@ const app = express();
 
 
 const corsOptions = {
-
-origin: ["http://localhost:3000", "*"],
-
-credentials: true,
-
-methods: ["GET", "POST","DELETE","PUT"],
-
-allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],
-
+  origin: ["http://localhost:3000", "*"],
+  credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],
 };
 
 
