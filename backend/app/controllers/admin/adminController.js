@@ -1,12 +1,18 @@
-const { User, Category, ProfileUpdateRequest } = require('../../models'); // adjust path as needed
+const { User, Category, ProfileUpdateRequest, Package, VendorPackageSubscription, Log, ClientLead, VendorCategoryRank } = require('../../models'); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 
 exports.listAllVendors = async (req, res) => {
   try {
-    const vendors = await User.findAll({
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    
+    const { count, rows: vendors } = await User.findAndCountAll({
       where: { role_id: 2 },
       order: [['createdAt', 'DESC']],
-      raw: true
+      raw: true,
+      limit,
+      offset
     });
 
     // Get all unique category IDs
@@ -24,7 +30,6 @@ exports.listAllVendors = async (req, res) => {
       raw: true
     });
 
-
     const categoryMap = Object.fromEntries(categories.map(c => [c.id, c.name]));
 
     // Attach category names to each vendor
@@ -36,7 +41,20 @@ exports.listAllVendors = async (req, res) => {
         .filter(Boolean)
     }));
 
-    res.json({ status: true, data: enrichedVendors });
+    const totalPages = Math.ceil(count / limit);
+
+    res.json({ 
+      status: true, 
+      data: enrichedVendors,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1
+      }
+    });
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
@@ -44,11 +62,31 @@ exports.listAllVendors = async (req, res) => {
 
 exports.listPendingVendors = async (req, res) => {
   try {
-    const vendors = await User.findAll({
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    
+    const { count, rows: vendors } = await User.findAndCountAll({
       where: { role_id: 2, status: 0 },
-      order: [['createdAt', 'DESC']]
+      order: [['createdAt', 'DESC']],
+      limit,
+      offset
     });
-    res.json({ status: true, data: vendors });
+    
+    const totalPages = Math.ceil(count / limit);
+    
+    res.json({ 
+      status: true, 
+      data: vendors,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1
+      }
+    });
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
@@ -56,27 +94,71 @@ exports.listPendingVendors = async (req, res) => {
 
 exports.listSponsoredVendors = async (req, res) => {
   try {
-    const vendors = await User.findAll({
-      where: {
-        role_id: 2,
-        status: 1,
-        is_sponsored: 1
-      },
-      order: [['sponsor_rank', 'ASC']] // top sponsor = 1
+    const { category_id } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    let whereCondition = { is_sponsored: 1 };
+    if (category_id) whereCondition.category_id = category_id;
+
+    const { count, rows } = await VendorCategoryRank.findAndCountAll({
+      where: whereCondition,
+      include: [
+        { model: User, as: 'vendor', attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone'] },
+        { model: Category, as: 'category', attributes: ['id', 'name'] }
+      ],
+      order: [['sponsor_rank', 'ASC']],
+      limit,
+      offset
     });
-    res.json({ status: true, data: vendors });
+
+    const totalPages = Math.ceil(count / limit);
+
+    res.json({
+      status: true,
+      data: rows,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1
+      }
+    });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    res.status(500).json({ status: false, msg: error.message });
   }
 };
 
 exports.listBlockedVendors = async (req, res) => {
   try {
-    const vendors = await User.findAll({
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    
+    const { count, rows: vendors } = await User.findAndCountAll({
       where: { role_id: 2, status: 2 },
-      order: [['updatedAt', 'DESC']]
+      order: [['updatedAt', 'DESC']],
+      limit,
+      offset
     });
-    res.json({ status: true, data: vendors });
+    
+    const totalPages = Math.ceil(count / limit);
+    
+    res.json({ 
+      status: true, 
+      data: vendors,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1
+      }
+    });
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
@@ -142,15 +224,34 @@ exports.approveVendor = async (req, res) => {
 
 exports.active_vendors = async (req, res) => {
   try {
-    const vendors = await User.findAll({
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    
+    const { count, rows: vendors } = await User.findAndCountAll({
       where: {
         role_id: 2,
         status: 1
       },
-      order: [['createdAt', 'DESC']]
+      order: [['createdAt', 'DESC']],
+      limit,
+      offset
     });
+    
+    const totalPages = Math.ceil(count / limit);
 
-    res.json({ status: true, data: vendors });
+    res.json({ 
+      status: true, 
+      data: vendors,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1
+      }
+    });
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
@@ -166,20 +267,23 @@ exports.updateSponsorRanks = async (req, res) => {
 
     // Validate all entries
     for (const v of vendors) {
-      if (!v.vendor_id || typeof v.sponsor_rank !== 'number') {
-        return res.status(400).json({ status: false, msg: "Each item must include vendor_id and sponsor_rank" });
+      if (!v.vendor_id || !v.category_id || typeof v.sponsor_rank !== 'number') {
+        return res.status(400).json({ status: false, msg: "Each item must include vendor_id, category_id, and sponsor_rank" });
       }
     }
 
-    // Update vendors one by one
+    // Update vendor category ranks one by one
     for (const v of vendors) {
-      await User.update(
-        { sponsor_rank: v.sponsor_rank, is_sponsored: 1 },
-        { where: { id: v.vendor_id, role_id: 2 } }
-      );
+      // Use upsert to create or update the rank
+      await VendorCategoryRank.upsert({
+        vendor_id: v.vendor_id,
+        category_id: v.category_id,
+        sponsor_rank: v.sponsor_rank,
+        is_sponsored: v.sponsor_rank > 0 ? 1 : 0
+      });
     }
 
-    res.json({ status: true, msg: "Sponsor ranks updated successfully" });
+    res.json({ status: true, msg: "Category-specific sponsor ranks updated successfully" });
 
   } catch (error) {
     res.json({ status: false, msg: error.message });
@@ -189,7 +293,11 @@ exports.updateSponsorRanks = async (req, res) => {
 // Get all pending profile update requests
 exports.getPendingProfileUpdateRequests = async (req, res) => {
   try {
-    const requests = await ProfileUpdateRequest.findAll({
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    
+    const { count, rows: requests } = await ProfileUpdateRequest.findAndCountAll({
       where: { status: 'pending' },
       order: [['createdAt', 'ASC']],
       include: [
@@ -198,12 +306,24 @@ exports.getPendingProfileUpdateRequests = async (req, res) => {
           as: 'vendor',
           attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone', 'status']
         }
-      ]
+      ],
+      limit,
+      offset
     });
+    
+    const totalPages = Math.ceil(count / limit);
 
     res.json({ 
       status: true, 
-      data: requests 
+      data: requests,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1
+      }
     });
 
   } catch (error) {
@@ -353,6 +473,21 @@ exports.processProfileUpdateRequest = async (req, res) => {
       `;
 
       await commonEmail(request.vendor.email, subject, message);
+
+      // Log the approval and approved data
+      await Log.create({
+        user_id: admin_id,
+        user_type: 'admin',
+        action: 'profile_update_approve',
+        details: JSON.stringify({
+          request_id,
+          approved_data: updateData,
+          vendor_id: request.vendor_id,
+          user_before: userBefore,
+          user_after: userAfter
+        })
+      });
+
     } else {
       // Send rejection email to vendor
       const subject = 'Profile Update Request Rejected';
@@ -365,6 +500,19 @@ exports.processProfileUpdateRequest = async (req, res) => {
       `;
 
       await commonEmail(request.vendor.email, subject, message);
+
+      // Log the rejection and request data
+      await Log.create({
+        user_id: admin_id,
+        user_type: 'admin',
+        action: 'profile_update_reject',
+        details: JSON.stringify({
+          request_id,
+          request_data: request.request_data,
+          vendor_id: request.vendor_id,
+          remarks
+        })
+      });
     }
 
     res.json({ 
@@ -424,6 +572,158 @@ exports.getAllProfileUpdateRequests = async (req, res) => {
 
   } catch (error) {
     res.json({ status: false, msg: error.message });
+  }
+};
+
+// Package Master CRUD APIs
+exports.createPackage = async (req, res) => {
+  try {
+    const { name, description, price, validity_in_months, features, status } = req.body;
+    const pkg = await Package.create({ name, description, price, validity_in_months, features, status });
+    res.json({ status: true, data: pkg });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.getAllPackages = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    
+    const { count, rows: pkgs } = await Package.findAndCountAll({ 
+      order: [['id', 'DESC']],
+      limit,
+      offset
+    });
+    
+    const totalPages = Math.ceil(count / limit);
+    
+    res.json({ 
+      status: true, 
+      data: pkgs,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.getPackageById = async (req, res) => {
+  try {
+    const pkg = await Package.findByPk(req.params.id);
+    if (!pkg) return res.status(404).json({ status: false, msg: 'Package not found' });
+    res.json({ status: true, data: pkg });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.updatePackage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, price, validity_in_months, features, status } = req.body;
+    const pkg = await Package.findByPk(id);
+    if (!pkg) return res.status(404).json({ status: false, msg: 'Package not found' });
+    await pkg.update({ name, description, price, validity_in_months, features, status });
+    res.json({ status: true, data: pkg });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.deletePackage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const pkg = await Package.findByPk(id);
+    if (!pkg) return res.status(404).json({ status: false, msg: 'Package not found' });
+    await pkg.destroy();
+    res.json({ status: true, msg: 'Package deleted' });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.getExpiredVendors = async (req, res) => {
+  try {
+    const today = new Date();
+    // Find expired subscriptions
+    const expiredSubs = await VendorPackageSubscription.findAll({
+      where: {
+        end_date: { [require('sequelize').Op.lt]: today },
+        payment_status: 'completed',
+      },
+      include: [{ model: User, as: 'vendor', attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone'] }],
+      order: [['end_date', 'DESC']]
+    });
+    // Map to vendor details
+    const expiredVendors = expiredSubs.map(sub => ({
+      vendor_id: sub.vendor_id,
+      end_date: sub.end_date,
+      ...((sub.vendor && sub.vendor.dataValues) || {})
+    }));
+    res.json({ status: true, data: expiredVendors });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.getAllLeads = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    
+    const { count, rows: leads } = await ClientLead.findAndCountAll({
+      include: [{ model: User, as: 'vendor', attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone'] }],
+      order: [['createdAt', 'DESC']],
+      limit,
+      offset
+    });
+    
+    const totalPages = Math.ceil(count / limit);
+    
+    res.json({ 
+      status: true, 
+      data: leads,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.getAllSponsoredVendorsWithCategories = async (req, res) => {
+  try {
+    const sponsored = await VendorCategoryRank.findAll({
+      where: { is_sponsored: 1 },
+      include: [
+        { model: User, as: 'vendor', attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone'] },
+        { model: Category, as: 'category', attributes: ['id', 'name'] }
+      ],
+      order: [
+        ['category_id', 'ASC'],
+        ['sponsor_rank', 'ASC']
+      ]
+    });
+    res.json({ status: true, data: sponsored });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
   }
 };
 

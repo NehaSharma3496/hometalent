@@ -146,6 +146,7 @@ User.associate = (models) => {
     User.belongsTo(models.Role, { foreignKey: 'role_id' });
     User.belongsTo(models.State, { foreignKey: 'state_id' });
     User.belongsTo(models.City, { foreignKey: 'city_id' });
+    User.hasMany(models.VendorCategoryRank, { foreignKey: 'vendor_id', as: 'categoryRanks' });
     User.hasMany(models.Gallery, { foreignKey: 'user_id', as: 'gallery' });
     // User.hasMany(models.Order, { foreignKey: 'user_id' });
     //User.belongsTo(models.Category, { foreignKey: 'category_id' });

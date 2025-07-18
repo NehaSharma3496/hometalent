@@ -5,6 +5,11 @@ const State = require('./State');
 const City = require('./City');
 const ProfileUpdateRequest = require('./ProfileUpdateRequest');
 const Gallery = require('./Gallery');
+const Package = require('./Package');
+const VendorPackageSubscription = require('./VendorPackageSubscription');
+const ClientLead = require('./ClientLead');
+const Log = require('./Log');
+const VendorCategoryRank = require('./VendorCategoryRank');
 
 const models = {
     User: User,
@@ -13,7 +18,12 @@ const models = {
     City: City,
     State: State,
     ProfileUpdateRequest: ProfileUpdateRequest,
-    Gallery: Gallery
+    Gallery: Gallery,
+    Package: Package,
+    VendorPackageSubscription: VendorPackageSubscription,
+    ClientLead: ClientLead,
+    Log: Log,
+    VendorCategoryRank: VendorCategoryRank
 };
 
 Object.keys(models).forEach(modelName => {

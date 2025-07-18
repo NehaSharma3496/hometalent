@@ -51,4 +51,17 @@ router.delete('/admin-gallery/remove/:gallery_id', adminGalleryController.remove
 router.put('/admin-gallery/update-order', adminGalleryController.updateAdminGalleryOrder);
 router.get('/admin-gallery/all', adminGalleryController.getAllAdminGalleries);
 
+// Package Master CRUD
+router.post('/package', adminController.createPackage);
+router.get('/package', adminController.getAllPackages);
+router.get('/package/:id', adminController.getPackageById);
+router.put('/package/:id', adminController.updatePackage);
+router.delete('/package/:id', adminController.deletePackage);
+
+// Expired Vendors
+router.get('/expired-vendors', adminController.getExpiredVendors);
+
+router.get('/leads', adminController.getAllLeads);
+router.get('/sponsored-vendors-with-categories', adminController.getAllSponsoredVendorsWithCategories);
+
 module.exports = router;
