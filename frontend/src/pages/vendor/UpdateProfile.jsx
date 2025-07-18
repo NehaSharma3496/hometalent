@@ -1,0 +1,175 @@
+import React, { useEffect, useState } from "react";
+import ReusableForm from "../../extracomponents/ReusableForm";
+import Swal from "sweetalert2";
+import * as Yup from "yup";
+import {
+  GetCategories,
+  GetCities,
+  GetStates,
+  SubmitProfileUpdateRequest,
+  GetVendorDetails,
+} from "../../Services/vendor/Vendor";
+
+export default function UpdateProfile() {
+  const [categoryData, setCategoryData] = useState([]);
+  const [statesData, setStatesData] = useState([]);
+  const [cityData, setCityData] = useState([]);
+  const [selectedStateId, setSelectedStateId] = useState("");
+  const [initialValues, setInitialValues] = useState(null);
+
+  const token = localStorage.getItem("token");
+  const vendorId = localStorage.getItem("userId");
+
+  const validationSchema = Yup.object({
+    owner_name: Yup.string().required("Owner name is required"),
+    phone: Yup.string().required("Phone is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    state_id: Yup.string().required("State is required"),
+    city_id: Yup.string().required("City is required"),
+    pin_code: Yup.string().required("Pin Code is required"),
+    price_range: Yup.string().required("Price range is required"),
+    short_description: Yup.string().required("Short description is required"),
+    category_id: Yup.array().min(1, "Select at least one category"),
+    experience_since: Yup.string().required("Experience is required"),
+    long_description: Yup.string().required("Long description is required"),
+  });
+
+  const fields = [
+    { name: "owner_name", label: "Owner Name", type: "text", colClass: "col-md-4 mb-3" },
+    { name: "profile_name", label: "Profile Name", type: "text", colClass: "col-md-4 mb-3" },
+    { name: "phone", label: "Phone", type: "text", colClass: "col-md-4 mb-3" },
+    { name: "email", label: "Email", type: "email", colClass: "col-md-4 mb-3" },
+    {
+      name: "state_id",
+      label: "State",
+      type: "select",
+      options: statesData,
+      onChange: (e) => setSelectedStateId(e.target.value),
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "city_id",
+      label: "City",
+      type: "select",
+      options: cityData,
+      colClass: "col-md-4 mb-3",
+    },
+    { name: "pin_code", label: "Pin Code", type: "text", colClass: "col-md-4 mb-3" },
+    { name: "price_range", label: "Price Range", type: "text", colClass: "col-md-4 mb-3" },
+    {
+      name: "category_id",
+      label: "Categories",
+      type: "multiSelect",
+      options: categoryData,
+      colClass: "col-md-4 mb-3",
+    },
+    { name: "experience_since", label: "Experience Since", type: "text", colClass: "col-md-4 mb-3" },
+    { name: "short_description", label: "Short Description", type: "text", colClass: "col-12 mb-3" },
+    { name: "long_description", label: "Long Description", type: "textarea", colClass: "col-12 mb-3" },
+    { name: "facebook_link", label: "Facebook Link", type: "text", colClass: "col-md-6 mb-3" },
+    { name: "instagram_link", label: "Instagram Link", type: "text", colClass: "col-md-6 mb-3" },
+    { name: "twitter_link", label: "Twitter Link", type: "text", colClass: "col-md-6 mb-3" },
+    { name: "linkedin_link", label: "LinkedIn Link", type: "text", colClass: "col-md-6 mb-3" },
+    { name: "youtube_link", label: "YouTube Link", type: "text", colClass: "col-md-6 mb-3" },
+    { name: "website_link", label: "Website Link", type: "text", colClass: "col-md-6 mb-3" },
+    { name: "image", label: "Image", type: "file", colClass: "col-md-6 mb-3" },
+  ];
+
+  const onSubmit = async (values) => {
+    try {
+      const formData = new FormData();
+      formData.append("vendor_id", vendorId);
+      for (const key in values) {
+        if (key === "category_id") {
+          formData.append(key, values[key].join(","));
+        } else if (key === "image" && values[key]) {
+          formData.append("image", values[key][0]);
+        } else {
+          formData.append(key, values[key]);
+        }
+      }
+
+      const res = await SubmitProfileUpdateRequest(formData);
+      if (res?.data?.status) {
+        Swal.fire("Success", res.data.msg || "Profile update submitted!", "success");
+      } else {
+        Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+      }
+    } catch (err) {
+      console.error("API ERROR:", err);
+      Swal.fire("Error", err?.response?.data?.msg || err.message || "Failed to submit", "error");
+    }
+  };
+
+  useEffect(() => {
+    const fetchInitial = async () => {
+      try {
+        const [cat, st, vendorRes] = await Promise.all([
+          GetCategories(),
+          GetStates(),
+          GetVendorDetails(token, vendorId),
+        ]);
+
+        const vendor = vendorRes.data;
+
+        setCategoryData(cat.data.map((x) => ({ value: x.id.toString(), label: x.name })));
+        setStatesData(st.data.map((x) => ({ value: x.id.toString(), label: x.name })));
+        setSelectedStateId(vendor.state_id?.toString());
+
+        setInitialValues({
+          owner_name: vendor.owner_name || "",
+          profile_name: vendor.profile_name || "",
+          phone: vendor.phone || "",
+          email: vendor.email || "",
+          state_id: vendor.state_id?.toString() || "",
+          city_id: vendor.city_id?.toString() || "",
+          pin_code: vendor.pin_code || "",
+          price_range: vendor.price_range || "",
+          short_description: vendor.short_description || "",
+          category_id: vendor.category_id?.split(",").map((id) => id.toString()) || [],
+          experience_since: vendor.experience_since || "",
+          long_description: vendor.long_description || "",
+          facebook_link: vendor.facebook_link || "",
+          instagram_link: vendor.instagram_link || "",
+          twitter_link: vendor.twitter_link || "",
+          linkedin_link: vendor.linkedin_link || "",
+          youtube_link: vendor.youtube_link || "",
+          website_link: vendor.website_link || "",
+          image: null,
+        });
+      } catch (err) {
+        console.log("Init fetch error", err);
+      }
+    };
+    fetchInitial();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedStateId) return;
+    const fetchCities = async () => {
+      try {
+        const res = await GetCities(token, selectedStateId);
+        setCityData(res.data.map((x) => ({ value: x.id.toString(), label: x.name })));
+      } catch (err) {
+        console.log("City fetch error", err);
+      }
+    };
+    fetchCities();
+  }, [selectedStateId]);
+
+  if (!initialValues) return <div className="text-center py-5">Loading Profile Data...</div>;
+
+  return (
+    <div className="container py-4">
+      <h3 className="mb-3">Submit Profile Update Request</h3>
+      <div className="card p-4">
+        <ReusableForm
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={onSubmit}
+          fields={fields}
+        />
+      </div>
+    </div>
+  );
+}

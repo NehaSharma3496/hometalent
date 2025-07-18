@@ -205,3 +205,35 @@ export async function GetActiveVendors(token) {
     return err;
   }
 }
+
+export async function ProcessProfileUpdateRequest(
+  requestId,
+  action,
+  remarks,
+  adminId,
+  token
+) {
+  try {
+    const res = await axios.post(
+      `${Config.base_url}admin/profile-update-requests/process`,
+      {
+        request_id: requestId,
+        action,
+        remarks,
+        admin_id: adminId,
+      },
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
+

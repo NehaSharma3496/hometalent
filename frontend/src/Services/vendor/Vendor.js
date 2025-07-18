@@ -138,3 +138,28 @@ export async function RemoveGalleryItem(token, id) {
     throw error?.response?.data || error;
   }
 }
+
+export async function GetVendorDetails(token ,id){
+  try{
+    const response = await axios.get(`${Config.base_url}admin/user-profile/${id}`,{
+      headers:{
+        'Authorization':`${token}`,
+      },
+    });
+    return response?.data;
+  }catch(error){
+    return error;
+  }
+}
+
+export async function SubmitProfileUpdateRequest(data) {
+  try {
+    const response = await axios.post(
+      `${Config.base_url}vendor/profile-update-request`,
+      data
+    );
+    return response;
+  } catch (error) {
+    throw error?.response?.data || error;
+  }
+}
