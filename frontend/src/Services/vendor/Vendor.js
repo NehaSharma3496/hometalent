@@ -62,31 +62,31 @@ export async function VendorRegister(data) {
 
 
 export async function GetCategories(token) {
-    try {
-        const res = await axios.get(`${Config.base_url}vendor/categories`, {
-            headers: {
-                'Authorization': `${token}`
-            },
-        });
+  try {
+    const res = await axios.get(`${Config.base_url}vendor/categories`, {
+      headers: {
+        'Authorization': `${token}`
+      },
+    });
 
-        return res?.data;
-    } catch (err) {
-        return err;
-    }
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
 }
 
 export async function GetStates(token) {
-    try {
-        const res = await axios.get(`${Config.base_url}vendor/states`, {
-            headers: {
-                'Authorization': `${token}`
-            },
-        });
+  try {
+    const res = await axios.get(`${Config.base_url}vendor/states`, {
+      headers: {
+        'Authorization': `${token}`
+      },
+    });
 
-        return res?.data;
-    } catch (err) {
-        return err;
-    }
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
 }
 
 export async function GetCities(token, stateId) {
@@ -103,15 +103,15 @@ export async function GetCities(token, stateId) {
   }
 }
 
-export async function GetGallery(token,userId){
-  try{
-    const res= await axios.get(`${Config.base_url}gallery/my-gallery?user_id=${userId}&status=approved`,{
-      headers:{
-        'Authorization':`${token}`
+export async function GetGallery(token, userId) {
+  try {
+    const res = await axios.get(`${Config.base_url}gallery/my-gallery?user_id=${userId}&status=approved`, {
+      headers: {
+        'Authorization': `${token}`
       },
     });
     return res?.data;
-  }catch(err){
+  } catch (err) {
     return err;
   }
 }
@@ -139,6 +139,34 @@ export async function RemoveGalleryItem(token, id) {
     });
 
     console.log("hi");
+    return response?.data;
+  } catch (error) {
+    throw error?.response?.data || error;
+  }
+}
+
+// UpdateGalleryOrder
+export async function UpdateGalleryOrder(token, items) {
+  try {
+    let userId = localStorage.getItem("userId")
+    let data = JSON.stringify({
+      "user_id": userId,
+      "items": items
+    });
+
+    let config = {
+      method: 'put',
+      maxBodyLength: Infinity,
+      url: `${Config.base_url}gallery/update-order`,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: data
+    };
+
+    const response = await axios.request(config)
+
+
     return response?.data;
   } catch (error) {
     throw error?.response?.data || error;
