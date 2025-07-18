@@ -236,4 +236,17 @@ export async function ProcessProfileUpdateRequest(
   }
 }
 
+export async function GetCategories(token) {
+  try {
+    const res = await axios.get(`${Config.base_url}vendor/categories`, {
+      headers: {
+        'Authorization': `${token}`
+      }
+    });
+
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
 
