@@ -128,11 +128,17 @@ export async function GalleryUpload(data) {
 
 export async function RemoveGalleryItem(token, id) {
   try {
+    let userId = localStorage.getItem("userId")
     const response = await axios.delete(`${Config.base_url}gallery/remove/${id}`, {
       headers: {
         Authorization: `${token}`,
       },
+      data: {
+        user_id: userId, // if your API expects this
+      },
     });
+
+    console.log("hi");
     return response?.data;
   } catch (error) {
     throw error?.response?.data || error;

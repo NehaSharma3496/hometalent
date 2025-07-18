@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { GetGallery } from "../../../Services/vendor/Vendor";
+import { GetGallery,RemoveGalleryItem } from "../../../Services/vendor/Vendor";
 import { useNavigate, Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
@@ -31,7 +31,18 @@ const ViewGallery = () => {
     });
 
     if (confirm.isConfirmed) {
-      console.log("Deleting:", item);
+      try {
+        const res = await RemoveGalleryItem(token, item.id); // Assuming item has an `id`
+        if (res.status) {
+          Swal.fire("Deleted!", "Item has been deleted.", "success");
+          fetchgallery(); // Refresh list
+        } else {
+          Swal.fire("Error", "Failed to delete item.", "error");
+        }
+      } catch (err) {
+        console.error("Error deleting item:", err);
+        Swal.fire("Error", "An error occurred while deleting.", "error");
+      }
     }
   };
 

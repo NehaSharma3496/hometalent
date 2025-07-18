@@ -36,7 +36,7 @@ origin: ["http://localhost:3000", "*"],
 
 credentials: true,
 
-methods: ["GET", "POST"],
+methods: ["GET", "POST","DELETE"],
 
 allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],
 

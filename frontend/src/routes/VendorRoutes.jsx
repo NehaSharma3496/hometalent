@@ -24,6 +24,7 @@ const AdminRoutes = (
     <Route path="users/feedback" element={<FeedbackandReview />} />
     <Route path="gallery" element={<ViewGallery/>}/>
     <Route path="gallery/upload" element={<UploadGallery/>}/>
+    
     {/* <Route path="clients" element={<Clients />} /> */}
   </Route>
 );

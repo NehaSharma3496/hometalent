@@ -20,6 +20,9 @@ const DeleteGalleryItem = () => {
   };
 
   const handleDelete = async (id) => {
+
+    console.log("ok");
+    
     const confirm = await Swal.fire({
       title: "Are you sure?",
       text: "This file will be permanently deleted!",
