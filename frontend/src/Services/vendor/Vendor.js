@@ -134,11 +134,11 @@ export async function RemoveGalleryItem(token, id) {
         Authorization: `${token}`,
       },
       data: {
-        user_id: userId, // if your API expects this
+        user_id: userId, 
       },
     });
 
-    console.log("hi");
+
     return response?.data;
   } catch (error) {
     throw error?.response?.data || error;

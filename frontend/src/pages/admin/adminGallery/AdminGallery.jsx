@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { GetGallery } from "../../../Services/vendor/Vendor";
+import { GetGallery, RemoveGalleryItem } from "../../../Services/vendor/Vendor";
 import { useNavigate, Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
@@ -31,9 +31,21 @@ const AdminGallery = () => {
     });
 
     if (confirm.isConfirmed) {
-      console.log("Deleting:", item);
+      try {
+        const res = await RemoveGalleryItem(token, item.id);
+        if (res.status) {
+          Swal.fire("Deleted!", "Item has been deleted.", "success");
+          fetchgallery();
+        } else {
+          Swal.fire("Error", "Failed to delete item.", "error");
+        }
+      } catch (err) {
+        console.error("Error deleting item:", err);
+        Swal.fire("Error", "An error occurred while deleting.", "error");
+      }
     }
   };
+
 
   useEffect(() => {
     if (userId) {
@@ -82,47 +94,54 @@ const AdminGallery = () => {
         </li>
       </ul>
 
-      <div className="card p-3">
-        {filteredGallery.length === 0 ? (
-          <p className="text-muted text-center my-4">
-            No {activeTab} found.
-          </p>
-        ) : (
-          <div className="row">
-            {filteredGallery.map((item, index) => (
-              <div className="col-xl-4 col-lg-4 col-md-6 mb-4" key={index}>
-                <div className="card h-100 border shadow-sm">
-                  {item.file_type === "image" ? (
-                    <img
-                      src={item.file_path}
-                      alt="Gallery"
-                      className="card-img-top"
-                      style={{ height: "240px", objectFit: "cover" }}
-                    />
-                  ) : (
-                    <video
-                      controls
-                      className="card-img-top"
-                      style={{ height: "240px", objectFit: "cover" }}
-                    >
-                      <source src={item.file_path} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  )}
-                  <div className="card-body text-center py-2">
-                    <button
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => handleDelete(item)}
-                    >
-                      Delete
-                    </button>
+      <div className="container mt-5">
+        <div className="card p-4 border-0 shadow-lg rounded-4 bg-white">
+          {filteredGallery.length === 0 ? (
+            <p className="text-muted text-center my-4 fs-5">
+              No <strong>{activeTab}</strong> found.
+            </p>
+          ) : (
+            <div className="row g-4">
+              {filteredGallery.map((item, index) => (
+                <div className="col-xl-4 col-lg-4 col-md-6" key={index}>
+                  <div className="card border-0 shadow h-100 rounded-4 overflow-hidden">
+                    <div className="position-relative">
+                      {item.file_type === "image" ? (
+                        <img
+                          src={item.file_path}
+                          alt="Gallery"
+                          className="card-img-top rounded-top-2"
+                          style={{ height: "240px", objectFit: "cover" }}
+                        />
+                      ) : (
+                        <video
+                          controls
+                          className="card-img-top rounded-top-2"
+                          style={{ height: "240px", objectFit: "cover" }}
+                        >
+                          <source src={item.file_path} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
+                      )}
+                    </div>
+
+                    <div className="card-body bg-light text-right rounded-bottom-2">
+                      <button
+                        className="btn btn-sm btn-outline-danger fw-semibold px-3 py-1"
+                        onClick={() => handleDelete(item)}
+                      >
+                        <i className="bi bi-trash-fill me-2"></i>Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+
     </div>
   );
 };
