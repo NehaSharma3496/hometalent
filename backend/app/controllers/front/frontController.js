@@ -1,5 +1,5 @@
 
-const { State, City, User, Category } = require('../../models'); // adjust path to your models
+const { State, City, User, Category, VendorCategoryRank } = require('../../models'); // adjust path to your models
 const { Op, Sequelize } = require('sequelize');
 const sequelize = require('../../config/db.config');
 exports.listStatesAndCities = async (req, res) => {
@@ -43,7 +43,6 @@ exports.listStatesAndCities = async (req, res) => {
 };
 
 exports.getVendorsByCategoryId = async (req, res) => {
-  
   try {
     const { category_id } = req.params;
 
@@ -51,29 +50,46 @@ exports.getVendorsByCategoryId = async (req, res) => {
       return res.status(400).json({ status: false, msg: 'category_id is required' });
     }
 
-    // Get sponsored vendors first (ordered by sponsor_rank)
+    // Get sponsored vendors for this specific category (ordered by category-specific sponsor_rank)
     const sponsoredVendors = await User.findAll({
       where: {
         role_id: 2,
         status: 1,
-        is_sponsored: 1,
         category_id: {
           [Op.like]: `%${category_id}%`
         }
       },
-      order: [['sponsor_rank', 'ASC'], ['createdAt', 'DESC']]
+      include: [{
+        model: VendorCategoryRank,
+        as: 'categoryRanks',
+        where: { 
+          category_id: category_id,
+          is_sponsored: 1
+        },
+        required: true,
+        attributes: ['sponsor_rank']
+      }],
+      order: [[{ model: VendorCategoryRank, as: 'categoryRanks' }, 'sponsor_rank', 'ASC']]
     });
 
-    // Get non-sponsored vendors (will be shuffled)
+    // Get non-sponsored vendors for this category
     const nonSponsoredVendors = await User.findAll({
       where: {
         role_id: 2,
         status: 1,
-        is_sponsored: 0,
         category_id: {
           [Op.like]: `%${category_id}%`
         }
       },
+      include: [{
+        model: VendorCategoryRank,
+        as: 'categoryRanks',
+        where: { 
+          category_id: category_id,
+          is_sponsored: 0
+        },
+        required: false
+      }],
       order: [['createdAt', 'DESC']]
     });
 

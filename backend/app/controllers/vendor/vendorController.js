@@ -1,4 +1,4 @@
-const { Category, State, City, User, ProfileUpdateRequest } = require('../../models'); // adjust path as needed
+const { Category, State, City, User, ProfileUpdateRequest, Package, VendorPackageSubscription, Log, ClientLead } = require('../../models'); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 
 
@@ -44,7 +44,7 @@ exports.requestProfileUpdate = async (req, res) => {
     const vendor_id = req.body.vendor_id; // Get from authenticated user
     const updateData = req.body;
 
-    // Remove fields that shouldn't be updated through this process
+    // Only allow certain fields to be updated
     const allowedFields = [
       'owner_name', 'profile_name', 'state_id', 'city_id', 'pin_code',
       'phone', 'email', 'price_range', 'short_description', 'category_id',
@@ -95,15 +95,21 @@ exports.requestProfileUpdate = async (req, res) => {
       status: 'pending'
     });
 
+    // Log the request
+    await Log.create({
+      user_id: vendor_id,
+      user_type: 'vendor',
+      action: 'profile_update_request',
+      details: JSON.stringify(filteredData)
+    });
+
     res.json({ 
       status: true, 
       msg: 'Profile update request submitted successfully. Waiting for admin approval.',
       data: {
-        request_id: profileUpdateRequest.id,
         requested_changes: filteredData
       }
     });
-
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
@@ -140,5 +146,99 @@ exports.getProfileUpdateStatus = async (req, res) => {
 
   } catch (error) {
     res.json({ status: false, msg: error.message });
+  }
+};
+
+exports.getAvailablePackages = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    
+    const { count, rows: packages } = await Package.findAndCountAll({
+      where: { status: 1 },
+      order: [['id', 'DESC']],
+      limit,
+      offset
+    });
+    
+    const totalPages = Math.ceil(count / limit);
+    
+    res.json({ 
+      status: true, 
+      data: packages,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.subscribePackage = async (req, res) => {
+  try {
+    const { vendor_id, package_id, payment_reference } = req.body;
+    if (!vendor_id || !package_id || !payment_reference) {
+      return res.status(400).json({ status: false, msg: 'vendor_id, package_id, and payment_reference are required' });
+    }
+    const pkg = await Package.findByPk(package_id);
+    if (!pkg) return res.status(404).json({ status: false, msg: 'Package not found' });
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + pkg.validity_in_months);
+    const subscription = await VendorPackageSubscription.create({
+      vendor_id,
+      package_id,
+      start_date: startDate,
+      end_date: endDate,
+      payment_status: 'completed',
+      payment_reference
+    });
+    res.json({ status: true, data: subscription });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.getMyLeads = async (req, res) => {
+  try {
+    const { vendor_id } = req.query;
+    if (!vendor_id) {
+      return res.status(400).json({ status: false, msg: 'vendor_id is required' });
+    }
+    
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    
+    const { count, rows: leads } = await ClientLead.findAndCountAll({
+      where: { vendor_id },
+      order: [['createdAt', 'DESC']],
+      limit,
+      offset
+    });
+    
+    const totalPages = Math.ceil(count / limit);
+    
+    res.json({ 
+      status: true, 
+      data: leads,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
   }
 };
