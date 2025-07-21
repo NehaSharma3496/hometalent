@@ -48,16 +48,16 @@ const ViewGallery = () => {
   return (
     <div className="page-content">
       <div className="row align-items-center mb-3">
-        <div className="col-md-6">
-          <div className="add-page-heading-div">
-            <Link to="/admin/dashboard">
+        <div className="col-md-6 col-8">
+          <div className="add-page-heading-div d-flex align-items-center">
+            <Link to="/admin/dashboard" className="me-2">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
-            <h2 className="add-page-heading">Gallery</h2>
+            <h2 className="add-page-heading mb-0">Gallery</h2>
           </div>
         </div>
-        <div className="col-md-6 text-end">
-          <Link to="/vendor/gallery/upload" className="add-btn-head">
+        <div className="col-md-6 col-4 text-end">
+          <Link to="/vendor/gallery/upload" className="btn btn-primary btn-sm">
             + Upload
           </Link>
         </div>
@@ -90,20 +90,20 @@ const ViewGallery = () => {
         ) : (
           <div className="row">
             {filteredGallery.map((item, index) => (
-              <div className="col-xl-4 col-lg-4 col-md-6 mb-4" key={index}>
+              <div className="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4" key={index}>
                 <div className="card h-100 border shadow-sm">
                   {item.file_type === "image" ? (
                     <img
                       src={item.file_path}
                       alt="Gallery"
-                      className="card-img-top"
-                      style={{ height: "240px", objectFit: "cover" }}
+                      className="card-img-top img-fluid"
+                      style={{ height: "240px", objectFit: "cover", width: "100%" }}
                     />
                   ) : (
                     <video
                       controls
                       className="card-img-top"
-                      style={{ height: "240px", objectFit: "cover" }}
+                      style={{ height: "240px", objectFit: "cover", width: "100%" }}
                     >
                       <source src={item.file_path} type="video/mp4" />
                       Your browser does not support the video tag.

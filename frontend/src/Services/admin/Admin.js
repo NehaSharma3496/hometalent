@@ -283,8 +283,20 @@ export async function UpdateSponsoredRanks(vendors, token) {
     );
     return res?.data;
   } catch (err) {
-    console.error("Error in UpdateSponsoredRanks:", err?.response || err);
+    console.error("Error in UpdateSponsoredRanks:", err);
     return err;
   }
 }
 
+export async function GetAllLeads(token) {
+  try {
+    const res = await axios.get(`${Config.base_url}admin/leads?page=1&limit=10`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}

@@ -13,6 +13,7 @@ import UploadGallery from "../pages/vendor/gallery/UploadGallery";
 import Allvendors from "../pages/admin/vendor/Allvendors";
 import MyProfile from "../pages/vendor/MyProfile";
 import UpdateProfile from "../pages/vendor/UpdateProfile";
+import AllLeads from "../pages/vendor/vendorleads/AllLeads";
 
 // for vendor routing
 
@@ -27,6 +28,7 @@ const AdminRoutes = (
     <Route path="gallery/upload" element={<UploadGallery/>}/>
     <Route path="myprofile" element={<MyProfile/>}/>
     <Route path="updateprofile" element={<UpdateProfile/>}/>
+    <Route path="leads/all" element={<AllLeads/>}/>
     {/* <Route path="clients" element={<Clients />} /> */}
   </Route>
 );
