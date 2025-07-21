@@ -250,3 +250,41 @@ export async function GetCategories(token) {
   }
 }
 
+export async function GetSponsoredVendorsByCategory(categoryId, token, page = 1, limit = 10) {
+  try {
+    const res = await axios.get(
+      `${Config.base_url}admin/vendors/sponsored?category_id=${categoryId}&page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return res?.data;
+  } catch (err) {
+    console.error("Error in GetSponsoredVendorsByCategory:", err?.response || err);
+    return err;
+  }
+}
+
+
+
+export async function UpdateSponsoredRanks(vendors, token) {
+  try {
+  const res = await axios.post(
+      `${Config.base_url}admin/update-sponsor-ranks`,
+      { vendors },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return res?.data;
+  } catch (err) {
+    console.error("Error in UpdateSponsoredRanks:", err?.response || err);
+    return err;
+  }
+}
+
