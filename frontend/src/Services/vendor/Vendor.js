@@ -134,7 +134,7 @@ export async function RemoveGalleryItem(token, id) {
         Authorization: `${token}`,
       },
       data: {
-        user_id: userId, 
+        user_id: userId,
       },
     });
 
@@ -172,3 +172,40 @@ export async function UpdateGalleryOrder(token, items) {
     throw error?.response?.data || error;
   }
 }
+
+// GET ALL package VENDOR
+
+
+export const getVendorPackages = async (token) => {
+  try {
+    const response = await axios.get(`${Config.base_url}vendor/packages?page=1&limit=100`, {
+
+      headers: {
+        'Authorization': `${token}`,
+        'Content-Type': 'application/json'
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    console.error('Error fetching vendor packages:', error);
+    throw error;
+  }
+};
+
+// Suscribe plan vendor
+
+export const subscribeToPackage = async (payload,token) => {
+  try {
+    const res = await axios.post(`${Config.base_url}vendor/subscribe-package`, payload,{
+        headers: {
+        'Authorization': `${token}`,
+        'Content-Type': 'application/json'
+      },
+    })
+    
+    return res?.data;
+  } catch (err) {
+    console.error("Error subscribing to package", err);
+    throw err;
+  }
+};

@@ -12,6 +12,9 @@ import UploadGallery from "../pages/vendor/gallery/UploadGallery";
 
 import Allvendors from "../pages/admin/vendor/Allvendors";
 
+import VendorPackages from "../pages/vendor/packages/AvailablePackages"
+
+
 
 // for vendor routing
 
@@ -24,7 +27,7 @@ const AdminRoutes = (
     <Route path="users/feedback" element={<FeedbackandReview />} />
     <Route path="gallery" element={<ViewGallery/>}/>
     <Route path="gallery/upload" element={<UploadGallery/>}/>
-    
+    <Route path="allpackages" element={<VendorPackages/>}/>
     {/* <Route path="clients" element={<Clients />} /> */}
   </Route>
 );
