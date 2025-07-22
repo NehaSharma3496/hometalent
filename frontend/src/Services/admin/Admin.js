@@ -206,6 +206,100 @@ export async function GetActiveVendors(token) {
   }
 }
 
+export async function ProcessProfileUpdateRequest(
+  requestId,
+  action,
+  remarks,
+  adminId,
+  token
+) {
+  try {
+    const res = await axios.post(
+      `${Config.base_url}admin/profile-update-requests/process`,
+      {
+        request_id: requestId,
+        action,
+        remarks,
+        admin_id: adminId,
+      },
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
+export async function GetCategories(token) {
+  try {
+    const res = await axios.get(`${Config.base_url}vendor/categories`, {
+      headers: {
+        'Authorization': `${token}`
+      }
+    });
+
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
+export async function GetSponsoredVendorsByCategory(categoryId, token, page = 1, limit = 10) {
+  try {
+    const res = await axios.get(
+      `${Config.base_url}admin/vendors/sponsored?category_id=${categoryId}&page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return res?.data;
+  } catch (err) {
+    console.error("Error in GetSponsoredVendorsByCategory:", err?.response || err);
+    return err;
+  }
+}
+
+
+
+export async function UpdateSponsoredRanks(vendors, token) {
+  try {
+  const res = await axios.post(
+      `${Config.base_url}admin/update-sponsor-ranks`,
+      { vendors },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return res?.data;
+  } catch (err) {
+    console.error("Error in UpdateSponsoredRanks:", err);
+    return err;
+  }
+}
+
+export async function GetAllLeads(token) {
+  try {
+    const res = await axios.get(`${Config.base_url}admin/leads?page=1&limit=10`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
 
 // delete Api 
 

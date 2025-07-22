@@ -107,7 +107,7 @@ export const MenuItems = {
       icon: "fa-solid fa-envelope",
       label: "Enquiries & Leads",
       children: [
-        { label: "User Enquiries", link: "/enquiries/user" },
+        { label: "All Leads", link: "/admin/enquiries/allleads" },
         { label: "Vendor Leads", link: "/enquiries/vendor" },
         { label: "Conversion Reports", link: "/enquiries/reports" },
       ],

@@ -38,7 +38,6 @@ import * as Config from "../../Utils/config";
 //   }
 // }
 
-
 // export async function UserOtpSubmit(data) {
 //   try {
 //     const response = await axios.post(`${Config.base_url}api/client/otp_submit`, data);
@@ -50,7 +49,6 @@ import * as Config from "../../Utils/config";
 //   }
 // }
 
-
 export async function VendorRegister(data) {
   try {
     const response = await axios.post(`${Config.base_url}addUser`, data);
@@ -60,12 +58,11 @@ export async function VendorRegister(data) {
   }
 }
 
-
 export async function GetCategories(token) {
   try {
     const res = await axios.get(`${Config.base_url}vendor/categories`, {
       headers: {
-        'Authorization': `${token}`
+        Authorization: `${token}`,
       },
     });
 
@@ -79,7 +76,7 @@ export async function GetStates(token) {
   try {
     const res = await axios.get(`${Config.base_url}vendor/states`, {
       headers: {
-        'Authorization': `${token}`
+        Authorization: `${token}`,
       },
     });
 
@@ -91,11 +88,14 @@ export async function GetStates(token) {
 
 export async function GetCities(token, stateId) {
   try {
-    const res = await axios.get(`${Config.base_url}vendor/cities?state_id=${stateId}`, {
-      headers: {
-        'Authorization': `${token}`
-      },
-    });
+    const res = await axios.get(
+      `${Config.base_url}vendor/cities?state_id=${stateId}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
 
     return res?.data;
   } catch (err) {
@@ -103,19 +103,21 @@ export async function GetCities(token, stateId) {
   }
 }
 
-export async function GetGallery(token, userId) {
-  try {
-    const res = await axios.get(`${Config.base_url}gallery/my-gallery?user_id=${userId}&status=approved`, {
-      headers: {
-        'Authorization': `${token}`
-      },
-    });
-    return res?.data;
-  } catch (err) {
-    return err;
-  }
-}
-
+// export async function GetGallery(token, userId) {
+//   try {
+//     const res = await axios.get(
+//       `${Config.base_url}gallery/my-gallery?user_id=${userId}&status=approved`,
+//       {
+//         headers: {
+//           Authorization: `${token}`,
+//         },
+//       }
+//     );
+//     return res?.data;
+//   } catch (err) {
+//     return err;
+//   }
+// }
 
 export async function GalleryUpload(data) {
   try {
@@ -125,6 +127,84 @@ export async function GalleryUpload(data) {
     throw error?.response?.data || error;
   }
 }
+
+// export async function RemoveGalleryItem(token, id) {
+//   try {
+//     const response = await axios.delete(
+//       `${Config.base_url}gallery/remove/${id}`,
+//       {
+//         headers: {
+//           Authorization: `${token}`,
+//         },
+//       }
+//     );
+//     return response?.data;
+//   } catch (error) {
+//     throw error?.response?.data || error;
+//   }
+// }
+
+export async function GetVendorDetails(token, id) {
+  try {
+    const response = await axios.get(
+      `${Config.base_url}admin/user-profile/${id}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function SubmitProfileUpdateRequest(data) {
+  try {
+    const response = await axios.post(
+      `${Config.base_url}vendor/profile-update-request`,
+      data
+    );
+    return response;
+  } catch (error) {
+    throw error?.response?.data || error;
+  }
+}
+
+export async function GetAllVendorLeads(token, id) {
+  try {
+    const response = await axios.get(
+      `${Config.base_url}vendor/my-leads?vendor_id=${id}&page=1&limit=10`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+
+
+
+export async function GetGallery(token, userId) {
+  try {
+    const res = await axios.get(`${Config.base_url}gallery/my-gallery?user_id=${userId}&status=approved`, {
+      headers: {
+        'Authorization': `${token}`
+      },
+    });
+
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
 
 export async function RemoveGalleryItem(token, id) {
   try {
@@ -144,6 +224,7 @@ export async function RemoveGalleryItem(token, id) {
     throw error?.response?.data || error;
   }
 }
+
 
 // UpdateGalleryOrder
 export async function UpdateGalleryOrder(token, items) {
@@ -172,9 +253,6 @@ export async function UpdateGalleryOrder(token, items) {
     throw error?.response?.data || error;
   }
 }
-
-// GET ALL package VENDOR
-
 
 export const getVendorPackages = async (token) => {
   try {
@@ -209,3 +287,8 @@ export const subscribeToPackage = async (payload,token) => {
     throw err;
   }
 };
+
+// GET ALL package VENDOR
+
+
+// Suscribe plan vendor

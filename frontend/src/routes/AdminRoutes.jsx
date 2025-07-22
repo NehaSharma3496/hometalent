@@ -19,6 +19,7 @@ import ActiveVendor from "../pages/admin/vendor/ActiveVendor";
 import AddVendor from "../pages/admin/vendor/AddVendor";
 import AdminGallery from "../pages/admin/adminGallery/AdminGallery";
 import VendorGallery from "../pages/admin/galleryUpdateRequest/VendorGallery";
+import AllLeads from "../pages/admin/enquiries&leads/AllLeads";
 import AddPackage from "../pages/admin/review/AddPackage"
 import UpdatePackages from "../pages/admin/review/updatePackages"
 
@@ -42,6 +43,7 @@ const AdminRoutes = (
     <Route path="vendor/addvendors" element={<AddVendor />} />
     <Route path="adminGallery" element={<AdminGallery/>}/>
   <Route path="galleryUpdates/vendorgallery/:vendorId" element={<VendorGallery />} />
+<Route path="enquiries/allleads" element={<AllLeads/>}/>
  <Route path="Packages" element={<Packages/>}/>
   <Route path="addpackage" element={<AddPackage/>}/>
     <Route path="updatePackages/:packageId" element={<UpdatePackages/>}/>

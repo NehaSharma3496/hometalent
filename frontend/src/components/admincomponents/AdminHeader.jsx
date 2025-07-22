@@ -222,7 +222,7 @@ export default function AdminHeader() {
                       aria-labelledby="profile-dropdown"
                     >
                       <li>
-                        <Link className="dropdown-item" to="/">
+                        <Link className="dropdown-item" to="/vendor/myprofile">
                           <i className="fa-light fa-user"></i> My Profile
                         </Link>
                       </li>
