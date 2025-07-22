@@ -215,11 +215,11 @@ const ViewGallery = () => {
                     Your browser does not support the video tag.
                   </video>
                 )}
-                <div className="card-body text-center py-3">
-                  <p className="mb-2 text-muted small">
+                <div className="card-body text-center  py-3">
+                  {/* <p className="mb-2 text-muted small">
                     ID: <strong>{item.id}</strong> | Sort:{" "}
                     <strong>{item.sort_order}</strong>
-                  </p>
+                  </p> */}
                   <button
                     className="btn btn-sm btn-outline-danger"
                     onClick={() => handleDelete(item)}
