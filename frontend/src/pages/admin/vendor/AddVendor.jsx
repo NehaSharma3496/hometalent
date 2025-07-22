@@ -32,7 +32,7 @@ export default function AddVendor() {
     longDesc: "",
     images: [],
     terms: false,
-    password: "",
+    // password: "",
   };
 
   const validationSchema = Yup.object({
@@ -44,7 +44,7 @@ export default function AddVendor() {
     email: Yup.string().email("Invalid email").required("Email is required"),
     category: Yup.array().min(1, "Select at least one category"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
-    password: Yup.string().required("Password is required"),
+    // password: Yup.string().required("Password is required"),
   });
 
   const fields = [
@@ -125,12 +125,12 @@ export default function AddVendor() {
       type: "file",
       colClass: "col-md-6 mb-3",
     },
-    {
-      name: "password",
-      label: "Password*",
-      type: "password",
-      colClass: "col-md-6 mb-3",
-    },
+    // {
+    //   name: "password",
+    //   label: "Password*",
+    //   type: "password",
+    //   colClass: "col-md-6 mb-3",
+    // },
     {
       name: "terms",
       label: "I confirm vendor details",
@@ -155,8 +155,8 @@ export default function AddVendor() {
       formData.append("experience_since", values.experience);
       formData.append("long_description", values.longDesc);
       formData.append("role_id", 2);
-      formData.append("password", values.password);
-      formData.append("show_password", values.password);
+      // formData.append("password", values.password);
+      // formData.append("show_password", values.password);
 
       for (let i = 0; i < values.images.length; i++) {
         formData.append("image", values.images[i]);
