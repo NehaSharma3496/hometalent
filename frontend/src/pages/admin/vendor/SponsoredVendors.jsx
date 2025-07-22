@@ -14,6 +14,8 @@ export default function CategoryList() {
   const [updatedRanks, setUpdatedRanks] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedCategoryName, setSelectedCategoryName] = useState("");
+  const [liveRanks, setLiveRanks] = useState({});
+
   const token = localStorage.getItem("token");
 
   const fetchCategories = async () => {
@@ -27,62 +29,89 @@ export default function CategoryList() {
     }
   };
 
-  const handleSponsoredVendor = async (categoryId) => {
-    try {
-      const category = categories.find((c) => c.id === categoryId);
-      setSelectedCategoryName(category?.name);
+const handleSponsoredVendor = async (categoryId) => {
+  try {
+    const category = categories.find((c) => c.id === categoryId);
+    setSelectedCategoryName(category?.name);
 
-      const res = await GetSponsoredVendorsByCategory(categoryId, token);
-      setSponsoredVendors(res?.data);
-    } catch (error) {
-      console.log("Error fetching SponsoredVendor", error);
-    }
-  };
+    const res = await GetSponsoredVendorsByCategory(categoryId, token);
+    setSponsoredVendors(res?.data);
+
+    // ✅ Re-initialize liveRanks
+    const initialLiveRanks = {};
+    res?.data.forEach((v) => {
+      initialLiveRanks[`${v.vendor_id}_${v.category_id}`] = v.sponsor_rank;
+    });
+    setLiveRanks(initialLiveRanks);
+    setUpdatedRanks({});
+  } catch (error) {
+    console.log("Error fetching SponsoredVendor", error);
+  }
+};
+
+
 
   // ✅ CHANGE: handle input change for sponsor rank
-  const handleRankChange = (vendorId, categoryId, newValue) => {
-    const newRank = parseInt(newValue);
+ const handleRankChange = (vendorId, categoryId, newValue) => {
+  const newRank = parseInt(newValue);
+  const key = `${vendorId}_${categoryId}`;
 
-    setUpdatedRanks((prev) => {
-      const updated = { ...prev };
+  // 🔁 First, find the current vendor's old rank
+  const currentVendor = sponsoredVendors.find(
+    (v) => v.vendor_id === vendorId && v.category_id === categoryId
+  );
+  const oldRank =
+    updatedRanks[key]?.sponsor_rank ||
+    liveRanks[key] ||
+    currentVendor?.sponsor_rank;
 
-      // Get current vendor's old rank
-      const currentVendor = sponsoredVendors.find(
-        (v) => v.vendor_id === vendorId && v.category_id === categoryId
-      );
-      const oldRank =
-        updated[`${vendorId}_${categoryId}`]?.sponsor_rank ||
-        currentVendor?.sponsor_rank;
+  // ✅ Update liveRanks for input fields
+  setLiveRanks((prevLive) => {
+    const updatedLive = { ...prevLive };
 
-      // Swap with any vendor that already has the new rank
-      sponsoredVendors.forEach((v) => {
-        const key = `${v.vendor_id}_${v.category_id}`;
-        const existingRank = updated[key]?.sponsor_rank || v.sponsor_rank;
+    // Find and swap with vendor who had the newRank
+    for (const k in prevLive) {
+      if (prevLive[k] === newRank && k !== key) {
+        updatedLive[k] = oldRank; // swap their input value
+      }
+    }
 
-        if (
-          v.category_id === categoryId &&
-          existingRank === newRank &&
-          v.vendor_id !== vendorId
-        ) {
-          // 🔁 Swap their rank with the old rank
-          updated[key] = {
-            vendor_id: v.vendor_id,
-            category_id: v.category_id,
-            sponsor_rank: oldRank,
-          };
-        }
-      });
+    updatedLive[key] = newRank;
+    return updatedLive;
+  });
 
-      // ✅ Set new rank for current vendor
-      updated[`${vendorId}_${categoryId}`] = {
-        vendor_id: vendorId,
-        category_id: categoryId,
-        sponsor_rank: newRank,
-      };
+  // ✅ Store updates for API submission later
+  setUpdatedRanks((prev) => {
+    const updated = { ...prev };
 
-      return updated;
+    sponsoredVendors.forEach((v) => {
+      const vKey = `${v.vendor_id}_${v.category_id}`;
+      const existingRank = updated[vKey]?.sponsor_rank || liveRanks[vKey] || v.sponsor_rank;
+
+      if (
+        v.category_id === categoryId &&
+        existingRank === newRank &&
+        v.vendor_id !== vendorId
+      ) {
+        updated[vKey] = {
+          vendor_id: v.vendor_id,
+          category_id: v.category_id,
+          sponsor_rank: oldRank,
+        };
+      }
     });
-  };
+
+    updated[key] = {
+      vendor_id: vendorId,
+      category_id: categoryId,
+      sponsor_rank: newRank,
+    };
+
+    return updated;
+  });
+};
+
+
 
   // ✅ CHANGE: handle API call for updating sponsor ranks
   const handleUpdateAllRanks = async () => {
@@ -173,20 +202,26 @@ export default function CategoryList() {
       name: "Sponser Rank",
       selector: (row) => row.sponsor_rank,
     },
-    {
-      name: "Update Rank",
-      cell: (row) => (
-        <input
-          type="number"
-          className="form-control"
-          placeholder="New Rank"
-          defaultValue={row.sponsor_rank}
-          onChange={(e) =>
-            handleRankChange(row.vendor_id, row.category_id, e.target.value)
-          }
-        />
-      ),
-    },
+ {
+  name: "Update Rank",
+  cell: (row) => {
+    const key = `${row.vendor_id}_${row.category_id}`;
+    const value = liveRanks[key] !== undefined ? liveRanks[key] : row.sponsor_rank;
+
+    return (
+      <input
+        type="number"
+        className="form-control"
+        value={value}
+        onChange={(e) =>
+          handleRankChange(row.vendor_id, row.category_id, e.target.value)
+        }
+      />
+    );
+  },
+}
+
+
   ];
 
   return (
