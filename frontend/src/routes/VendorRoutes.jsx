@@ -15,6 +15,10 @@ import MyProfile from "../pages/vendor/MyProfile";
 import UpdateProfile from "../pages/vendor/UpdateProfile";
 import AllLeads from "../pages/vendor/vendorleads/AllLeads";
 
+import VendorPackages from "../pages/vendor/packages/AvailablePackages"
+
+
+
 // for vendor routing
 
 const AdminRoutes = (
@@ -29,6 +33,7 @@ const AdminRoutes = (
     <Route path="myprofile" element={<MyProfile/>}/>
     <Route path="updateprofile" element={<UpdateProfile/>}/>
     <Route path="leads/all" element={<AllLeads/>}/>
+    <Route path="allpackages" element={<VendorPackages/>}/>
     {/* <Route path="clients" element={<Clients />} /> */}
   </Route>
 );

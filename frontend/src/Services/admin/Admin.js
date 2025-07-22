@@ -300,3 +300,123 @@ export async function GetAllLeads(token) {
     return err;
   }
 }
+
+// delete Api 
+
+export async function RemoveGalleryItem(token, id) {
+  try {
+    let userId = localStorage.getItem("userId")
+    const response = await axios.delete(`${Config.base_url}gallery/remove/${id}`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+      data: {
+        user_id: userId, 
+      },
+    });
+
+
+    return response?.data;
+  } catch (error) {
+    throw error?.response?.data || error;
+  }
+}
+
+// Admin package api
+
+
+export async function showPackage(token, id) {
+  try {
+    const userId = localStorage.getItem("userId"); 
+    const response = await axios.get(`${Config.base_url}admin/package`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+      data: {
+        user_id: userId, 
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    throw error?.response?.data || error;
+  }
+}
+
+// add packeges
+
+
+export async function CreatePackage(packageData, token) {
+  try {
+    const response = await axios.post(
+      `${Config.base_url}admin/package`,
+      packageData,
+      {
+        headers: {
+          Authorization: `${token}`, 
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error creating package:", error);
+    return error;
+  }
+}
+
+
+// delete packages
+
+export async function DeletePackage(packageId, token) {
+  try {
+    const res = await axios.delete(`${Config.base_url}admin/package/${packageId}`, {
+      headers: {
+        Authorization: `${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return res?.data;
+  } catch (err) {
+    console.error("Error deleting package:", err);
+    throw err;
+  }
+}
+
+// update package Api
+
+export async function UpdatePackage(packageId, data, token) {
+  try {
+    const res = await axios.put(
+      `${Config.base_url}admin/package/${packageId}`,
+      data,
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log("Update API response:", res.data); 
+    return res.data;
+  } catch (err) {
+    console.error("Error updating package:", err.response?.data || err);
+    throw err;
+  }
+}
+
+
+// get all field by package id 
+
+export const GetSinglePackage = async (id, token) => {
+  try {
+    const res = await axios.get(`${Config.base_url}admin/package/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.data;
+  } catch (err) {
+    console.error("GetSinglePackage error:", err);
+    return { status: false };
+  }
+};

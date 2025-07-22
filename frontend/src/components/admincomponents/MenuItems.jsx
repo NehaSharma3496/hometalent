@@ -89,7 +89,7 @@ export const MenuItems = {
       label: "Payments",
       children: [
         { label: "Subscription Packages", link: "/admin/payments/packages" },
-        { label: "Payment History", link: "/payments/history" },
+        { label: "Add packeges", link: "addpackage" },
         { label: "Renewals", link: "/payments/renewals" },
         { label: "Offers / Discounts", link: "/payments/offers" },
       ],
@@ -185,9 +185,9 @@ export const MenuItems = {
     },
     {
       icon: "fa-solid fa-upload",
-      label: "Upload & Profiling",
+      label: "Packeges",
       children: [
-        { label: "Upload Portfolio", link: "/vendor/profile/upload" },
+        { label: "All Packages", link: "/vendor/allpackages" },
         { label: "Manage Portfolio", link: "/vendor/profile/manage" },
         { label: "Edit Profile", link: "/vendor/profile/edit" },
         { label: "Add Artwork / Painting", link: "/vendor/profile/artworks" },
