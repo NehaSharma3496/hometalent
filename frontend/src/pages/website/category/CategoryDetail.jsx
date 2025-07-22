@@ -5,7 +5,6 @@ import { useLocation } from "react-router-dom";
 import { SubmitLead } from "../../../Services/webService/Web";
 import Swal from "sweetalert2";
 
-
 const CategoryDetail = () => {
   const location = useLocation();
   const vendor = location.state?.vendor;
@@ -13,59 +12,61 @@ const CategoryDetail = () => {
   const cities = location.state?.cities;
 
   const [leadData, setLeadData] = useState({
-  name: "",
-  phone: "",
-  email: "",
-  query: "",
-});
+    name: "",
+    phone: "",
+    email: "",
+    query: "",
+  });
 
-const handleChange = (e) => {
-  const { name, value } = e.target;
-  setLeadData((prev) => ({ ...prev, [name]: value }));
-};
-
-const handleSubmit = async () => {
-  if (!leadData.name || !leadData.phone || !leadData.email|| !leadData.query) {
-    Swal.fire({
-      icon: "warning",
-      title: "Missing Fields",
-      text: "Please fill in all required fields.",
-    });
-    return;
-  }
-
-  const payload = {
-    ...leadData,
-    vendor_id: vendor?.id || "", // optional: use if needed
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setLeadData((prev) => ({ ...prev, [name]: value }));
   };
 
-  try {
-    const res = await SubmitLead(payload);
-    if (res?.status === 200) {
+  const handleSubmit = async () => {
+    if (
+      !leadData.name ||
+      !leadData.phone ||
+      !leadData.email ||
+      !leadData.query
+    ) {
       Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Lead submitted successfully!",
+        icon: "warning",
+        title: "Missing Fields",
+        text: "Please fill in all required fields.",
       });
-      setLeadData({ name: "", phone: "", email: "", query: "" });
-    } else {
+      return;
+    }
+
+    const payload = {
+      ...leadData,
+      vendor_id: vendor?.id || "", // optional: use if needed
+    };
+
+    try {
+      const res = await SubmitLead(payload);
+      if (res?.status === 200) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Lead submitted successfully! Vendor details sent to your email",
+        });
+        setLeadData({ name: "", phone: "", email: "", query: "" });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: res?.data?.message || "Failed to submit lead.",
+        });
+      }
+    } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "Failed",
-        text: res?.data?.message || "Failed to submit lead.",
+        title: "Error",
+        text: error?.message || "Something went wrong. Please try again.",
       });
     }
-  } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: error?.message || "Something went wrong. Please try again.",
-    });
-  }
-};
-
-
-
+  };
 
   const breadcrumbLinks = [
     { label: "Home", to: "/" },
@@ -702,61 +703,60 @@ const handleSubmit = async () => {
 
                       <div className="date-time-dropdown d-flex align-items-center gap-2">
                         <i className="ri-user-line fs-8" />
-                       <input
-  type="text"
-  name="name"
-  value={leadData.name}
-  onChange={handleChange}
-  placeholder="Enter your name"
-  className="form-control form-control-m border-0 shadow-none"
-/>
-
+                        <input
+                          type="text"
+                          name="name"
+                          value={leadData.name}
+                          onChange={handleChange}
+                          placeholder="Enter your name"
+                          className="form-control form-control-m border-0 shadow-none"
+                        />
                       </div>
 
                       <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
                         <i className="ri-phone-line fs-8" />
                         <input
-  type="number"
-  name="phone"
-  value={leadData.phone}
-  onChange={handleChange}
-  placeholder="Enter your mobile number"
-  className="form-control form-control-m border-0 shadow-none"
-/>
-
+                          type="number"
+                          name="phone"
+                          value={leadData.phone}
+                          onChange={handleChange}
+                          placeholder="Enter your mobile number"
+                          className="form-control form-control-m border-0 shadow-none"
+                        />
                       </div>
 
                       <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
                         <i className="ri-mail-line fs-8" />
-                       <input
-  type="email"
-  name="email"
-  value={leadData.email}
-  onChange={handleChange}
-  placeholder="Enter your email"
-  className="form-control form-control-m border-0 shadow-none"
-/>
-
+                        <input
+                          type="email"
+                          name="email"
+                          value={leadData.email}
+                          onChange={handleChange}
+                          placeholder="Enter your email"
+                          className="form-control form-control-m border-0 shadow-none"
+                        />
                       </div>
 
                       <div className="date-time-dropdown d-flex align-items-start gap-2 mt-2">
                         <i className="ri-chat-3-line fs-8 mt-1" />
-                      <textarea
-  name="query"
-  value={leadData.query}
-  onChange={handleChange}
-  placeholder="Enter your message or query"
-  className="form-control form-control-m border-0 shadow-none"
-  rows="3"
-/>
-
+                        <textarea
+                          name="query"
+                          value={leadData.query}
+                          onChange={handleChange}
+                          placeholder="Enter your message or query"
+                          className="form-control form-control-m border-0 shadow-none"
+                          rows="3"
+                        />
                       </div>
 
                       <div className="mt-30">
-                        <button type="button" className="send-btn w-100" onClick={handleSubmit}>
-  Check Availability
-</button>
-
+                        <button
+                          type="button"
+                          className="send-btn w-100"
+                          onClick={handleSubmit}
+                        >
+                          Check Availability
+                        </button>
                       </div>
 
                       <div className="footer bg-transparent">
