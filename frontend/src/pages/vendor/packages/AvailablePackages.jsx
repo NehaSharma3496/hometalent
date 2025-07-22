@@ -7,14 +7,16 @@ import Swal from 'sweetalert2';
 const VendorPackages = () => {
   const [packages, setPackages] = useState([]);
   const [pagination, setPagination] = useState({});
-  const vendorId = 2; 
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user"));
+  const vendorId = user?.id;
   useEffect(() => {
     fetchPackages();
   }, []);
 
   const fetchPackages = async () => {
     try {
-      const res = await getVendorPackages(1,15);
+      const res = await getVendorPackages(1, 15,token);
       if (res.status) {
         setPackages(res.data);
         setPagination(res.pagination);
@@ -82,7 +84,7 @@ const VendorPackages = () => {
           {row.description.length > 30 && (
             <button
               className="btn btn-link p-0 ms-2"
-              style={{ fontSize: '0.85rem',  }}
+              style={{ fontSize: '0.85rem', }}
               onClick={() => showFullDescription(row.description)}
             >
               🔽
@@ -159,7 +161,7 @@ const VendorPackages = () => {
           </div>
         </div>
 
-        
+
       </div>
     </div>
   );
