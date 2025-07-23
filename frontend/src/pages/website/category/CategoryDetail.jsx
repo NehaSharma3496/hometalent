@@ -1,15 +1,27 @@
 import React, { useState, useEffect } from "react";
-
 import Breadcrumbs from "../../../components/websitecomponents/Breadcrumbs";
 import { useLocation } from "react-router-dom";
-import { SubmitLead } from "../../../Services/webService/Web";
+import { SubmitLead, } from "../../../Services/webService/Web";
+import { GetGallery } from "../../../Services/vendor/Vendor";
 import Swal from "sweetalert2";
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+
 
 const CategoryDetail = () => {
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [index, setIndex] = useState(0);
+  const [showAll, setShowAll] = useState(false);
   const location = useLocation();
-  const vendor = location.state?.vendor;
+  const vendor = location.state?.vendor?.id;
+  const vendors = location.state?.vendor;
   const category = location.state?.category;
   const cities = location.state?.cities;
+
+  console.log(location.state?.cities);
+  
+
 
   const [leadData, setLeadData] = useState({
     name: "",
@@ -40,7 +52,7 @@ const CategoryDetail = () => {
 
     const payload = {
       ...leadData,
-      vendor_id: vendor?.id || "", // optional: use if needed
+      vendor_id: vendor?.id || "",
     };
 
     try {
@@ -73,8 +85,48 @@ const CategoryDetail = () => {
     { label: category?.name, to: "#" }, // or current route
   ];
 
-  console.log("Vendor", vendor);
-  console.log("Category", category);
+  useEffect(() => {
+    const fetchGalleryImages = async () => {
+      if (vendor) {
+        try {
+          const token = localStorage.getItem("token"); // or wherever you store the auth token
+          const res = await GetGallery(token, vendor);
+
+          if (res?.status) {
+            setGalleryImages(res?.data);
+          }
+        } catch (error) {
+          console.error("Gallery Fetch Error", error);
+        }
+      }
+    };
+
+    fetchGalleryImages();
+
+  }, [vendor]);
+
+  
+
+
+  const imageSlides = galleryImages
+    .filter((item) => item.file_type === "image")
+    .map((item) => ({ src: item.file_path }));
+
+  const handleImageClick = (clickedIndex) => {
+    // Map clicked index to image-only index
+    const imageOnlyIndex = galleryImages
+      .filter((item) => item.file_type === "image")
+      .findIndex((img) => img.file_path === galleryImages[clickedIndex].file_path);
+
+    setIndex(imageOnlyIndex);
+    setOpen(true);
+  };
+
+
+  // Filter only image paths for lightbox
+  const imageItems = galleryImages.filter((item) => item.file_type === "image");
+  // Show only first 3 items or all if toggled
+  const visibleItems = showAll ? galleryImages : galleryImages.slice(0, 4);
 
   return (
     <div>
@@ -82,13 +134,10 @@ const CategoryDetail = () => {
       <section className="tour-details-section section-padding">
         <div className="tour-details-area">
           {/* Details Banner Slider */}
-
           {/* / Slider*/}
           <div className="tour-details-container">
             <div className="container">
               {/* Details Heading */}
-
-              {/* / Details Heading */}
 
               <div className="mt-30">
                 <div className="row g-4">
@@ -96,40 +145,43 @@ const CategoryDetail = () => {
                   <div className="col-xl-8 col-lg-7">
                     <div className="details-heading">
                       <div className="d-flex flex-column">
-                        <div
-                          style={{
-                            width: "100%",
-                            height: "400px",
-                            overflow: "hidden",
-                            borderRadius: "10px",
-                          }}
-                        >
-                          <img
-                            src={vendor?.image}
-                            alt="Vendor Image"
+                        {location.state?.vendor?.image && (
+                          <div
                             style={{
                               width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
+                              height: "400px",
+                              overflow: "hidden",
+                              borderRadius: "10px",
                             }}
-                          />
-                        </div>
+                          >
+                            <img
+                              src={location.state.vendor.image}
+                              alt="Vendor Image"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                          </div>
+                        )}
 
-                        <h4 className="title text-capitalize mt-5">
-                          {vendor?.owner_name}
+                        <h4 className="title text-capitalize mt-4">
+                          {location.state?.vendor?.owner_name || "Unknown Vendor"}
                         </h4>
-                        <div className="d-flex flex-wrap align-items-center gap-30 mt-16">
-                          <div className="location">
-                            <i className="ri-map-pin-line" />
-                            <div className="name">
+
+                        <div className="d-flex flex-wrap align-items-center gap-20 mt-8">
+                          <div className="location d-flex align-items-center ">
+                            <i className="ri-map-pin-line" style={{ color: "#ff5e14" }} />
+                            <div className="name text-capitalize">
                               {cities?.find(
-                                (c) =>
-                                  c.type === "city" && c.id === vendor?.city_id
-                              )?.name || "Unknown"}
+                                (c) => c.type === "city" && String(c.id) === String(vendors?.city_id)
+                              )?.name || "Unknown Location"}
                             </div>
                           </div>
+
                           <div className="divider" />
-                          {/* <div className="d-flex align-items-center flex-wrap gap-20">
+                          { /* <div className="d-flex align-items-center flex-wrap gap-20">
                             <div className="count">
                               <i className="ri-time-line" />
                               <p className="pera">3 Days 2 Night</p>
@@ -141,7 +193,7 @@ const CategoryDetail = () => {
                           </div> */}
                         </div>
                         <div>
-                          <h4 className="title text-capitalize mt-3">
+                          <h4 className="title text-capitalize mt-2">
                             {category?.name}
                           </h4>
                         </div>
@@ -157,7 +209,7 @@ const CategoryDetail = () => {
                     <div className="price-review ">
                       <div className="d-flex  align-items-end">
                         <h3 className="title">Estimated Price Range -</h3>
-                        <h3 className="title">${vendor?.price_range}</h3>
+                        <h3 className="title">${vendors?.price_range}</h3>
                       </div>
                       <div className="rating">
                         <p className="pera">Experience Since -</p>
@@ -204,87 +256,74 @@ const CategoryDetail = () => {
                     {/* images and video  */}
 
                     <div className="row g-4">
-                      <div className="col-lg-3 col-sm-6">
-                        <div
-                          style={{
-                            height: "200px",
-                            overflow: "hidden",
-                            borderRadius: "8px",
-                          }}
-                        >
-                          <img
-                            src={vendor?.image}
-                            alt="Vendor"
+                      {visibleItems.map((item, i) => (
+                        <div className="col-lg-3 col-sm-6" key={i}>
+                          <div
+                            className="shadow-sm"
                             style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
+                              height: "200px",
+                              overflow: "hidden",
+                              borderRadius: "8px",
+                              cursor: item.file_type === "image" ? "pointer" : "default",
                             }}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-3 col-sm-6">
-                        <div
-                          style={{
-                            height: "200px",
-                            overflow: "hidden",
-                            borderRadius: "8px",
-                          }}
-                        >
-                          <img
-                            src={vendor?.image}
-                            alt="Vendor"
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
-                            }}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-3 col-sm-6">
-                        <div
-                          style={{
-                            height: "200px",
-                            overflow: "hidden",
-                            borderRadius: "8px",
-                          }}
-                        >
-                          <img
-                            src={vendor?.image}
-                            alt="Vendor"
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
-                            }}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-lg-3 col-sm-6">
-                        <div
-                          style={{
-                            height: "200px",
-                            overflow: "hidden",
-                            borderRadius: "8px",
-                          }}
-                        >
-                          <video
-                            autoPlay
-                            muted
-                            loop
-                            controls
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
+                            onClick={() => {
+                              if (item.file_type === "image") handleImageClick(i);
                             }}
                           >
-                            <source src={vendor?.video} type="video/mp4" />
-                          </video>
+                            {item?.file_type === "video" ? (
+                              <video
+                                autoPlay
+                                muted
+                                loop
+                                controls
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "cover",
+                                }}
+                              >
+                                <source src={item?.file_path} type="video/mp4" />
+                              </video>
+                            ) : (
+                              <img
+                                src={item?.file_path}
+                                alt={`Gallery ${i}`}
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "cover",
+                                }}
+                              />
+                            )}
+                          </div>
                         </div>
-                      </div>
+                      ))}
                     </div>
+
+                    {/* View All button */}
+                    {!showAll && galleryImages.length > 3 && (
+                      <div className="text-center mt-3">
+                        <button
+                          className="btn btn-primary"
+                          onClick={() => setShowAll(true)}
+                        >
+                          View All
+                        </button>
+                      </div>
+                    )}
+
+                    {open && (
+                      <Lightbox
+                        open={open}
+                        close={() => setOpen(false)}
+                        slides={imageSlides}
+                        index={index}
+                      />
+                    )}
+
+
+
+
 
                     {/* social media icons  */}
 
@@ -358,7 +397,7 @@ const CategoryDetail = () => {
                     </div>
 
                     {/* review section */}
-                    <div class="comment-section">
+                    {/* <div class="comment-section">
                       <h4 class="comment-count">( 3 ) Reviews</h4>
 
                       <div class="main-profile-two d-block pb-15 border-bottom mb-20">
@@ -426,7 +465,7 @@ const CategoryDetail = () => {
                           programmer by night, and always a foodie at heart!
                         </p>
                       </div>
-                    </div>
+                    </div> */}
 
                     {/* / About tour */}
                     {/* Tour Include Exclude */}

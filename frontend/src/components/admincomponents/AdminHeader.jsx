@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 import MenuItems from "../admincomponents/MenuItems.jsx";
 
@@ -28,7 +29,7 @@ export default function AdminHeader() {
       message: "Payment of ₹2500 received for Mehandi Art",
       time: "1 hour ago",
       type: "payment",
-      isRead: false,
+      isRead: true,
     },
     {
       id: 3,
@@ -94,6 +95,11 @@ export default function AdminHeader() {
   const Logout = async () => {
     localStorage.clear();
   };
+  const navigate = useNavigate();
+
+  const handleViewAll = () => {
+    navigate('/vendor/Viewallnotification');
+  };
 
   return (
     <>
@@ -151,44 +157,60 @@ export default function AdminHeader() {
                           marginTop: "10px",
                         }}
                       >
-                        <div className="d-flex justify-content-between align-items-center p-3 border-bottom">
-                          <h6 className="mb-0 fw-bold ">Notifications</h6>
+                        <div className="d-flex justify-content-between align-items-center p-3 border-bottom bg-white shadow-sm rounded-top">
+                          <h6 className="mb-0 fw-semibold fs-5 text-primary d-flex align-items-center">
+                            <i className="bi bi-bell-fill me-2 text-warning"></i> Notifications
+                          </h6>
                           <button
-                            className="btn btn-sm btn-outline-primary"
+                            className="btn btn-sm btn-outline-primary rounded-pill px-3"
                             onClick={() => setIsOpen(false)}
                           >
-                            Close
+                            <i className="bi bi-x-lg me-1"></i> Close
                           </button>
                         </div>
 
-                        <div
-                          className="overflow-auto"
-                          style={{ maxHeight: "400px" }}
-                        >
+                        <div className="overflow-auto bg-light" style={{ maxHeight: "400px" }}>
                           {notifications.map((notification) => (
                             <div
                               key={notification.id}
-                              className="p-3 border-bottom notification-item"
-                              style={{ cursor: "pointer" }}
+                              className={`p-3 border-bottom rounded-2 mb-2 mx-2 shadow-sm notification-item hover-effect
+                                 ${notification.isRead ? 'bg-white' : 'bg-primary-subtle border-start border-3 border-primary'}`}
+                              style={{ cursor: "pointer", transition: "0.3s" }}
                             >
-                              <h6 className="mb-1 fw-semibold">
+                              <h6 className={`mb-1 fw-bold d-flex align-items-center ${notification.isRead ? 'text-light' : 'text-primary'}`}>
+                                <i className="bi bi-info-circle-fill me-2"></i>
                                 {notification.title}
                               </h6>
-                              <p className="mb-1 text-muted small">
-                                {notification.message}
-                              </p>
-                              <small className="text-muted">
-                                {notification.time}
-                              </small>
+                              <p className="mb-1 text-muted small">{notification.message}</p>
+                              <div className="text-end">
+                                <small className="text-muted fst-italic">{notification.time}</small>
+                              </div>
                             </div>
                           ))}
                         </div>
 
-                        <div className="p-3 border-top bg-light text-center rounded-3 border">
-                          <button className="btn btn-sm btn-primary">
-                            View all notifications
+
+
+                        <div className="p-3 bg-white text-left rounded-bottom shadow-sm border-top">
+                          <button
+                            className="btn btn-gradient btn-sm px-4 py-2 rounded-pill fw-semibold text-white"
+                            style={{
+                              background: 'linear-gradient(135deg, #4e54c8, #8f94fb)',
+                              transition: 'all 0.3s ease-in-out',
+                              boxShadow: '0 4px 10px rgba(78, 84, 200, 0.3)',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.transform = 'scale(1.05)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.transform = 'scale(1)';
+                            }}
+                            onClick={handleViewAll} 
+                          >
+                            View All Notifications
                           </button>
                         </div>
+
                       </div>
                     </>
                   )}

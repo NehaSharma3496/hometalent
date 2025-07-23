@@ -23,23 +23,23 @@ const Gallery = () => {
   const token = localStorage.getItem("token");
   const userId = 1;
 
-const fetchGallery = async () => {
-  try {
-    const response = await GetAdminGallery(token, userId);
-    console.log("Gallery API response:", response.data);
+  const fetchGallery = async () => {
+    try {
+      const response = await GetAdminGallery(token, userId);
+      console.log("Gallery API response:", response.data);
 
-    const formatted = response.data.map((item, i) => ({
-      src: item.file_path, // ✅ use correct field
-      title: `Image ${i + 1}`, // dummy title
-      description: "Beautiful gallery image", // dummy description
-    }));
+      const formatted = response.data.map((item, i) => ({
+        src: item.file_path, // ✅ use correct field
+        title: `Image ${i + 1}`, // dummy title
+        description: "Beautiful gallery image", // dummy description
+      }));
 
-    console.log("Formatted gallery:", formatted);
-    setGallery(formatted);
-  } catch (error) {
-    console.error("Error fetching gallery:", error);
-  }
-};
+      console.log("Formatted gallery:", formatted);
+      setGallery(formatted);
+    } catch (error) {
+      console.error("Error fetching gallery:", error);
+    }
+  };
 
 
   useEffect(() => {
@@ -68,16 +68,16 @@ const fetchGallery = async () => {
                       setOpen(true);
                     }}
                   >
-                   <img
-  src={slide.src}
-  alt={`Gallery ${i + 1}`}
-  style={{
-    width: "100%",
-    height: "400px",
-    objectFit: "cover",
-    cursor: "pointer",
-  }}
-/>
+                    <img
+                      src={slide.src}
+                      alt={`Gallery ${i + 1}`}
+                      style={{
+                        width: "100%",
+                        height: "400px",
+                        objectFit: "cover",
+                        cursor: "pointer",
+                      }}
+                    />
 
                     <div className="image-badge">
                       <p className="pera">{slide.title}</p>
