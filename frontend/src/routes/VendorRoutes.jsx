@@ -16,6 +16,7 @@ import UpdateProfile from "../pages/vendor/UpdateProfile";
 import AllLeads from "../pages/vendor/vendorleads/AllLeads";
 
 import VendorPackages from "../pages/vendor/packages/AvailablePackages"
+import Viewallnotification from "../components/admincomponents/Viewallnotification"
 
 
 
@@ -35,6 +36,7 @@ const AdminRoutes = (
     <Route path="leads/all" element={<AllLeads/>}/>
     <Route path="allpackages" element={<VendorPackages/>}/>
     {/* <Route path="clients" element={<Clients />} /> */}
+    <Route path="Viewallnotification" element={<Viewallnotification/>}/>
   </Route>
 );
 

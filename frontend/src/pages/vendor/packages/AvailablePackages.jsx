@@ -140,7 +140,7 @@ const VendorPackages = () => {
       </div>
 
       <div className="card p-4">
-        <div className="row filter-forms mb-4">
+        {/* <div className="row filter-forms mb-4">
           <div className="col-md-4">
             <input className="form-input" type="text" placeholder="Search by Package Name" />
           </div>
@@ -149,7 +149,7 @@ const VendorPackages = () => {
               <i className="fa fa-download" aria-hidden="true"></i> Export Excel
             </button>
           </div>
-        </div>
+        </div> */}
 
         <div className="row">
           <div className="col-md-12">
