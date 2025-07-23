@@ -28263,7 +28263,7 @@ line-height: 30px; /* 230.769% */
   display: flex;
   gap: 20px;
   margin-bottom: 20px;
-  margin-right: -20px;
+  /* margin-right: -20px; */
 }
 .comment-section .main-profile-two .user-info {
   padding-bottom: 20px;

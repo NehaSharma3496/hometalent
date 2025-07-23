@@ -25,6 +25,11 @@ const Category = () => {
     try {
       const response = await GetVendorsByCategory(token, category?.id);
       console.log("Vendors in this category:", response);
+      console.log(
+        "Created At:",
+        vendor.map((v) => v.created_at)
+      );
+
       setVendor(response.data);
     } catch (error) {
       console.log("Error fetching vendor by categories", error);
@@ -45,12 +50,22 @@ const Category = () => {
     if (!searchQuery.trim()) {
       setFilteredVendors(vendor);
     } else {
-      const filtered = vendor.filter((v) =>
-        v.owner_name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      const filtered = vendor.filter((v) => {
+        const ownerMatch = v.owner_name
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
+
+        const cityMatch = city
+          .find((c) => c.type === "city" && c.id === v.city_id)
+          ?.name?.toLowerCase()
+          .includes(searchQuery.toLowerCase());
+
+        return ownerMatch || cityMatch;
+      });
+
       setFilteredVendors(filtered);
     }
-  }, [searchQuery, vendor]);
+  }, [searchQuery, vendor, city]);
 
   useEffect(() => {
     fetchvendorcity();
@@ -127,18 +142,43 @@ const Category = () => {
                         const value = e.target.value;
                         let sorted = [...vendor];
 
+                        const getMinPrice = (range) => {
+                          if (!range) return 0;
+                          const parts = range
+                            .split("-")
+                            .map((p) => parseInt(p));
+                          return isNaN(parts[0]) ? 0 : parts[0];
+                        };
+
+                        const getMaxPrice = (range) => {
+                          if (!range) return 0;
+                          const parts = range
+                            .split("-")
+                            .map((p) => parseInt(p));
+                          return isNaN(parts[1]) ? 0 : parts[1];
+                        };
+
                         if (value === "low") {
-                          sorted.sort((a, b) => a.price_range - b.price_range);
+                          sorted.sort(
+                            (a, b) =>
+                              getMinPrice(a.price_range) -
+                              getMinPrice(b.price_range)
+                          );
                         } else if (value === "high") {
-                          sorted.sort((a, b) => b.price_range - a.price_range);
+                          sorted.sort(
+                            (a, b) =>
+                              getMaxPrice(b.price_range) -
+                              getMaxPrice(a.price_range)
+                          );
                         } else if (value === "new") {
                           sorted.sort(
                             (a, b) =>
-                              new Date(b.created_at) - new Date(a.created_at)
+                              new Date(b.createdAt || 0) -
+                              new Date(a.createdAt || 0)
                           );
                         } else if (value === "popular") {
-                          // Placeholder for future "popular" logic
-                          sorted = [...vendor]; // Keep as-is
+                          // You can add real logic later
+                          sorted = [...vendor]; // No sorting
                         }
 
                         setVendor(sorted);

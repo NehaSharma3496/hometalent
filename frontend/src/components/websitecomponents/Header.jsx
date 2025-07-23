@@ -7,22 +7,21 @@ const Header = () => {
 
   const token = localStorage.getItem("token");
 
-const fetchcategories = async () => {
-  try {
-    const response = await GetCategories(token);
+  const fetchcategories = async () => {
+    try {
+      const response = await GetCategories(token);
 
-    if (Array.isArray(response.data)) {
-      setCategory(response.data);
-    } else {
-      console.error("Expected array but got:", response.data);
-      setCategory([]); // fallback
+      if (Array.isArray(response.data)) {
+        setCategory(response.data);
+      } else {
+        console.error("Expected array but got:", response.data);
+        setCategory([]); // fallback
+      }
+    } catch (error) {
+      console.log("Error fetching categories", error);
+      setCategory([]); // fallback on error
     }
-  } catch (error) {
-    console.log("Error fetching categories", error);
-    setCategory([]); // fallback on error
-  }
-};
-
+  };
 
   useEffect(() => {
     fetchcategories();

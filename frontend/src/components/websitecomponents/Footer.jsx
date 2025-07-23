@@ -63,22 +63,22 @@ const Footer = () => {
                     <h4 className="title">HELP & SUPPORT</h4>
                     <ul className="listing">
                       <li className="single-lsit">
-                        <a href="about.html">About </a>
+                        <Link to="/about" >About</Link>
                       </li>
-                      <li className="single-lsit">
+                      {/* <li className="single-lsit">
                         <a href="news.html">Company</a>
-                      </li>
+                      </li> */}
                       <li className="single-lsit">
-                        <a href="faq.html">Contact us</a>
+                       <Link to="/contact">Contact</Link>
                       </li>
-                      <li className="single-lsit">
+                      {/* <li className="single-lsit">
                         <a href="contact.html">Feedback</a>
-                      </li>
+                      </li> */}
                       <li className="single-lsit">
                         <Link to="/faq">FAQs</Link>
                       </li>
                       <li className="single-lsit">
-                        <a href="contact.html">Gallery</a>
+                           <Link to="/gallery">Gallery</Link>
                       </li>
                     </ul>
                   </div>
@@ -90,7 +90,7 @@ const Footer = () => {
                     <h4 className="title">FOLLOW US ON</h4>
                     <ul className="listing d-flex gap-8">
                       <li className="single-lsit">
-                        <a href="index.html">
+                        <a href="https://www.facebook.com">
                           <img
                             src='../assets/images/footer/facebook.png'
                             alt="facebook"
@@ -98,7 +98,7 @@ const Footer = () => {
                         </a>
                       </li>
                       <li className="single-lsit">
-                        <a href="about.html">
+                        <a href="https://www.twitter.com">
                           <img
                             src='../assets/images/footer/twitter.png'
                             alt="twitter"
@@ -106,7 +106,7 @@ const Footer = () => {
                         </a>
                       </li>
                       <li className="single-lsit">
-                        <a href="contact.html">
+                        <a href="https://www.youtube.com">
                           <img
                             src='../assets/images/footer/youtube.png'
                             alt="youtube"
@@ -114,7 +114,7 @@ const Footer = () => {
                         </a>
                       </li>
                       <li className="single-lsit">
-                        <a href="contact.html">
+                        <a href="https://www.instagram.com">
                           <img
                             src='../assets/images/footer/instagram.png'
                             alt="instagram"
@@ -141,7 +141,7 @@ const Footer = () => {
                 <div className="d-flex justify-content-between gap-14 flex-wrap">
                   <p className="pera">
                     Copyright © <span className="current-year">2025</span>{" "}
-                    HomeTalent4u All Rights Reserved reserved
+                    HomeTalent4u All Rights Reserved 
                   </p>
                   <div className="footer-menu d-flex gap-20">
                     <Link to="/termscondition">

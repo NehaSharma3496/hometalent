@@ -34,7 +34,6 @@ const WebRoutes = (
     <Route path='/blogdetail' element={<BlogDetail/>}/>
     <Route path="/category" element={<Category />} />
     <Route path="/realwedding" element={ <RealWedding/>}/>
-    
   </Route>
 );
 
