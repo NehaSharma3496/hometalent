@@ -1,4 +1,4 @@
-const { User, Category, ProfileUpdateRequest, Package, VendorPackageSubscription, Log, ClientLead, VendorCategoryRank } = require('../../models'); // adjust path as needed
+const { User, Category, ProfileUpdateRequest, Package, VendorPackageSubscription, Log, ClientLead, VendorCategoryRank, ContactUs } = require('../../models'); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 
 exports.listAllVendors = async (req, res) => {
@@ -722,6 +722,34 @@ exports.getAllSponsoredVendorsWithCategories = async (req, res) => {
       ]
     });
     res.json({ status: true, data: sponsored });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.getAllContactUs = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    const { count, rows } = await ContactUs.findAndCountAll({
+      order: [['createdAt', 'DESC']],
+      limit,
+      offset
+    });
+    const totalPages = Math.ceil(count / limit);
+    res.json({
+      status: true,
+      data: rows,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1
+      }
+    });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
   }

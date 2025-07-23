@@ -1,5 +1,5 @@
 
-const { State, City, User, Category, VendorCategoryRank } = require('../../models'); // adjust path to your models
+const { State, City, User, Category, VendorCategoryRank, ContactUs } = require('../../models'); // adjust path to your models
 const { Op, Sequelize } = require('sequelize');
 const sequelize = require('../../config/db.config');
 exports.listStatesAndCities = async (req, res) => {
@@ -45,51 +45,54 @@ exports.listStatesAndCities = async (req, res) => {
 exports.getVendorsByCategoryId = async (req, res) => {
   try {
     const { category_id } = req.params;
+    const { city_id } = req.query;
 
-    if (!category_id) {
-      return res.status(400).json({ status: false, msg: 'category_id is required' });
+    if (!category_id && !city_id) {
+      return res.status(400).json({ status: false, msg: 'At least category_id or city_id is required' });
     }
 
-    // Get sponsored vendors for this specific category (ordered by category-specific sponsor_rank)
+    // Build where clause
+    let whereClause = {
+      role_id: 2,
+      status: 1
+    };
+    if (category_id) {
+      whereClause.category_id = { [Op.like]: `%${category_id}%` };
+    }
+    if (city_id) {
+      whereClause.city_id = city_id;
+    }
+
+    // Get sponsored vendors for this specific category/city (ordered by category-specific sponsor_rank)
+    let sponsoredWhere = { ...whereClause };
+    // Only filter by category_id for sponsor rank join if present
+    let sponsorRankInclude = {
+      model: VendorCategoryRank,
+      as: 'categoryRanks',
+      where: { is_sponsored: 1 },
+      required: true,
+      attributes: ['sponsor_rank']
+    };
+    if (category_id) sponsorRankInclude.where.category_id = category_id;
+
     const sponsoredVendors = await User.findAll({
-      where: {
-        role_id: 2,
-        status: 1,
-        category_id: {
-          [Op.like]: `%${category_id}%`
-        }
-      },
-      include: [{
-        model: VendorCategoryRank,
-        as: 'categoryRanks',
-        where: { 
-          category_id: category_id,
-          is_sponsored: 1
-        },
-        required: true,
-        attributes: ['sponsor_rank']
-      }],
+      where: sponsoredWhere,
+      include: [sponsorRankInclude],
       order: [[{ model: VendorCategoryRank, as: 'categoryRanks' }, 'sponsor_rank', 'ASC']]
     });
 
-    // Get non-sponsored vendors for this category
+    // Get non-sponsored vendors for this filter
+    let nonSponsorRankInclude = {
+      model: VendorCategoryRank,
+      as: 'categoryRanks',
+      where: { is_sponsored: 0 },
+      required: false
+    };
+    if (category_id) nonSponsorRankInclude.where.category_id = category_id;
+
     const nonSponsoredVendors = await User.findAll({
-      where: {
-        role_id: 2,
-        status: 1,
-        category_id: {
-          [Op.like]: `%${category_id}%`
-        }
-      },
-      include: [{
-        model: VendorCategoryRank,
-        as: 'categoryRanks',
-        where: { 
-          category_id: category_id,
-          is_sponsored: 0
-        },
-        required: false
-      }],
+      where: whereClause,
+      include: [nonSponsorRankInclude],
       order: [['createdAt', 'DESC']]
     });
 

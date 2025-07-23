@@ -1,5 +1,18 @@
-const { ClientLead, User } = require('../../models');
+const { ContactUs, ClientLead, User } = require('../../models');
 const { commonEmail } = require('../../helper/commonEmail');
+
+exports.submitContactUs = async (req, res) => {
+  try {
+    const { name, email, phone, subject, message } = req.body;
+    if (!name || !email || !subject || !message) {
+      return res.status(400).json({ status: false, msg: 'name, email, subject, and message are required' });
+    }
+    const contact = await ContactUs.create({ name, email, phone, subject, message });
+    res.json({ status: true, msg: 'Contact request submitted successfully', data: contact });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
 
 exports.submitLead = async (req, res) => {
   try {
