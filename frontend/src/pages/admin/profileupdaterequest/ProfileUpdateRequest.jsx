@@ -73,6 +73,12 @@ export default function ProfileUpdateRequests() {
 
   const columns = [
     {
+      name: "S.No",
+      selector: (row, index) => index + 1,
+      sortable: false,
+      width: "70px",
+    },
+    {
       name: "Vendor Name",
       selector: (row) => row.vendor?.owner_name || "N/A",
       sortable: true,

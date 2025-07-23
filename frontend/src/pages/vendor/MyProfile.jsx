@@ -36,7 +36,7 @@ export default function MyProfile() {
   return (
     <div className="page-content container-fluid">
       <div className="add-page-heading-div mb-3 d-flex align-items-center gap-2">
-        <Link to="/dashboard">
+        <Link to="/admin/dashboard">
           <i className="fa fa-arrow-left"></i>
         </Link>
         <h2 className="add-page-heading mb-0">

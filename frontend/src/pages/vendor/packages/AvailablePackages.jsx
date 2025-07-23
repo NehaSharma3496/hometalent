@@ -79,24 +79,15 @@ const VendorPackages = () => {
       selector: (row) => row.name,
       sortable: true,
     },
-    {
-      name: "Description",
-      cell: (row) => (
-        <div>
-          {truncateText(row.description)}
-          {row.description.length > 30 && (
-            <button
-              className="btn btn-link p-0 ms-2"
-              style={{ fontSize: "0.85rem" }}
-              onClick={() => showFullDescription(row.description)}
-            >
-              🔽
-            </button>
-          )}
-        </div>
-      ),
-      sortable: false,
-    },
+ {
+  name: "Description",
+  cell: (row) => (
+    <div>
+      {row.description}
+    </div>
+  ),
+  sortable: false,
+},
     {
       name: "Price (₹)",
       selector: (row) => row.price,
@@ -134,7 +125,7 @@ const VendorPackages = () => {
             <Link to="/vendor/dashboard">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
-            <h2 className="add-page-heading">All Vendor Packages</h2>
+            <h2 className="add-page-heading">Available Packages</h2>
           </div>
         </div>
       </div>
