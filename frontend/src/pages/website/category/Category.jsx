@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
+import axios from "axios";
 
 import Breadcrumbs from "../../../components/websitecomponents/Breadcrumbs";
 
@@ -9,50 +10,138 @@ import {
   GetVendorsByCategory,
 } from "../../../Services/webService/Web";
 
+// Import base_url as named export
+import { base_url } from "../../../Utils/config";
+
 const Category = () => {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   const [vendor, setVendor] = useState([]);
   const [city, setCity] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredVendors, setFilteredVendors] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const token = localStorage.getItem("token");
 
-  const category = location?.state?.category;
+  // Get category from location state (from Header navigation)
+  const categoryFromState = location?.state?.category;
 
-  const fetchvendorsbycategories = async () => {
+  // Get parameters from URL search params (from Home page navigation)
+  const categoryIdFromUrl = searchParams.get("categoryId");
+  const cityIdFromUrl = searchParams.get("cityId");
+
+  // Determine effective IDs for API call
+  const effectiveCategoryId = categoryFromState?._id || categoryIdFromUrl;
+  const effectiveCityId = cityIdFromUrl;
+
+  // For breadcrumbs and display, use category from state if available
+  const displayCategory = categoryFromState || {
+    _id: categoryIdFromUrl,
+    name: "Selected Category",
+  };
+
+  console.log("Category Component State:", {
+    categoryFromState,
+    categoryIdFromUrl,
+    cityIdFromUrl,
+    effectiveCategoryId,
+    effectiveCityId,
+  });
+
+  // Custom function for category-only API call (without city_id parameter)
+  const getCategoryOnlyVendors = async (categoryId) => {
     try {
-      const response = await GetVendorsByCategory(token, category?.id);
-      console.log("Vendors in this category:", response);
-      console.log(
-        "Created At:",
-        vendor.map((v) => v.created_at)
+      console.log("Making category-only API call for categoryId:", categoryId);
+
+      // Direct axios call without city_id parameter using base_url
+      const response = await axios.get(
+        `${base_url}front/vendors-by-category/${categoryId}`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
       );
 
-      setVendor(response.data);
+      console.log("Category-only API response:", response.data);
+      return response.data;
     } catch (error) {
-      console.log("Error fetching vendor by categories", error);
+      console.error("Category-only API error:", error);
+      return { status: false, data: [] };
     }
   };
 
-  const fetchvendorcity = async () => {
+  const fetchVendors = async () => {
+    setLoading(true);
+    try {
+      console.log("Fetching vendors with params:", {
+        categoryId: effectiveCategoryId,
+        cityId: effectiveCityId,
+      });
+
+      let response;
+
+      if (effectiveCategoryId && effectiveCityId) {
+        // Both category and city selected - use original API function
+        console.log("API Call: Both category and city");
+        response = await GetVendorsByCategory(
+          token,
+          effectiveCategoryId,
+          effectiveCityId
+        );
+      } else if (effectiveCategoryId) {
+        // Only category selected - use custom function without city_id
+        console.log("API Call: Only category - using custom function");
+        response = await getCategoryOnlyVendors(effectiveCategoryId);
+      } else if (effectiveCityId) {
+        // Only city selected - use original API function with empty category
+        console.log("API Call: Only city - using empty string for category");
+        response = await GetVendorsByCategory(token, "", effectiveCityId);
+      } else {
+        console.log("No filters provided");
+        setVendor([]);
+        setLoading(false);
+        return;
+      }
+
+      console.log("API Response:", response);
+
+      if (response && response.data && Array.isArray(response.data)) {
+        setVendor(response.data);
+        console.log(`Successfully loaded ${response.data.length} vendors`);
+      } else {
+        console.log("No vendor data in response or invalid format");
+        setVendor([]);
+      }
+    } catch (error) {
+      console.error("Error fetching vendors:", error);
+      setVendor([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCities = async () => {
     try {
       const response = await GetStateCity();
-      console.log("City ", response);
-      setCity(response.data);
+      console.log("Cities fetched:", response?.data?.length || 0);
+      setCity(response.data || []);
     } catch (error) {
       console.log("Error in fetching cities", error);
+      setCity([]);
     }
   };
 
+  // Filter vendors based on search query
   useEffect(() => {
     if (!searchQuery.trim()) {
       setFilteredVendors(vendor);
     } else {
       const filtered = vendor.filter((v) => {
         const ownerMatch = v.owner_name
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(searchQuery.toLowerCase());
 
         const cityMatch = city
@@ -67,31 +156,60 @@ const Category = () => {
     }
   }, [searchQuery, vendor, city]);
 
+  // Fetch cities on component mount
   useEffect(() => {
-    fetchvendorcity();
+    fetchCities();
   }, []);
 
+  // Fetch vendors when parameters change
   useEffect(() => {
-    if (category?.id) {
-      fetchvendorsbycategories();
+    if (effectiveCategoryId || effectiveCityId) {
+      fetchVendors();
+    } else {
+      setVendor([]);
     }
-  }, [category]);
+  }, [effectiveCategoryId, effectiveCityId, token]);
+
+  // Get city name for display
+  const selectedCityName = effectiveCityId
+    ? city.find((c) => c.type === "city" && c.id === parseInt(effectiveCityId))
+        ?.name
+    : null;
+
+  // Dynamic page title
+  const getPageTitle = () => {
+    if (effectiveCategoryId && effectiveCityId) {
+      return `${displayCategory.name} in ${
+        selectedCityName || "Selected City"
+      }`;
+    } else if (effectiveCategoryId) {
+      return displayCategory.name;
+    } else if (effectiveCityId) {
+      return `Vendors in ${selectedCityName || "Selected City"}`;
+    }
+    return "Vendors";
+  };
 
   const breadcrumbLinks = [
     { label: "Home", to: "/" },
-    { label: category?.name, to: "#" }, // or current route
+    { label: getPageTitle(), to: "#" },
   ];
 
   return (
     <div>
-      <Breadcrumbs title={category?.name} links={breadcrumbLinks} />
+      <Breadcrumbs title={getPageTitle()} links={breadcrumbLinks} />
       <section className="tour-list-section top-bottom-padding2">
         <div className="container">
           <div className="row g-4">
             <div className="col-xl-12">
               <div className="showing-result">
                 <h4 className="title">
-                  Showing {filteredVendors.length} of {vendor.length} Results
+                  {loading
+                    ? "Loading..."
+                    : `Showing ${filteredVendors.length} of ${vendor.length} Results`}
+                  {effectiveCategoryId && ` for ${displayCategory.name}`}
+                  {effectiveCityId &&
+                    ` in ${selectedCityName || "Selected City"}`}
                 </h4>
 
                 <div className="d-flex gap-10 align-items-center">
@@ -176,12 +294,11 @@ const Category = () => {
                         } else if (value === "new") {
                           sorted.sort(
                             (a, b) =>
-                              new Date(b.createdAt || 0) -
-                              new Date(a.createdAt || 0)
+                              new Date(b.created_at || 0) -
+                              new Date(a.created_at || 0)
                           );
                         } else if (value === "popular") {
-                          // You can add real logic later
-                          sorted = [...vendor]; // No sorting
+                          sorted = [...vendor];
                         }
 
                         setVendor(sorted);
@@ -199,7 +316,14 @@ const Category = () => {
               <div className="all-tour-list">
                 <div className="row g-4">
                   <div className="row">
-                    {filteredVendors.length > 0 ? (
+                    {loading ? (
+                      <div className="text-center py-5">
+                        <div className="spinner-border" role="status">
+                          <span className="visually-hidden">Loading...</span>
+                        </div>
+                        <p className="mt-2">Loading vendors...</p>
+                      </div>
+                    ) : filteredVendors.length > 0 ? (
                       filteredVendors.map((item, index) => (
                         <div className="col-xl-4 col-lg-4 col-sm-6" key={index}>
                           <div className="hotel-card">
@@ -208,11 +332,14 @@ const Category = () => {
                                 to="/categorydetail"
                                 state={{
                                   vendor: item,
-                                  category: category,
+                                  category: displayCategory,
                                   cities: city,
                                 }}
                               >
-                                <img src={item.image} alt={item.name} />
+                                <img
+                                  src={item.image || "/default-vendor.jpg"}
+                                  alt={item.owner_name}
+                                />
                               </Link>
                               <div className="rating-badge-car">
                                 <div className="rating">
@@ -231,7 +358,7 @@ const Category = () => {
                                   to="/categorydetail"
                                   state={{
                                     vendor: item,
-                                    category: category,
+                                    category: displayCategory,
                                     cities: city,
                                   }}
                                 >
@@ -248,44 +375,11 @@ const Category = () => {
                                 </div>
                               </div>
 
-                              {/* <div className="hotel-person">
-                                <div className="count">
-                                  <div className="icon text-primary">
-                                    <i className="ri-speed-up-line" />
-                                  </div>
-                                  <p className="pera">
-                                    {item.pools || "2 Pools"}
-                                  </p>
-                                </div>
-                                <div className="count">
-                                  <div className="icon text-primary">
-                                    <i className="ri-tools-fill" />
-                                  </div>
-                                  <p className="pera text-capitalize">
-                                    {item.bathrooms || "2 Bathrooms"}
-                                  </p>
-                                </div>
-                                <div className="count">
-                                  <div className="icon text-primary">
-                                    <i className="ri-bus-2-line" />
-                                  </div>
-                                  <p className="pera text-capitalize">
-                                    {item.beds || "3 Beds"}
-                                  </p>
-                                </div>
-                                <div className="count">
-                                  <div className="icon text-primary">
-                                    <i className="ri-run-line" />
-                                  </div>
-                                  <p className="pera text-capitalize">
-                                    {item.capacity || "4-6 Persons"}
-                                  </p>
-                                </div>
-                              </div> */}
-
                               <div className="cart-footer d-flex flex-wrap justify-content-between">
                                 <div className="d-flex gap-6 align-items-center">
-                                  <p className="pera">${item.price_range}</p>
+                                  <p className="pera">
+                                    ${item.price_range || "Contact for price"}
+                                  </p>
                                   <p className="sub-pera text-12 text-capitalize">
                                     /person
                                   </p>
@@ -295,7 +389,7 @@ const Category = () => {
                                   className="browse-btn"
                                   state={{
                                     vendor: item,
-                                    category: category,
+                                    category: displayCategory,
                                     cities: city,
                                   }}
                                 >
@@ -308,7 +402,28 @@ const Category = () => {
                       ))
                     ) : (
                       <div className="text-center py-5">
-                        <h5 className="text-danger">No user found</h5>
+                        <h5 className="text-danger">
+                          {effectiveCategoryId || effectiveCityId
+                            ? "No vendors found for the selected criteria"
+                            : "Please select a category or city to view vendors"}
+                        </h5>
+                        <p className="text-muted">
+                          {effectiveCategoryId &&
+                            `Category: ${displayCategory.name}`}
+                          {effectiveCategoryId && effectiveCityId && " | "}
+                          {effectiveCityId &&
+                            `City: ${selectedCityName || "Selected City"}`}
+                        </p>
+                        <div className="mt-3">
+                          <p className="small text-info">
+                            Debug Info: CategoryID:{" "}
+                            {effectiveCategoryId || "None"}, CityID:{" "}
+                            {effectiveCityId || "None"}
+                          </p>
+                          <p className="small text-warning">
+                            Check console for API call details
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>

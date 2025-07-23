@@ -1,10 +1,70 @@
-import React from "react";
+import React, { useState } from "react";
+import Swal from "sweetalert2";
 import Breadcrumbs from "../../components/websitecomponents/Breadcrumbs";
+import { SubmitContactData } from "../../Services/webService/Web";
 
 const Contact = () => {
+  const [contactData, setContactData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setContactData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const { name, email, phone, subject, message } = contactData;
+
+    if (!name || !email || !phone || !subject || !message) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing Fields",
+        text: "Please fill in all required fields.",
+      });
+      return;
+    }
+
+    try {
+      const res = await SubmitContactData(contactData);
+      if (res?.status === 200) {
+        Swal.fire({
+          icon: "success",
+          title: "Message Sent",
+          text: "Thank you for contacting us!",
+        });
+        setContactData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: res?.data?.message || "Failed to send message.",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error?.message || "Something went wrong. Please try again.",
+      });
+    }
+  };
+
   const breadcrumbLinks = [
     { label: "Home", to: "/" },
-    { label: "Contact", to: "#" }, // or current route
+    { label: "Contact", to: "#" },
   ];
 
   return (
@@ -19,10 +79,13 @@ const Contact = () => {
                   <h4 className="contact-heading">
                     Feel Free to Write us Anytime
                   </h4>
-                  <form method="post" className="contact-form">
+                  <form onSubmit={handleSubmit} className="contact-form">
                     <div className="row g-4">
                       <div className="col-sm-6">
                         <input
+                          name="name"
+                          value={contactData.name}
+                          onChange={handleChange}
                           className="custom-form"
                           type="text"
                           placeholder="Enter your name"
@@ -30,13 +93,19 @@ const Contact = () => {
                       </div>
                       <div className="col-sm-6">
                         <input
+                          name="email"
+                          value={contactData.email}
+                          onChange={handleChange}
                           className="custom-form"
-                          type="text"
+                          type="email"
                           placeholder="Enter your email"
                         />
                       </div>
                       <div className="col-sm-6">
                         <input
+                          name="phone"
+                          value={contactData.phone}
+                          onChange={handleChange}
                           className="custom-form"
                           type="text"
                           placeholder="Your Phone"
@@ -44,6 +113,9 @@ const Contact = () => {
                       </div>
                       <div className="col-sm-6">
                         <input
+                          name="subject"
+                          value={contactData.subject}
+                          onChange={handleChange}
                           className="custom-form"
                           type="text"
                           placeholder="Select subject"
@@ -51,11 +123,12 @@ const Contact = () => {
                       </div>
                       <div className="col-sm-12">
                         <textarea
+                          name="message"
+                          value={contactData.message}
+                          onChange={handleChange}
                           className="custom-form-textarea"
-                          id="exampleFormControlTextarea1"
                           rows={5}
                           placeholder="Enter your message..."
-                          defaultValue={""}
                         />
                       </div>
                     </div>
