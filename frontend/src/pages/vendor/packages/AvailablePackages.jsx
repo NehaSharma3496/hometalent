@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { getVendorPackages, subscribeToPackage } from '../../../Services/vendor/Vendor';
-import Datatable from '../../../extracomponents/Datatable';
-import Swal from 'sweetalert2';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  getVendorPackages,
+  subscribeToPackage,
+} from "../../../Services/vendor/Vendor";
+import Datatable from "../../../extracomponents/Datatable";
+import Swal from "sweetalert2";
 
 const VendorPackages = () => {
   const [packages, setPackages] = useState([]);
@@ -16,30 +19,30 @@ const VendorPackages = () => {
 
   const fetchPackages = async () => {
     try {
-      const res = await getVendorPackages(1, 15,token);
+      const res = await getVendorPackages(1, 15, token);
       if (res.status) {
         setPackages(res.data);
         setPagination(res.pagination);
       }
     } catch (err) {
-      console.error('Failed to load packages', err);
+      console.error("Failed to load packages", err);
     }
   };
 
   const handleSubscribe = async (packageId) => {
     const confirm = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'Do you want to subscribe to this package?',
-      icon: 'question',
+      title: "Are you sure?",
+      text: "Do you want to subscribe to this package?",
+      icon: "question",
       showCancelButton: true,
-      confirmButtonText: 'Yes, subscribe',
+      confirmButtonText: "Yes, subscribe",
     });
 
     if (confirm.isConfirmed) {
       const payload = {
         vendor_id: vendorId,
         package_id: packageId,
-        payment_reference: `TXN${Date.now()}`
+        payment_reference: `TXN${Date.now()}`,
       };
 
       try {
@@ -53,9 +56,9 @@ const VendorPackages = () => {
 
   const showFullDescription = (description) => {
     Swal.fire({
-      title: 'Package Description',
+      title: "Package Description",
       text: description,
-      confirmButtonText: 'Close',
+      confirmButtonText: "Close",
     });
   };
 
@@ -69,7 +72,7 @@ const VendorPackages = () => {
       name: "S.No.",
       selector: (row, index) => index + 1,
       sortable: true,
-      width: "80px"
+      width: "80px",
     },
     {
       name: "Package Name",
@@ -84,7 +87,7 @@ const VendorPackages = () => {
           {row.description.length > 30 && (
             <button
               className="btn btn-link p-0 ms-2"
-              style={{ fontSize: '0.85rem', }}
+              style={{ fontSize: "0.85rem" }}
               onClick={() => showFullDescription(row.description)}
             >
               🔽
@@ -120,7 +123,7 @@ const VendorPackages = () => {
         </button>
       ),
       sortable: false,
-    }
+    },
   ];
 
   return (
@@ -134,34 +137,14 @@ const VendorPackages = () => {
             <h2 className="add-page-heading">All Vendor Packages</h2>
           </div>
         </div>
-        {/* <div className="col-md-6 text-end">
-          <Link to="/addpackage" className="add-btn-head">+ Add Package</Link>
-        </div> */}
       </div>
 
       <div className="card p-4">
-        <div className="row filter-forms mb-4">
-          <div className="col-md-4">
-            <input className="form-input" type="text" placeholder="Search by Package Name" />
-          </div>
-          <div className="col-md-2">
-            <button type="button" className="filter-reset-btn">
-              <i className="fa fa-download" aria-hidden="true"></i> Export Excel
-            </button>
-          </div>
-        </div>
-
         <div className="row">
           <div className="col-md-12">
-            <Datatable
-              columns={columns}
-              data={packages}
-              pagination
-            />
+            <Datatable columns={columns} data={packages} pagination />
           </div>
         </div>
-
-
       </div>
     </div>
   );

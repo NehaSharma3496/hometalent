@@ -90,7 +90,10 @@ const Category = () => {
           <div className="row g-4">
             <div className="col-xl-12">
               <div className="showing-result">
-                <h4 className="title">Showing 6 of 10 Results</h4>
+                <h4 className="title">
+                  Showing {filteredVendors.length} of {vendor.length} Results
+                </h4>
+
                 <div className="d-flex gap-10 align-items-center">
                   <div
                     className="expand-icon hamburger block d-xl-none"
