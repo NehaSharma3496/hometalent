@@ -1,0 +1,194 @@
+{
+  "info": {
+    "name": "HomeTalent New & Changed APIs v2",
+    "_postman_id": "hometalent-new-changed-apis-v2-001",
+    "description": "All new and updated APIs for HomeTalent backend (admin, vendor, client, sponsor rank, leads, packages, contact us, vendor filter, etc.)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Frontend - Vendors by Category/City (Flexible Filter)",
+      "item": [
+        {
+          "name": "Get Vendors by Category and/or City (Flexible Filter)",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/front/vendors-by-category/5?city_id=2"
+          }
+        },
+        {
+          "name": "Get Vendors by City Only",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/front/vendors-by-category/?city_id=2"
+          }
+        },
+        {
+          "name": "Get Vendors by Category Only",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/front/vendors-by-category/5"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Client APIs",
+      "item": [
+        {
+          "name": "Submit Contact Us",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Client Name\",\n  \"email\": \"client@email.com\",\n  \"phone\": \"9876543210\",\n  \"subject\": \"Help\",\n  \"message\": \"I need assistance.\"\n}"
+            },
+            "url": "http://localhost:5000/client/contact-us"
+          }
+        },
+        {
+          "name": "Submit Lead",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vendor_id\": 2,\n  \"name\": \"Client Name\",\n  \"phone\": \"9876543210\",\n  \"email\": \"client@email.com\",\n  \"query\": \"I want to book your service.\"\n}"
+            },
+            "url": "http://localhost:5000/client/lead"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Contact Us List",
+      "item": [
+        {
+          "name": "Get All Contact Us Submissions (paginated)",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/admin/contact-us?page=1&limit=10"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sponsor Rank (Category Specific)",
+      "item": [
+        {
+          "name": "Update Sponsor Ranks (category-specific)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vendors\": [\n    { \"vendor_id\": 1, \"category_id\": 5, \"sponsor_rank\": 1 },\n    { \"vendor_id\": 1, \"category_id\": 8, \"sponsor_rank\": 3 },\n    { \"vendor_id\": 2, \"category_id\": 5, \"sponsor_rank\": 2 }\n  ]\n}"
+            },
+            "url": "http://localhost:5000/admin/update-sponsor-ranks"
+          }
+        },
+        {
+          "name": "Get Sponsored Vendors by Category (paginated)",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/admin/vendors/sponsored?category_id=5&page=1&limit=10"
+          }
+        },
+        {
+          "name": "Get All Sponsored Vendors With Categories",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/admin/sponsored-vendors-with-categories"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Package CRUD",
+      "item": [
+        {
+          "name": "Create Package",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Gold\",\n  \"description\": \"Best for premium vendors\",\n  \"price\": 999,\n  \"validity_in_months\": 12,\n  \"features\": \"Priority listing, More leads\",\n  \"status\": 1\n}"
+            },
+            "url": "http://localhost:5000/admin/package"
+          }
+        },
+        {
+          "name": "Get All Packages (paginated)",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/admin/package?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Get Package By ID",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/admin/package/1"
+          }
+        },
+        {
+          "name": "Update Package",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Gold Updated\",\n  \"description\": \"Updated description\",\n  \"price\": 1099,\n  \"validity_in_months\": 12,\n  \"features\": \"Priority listing, More leads, Featured badge\",\n  \"status\": 1\n}"
+            },
+            "url": "http://localhost:5000/admin/package/1"
+          }
+        },
+        {
+          "name": "Delete Package",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:5000/admin/package/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vendor - Package APIs",
+      "item": [
+        {
+          "name": "Get Available Packages (paginated)",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/vendor/packages?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Subscribe to Package",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vendor_id\": 2,\n  \"package_id\": 1,\n  \"payment_reference\": \"TXN123456789\"\n}"
+            },
+            "url": "http://localhost:5000/vendor/subscribe-package"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Expired Vendors",
+      "item": [
+        {
+          "name": "Get Expired Vendors",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:5000/admin/expired-vendors"
+          }
+        }
+      ]
+    }
+  ]
+} 

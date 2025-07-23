@@ -63,5 +63,7 @@ router.get('/expired-vendors', adminController.getExpiredVendors);
 
 router.get('/leads', adminController.getAllLeads);
 router.get('/sponsored-vendors-with-categories', adminController.getAllSponsoredVendorsWithCategories);
+router.get('/contact-us', adminController.getAllContactUs);
+
 
 module.exports = router;
