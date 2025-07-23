@@ -113,7 +113,7 @@ const VendorPackages = () => {
       name: "Action",
       cell: (row) => (
         <button
-          className="btn btn-sm btn-primary rounded-4 px-4"
+          className="btn btn-sm btn-primary"
           onClick={() => handleSubscribe(row.id)}
         >
           Subscribe
@@ -134,9 +134,9 @@ const VendorPackages = () => {
             <h2 className="add-page-heading">All Vendor Packages</h2>
           </div>
         </div>
-        <div className="col-md-6 text-end">
+        {/* <div className="col-md-6 text-end">
           <Link to="/addpackage" className="add-btn-head">+ Add Package</Link>
-        </div>
+        </div> */}
       </div>
 
       <div className="card p-4">

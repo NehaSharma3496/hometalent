@@ -50,8 +50,26 @@ export async function SubmitLead(data) {
       `${Config.base_url}client/lead/lead`,
       data
     );
+    console.log("Lead submitted successfully", response);
     return response;
+    
   } catch (error) {
+    return error;
+  }
+}
+
+export async function GetAdminGallery(token,userId){
+  try{
+     const res = await axios.get(
+      `${Config.base_url}gallery/my-gallery?user_id=${userId}&status=approved`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return res?.data;
+  }catch (error) {
     return error;
   }
 }

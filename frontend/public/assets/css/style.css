@@ -236,9 +236,9 @@ a{
     width: 30px;
 }
 
-.sidebar-toggle #sidebar .sidebar-nav .nav-item.menu-dropdown a i{
+/* .sidebar-toggle #sidebar .sidebar-nav .nav-item.menu-dropdown a i{
     display: none;
-}
+} */
 
 #sidebar .sidebar-nav .nav-item.menu-dropdown.showMenu a i {
     transform: rotate(-180deg);
@@ -333,7 +333,12 @@ a{
 #sidebar .sidebar-nav .nav-item.small-nav-item {
     margin-top: 10px;
 }
-
+#sidebar img{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    left: 0;
+}
 #sidebar .sidebar-nav .nav-item.small-nav-item a span {
     border-width: 1px;
 }

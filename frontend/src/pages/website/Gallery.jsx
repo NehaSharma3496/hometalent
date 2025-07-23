@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
 import Captions from "yet-another-react-lightbox/plugins/captions";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
@@ -14,34 +14,42 @@ import "yet-another-react-lightbox/plugins/thumbnails.css";
 
 import Breadcrumbs from "../../components/websitecomponents/Breadcrumbs";
 
+import { GetAdminGallery } from "../../Services/webService/Web";
+
 const Gallery = () => {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
+  const [gallery, setGallery] = useState([]);
+  const token = localStorage.getItem("token");
+  const userId = 1;
+
+const fetchGallery = async () => {
+  try {
+    const response = await GetAdminGallery(token, userId);
+    console.log("Gallery API response:", response.data);
+
+    const formatted = response.data.map((item, i) => ({
+      src: item.file_path, // ✅ use correct field
+      title: `Image ${i + 1}`, // dummy title
+      description: "Beautiful gallery image", // dummy description
+    }));
+
+    console.log("Formatted gallery:", formatted);
+    setGallery(formatted);
+  } catch (error) {
+    console.error("Error fetching gallery:", error);
+  }
+};
+
+
+  useEffect(() => {
+    fetchGallery();
+  }, []);
 
   const breadcrumbLinks = [
     { label: "Home", to: "/" },
     { label: "Gallery", to: "#" },
   ];
-
-  const slides = [
-    {
-      src: "https://images.yet-another-react-lightbox.com/image01.0800ee93.3840x5760.640w.jpg",
-      title: "Beautiful View",
-      description: "Perfect sunset and serene waves",
-    },
-    {
-      src: "https://images.yet-another-react-lightbox.com/image01.0800ee93.3840x5760.640w.jpg",
-      title: "Mountain Peak",
-      description: "Snow-covered mountain during sunrise.",
-    },
-    {
-      src: "https://images.yet-another-react-lightbox.com/image01.0800ee93.3840x5760.640w.jpg",
-      title: "Forest Walk",
-      description: "A serene trail in the forest.",
-    },
-  ];
-
-  const tabLabels = ["Themes", "Vendors", "Events"];
 
   return (
     <div className="gallery-container">
@@ -49,52 +57,32 @@ const Gallery = () => {
 
       <section className="destination-section-two section-padding package-area">
         <div className="container">
-          <ul className="nav nav-pills package-pills mb-4" id="gallery-tabs">
-            {tabLabels.map((label, idx) => (
-              <li className="nav-item" key={label}>
-                <button
-                  className={`nav-link package-nav ${idx === 0 ? "active" : ""}`}
-                  id={`tab-${label}`}
-                  data-bs-toggle="pill"
-                  data-bs-target={`#pane-${label}`}
-                  type="button"
-                >
-                  {label}
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div className="row g-4">
+            {gallery.map((slide, i) => (
+              <div key={i} className="col-xl-3 col-lg-4 col-sm-6">
+                <div className="package-card h-calc">
+                  <div
+                    className="package-img imgEffect4 thumbnail"
+                    onClick={() => {
+                      setIndex(i);
+                      setOpen(true);
+                    }}
+                  >
+                   <img
+  src={slide.src}
+  alt={`Gallery ${i + 1}`}
+  style={{
+    width: "100%",
+    height: "400px",
+    objectFit: "cover",
+    cursor: "pointer",
+  }}
+/>
 
-          <div className="tab-content">
-            {tabLabels.map((label, idx) => (
-              <div
-                key={label}
-                className={`tab-pane fade ${idx === 0 ? "show active" : ""}`}
-                id={`pane-${label}`}
-              >
-                <div className="row g-4">
-                  {slides.map((slide, i) => (
-                    <div key={i} className="col-xl-3 col-lg-4 col-sm-6">
-                      <div className="package-card h-calc">
-                        <div
-                          className="package-img imgEffect4 thumbnail"
-                          onClick={() => {
-                            setIndex(i);
-                            setOpen(true);
-                          }}
-                        >
-                          <img
-                            src={slide.src}
-                            alt={slide.title}
-                            style={{ width: "100%", cursor: "pointer" }}
-                          />
-                          <div className="image-badge">
-                            <p className="pera">{slide.title}</p>
-                          </div>
-                        </div>
-                      </div>
+                    <div className="image-badge">
+                      <p className="pera">{slide.title}</p>
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
             ))}
@@ -107,17 +95,24 @@ const Gallery = () => {
           open={open}
           close={() => setOpen(false)}
           index={index}
-          slides={slides}
-          plugins={[Captions, Fullscreen, Slideshow, Thumbnails, Video, Zoom, Share]}
+          slides={gallery}
+          plugins={[
+            Captions,
+            Fullscreen,
+            Slideshow,
+            Thumbnails,
+            Video,
+            Zoom,
+            Share,
+          ]}
           captions={{
-  descriptionTextAlign: "center",
-  descriptionMaxLines: 2,
-}}
-
+            descriptionTextAlign: "center",
+            descriptionMaxLines: 2,
+          }}
           share={{
-            url: slides[index]?.src,
-            title: slides[index]?.title,
-            description: slides[index]?.description,
+            url: gallery[index]?.src,
+            title: gallery[index]?.title,
+            description: gallery[index]?.description,
           }}
         />
       )}
