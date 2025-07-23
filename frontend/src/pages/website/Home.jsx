@@ -158,7 +158,7 @@ const Home = () => {
     });
 
     if (search.trim()) {
-      return groups
+      return groups 
         .map((group) => {
           const stateMatch = group.state.name
             .toLowerCase()
