@@ -755,3 +755,32 @@ exports.getAllContactUs = async (req, res) => {
   }
 };
 
+// Dashboard counts for admin
+exports.getDashboardCounts = async (req, res) => {
+  try {
+    // Total leads
+    const totalLeads = await ClientLead.count();
+
+    // Total vendors
+    const totalVendors = await User.count({
+      where: { role_id: 2 }
+    });
+
+    // Pending vendors
+    const pendingVendors = await User.count({
+      where: { role_id: 2, status: 0 }
+    });
+
+    res.json({
+      status: true,
+      data: {
+        total_leads: totalLeads,
+        total_vendors: totalVendors,
+        pending_vendors: pendingVendors
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
