@@ -358,7 +358,7 @@ const CategoryDetail = () => {
                     </div>
 
                     {/* review section */}
-                    <div class="comment-section">
+                    {/* <div class="comment-section">
                       <h4 class="comment-count">( 3 ) Reviews</h4>
 
                       <div class="main-profile-two d-block pb-15 border-bottom mb-20">
@@ -426,7 +426,7 @@ const CategoryDetail = () => {
                           programmer by night, and always a foodie at heart!
                         </p>
                       </div>
-                    </div>
+                    </div> */}
 
                     {/* / About tour */}
                     {/* Tour Include Exclude */}
