@@ -227,7 +227,7 @@ export default function AddVendor() {
   return (
     <div className="page-content">
       <div className="add-page-heading-div mb-4">
-        <Link to="/admin/vendor">
+        <Link to="/admin/dashboard">
           <i className="fa-sharp fa-regular fa-arrow-left"></i>
         </Link>
         <h2 className="add-page-heading">Add Vendor</h2>

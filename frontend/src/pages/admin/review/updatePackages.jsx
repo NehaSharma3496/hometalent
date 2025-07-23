@@ -3,7 +3,7 @@ import ReusableForm from "../../../extracomponents/ReusableForm";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
 import { Link, useParams } from "react-router-dom";
-import { UpdatePackage, GetSinglePackage } from "../../../Services/admin/Admin"; 
+import { UpdatePackage, GetSinglePackage } from "../../../Services/admin/Admin";
 
 export default function UpdatePackages() {
   const token = localStorage.getItem("token");
@@ -47,7 +47,9 @@ export default function UpdatePackages() {
     name: Yup.string().required("Package Name is required"),
     description: Yup.string().required("Description is required"),
     price: Yup.number().required("Price is required").positive(),
-    validity_in_months: Yup.number().required("Validity is required").positive(),
+    validity_in_months: Yup.number()
+      .required("Validity is required")
+      .positive(),
     features: Yup.string().required("Features are required"),
   });
 
@@ -94,14 +96,18 @@ export default function UpdatePackages() {
       }
     } catch (err) {
       console.error("API ERROR:", err);
-      Swal.fire("Error", err?.response?.data?.msg || "Something went wrong", "error");
+      Swal.fire(
+        "Error",
+        err?.response?.data?.msg || "Something went wrong",
+        "error"
+      );
     }
   };
 
   return (
     <div className="page-content">
       <div className="add-page-heading-div mb-4">
-        <Link to="/admin/package">
+        <Link to="/admin/dashboard">
           <i className="fa-sharp fa-regular fa-arrow-left"></i>
         </Link>
         <h2 className="add-page-heading">Update Package</h2>

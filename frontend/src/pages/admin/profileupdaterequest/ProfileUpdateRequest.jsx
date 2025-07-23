@@ -23,7 +23,6 @@ export default function ProfileUpdateRequests() {
         page,
         limit
       );
-
       const data = res?.data?.requests || [];
       setRequests(data);
     } catch (err) {
@@ -48,7 +47,7 @@ export default function ProfileUpdateRequests() {
     if (confirm.isConfirmed) {
       try {
         const token = localStorage.getItem("token");
-        const adminId = localStorage.getItem("userId"); // ensure this exists
+        const adminId = localStorage.getItem("userId");
 
         const res = await ProcessProfileUpdateRequest(
           row.id,
@@ -60,7 +59,7 @@ export default function ProfileUpdateRequests() {
 
         if (res?.status) {
           Swal.fire("Success", res.msg || "Request processed", "success");
-          fetchRequests(); // refresh list
+          fetchRequests(); // refresh
         } else {
           Swal.fire("Error", res?.msg || "Failed to process", "error");
         }
@@ -72,6 +71,12 @@ export default function ProfileUpdateRequests() {
   };
 
   const columns = [
+    {
+      name: "S.No",
+      selector: (row, index) => index + 1,
+      sortable: false,
+      width: "70px",
+    },
     {
       name: "Vendor Name",
       selector: (row) => row.vendor?.owner_name || "N/A",
@@ -92,35 +97,27 @@ export default function ProfileUpdateRequests() {
     },
     {
       name: "Actions",
-      cell: (row) => (
-        <div className="d-flex">
-          <button
-            className="btn action-btn btn-warning me-2"
-            onClick={() => (window.location.href = `/admin/vendor/${row.id}`)}
-            title="View"
-          >
-            <i className="fa-regular fa-eye"></i>
-          </button>
-          {row.status === "pending" && (
-            <>
-              <button
-                className="btn btn-success btn-sm me-1"
-                onClick={() => handleAction(row, "approve")}
-                title="Approve"
-              >
-                <i className="fa fa-check"></i>
-              </button>
-              <button
-                className="btn btn-danger btn-sm"
-                onClick={() => handleAction(row, "reject")}
-                title="Reject"
-              >
-                <i className="fa fa-times"></i>
-              </button>
-            </>
-          )}
-        </div>
-      ),
+      cell: (row) =>
+        row.status === "pending" ? (
+          <div className="d-flex">
+            <button
+              className="btn btn-success btn-sm me-2"
+              onClick={() => handleAction(row, "approve")}
+              title="Approve"
+            >
+              <i className="fa fa-check"></i>
+            </button>
+            <button
+              className="btn btn-danger btn-sm"
+              onClick={() => handleAction(row, "reject")}
+              title="Reject"
+            >
+              <i className="fa fa-times"></i>
+            </button>
+          </div>
+        ) : (
+          <span className="text-muted">No actions</span>
+        ),
     },
   ];
 
@@ -132,6 +129,7 @@ export default function ProfileUpdateRequests() {
         </Link>
         <h2 className="add-page-heading">Profile Update Requests</h2>
       </div>
+
       <div className="card">
         <div className="row mb-3">
           <div className="col-md-3">

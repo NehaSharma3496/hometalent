@@ -22,14 +22,10 @@ export default function AllLeads() {
 
   const columns = [
     {
-      name: "Lead Id",
-      selector: (row) => row.id,
-      sortable: true,
-    },
-    {
-      name: "Vendor Id",
-      selector: (row) => row.vendor_id,
-      sortable: true,
+      name: "S.No",
+      selector: (row, index) => index + 1,
+      sortable: false,
+      width: "70px",
     },
     {
       name: "Vendor Name",

@@ -21,9 +21,10 @@ export default function PendingVendor() {
 
   const columns = [
     {
-      name: "Sr.No.",
-      selector: (row) => row.id,
-      sortable: true,
+      name: "S.No",
+      selector: (row, index) => index + 1,
+      sortable: false,
+      width: "70px",
     },
     {
       name: "Owner Name",
@@ -72,7 +73,7 @@ export default function PendingVendor() {
     },
     {
       name: "Pin Code",
-      selector: (row) => row.tradingstatus,
+      selector: (row) => row.pincode,
       sortable: true,
     },
     {

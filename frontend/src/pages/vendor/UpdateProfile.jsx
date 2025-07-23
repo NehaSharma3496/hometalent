@@ -9,6 +9,7 @@ import {
   SubmitProfileUpdateRequest,
   GetVendorDetails,
 } from "../../Services/vendor/Vendor";
+import { Link } from "react-router-dom";
 
 export default function UpdateProfile() {
   const [categoryData, setCategoryData] = useState([]);
@@ -35,8 +36,18 @@ export default function UpdateProfile() {
   });
 
   const fields = [
-    { name: "owner_name", label: "Owner Name", type: "text", colClass: "col-md-4 mb-3" },
-    { name: "profile_name", label: "Profile Name", type: "text", colClass: "col-md-4 mb-3" },
+    {
+      name: "owner_name",
+      label: "Owner Name",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "profile_name",
+      label: "Profile Name",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
     { name: "phone", label: "Phone", type: "text", colClass: "col-md-4 mb-3" },
     { name: "email", label: "Email", type: "email", colClass: "col-md-4 mb-3" },
     {
@@ -54,8 +65,18 @@ export default function UpdateProfile() {
       options: cityData,
       colClass: "col-md-4 mb-3",
     },
-    { name: "pin_code", label: "Pin Code", type: "text", colClass: "col-md-4 mb-3" },
-    { name: "price_range", label: "Price Range", type: "text", colClass: "col-md-4 mb-3" },
+    {
+      name: "pin_code",
+      label: "Pin Code",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "price_range",
+      label: "Price Range",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
     {
       name: "category_id",
       label: "Categories",
@@ -63,15 +84,60 @@ export default function UpdateProfile() {
       options: categoryData,
       colClass: "col-md-4 mb-3",
     },
-    { name: "experience_since", label: "Experience Since", type: "text", colClass: "col-md-4 mb-3" },
-    { name: "short_description", label: "Short Description", type: "text", colClass: "col-12 mb-3" },
-    { name: "long_description", label: "Long Description", type: "textarea", colClass: "col-12 mb-3" },
-    { name: "facebook_link", label: "Facebook Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "instagram_link", label: "Instagram Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "twitter_link", label: "Twitter Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "linkedin_link", label: "LinkedIn Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "youtube_link", label: "YouTube Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "website_link", label: "Website Link", type: "text", colClass: "col-md-6 mb-3" },
+    {
+      name: "experience_since",
+      label: "Experience Since",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "short_description",
+      label: "Short Description",
+      type: "text",
+      colClass: "col-12 mb-3",
+    },
+    {
+      name: "long_description",
+      label: "Long Description",
+      type: "textarea",
+      colClass: "col-12 mb-3",
+    },
+    {
+      name: "facebook_link",
+      label: "Facebook Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "instagram_link",
+      label: "Instagram Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "twitter_link",
+      label: "Twitter Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "linkedin_link",
+      label: "LinkedIn Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "youtube_link",
+      label: "YouTube Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "website_link",
+      label: "Website Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
     { name: "image", label: "Image", type: "file", colClass: "col-md-6 mb-3" },
   ];
 
@@ -91,13 +157,21 @@ export default function UpdateProfile() {
 
       const res = await SubmitProfileUpdateRequest(formData);
       if (res?.data?.status) {
-        Swal.fire("Success", res.data.msg || "Profile update submitted!", "success");
+        Swal.fire(
+          "Success",
+          res.data.msg || "Profile update submitted!",
+          "success"
+        );
       } else {
         Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
       }
     } catch (err) {
       console.error("API ERROR:", err);
-      Swal.fire("Error", err?.response?.data?.msg || err.message || "Failed to submit", "error");
+      Swal.fire(
+        "Error",
+        err?.response?.data?.msg || err.message || "Failed to submit",
+        "error"
+      );
     }
   };
 
@@ -112,8 +186,12 @@ export default function UpdateProfile() {
 
         const vendor = vendorRes.data;
 
-        setCategoryData(cat.data.map((x) => ({ value: x.id.toString(), label: x.name })));
-        setStatesData(st.data.map((x) => ({ value: x.id.toString(), label: x.name })));
+        setCategoryData(
+          cat.data.map((x) => ({ value: x.id.toString(), label: x.name }))
+        );
+        setStatesData(
+          st.data.map((x) => ({ value: x.id.toString(), label: x.name }))
+        );
         setSelectedStateId(vendor.state_id?.toString());
 
         setInitialValues({
@@ -126,7 +204,8 @@ export default function UpdateProfile() {
           pin_code: vendor.pin_code || "",
           price_range: vendor.price_range || "",
           short_description: vendor.short_description || "",
-          category_id: vendor.category_id?.split(",").map((id) => id.toString()) || [],
+          category_id:
+            vendor.category_id?.split(",").map((id) => id.toString()) || [],
           experience_since: vendor.experience_since || "",
           long_description: vendor.long_description || "",
           facebook_link: vendor.facebook_link || "",
@@ -149,7 +228,9 @@ export default function UpdateProfile() {
     const fetchCities = async () => {
       try {
         const res = await GetCities(token, selectedStateId);
-        setCityData(res.data.map((x) => ({ value: x.id.toString(), label: x.name })));
+        setCityData(
+          res.data.map((x) => ({ value: x.id.toString(), label: x.name }))
+        );
       } catch (err) {
         console.log("City fetch error", err);
       }
@@ -157,18 +238,32 @@ export default function UpdateProfile() {
     fetchCities();
   }, [selectedStateId]);
 
-  if (!initialValues) return <div className="text-center py-5">Loading Profile Data...</div>;
+  if (!initialValues)
+    return <div className="text-center py-5">Loading Profile Data...</div>;
 
   return (
-    <div className="container py-4">
-      <h3 className="mb-3">Submit Profile Update Request</h3>
-      <div className="card p-4">
-        <ReusableForm
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={onSubmit}
-          fields={fields}
-        />
+    <div className="page-content container-fluid">
+      <div className="add-page-heading-div mb-3 d-flex align-items-center gap-2">
+        <Link to="/admin/dashboard">
+          <i className="fa-sharp fa-regular fa-arrow-left"></i>
+        </Link>
+        <h2 className="add-page-heading mb-0">Request Profile Update</h2>
+      </div>
+      <div className="card">
+        <div className="row align-items-center mb-3">
+          <div className="col-md-6"></div>
+        </div>
+
+        <div className="row px-4 pb-4">
+          <div className="col-md-12">
+            <ReusableForm
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              onSubmit={onSubmit}
+              fields={fields}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

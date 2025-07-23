@@ -1,4 +1,4 @@
-const { User, Category, ProfileUpdateRequest, Package, VendorPackageSubscription, Log, ClientLead, VendorCategoryRank } = require('../../models'); // adjust path as needed
+const { User, Category, ProfileUpdateRequest, Package, VendorPackageSubscription, Log, ClientLead, VendorCategoryRank, ContactUs } = require('../../models'); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 
 exports.listAllVendors = async (req, res) => {
@@ -722,6 +722,112 @@ exports.getAllSponsoredVendorsWithCategories = async (req, res) => {
       ]
     });
     res.json({ status: true, data: sponsored });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.getAllContactUs = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    const { count, rows } = await ContactUs.findAndCountAll({
+      order: [['createdAt', 'DESC']],
+      limit,
+      offset
+    });
+    const totalPages = Math.ceil(count / limit);
+    res.json({
+      status: true,
+      data: rows,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+// Dashboard counts for admin
+exports.getDashboardCounts = async (req, res) => {
+  try {
+    const { Op } = require('sequelize');
+    const now = new Date();
+    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+
+    // Total leads
+    const totalLeads = await ClientLead.count();
+    // Total vendors
+    const totalVendors = await User.count({ where: { role_id: 2 } });
+    // Pending vendors
+    const pendingVendors = await User.count({ where: { role_id: 2, status: 0 } });
+
+    // Current month counts
+    const leadsCurrentMonth = await ClientLead.count({
+      where: { createdAt: { [Op.gte]: startOfCurrentMonth } }
+    });
+    const vendorsCurrentMonth = await User.count({
+      where: { role_id: 2, createdAt: { [Op.gte]: startOfCurrentMonth } }
+    });
+    const pendingVendorsCurrentMonth = await User.count({
+      where: { role_id: 2, status: 0, createdAt: { [Op.gte]: startOfCurrentMonth } }
+    });
+
+    // Previous month counts
+    const leadsPrevMonth = await ClientLead.count({
+      where: {
+        createdAt: {
+          [Op.gte]: startOfPrevMonth,
+          [Op.lt]: startOfCurrentMonth
+        }
+      }
+    });
+    const vendorsPrevMonth = await User.count({
+      where: {
+        role_id: 2,
+        createdAt: {
+          [Op.gte]: startOfPrevMonth,
+          [Op.lt]: startOfCurrentMonth
+        }
+      }
+    });
+    const pendingVendorsPrevMonth = await User.count({
+      where: {
+        role_id: 2,
+        status: 0,
+        createdAt: {
+          [Op.gte]: startOfPrevMonth,
+          [Op.lt]: startOfCurrentMonth
+        }
+      }
+    });
+
+    // Percentage increase calculation helper
+    function getPercentageIncrease(current, prev) {
+      if (prev === 0) return current > 0 ? 100 : 0;
+      return ((current - prev) / prev) * 100;
+    }
+
+    res.json({
+      status: true,
+      data: {
+        total_leads: totalLeads,
+        total_vendors: totalVendors,
+        pending_vendors: pendingVendors,
+        leads_percentage_increase: getPercentageIncrease(leadsCurrentMonth, leadsPrevMonth),
+        vendors_percentage_increase: getPercentageIncrease(vendorsCurrentMonth, vendorsPrevMonth),
+        pending_vendors_percentage_increase: getPercentageIncrease(pendingVendorsCurrentMonth, pendingVendorsPrevMonth)
+      }
+    });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
   }

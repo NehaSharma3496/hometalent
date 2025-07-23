@@ -36,7 +36,7 @@ export default function MyProfile() {
   return (
     <div className="page-content container-fluid">
       <div className="add-page-heading-div mb-3 d-flex align-items-center gap-2">
-        <Link to="/dashboard">
+        <Link to="/admin/dashboard">
           <i className="fa fa-arrow-left"></i>
         </Link>
         <h2 className="add-page-heading mb-0">
@@ -89,32 +89,56 @@ export default function MyProfile() {
               <h5 className="mb-3">🔗 Social Links</h5>
               <div className="d-flex flex-wrap gap-3">
                 {vendor.facebook_link && (
-                  <a href={vendor.facebook_link} target="_blank" rel="noreferrer">
+                  <a
+                    href={vendor.facebook_link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     Facebook
                   </a>
                 )}
                 {vendor.instagram_link && (
-                  <a href={vendor.instagram_link} target="_blank" rel="noreferrer">
+                  <a
+                    href={vendor.instagram_link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     Instagram
                   </a>
                 )}
                 {vendor.twitter_link && (
-                  <a href={vendor.twitter_link} target="_blank" rel="noreferrer">
+                  <a
+                    href={vendor.twitter_link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     Twitter
                   </a>
                 )}
                 {vendor.linkedin_link && (
-                  <a href={vendor.linkedin_link} target="_blank" rel="noreferrer">
+                  <a
+                    href={vendor.linkedin_link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     LinkedIn
                   </a>
                 )}
                 {vendor.youtube_link && (
-                  <a href={vendor.youtube_link} target="_blank" rel="noreferrer">
+                  <a
+                    href={vendor.youtube_link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     YouTube
                   </a>
                 )}
                 {vendor.website_link && (
-                  <a href={vendor.website_link} target="_blank" rel="noreferrer">
+                  <a
+                    href={vendor.website_link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     Website
                   </a>
                 )}

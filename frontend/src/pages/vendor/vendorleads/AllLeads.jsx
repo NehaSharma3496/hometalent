@@ -6,13 +6,12 @@ import Datatable from "../../../extracomponents/Datatable";
 export default function AllLeads() {
   const [leads, setAllLeads] = useState([]);
   const token = localStorage.getItem("token");
-const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
-
 
   const fetchAllLeads = async () => {
     try {
-      const response = await GetAllVendorLeads(token,userId); 
+      const response = await GetAllVendorLeads(token, userId);
       setAllLeads(response?.data);
     } catch (error) {
       console.error("Error fetching leads:", error);
@@ -20,17 +19,19 @@ const user = JSON.parse(localStorage.getItem("user"));
   };
 
   useEffect(() => {
-    if(userId){
-    fetchAllLeads();
+    if (userId) {
+      fetchAllLeads();
     }
   }, [userId]);
 
   const columns = [
     {
-      name: "Lead Id",
-      selector: (row) => row.id,
-      sortable: true,
+      name: "S.No",
+      selector: (row, index) => index + 1,
+      sortable: false,
+      width: "70px", 
     },
+
     {
       name: "Client Name",
       selector: (row) => row.name,

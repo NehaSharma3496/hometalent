@@ -13,6 +13,6 @@ router.use('/vendor', vendorRoutes);
 router.use('/front', frontRoutes);
 router.use('/admin', adminRoutes);
 router.use('/gallery', galleryRoutes);
-router.use('/client/lead', require('./client/clientLeadRoutes'));
+router.use('/client', require('./clientRoutes'));
 
 module.exports = router;

@@ -75,7 +75,7 @@ export default function AddPackage() {
   return (
     <div className="page-content">
       <div className="add-page-heading-div mb-4">
-        <Link to="/admin/package">
+        <Link to="/admin/dashboard">
           <i className="fa-sharp fa-regular fa-arrow-left"></i>
         </Link>
         <h2 className="add-page-heading">Add Package</h2>

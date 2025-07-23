@@ -49,17 +49,17 @@ export const MenuItems = {
         // { label: "Leads & Inquiries", link: "/admin/vendor/leads" },
       ],
     },
-    {
-      icon: "fa-solid fa-box",
-      label: "Listings",
-      children: [
-        { label: "All Listings", link: "/listings/all" },
-        { label: "Pending Approval", link: "/listings/pending" },
-        { label: "By City", link: "/listings/by-city" },
-        { label: "By Category", link: "/listings/by-category" },
-        { label: "Expired Listings", link: "/listings/expired" },
-      ],
-    },
+    // {
+    //   icon: "fa-solid fa-box",
+    //   label: "Listings",
+    //   children: [
+    //     { label: "All Listings", link: "/listings/all" },
+    //     { label: "Pending Approval", link: "/listings/pending" },
+    //     { label: "By City", link: "/listings/by-city" },
+    //     { label: "By Category", link: "/listings/by-category" },
+    //     { label: "Expired Listings", link: "/listings/expired" },
+    //   ],
+    // },
     // {
     //   icon: "fa-solid fa-pen-nib",
     //   label: "CMS (Content)",

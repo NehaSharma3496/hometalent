@@ -10,6 +10,7 @@ const VendorPackageSubscription = require('./VendorPackageSubscription');
 const ClientLead = require('./ClientLead');
 const Log = require('./Log');
 const VendorCategoryRank = require('./VendorCategoryRank');
+const ContactUs = require('./ContactUs');
 
 const models = {
     User: User,
@@ -23,7 +24,8 @@ const models = {
     VendorPackageSubscription: VendorPackageSubscription,
     ClientLead: ClientLead,
     Log: Log,
-    VendorCategoryRank: VendorCategoryRank
+    VendorCategoryRank: VendorCategoryRank,
+    ContactUs: ContactUs
 };
 
 Object.keys(models).forEach(modelName => {
