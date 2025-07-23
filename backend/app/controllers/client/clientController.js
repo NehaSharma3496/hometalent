@@ -20,7 +20,7 @@ exports.submitLead = async (req, res) => {
     if (!vendor_id || !name || !phone || !email) {
       return res.status(400).json({ status: false, msg: 'vendor_id, name, phone, and email are required' });
     }
-    // Store the lead
+    // Store the lead 
     const lead = await ClientLead.create({ vendor_id, name, phone, email, query });
     // Get vendor details
     const vendor = await User.findByPk(vendor_id, { attributes: ['owner_name', 'profile_name', 'email', 'phone'] });
