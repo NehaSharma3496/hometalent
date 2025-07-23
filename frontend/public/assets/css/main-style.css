@@ -15646,6 +15646,7 @@ label {
   color: var(--primary-title);
   margin-bottom: 0px;
   font-weight: 500;
+  font-size: 20px;
 }
 
 p,
@@ -29098,14 +29099,14 @@ line-height: 30px; /* 230.769% */
   justify-content: space-between;
 }
 .tour-details-container .details-heading .title {
-  font-size: 40px;
+  font-size: 20px;
   font-weight: 700;
   line-height: 1.1;
   color: var(--primary-title);
 }
 @media (max-width: 991px) {
   .tour-details-container .details-heading .title {
-    font-size: 24px;
+    font-size: 20px;
   }
 }
 .tour-details-container .details-heading .location {
@@ -29113,7 +29114,7 @@ line-height: 30px; /* 230.769% */
   display: -ms-flexbox;
   display: flex;
   gap: 8px;
-  font-size: 24px;
+  font-size: 20px;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;

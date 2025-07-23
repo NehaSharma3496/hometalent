@@ -146,16 +146,18 @@ const Viewallnotification = () => {
     ];
 
     return (
-        <div className="container py-4">
-            <div className=" mb-4">
+        <div className="card container  py-2 p-4">
+            <div className="  mb-2 p-1">
                 <div className="card-body d-flex justify-content-between align-items-center">
                     <div className="d-flex align-items-center">
-                        <div className="bg-primary-subtle rounded-circle p-2 me-3">
+                        <div className="bg-primary-subtle rounded-circle p-2 me-2">
                             <Bell size={24} className="text-primary" />
                         </div>
-                        <div>
-                            <h5 className="card-title mb-0">Notifications</h5>
-                            <small className="text-muted">{unreadCount} unread</small>
+                        <div class=" p-3">
+                            <h5 class="card-title d-flex justify-content-between align-items-center mb-0 text-primary">
+                                Notifications
+                                <span class="badge bg-primary rounded-pill">{unreadCount} unread</span>
+                            </h5>
                         </div>
                     </div>
                     <button
@@ -193,7 +195,7 @@ const Viewallnotification = () => {
 
                     <div
                         key={n.id}
-                        className={`p-2 mb-3 d-flex justify-content-between align-items-start rounded border shadow-lg ${n.isRead ? "bg-white" : "bg-light border-start border-4 border-primary"
+                        className={`p-2 mb-1 d-flex justify-content-between align-items-start rounded border shadow-lg ${n.isRead ? "bg-white" : "bg-light border-start border-4 border-primary"
                             }`}
                         style={{ transition: "0.3s ease" }}
                     >
