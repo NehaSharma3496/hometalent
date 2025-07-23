@@ -47,7 +47,7 @@ export async function GetVendorsByCategory(token, categoryId, cityId) {
 export async function SubmitLead(data) {
   try {
     const response = await axios.post(
-      `${Config.base_url}client/lead/lead`,
+      `${Config.base_url}client/lead`,
       data
     );
     console.log("Lead submitted successfully", response);
@@ -82,5 +82,22 @@ export async function SubmitContactData(data) {
     return response;
   } catch (error) {
     return error;
+  }
+}
+
+
+export async function GetVendorsByCategoryHeader(token, categoryId) {
+  try {
+    const res = await axios.get(
+      `${Config.base_url}front/vendors-by-category/${categoryId}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return res?.data;
+  } catch (err) {
+    return err;
   }
 }

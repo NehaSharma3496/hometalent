@@ -407,7 +407,7 @@ const Category = () => {
                             ? "No vendors found for the selected criteria"
                             : "Please select a category or city to view vendors"}
                         </h5>
-                        <p className="text-muted">
+                        {/* <p className="text-muted">
                           {effectiveCategoryId &&
                             `Category: ${displayCategory.name}`}
                           {effectiveCategoryId && effectiveCityId && " | "}
@@ -423,7 +423,7 @@ const Category = () => {
                           <p className="small text-warning">
                             Check console for API call details
                           </p>
-                        </div>
+                        </div> */}
                       </div>
                     )}
                   </div>
