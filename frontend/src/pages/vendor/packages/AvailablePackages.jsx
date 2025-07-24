@@ -6,6 +6,7 @@ import {
 } from "../../../Services/vendor/Vendor";
 import Datatable from "../../../extracomponents/Datatable";
 import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
 
 const VendorPackages = () => {
   const [packages, setPackages] = useState([]);
@@ -13,6 +14,8 @@ const VendorPackages = () => {
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
   const vendorId = user?.id;
+  const [searchText, setSearchText] = useState("");
+
   useEffect(() => {
     fetchPackages();
   }, []);
@@ -27,6 +30,18 @@ const VendorPackages = () => {
     } catch (err) {
       console.error("Failed to load packages", err);
     }
+  };
+
+  const filteredPackages = packages.filter((pkg) =>
+    pkg.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(packages);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Packages");
+
+    XLSX.writeFile(workbook, "vendor-packages.xlsx");
   };
 
   const handleSubscribe = async (packageId) => {
@@ -46,25 +61,12 @@ const VendorPackages = () => {
       };
 
       try {
-        const res = await subscribeToPackage(payload);
+        await subscribeToPackage(payload);
         Swal.fire("Success", "Subscribed successfully!", "success");
       } catch (err) {
         Swal.fire("Error", "Subscription failed", "error");
       }
     }
-  };
-
-  const showFullDescription = (description) => {
-    Swal.fire({
-      title: "Package Description",
-      text: description,
-      confirmButtonText: "Close",
-    });
-  };
-
-  const truncateText = (text, maxLength = 30) => {
-    if (text.length <= maxLength) return text;
-    return `${text.substring(0, maxLength)}...`;
   };
 
   const columns = [
@@ -79,15 +81,11 @@ const VendorPackages = () => {
       selector: (row) => row.name,
       sortable: true,
     },
- {
-  name: "Description",
-  cell: (row) => (
-    <div>
-      {row.description}
-    </div>
-  ),
-  sortable: false,
-},
+    {
+      name: "Description",
+      cell: (row) => <div>{row.description}</div>,
+      sortable: false,
+    },
     {
       name: "Price (₹)",
       selector: (row) => row.price,
@@ -104,13 +102,14 @@ const VendorPackages = () => {
       sortable: false,
     },
     {
-      name: "Action",
+      name: "Subscribe",
       cell: (row) => (
         <button
-          className="btn btn-sm btn-primary"
+          className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1 custom-subscribe-btn"
           onClick={() => handleSubscribe(row.id)}
         >
-          Subscribe
+          <i className="fa-solid fa-crown text-warning"></i>
+          <span>Subscribe</span>
         </button>
       ),
       sortable: false,
@@ -128,12 +127,41 @@ const VendorPackages = () => {
             <h2 className="add-page-heading">Available Packages</h2>
           </div>
         </div>
+
+        <div className="col-md-6 text-end">
+          <button className="btn btn-success me-2" onClick={exportToExcel}>
+            <i className="fa-solid fa-file-excel me-1"></i>
+            Download Excel
+          </button>
+        </div>
       </div>
 
       <div className="card p-4">
+        <div
+          className="d-flex align-items-center border rounded px-2 "
+          style={{ maxWidth: "250px" }}
+        >
+          <i className="ri-search-line me-2 mx-5 text-muted" />
+          <input
+            type="text"
+            className="form-control border-0 shadow-none"
+            placeholder="Search by package name..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+          {searchText && (
+            <button
+              className="btn btn-sm btn-light border-0"
+              onClick={() => setSearchText("")}
+            >
+              <i className="ri-close-line" />
+            </button>
+          )}
+        </div>
+
         <div className="row">
           <div className="col-md-12">
-            <Datatable columns={columns} data={packages} pagination />
+            <Datatable columns={columns} data={filteredPackages} pagination />
           </div>
         </div>
       </div>

@@ -14,35 +14,41 @@ const UploadGallery = () => {
   const handleImageChange = (e) => setImages([...e.target.files]);
   const handleVideoChange = (e) => setVideos([...e.target.files]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!userId) return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!userId) return;
 
-    const formData = new FormData();
-    formData.append("user_id", userId);
+  if (images.length === 0 && videos.length === 0) {
+    Swal.fire("No Files", "Please select at least one image or video", "warning");
+    return;
+  }
 
-    images.forEach((img) => formData.append("images[]", img));
-    videos.forEach((vid) => formData.append("videos[]", vid));
+  const formData = new FormData();
+  formData.append("user_id", userId);
 
-    try {
-      const res = await GalleryUpload(formData);
+  images.forEach((img) => formData.append("images[]", img));
+  videos.forEach((vid) => formData.append("videos[]", vid));
 
-      if (res?.data?.status) {
-        Swal.fire("Success", res.data.msg, "success");
-        setImages([]);
-        setVideos([]);
-      } else {
-        Swal.fire("Error", res?.data?.msg || "Upload failed", "error");
-      }
-    } catch (error) {
-      Swal.fire("Error", error?.msg || "Something went wrong!", "error");
+  try {
+    const res = await GalleryUpload(formData);
+
+    if (res?.data?.status) {
+      Swal.fire("Success", res.data.msg, "success");
+      setImages([]);
+      setVideos([]);
+    } else {
+      Swal.fire("Error", res?.data?.msg || "Upload failed", "error");
     }
-  };
+  } catch (error) {
+    Swal.fire("Error", error?.msg || "Something went wrong!", "error");
+  }
+};
+
 
   return (
     <div className="page-content ">
       <div className="row align-items-center mb-3">
-        <div className="col-md-6">
+        <div className="col-md-6 mb-4">
           <div className="add-page-heading-div">
             <Link to="/admin/dashboard">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
@@ -105,7 +111,8 @@ const UploadGallery = () => {
               </>
             )}
             <div className="text-end">
-              <button type="submit" className="btn btn-primary px-4">
+              <button type="submit" className="btn btn-primary me-2">
+                <i className="ri-upload-cloud-line me-1"></i>
                 Upload
               </button>
             </div>
