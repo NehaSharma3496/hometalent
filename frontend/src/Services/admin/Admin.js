@@ -430,3 +430,36 @@ export const GetSinglePackage = async (id, token) => {
     return { status: false };
   }
 };
+
+
+// Get All Enquiries
+export async function GetAllContactUs(token) {
+  try {
+    const res = await axios.get(
+      `${Config.base_url}admin/contact-us?page=1&limit=10`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
+// admin Dashboard 
+
+export async function GetDashboardCounts(token) {
+  try {
+    const res = await axios.get(`${Config.base_url}admin/dashboard-counts`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}

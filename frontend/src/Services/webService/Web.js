@@ -50,6 +50,7 @@ export async function SubmitLead(data) {
       `${Config.base_url}client/lead`,
       data
     );
+     console.log(response.body);
     console.log("Lead submitted successfully", response);
     return response;
   } catch (error) {
