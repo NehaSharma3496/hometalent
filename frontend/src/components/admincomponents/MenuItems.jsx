@@ -108,6 +108,7 @@ export const MenuItems = {
       label: "Enquiries & Leads",
       children: [
         { label: "All Leads", link: "/admin/enquiries/allleads" },
+        { label: "All Enquiries", link: "/admin/enquiries/AllEnquiries" },
         // { label: "Vendor Leads", link: "/enquiries/vendor" },
         // { label: "Conversion Reports", link: "/enquiries/reports" },
       ],
