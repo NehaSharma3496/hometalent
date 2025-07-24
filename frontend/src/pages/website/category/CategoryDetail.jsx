@@ -52,7 +52,7 @@ const CategoryDetail = () => {
 
     const payload = {
       ...leadData,
-      vendor_id: vendor?.id || "",
+      vendor_id: vendors?.id || "",
     };
 
     try {

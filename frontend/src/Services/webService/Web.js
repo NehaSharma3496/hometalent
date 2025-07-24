@@ -47,9 +47,10 @@ export async function GetVendorsByCategory(token, categoryId) {
 export async function SubmitLead(data) {
   try {
     const response = await axios.post(
-      `${Config.base_url}client/lead/lead`,
+      `${Config.base_url}client/lead`,
       data
     );
+     console.log(response.body);
     console.log("Lead submitted successfully", response);
     return response;
     
