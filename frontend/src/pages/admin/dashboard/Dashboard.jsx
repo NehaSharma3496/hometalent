@@ -67,17 +67,8 @@ export default function Dashboard() {
     <div className="page-content">
       <h1 className="page-heading">Dashboard</h1>
 
-      <div className="card">
-        <div className="row align-items-center mb-3">
-          <div className="col-md-6">
-            <div className="add-page-heading-div">
-              <Link to="/admin/dashboard">
-                <i className="fa-sharp fa-regular fa-arrow-left"></i>
-              </Link>
-              
-            </div>
-          </div>
-        </div>
+      <div className="card  mb-3">
+        
 
         <div className="row">
           {cards.map((card, index) => (
