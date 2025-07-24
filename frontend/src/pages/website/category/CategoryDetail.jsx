@@ -19,7 +19,8 @@ const CategoryDetail = () => {
   const category = location.state?.category;
   const cities = location.state?.cities;
 
-  console.log(location.state?.cities);
+  // console.log(location.state?.cities);
+  console.log("Vendor",vendors)
   
 
 
@@ -36,6 +37,12 @@ const CategoryDetail = () => {
   };
 
   const handleSubmit = async () => {
+    console.log("Submitting lead...");
+      console.log("vendor_id:", vendor);
+console.log("name:", vendors.name);
+console.log("phone:", vendors.phone);
+console.log("email:", vendors.email);
+
     if (
       !leadData.name ||
       !leadData.phone ||
@@ -52,7 +59,7 @@ const CategoryDetail = () => {
 
     const payload = {
       ...leadData,
-      vendor_id: vendor?.id || "",
+      vendor_id: vendors?.id || "",
     };
 
     try {
@@ -63,6 +70,7 @@ const CategoryDetail = () => {
           title: "Success",
           text: "Lead submitted successfully! Vendor details sent to your email",
         });
+        console.log("Lead Data:", res);
         setLeadData({ name: "", phone: "", email: "", query: "" });
       } else {
         Swal.fire({
@@ -415,14 +423,17 @@ const CategoryDetail = () => {
 
                       <div className="date-time-dropdown d-flex align-items-center gap-2">
                         <i className="ri-user-line fs-8" />
-                        <input
-                          type="text"
-                          name="name"
-                          value={leadData.name}
-                          onChange={handleChange}
-                          placeholder="Enter your name"
-                          className="form-control form-control-m border-0 shadow-none"
-                        />
+                       <input
+  type="text"
+  name="name"
+  value={leadData.name}
+  placeholder="Enter your mobile number"
+  className="form-control form-control-m border-0 shadow-none"
+  onChange={(e) =>
+    setLeadData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+/>
+
                       </div>
 
                       <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">

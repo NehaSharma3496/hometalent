@@ -10,7 +10,7 @@ import { GetCategories } from "../../Services/webService/Web";
 const Home = () => {
   const [statecity, setStateCity] = useState([]);
   const [categories, setCategories] = useState([]);
-
+ 
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -158,7 +158,7 @@ const Home = () => {
     });
 
     if (search.trim()) {
-      return groups 
+      return groups
         .map((group) => {
           const stateMatch = group.state.name
             .toLowerCase()
@@ -578,7 +578,7 @@ const Home = () => {
                     grow. For customers, we make it easy to discover and support
                     local makers and service providers.
                   </p>
-                  <Link to="about.html">Read More...</Link>
+                  <Link to="">Read More...</Link>
                 </div>
               </div>
             </div>
@@ -683,7 +683,7 @@ const Home = () => {
                   </div>
                   <div className="">
                     <Link
-                      to="news.html"
+                      to=""
                       className=" btn-primary-sm btn-primary"
                     >
                       Read More
@@ -724,7 +724,7 @@ const Home = () => {
                   </div>
                   <div className="">
                     <Link
-                      to="news.html"
+                      to=""
                       className=" btn-primary-sm btn-primary"
                     >
                       Read More
@@ -765,7 +765,7 @@ const Home = () => {
                   </div>
                   <div className="">
                     <Link
-                      to="news.html"
+                      to=""
                       className=" btn-primary-sm btn-primary"
                     >
                       Read More

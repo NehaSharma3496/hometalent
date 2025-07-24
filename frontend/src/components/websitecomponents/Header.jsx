@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GetCategories } from "../../Services/webService/Web";
 
 const Header = () => {
   const [category, setCategory] = useState([]);
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
 
@@ -13,6 +14,16 @@ const Header = () => {
 
       if (Array.isArray(response.data)) {
         setCategory(response.data);
+        console.log("Categories loaded in Header:", response.data);
+        // Debug: Check the structure of first category
+        if (response.data.length > 0) {
+          console.log("Sample category structure:", response.data[0]);
+          console.log("Available ID fields:", {
+            _id: response.data[0]._id,
+            id: response.data[0].id,
+            categoryId: response.data[0].categoryId
+          });
+        }
       } else {
         console.error("Expected array but got:", response.data);
         setCategory([]); // fallback
@@ -22,11 +33,26 @@ const Header = () => {
       setCategory([]); // fallback on error
     }
   };
-  
 
   useEffect(() => {
     fetchcategories();
   }, []);
+
+  const handleHeaderCategorySelect = (cat) => {
+    console.log("Header category selected:", cat);
+    
+    // Try to get the correct ID field - check multiple possible fields
+    const categoryId = cat._id || cat.id || cat.categoryId;
+    
+    console.log("Using category ID:", categoryId);
+    
+    if (categoryId) {
+      // Navigate to the category page with the selected category ID as a query parameter
+      navigate(`/category?categoryId=${categoryId}`);
+    } else {
+      console.error("No valid category ID found in:", cat);
+    }
+  };
 
   return (
     <header className="header-area-three">
@@ -39,7 +65,7 @@ const Header = () => {
                 <div className="top-menu-wrapper d-flex align-items-center justify-content-between">
                   <div className="top-header-right">
                     <div className="logo">
-                      <a href="index.html">
+                      <a href="">
                         <img
                           src="../assets/images//logo/logo.png"
                           width="100"
@@ -89,66 +115,24 @@ const Header = () => {
                                         .map((cat) => (
                                           <li
                                             className="single-list"
-                                            key={cat._id}
+                                            key={cat._id || cat.id}
                                           >
-                                            <Link
-                                              to="/category"
-                                              state={{ category: cat }}
+                                            <a
+                                              href="#"
+                                              onClick={(e) => {
+                                                e.preventDefault();
+                                                handleHeaderCategorySelect(cat);
+                                              }}
                                               className="single"
                                             >
                                               {cat.name}
-                                            </Link>
+                                            </a>
                                           </li>
                                         ))}
                                     </ul>
                                   </div>
                                 ))}
                               </ul>
-
-                              {/* <ul className="row submenu">
-        {Array.from({ length: 2 }, (_, colIndex) => (
-          <div className="col-lg-6" key={colIndex}>
-            <ul className="single-list">
-              {categories
-                .filter((_, idx) =>
-                  colIndex === 0
-                    ? idx < Math.ceil(categories.length / 2)
-                    : idx >= Math.ceil(categories.length / 2)
-                )
-                .map(cat => (
-                  <li className="single-list" key={cat.slug}>
-                    <Link to={`/${cat.slug}`} className="single">
-                      {cat.name}
-                    </Link>
-                  </li>
-                ))
-              }
-            </ul>
-          </div>
-        ))}
-      </ul> */}
-
-                              {/* <li className="single-list">
-                            <a href="hotel-list.html" className="single">hotel Category Page</a>
-                          </li>
-                          <li className="single-list">
-                            <a href="top-filter-hotel-list.html" className="single">hotel Top Filter Category</a>
-                          </li>
-                          <li className="single-list">
-                            <a href="hotel-details-with-slider.html" className="single">Details With slider</a>
-                          </li>
-                          <li className="single-list">
-                            <a href="hotel-cart-page.html" className="single">Cart hotel Page</a>
-                          </li>
-                          <li className="single-list">
-                            <a href="hotel-booking-payment.html" className="single">Payment hotel Page</a>
-                          </li>
-                          <li className="single-list">
-                            <a href="hotel-booking-complite.html" className="single">Finish hotel Booking</a>
-                          </li>
-                          <li className="single-list">
-                            <a href="invoice.html" className="single">View Invoice</a>
-                          </li> */}
                             </li>
                             <li className="single-list">
                               <a href="#" className="single">
@@ -163,11 +147,6 @@ const Header = () => {
                                 </li>
                               </ul>
                             </li>
-                            {/* <li className="single-list">
-                              <Link to="/realwedding" className="single">
-                                Real Weddings
-                              </Link>
-                            </li> */}
                             <li className="single-list">
                               <Link to="/gallery" className="single">
                                 Gallery
@@ -216,20 +195,15 @@ const Header = () => {
                       </Link>
                     </div>
                   </div>
-                  {/* Mobile Device Search & Theme Mode */}
-
-                  {/* / Mobile Device Search & Theme Mode*/}
                 </div>
               </div>
             </div>
           </div>
         </div>
-        {/* Header Bottom */}
         <div className="header-bottom header-sticky sticky-bar">
           <div className="container">
             <div className="row">
               <div className="col-lg-12">
-                {/* Mobile Menu */}
                 <div className="div">
                   <div className=" d-block d-lg-none">
                     <div className="logo mt-3">
@@ -250,7 +224,6 @@ const Header = () => {
           </div>
         </div>
       </div>
-      {/* Search box */}
       <div className="search-container">
         <div className="top-section">
           <div className="search-icon">
@@ -269,9 +242,9 @@ const Header = () => {
           </div>
         </div>
       </div>
-      {/* / End-Search */}
     </header>
   );
 };
 
 export default Header;
+

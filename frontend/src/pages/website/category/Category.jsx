@@ -314,8 +314,8 @@ const Category = () => {
               </div>
 
               <div className="all-tour-list">
-                <div className="row g-4">
-                  <div className="row">
+                
+                  <div className="row g-4">
                     {loading ? (
                       <div className="text-center py-5">
                         <div className="spinner-border" role="status">
@@ -427,7 +427,7 @@ const Category = () => {
                       </div>
                     )}
                   </div>
-                </div>
+              
               </div>
             </div>
           </div>
