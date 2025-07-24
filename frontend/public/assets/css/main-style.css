@@ -31148,9 +31148,10 @@ tr:last-child td {
 }
 
 .hotel-card {
-  border-radius: 8px;
-  border: 1px solid var(--tertiary-border);
-  overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid var(--tertiary-border);
+    overflow: hidden;
+    height: 100%;
 }
 .hotel-card:hover .hotel-img {
   overflow: hidden;

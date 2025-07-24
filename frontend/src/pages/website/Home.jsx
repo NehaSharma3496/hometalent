@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GetStateCity } from "../../Services/webService/Web";
 import select from "react-select";
 import Slider from "react-slick";
@@ -10,14 +10,80 @@ import { GetCategories } from "../../Services/webService/Web";
 const Home = () => {
   const [statecity, setStateCity] = useState([]);
   const [categories, setCategories] = useState([]);
-
+ 
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
 
-  const [selectedCity, setSelectedCity] = useState("");
+  // State for storing selected IDs
+  const [selectedCityId, setSelectedCityId] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
 
-  const handleCitySelect = (cityName) => {
-    console.log("cityName", cityName);
+  const navigate = useNavigate();
+
+  const handleCitySelect = (cityName, cityId) => {
+    console.log("City selected:", cityName, "ID:", cityId);
+    setSearch(cityName);
+    setSelectedCityId(cityId);
+    setShowDropdown(false);
+  };
+
+  const handleCategorySelect = (categoryValue) => {
+    console.log("=== Category Selection Debug ===");
+    console.log("Category dropdown value:", categoryValue);
+
+    // Find the actual category object to get the correct ID
+    const selectedCategory = categories.find(
+      (cat) =>
+        cat._id === categoryValue ||
+        cat.id === categoryValue ||
+        cat.name === categoryValue
+    );
+
+    console.log("Found category object:", selectedCategory);
+
+    // Try to get the actual ID from the category object
+    let actualCategoryId = categoryValue;
+
+    if (selectedCategory) {
+      // Try different possible ID fields
+      actualCategoryId =
+        selectedCategory.id ||
+        selectedCategory._id ||
+        selectedCategory.categoryId ||
+        categoryValue;
+      console.log("Using category ID:", actualCategoryId);
+    }
+
+    setSelectedCategoryId(actualCategoryId);
+  };
+
+  const handleFindNow = () => {
+    console.log("=== Find Now Debug ===");
+    console.log("Selected Category ID:", selectedCategoryId);
+    console.log("Selected City ID:", selectedCityId);
+
+    // Validate that we have at least one selection
+    if (!selectedCategoryId && !selectedCityId) {
+      alert("Please select at least a city or category");
+      return;
+    }
+
+    // Navigate to category page with appropriate parameters
+    const queryParams = new URLSearchParams();
+
+    if (selectedCategoryId) {
+      console.log("Adding categoryId to URL:", selectedCategoryId);
+      queryParams.append("categoryId", selectedCategoryId);
+    }
+
+    if (selectedCityId) {
+      console.log("Adding cityId to URL:", selectedCityId);
+      queryParams.append("cityId", selectedCityId);
+    }
+
+    const url = `/category?${queryParams.toString()}`;
+    console.log("Final navigation URL:", url);
+    navigate(url);
   };
 
   const token = localStorage.getItem("token");
@@ -26,6 +92,7 @@ const Home = () => {
     try {
       const response = await GetStateCity();
       setStateCity(response.data);
+      console.log("Cities loaded:", response.data?.length || 0);
     } catch (error) {
       console.log("Error fetching cities", error);
     }
@@ -35,6 +102,38 @@ const Home = () => {
     try {
       const response = await GetCategories(token);
       setCategories(response.data);
+      console.log("=== Categories Debug ===");
+      console.log("Categories loaded:", response.data?.length || 0);
+      console.log("Sample category:", response.data?.[0]);
+
+      // Detailed analysis of category structure
+      if (response.data && response.data.length > 0) {
+        const sampleCat = response.data[0];
+        console.log("Category structure analysis:");
+        console.log(
+          "- _id:",
+          sampleCat._id,
+          "(type:",
+          typeof sampleCat._id,
+          ")"
+        );
+        console.log("- id:", sampleCat.id, "(type:", typeof sampleCat.id, ")");
+        console.log(
+          "- name:",
+          sampleCat.name,
+          "(type:",
+          typeof sampleCat.name,
+          ")"
+        );
+        console.log(
+          "- categoryId:",
+          sampleCat.categoryId,
+          "(type:",
+          typeof sampleCat.categoryId,
+          ")"
+        );
+        console.log("Full object keys:", Object.keys(sampleCat));
+      }
     } catch (error) {
       console.log("Error fetching services", error);
     }
@@ -119,25 +218,25 @@ const Home = () => {
     slidesToScroll: 1,
     responsive: [
       {
-        breakpoint: 1200, // below 1200px
+        breakpoint: 1200,
         settings: {
           slidesToShow: 4,
         },
       },
       {
-        breakpoint: 992, // below 992px
+        breakpoint: 992,
         settings: {
           slidesToShow: 3,
         },
       },
       {
-        breakpoint: 768, // below 768px
+        breakpoint: 768,
         settings: {
           slidesToShow: 2,
         },
       },
       {
-        breakpoint: 480, // below 480px
+        breakpoint: 480,
         settings: {
           slidesToShow: 1,
         },
@@ -148,8 +247,6 @@ const Home = () => {
   return (
     <div>
       <section className="hero-padding-for-three video-overlay position-relative hero-area">
-        {/* Video */}
-
         <div className="container">
           <div className="row align-items-center justify-content-between g-4">
             <div className="col-xl-12">
@@ -188,14 +285,14 @@ const Home = () => {
                         />
 
                         {showDropdown && (
-                          <div 
+                          <div
                             className="border bg-white p-3 pt-3 shadow position-absolute w-100"
                             style={{
                               maxHeight: "300px",
                               overflowY: "auto",
                               zIndex: 10,
                               minWidth: "500px",
-                              marginTop:'55px'
+                              marginTop: "55px",
                             }}
                           >
                             <ul
@@ -213,9 +310,12 @@ const Home = () => {
                                         <li key={`city-${city.id}`}>
                                           <button
                                             type="button"
-                                            className="dropdown-item py-1 text-nowrap ..."
+                                            className="dropdown-item py-1 text-nowrap"
                                             onClick={() =>
-                                              setSearch(city.name)
+                                              handleCitySelect(
+                                                city.name,
+                                                city.id
+                                              )
                                             }
                                           >
                                             * {city.name}
@@ -233,27 +333,48 @@ const Home = () => {
 
                       <div className="col-xl-5 col-lg-12">
                         <div className="destination-flex">
-                         <select className="form-select">
-  <option value="">Select Category</option>
-  {Array.isArray(categories) &&
-    categories.map((cat) => (
-      <option key={cat._id} value={cat._id}>
-        {cat.name}
-      </option>
-    ))}
-</select>
+                          <select
+                            className="form-select"
+                            value={selectedCategoryId}
+                            onChange={(e) =>
+                              handleCategorySelect(e.target.value)
+                            }
+                          >
+                            <option value="">Select Category</option>
+                            {Array.isArray(categories) &&
+                              categories.map((cat) => {
+                                // Try to determine the correct ID field to use
+                                const categoryId =
+                                  cat.id || cat._id || cat.categoryId;
+                                console.log(
+                                  "Rendering option - ID:",
+                                  categoryId,
+                                  "Name:",
+                                  cat.name
+                                );
 
+                                return (
+                                  <option
+                                    key={cat._id || cat.id}
+                                    value={categoryId}
+                                  >
+                                    {cat.name}
+                                  </option>
+                                );
+                              })}
+                          </select>
                         </div>
                       </div>
                       <div className="col-xl-2 col-lg-3">
                         <div className="sign-btn text-right">
-                          <a
+                          <button
                             style={{ height: "54px", lineHeight: "30px" }}
-                            href="tour-list.html"
+                            onClick={handleFindNow}
                             className="btn-primary w-100 text-center"
+                            type="button"
                           >
                             Find Now
-                          </a>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -457,7 +578,7 @@ const Home = () => {
                     grow. For customers, we make it easy to discover and support
                     local makers and service providers.
                   </p>
-                  <Link to="about.html">Read More...</Link>
+                  <Link to="">Read More...</Link>
                 </div>
               </div>
             </div>
@@ -562,7 +683,7 @@ const Home = () => {
                   </div>
                   <div className="">
                     <Link
-                      to="news.html"
+                      to=""
                       className=" btn-primary-sm btn-primary"
                     >
                       Read More
@@ -603,7 +724,7 @@ const Home = () => {
                   </div>
                   <div className="">
                     <Link
-                      to="news.html"
+                      to=""
                       className=" btn-primary-sm btn-primary"
                     >
                       Read More
@@ -644,7 +765,7 @@ const Home = () => {
                   </div>
                   <div className="">
                     <Link
-                      to="news.html"
+                      to=""
                       className=" btn-primary-sm btn-primary"
                     >
                       Read More

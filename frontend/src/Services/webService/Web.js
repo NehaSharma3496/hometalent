@@ -28,10 +28,10 @@ export async function GetStateCity(token) {
   }
 }
 
-export async function GetVendorsByCategory(token, categoryId) {
+export async function GetVendorsByCategory(token, categoryId, cityId) {
   try {
     const res = await axios.get(
-      `${Config.base_url}front/vendors-by-category/${categoryId}`,
+      `${Config.base_url}front/vendors-by-category/${categoryId}?city_id=${cityId}`,
       {
         headers: {
           Authorization: `${token}`,
@@ -53,15 +53,14 @@ export async function SubmitLead(data) {
      console.log(response.body);
     console.log("Lead submitted successfully", response);
     return response;
-    
   } catch (error) {
     return error;
   }
 }
 
-export async function GetAdminGallery(token,userId){
-  try{
-     const res = await axios.get(
+export async function GetAdminGallery(token, userId) {
+  try {
+    const res = await axios.get(
       `${Config.base_url}gallery/my-gallery?user_id=${userId}&status=approved`,
       {
         headers: {
@@ -70,8 +69,36 @@ export async function GetAdminGallery(token,userId){
       }
     );
     return res?.data;
-  }catch (error) {
+  } catch (error) {
     return error;
   }
 }
 
+export async function SubmitContactData(data) {
+  try {
+    const response = await axios.post(
+      `${Config.base_url}client/contact-us`,
+      data
+    );
+    return response;
+  } catch (error) {
+    return error;
+  }
+}
+
+
+export async function GetVendorsByCategoryHeader(token, categoryId) {
+  try {
+    const res = await axios.get(
+      `${Config.base_url}front/vendors-by-category/${categoryId}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
