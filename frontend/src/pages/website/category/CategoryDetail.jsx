@@ -87,7 +87,7 @@ const CategoryDetail = () => {
 
   const breadcrumbLinks = [
     { label: "Home", to: "/" },
-    { label: category?.name, to: "#" }, // or current route
+    { label: vendors?.category_names, to: "#" }, // or current route
   ];
 
   useEffect(() => {
@@ -132,7 +132,7 @@ const CategoryDetail = () => {
 
   return (
     <div>
-      <Breadcrumbs title={category?.name} links={breadcrumbLinks} />
+      <Breadcrumbs title={vendors?.category_names} links={breadcrumbLinks} />
       <section className="tour-details-section section-padding">
         <div className="tour-details-area">
           {/* Details Banner Slider */}
@@ -202,7 +202,7 @@ const CategoryDetail = () => {
                         </div>
                         <div>
                           <h4 className="title text-capitalize mt-2">
-                            {category?.name}
+                            {vendors?.category_names}
                           </h4>
                         </div>
                       </div>
