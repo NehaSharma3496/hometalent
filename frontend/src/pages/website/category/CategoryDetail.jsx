@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Breadcrumbs from "../../../components/websitecomponents/Breadcrumbs";
 import { useLocation } from "react-router-dom";
-import { SubmitLead, } from "../../../Services/webService/Web";
+import { SubmitLead } from "../../../Services/webService/Web";
 import { GetGallery } from "../../../Services/vendor/Vendor";
 import Swal from "sweetalert2";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
-
 
 const CategoryDetail = () => {
   const [galleryImages, setGalleryImages] = useState([]);
@@ -20,9 +19,7 @@ const CategoryDetail = () => {
   const cities = location.state?.cities;
 
   // console.log(location.state?.cities);
-  console.log("Vendor",vendors)
-  
-
+  console.log("Vendor", vendors);
 
   const [leadData, setLeadData] = useState({
     name: "",
@@ -38,10 +35,10 @@ const CategoryDetail = () => {
 
   const handleSubmit = async () => {
     console.log("Submitting lead...");
-      console.log("vendor_id:", vendor);
-console.log("name:", vendors.name);
-console.log("phone:", vendors.phone);
-console.log("email:", vendors.email);
+    console.log("vendor_id:", vendor);
+    console.log("name:", vendors.name);
+    console.log("phone:", vendors.phone);
+    console.log("email:", vendors.email);
 
     if (
       !leadData.name ||
@@ -110,11 +107,7 @@ console.log("email:", vendors.email);
     };
 
     fetchGalleryImages();
-
   }, [vendor]);
-
-  
-
 
   const imageSlides = galleryImages
     .filter((item) => item.file_type === "image")
@@ -124,12 +117,13 @@ console.log("email:", vendors.email);
     // Map clicked index to image-only index
     const imageOnlyIndex = galleryImages
       .filter((item) => item.file_type === "image")
-      .findIndex((img) => img.file_path === galleryImages[clickedIndex].file_path);
+      .findIndex(
+        (img) => img.file_path === galleryImages[clickedIndex].file_path
+      );
 
     setIndex(imageOnlyIndex);
     setOpen(true);
   };
-
 
   // Filter only image paths for lightbox
   const imageItems = galleryImages.filter((item) => item.file_type === "image");
@@ -175,21 +169,27 @@ console.log("email:", vendors.email);
                         )}
 
                         <h4 className="title text-capitalize mt-4">
-                          {location.state?.vendor?.owner_name || "Unknown Vendor"}
+                          {location.state?.vendor?.owner_name ||
+                            "Unknown Vendor"}
                         </h4>
 
                         <div className="d-flex flex-wrap align-items-center gap-20 mt-8">
                           <div className="location d-flex align-items-center ">
-                            <i className="ri-map-pin-line" style={{ color: "#ff5e14" }} />
+                            <i
+                              className="ri-map-pin-line"
+                              style={{ color: "#ff5e14" }}
+                            />
                             <div className="name text-capitalize">
                               {cities?.find(
-                                (c) => c.type === "city" && String(c.id) === String(vendors?.city_id)
+                                (c) =>
+                                  c.type === "city" &&
+                                  String(c.id) === String(vendors?.city_id)
                               )?.name || "Unknown Location"}
                             </div>
                           </div>
 
                           <div className="divider" />
-                          { /* <div className="d-flex align-items-center flex-wrap gap-20">
+                          {/* <div className="d-flex align-items-center flex-wrap gap-20">
                             <div className="count">
                               <i className="ri-time-line" />
                               <p className="pera">3 Days 2 Night</p>
@@ -272,10 +272,14 @@ console.log("email:", vendors.email);
                               height: "200px",
                               overflow: "hidden",
                               borderRadius: "8px",
-                              cursor: item.file_type === "image" ? "pointer" : "default",
+                              cursor:
+                                item.file_type === "image"
+                                  ? "pointer"
+                                  : "default",
                             }}
                             onClick={() => {
-                              if (item.file_type === "image") handleImageClick(i);
+                              if (item.file_type === "image")
+                                handleImageClick(i);
                             }}
                           >
                             {item?.file_type === "video" ? (
@@ -290,7 +294,10 @@ console.log("email:", vendors.email);
                                   objectFit: "cover",
                                 }}
                               >
-                                <source src={item?.file_path} type="video/mp4" />
+                                <source
+                                  src={item?.file_path}
+                                  type="video/mp4"
+                                />
                               </video>
                             ) : (
                               <img
@@ -328,10 +335,6 @@ console.log("email:", vendors.email);
                         index={index}
                       />
                     )}
-
-
-
-
 
                     {/* social media icons  */}
 
@@ -403,7 +406,6 @@ console.log("email:", vendors.email);
                         </a>
                       </div>
                     </div>
-
                   </div>
                   {/* Right content */}
 
@@ -423,17 +425,19 @@ console.log("email:", vendors.email);
 
                       <div className="date-time-dropdown d-flex align-items-center gap-2">
                         <i className="ri-user-line fs-8" />
-                       <input
-  type="text"
-  name="name"
-  value={leadData.name}
-  placeholder="Enter your mobile number"
-  className="form-control form-control-m border-0 shadow-none"
-  onChange={(e) =>
-    setLeadData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
-  }
-/>
-
+                        <input
+                          type="text"
+                          name="name"
+                          value={leadData.name}
+                          placeholder="Enter your mobile number"
+                          className="form-control form-control-m border-0 shadow-none"
+                          onChange={(e) =>
+                            setLeadData((prev) => ({
+                              ...prev,
+                              [e.target.name]: e.target.value,
+                            }))
+                          }
+                        />
                       </div>
 
                       <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
