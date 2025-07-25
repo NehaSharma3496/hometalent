@@ -429,7 +429,7 @@ const CategoryDetail = () => {
                           type="text"
                           name="name"
                           value={leadData.name}
-                          placeholder="Enter your mobile number"
+                          placeholder="Enter your name"
                           className="form-control form-control-m border-0 shadow-none"
                           onChange={(e) =>
                             setLeadData((prev) => ({
