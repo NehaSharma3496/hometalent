@@ -41,7 +41,7 @@ export const MenuItems = {
           link: "/admin/profileupdaterequest",
         },
         { label: "Admin Gallery", link: "/admin/adminGallery" },
-        {label:"Upload Gallery" , link :"/admin/uploadgallery"},
+        // {label:"Upload Gallery" , link :"/admin/uploadgallery"},
         // { label: "Add Vendor", link: "/vendors/addvendors" },
         // { label: "Approve Vendores", link: "/admin/vendor/approvevendors" },
         // { label: "Sponsored Vendors", link: "/admin/vendor/sponsoredvendors" },
@@ -161,7 +161,7 @@ export const MenuItems = {
       label: "Gallery",
       children: [
         { label: "My Gallery", link: "/vendor/gallery" },
-        { label: "Upload Media", link: "/vendor/gallery/upload" },
+        // { label: "Upload Media", link: "/vendor/gallery/upload" },
       ],
     },
 
