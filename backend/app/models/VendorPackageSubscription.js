@@ -39,6 +39,7 @@ const VendorPackageSubscription = sequelize.define('VendorPackageSubscription', 
 
 VendorPackageSubscription.associate = (models) => {
     VendorPackageSubscription.belongsTo(models.User, { foreignKey: 'vendor_id', as: 'vendor' });
+    VendorPackageSubscription.belongsTo(models.Package, { foreignKey: 'package_id', as: 'Package' });
 };
 
 module.exports = VendorPackageSubscription; 
