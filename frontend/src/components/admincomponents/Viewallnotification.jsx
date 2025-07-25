@@ -150,14 +150,21 @@ const Viewallnotification = () => {
             <div className="  mb-2 p-1">
                 <div className="card-body d-flex justify-content-between align-items-center">
                     <div className="d-flex align-items-center">
-                        <div className="bg-primary-subtle rounded-circle p-2 me-2">
-                            <Bell size={24} className="text-primary" />
+                        <div className="bg-primary-subtle rounded-pill p-2 ">
+                            <Bell size={22} className="text-primary" />
                         </div>
-                        <div class=" p-3">
-                            <h5 class="card-title d-flex justify-content-between align-items-center mb-0 text-primary">
+                        <div class=" p-2">
+                            <h5 className="card-title d-flex justify-content-between align-items-center mb-0 text-primary fs-3">
                                 Notifications
-                                <span class="badge bg-primary rounded-pill">{unreadCount} unread</span>
+                                <span
+                                    className="badge bg-primary rounded-pill ms-1 fw-normal"
+                                    style={{ fontSize: "0.6rem" }} 
+                                >
+                                    {unreadCount} unread
+                                </span>
                             </h5>
+
+
                         </div>
                     </div>
                     <button

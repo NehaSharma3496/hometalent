@@ -13,6 +13,7 @@ export default function AdminHeader() {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const [isOpen, setIsOpen] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
 
   const notifications = [
     {
@@ -98,7 +99,10 @@ export default function AdminHeader() {
   const navigate = useNavigate();
 
   const handleViewAll = () => {
+    setIsOpen(false);
     navigate('/vendor/Viewallnotification');
+
+
   };
 
   return (
@@ -159,7 +163,7 @@ export default function AdminHeader() {
                       >
                         <div className="d-flex justify-content-between align-items-center p-3 border-bottom bg-white shadow-sm rounded-top">
                           <h6 className="mb-0 fw-semibold fs-5 text-primary d-flex align-items-center">
-                            <i className="bi bi-bell-fill me-2 text-warning"></i> Notifications
+                          Notifications
                           </h6>
                           <button
                             className="btn btn-sm btn-outline-primary rounded-pill px-3"
@@ -178,7 +182,7 @@ export default function AdminHeader() {
                               style={{ cursor: "pointer", transition: "0.3s" }}
                             >
                               <h6 className={`mb-1 fw-bold d-flex align-items-center ${notification.isRead ? 'text-light' : 'text-primary'}`}>
-                                <i className="bi bi-info-circle-fill me-2"></i>
+                               
                                 {notification.title}
                               </h6>
                               <p className="mb-1 text-muted small">{notification.message}</p>
@@ -193,22 +197,23 @@ export default function AdminHeader() {
 
                         <div className="p-3 bg-white text-left rounded-bottom shadow-sm border-top">
                           <button
-                            className="btn btn-gradient btn-sm px-4 py-2 rounded-pill fw-semibold text-white"
+                            className="btn btn-sm px-8 py-4 rounded fw-semibold text-white"
                             style={{
-                              background: 'linear-gradient(135deg, #4e54c8, #8f94fb)',
+                              background: 'rgba(16, 64, 168, 0.64)',
                               transition: 'all 0.3s ease-in-out',
-                              boxShadow: '0 4px 10px rgba(78, 84, 200, 0.3)',
+                              boxShadow: '0 4px 10px rgba(40, 48, 202, 0.3)',
                             }}
-                            onMouseEnter={(e) => {
-                              e.target.style.transform = 'scale(1.05)';
+                            onMouseEnter={(e) => (e.target.style.transform = 'scale(1.05)')}
+                            onMouseLeave={(e) => (e.target.style.transform = 'scale(1)')}
+                            onClick={() => {
+                              setIsOpen(false);                         
+                              navigate('/vendor/Viewallnotification');   
                             }}
-                            onMouseLeave={(e) => {
-                              e.target.style.transform = 'scale(1)';
-                            }}
-                            onClick={handleViewAll} 
                           >
                             View All Notifications
                           </button>
+
+
                         </div>
 
                       </div>
