@@ -244,22 +244,21 @@ export default function AdminHeader() {
                       <i className="fa-solid fa-angle-down"></i>
                     </Link>
 
-                    <ul
-                      className="dropdown-menu"
-                      aria-labelledby="profile-dropdown"
-                    >
-                      <li>
-                        <Link className="dropdown-item" to="/vendor/myprofile">
-                          <i className="fa-light fa-user"></i> My Profile
-                        </Link>
-                      </li>
-                      <li>
-                        <Link className="dropdown-item" onClick={Logout} to="/">
-                          <i className="fa-regular fa-arrow-right-from-bracket"></i>{" "}
-                          Logout
-                        </Link>
-                      </li>
-                    </ul>
+                   <ul className="dropdown-menu" aria-labelledby="profile-dropdown">
+  {role === "2" && (
+    <li>
+      <Link className="dropdown-item" to="/vendor/myprofile">
+        <i className="fa-light fa-user"></i> My Profile
+      </Link>
+    </li>
+  )}
+  <li>
+    <Link className="dropdown-item" onClick={Logout} to="/">
+      <i className="fa-regular fa-arrow-right-from-bracket"></i> Logout
+    </Link>
+  </li>
+</ul>
+
                   </div>
                 </div>
               </div>

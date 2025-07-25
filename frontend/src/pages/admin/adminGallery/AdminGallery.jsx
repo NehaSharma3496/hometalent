@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { GetGallery, RemoveGalleryItem } from "../../../Services/vendor/Vendor";
+import {
+  GetAdminGallery,
+  RemoveGalleryItem,
+} from "../../../Services/vendor/Vendor";
 import { useNavigate, Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
@@ -14,7 +17,7 @@ const AdminGallery = () => {
 
   const fetchgallery = async () => {
     try {
-      const response = await GetGallery(token, userId);
+      const response = await GetAdminGallery(token, userId);
       setGallery(response.data);
     } catch (error) {
       console.error("Error fetching gallery:", error);
@@ -46,7 +49,6 @@ const AdminGallery = () => {
     }
   };
 
-
   useEffect(() => {
     if (userId) {
       fetchgallery();
@@ -54,94 +56,96 @@ const AdminGallery = () => {
   }, [userId]);
 
   const filteredGallery = gallery.filter((item) =>
-    activeTab === "images" ? item.file_type === "image" : item.file_type === "video"
+    activeTab === "images"
+      ? item.file_type === "image"
+      : item.file_type === "video"
   );
 
   return (
     <div className="page-content">
       <div className="row align-items-center mb-3">
-        <div className="col-md-6">
+        <div className="col-md-6 mb-4">
           <div className="add-page-heading-div">
-            <Link to="/admin/dashboard">
+            <Link to="/admin/dashboard" className="me-2">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
-            <h2 className="add-page-heading">Gallery</h2>
+            <h5 className="add-page-heading mb-0">Gallery</h5>
           </div>
         </div>
-        <div className="col-md-6 text-end">
-          <Link to="/vendor/gallery/upload" className="add-btn-head">
-            + Upload
+
+        <div className="col-md-6 text-end mb-4">
+          <Link to="/admin/uploadgallery" className="btn btn-primary shadow-sm">
+            <i className="ri-upload-cloud-line me-1"></i>
+            Upload
           </Link>
         </div>
       </div>
 
-      <ul className="nav nav-tabs mb-3">
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === "images" ? "active" : ""}`}
-            onClick={() => setActiveTab("images")}
-          >
-            Images
-          </button>
-        </li>
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === "videos" ? "active" : ""}`}
-            onClick={() => setActiveTab("videos")}
-          >
-            Videos
-          </button>
-        </li>
-      </ul>
-
-      <div className="container mt-5">
-        <div className="card p-4 border-0 shadow-lg rounded-4 bg-white">
-          {filteredGallery.length === 0 ? (
-            <p className="text-muted text-center my-4 fs-5">
-              No <strong>{activeTab}</strong> found.
-            </p>
-          ) : (
-            <div className="row g-4">
-              {filteredGallery.map((item, index) => (
-                <div className="col-xl-4 col-lg-4 col-md-6" key={index}>
-                  <div className="card border-0 shadow h-100 rounded-4 overflow-hidden">
-                    <div className="position-relative">
-                      {item.file_type === "image" ? (
-                        <img
-                          src={item.file_path}
-                          alt="Gallery"
-                          className="card-img-top rounded-top-2"
-                          style={{ height: "240px", objectFit: "cover" }}
-                        />
-                      ) : (
-                        <video
-                          controls
-                          className="card-img-top rounded-top-2"
-                          style={{ height: "240px", objectFit: "cover" }}
-                        >
-                          <source src={item.file_path} type="video/mp4" />
-                          Your browser does not support the video tag.
-                        </video>
-                      )}
-                    </div>
-
-                    <div className="card-body bg-light text-right rounded-bottom-2">
-                      <button
-                        className="btn btn-sm btn-outline-danger fw-semibold px-3 py-1"
-                        onClick={() => handleDelete(item)}
-                      >
-                        <i className="bi bi-trash-fill me-2"></i>Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+      {/* Tabs */}
+      <div className="card shadow-sm border-0 mb-3 p-3">
+        <ul className="nav nav-tabs">
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "images" ? "active" : ""}`}
+              onClick={() => setActiveTab("images")}
+            >
+              Images
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "videos" ? "active" : ""}`}
+              onClick={() => setActiveTab("videos")}
+            >
+              Videos
+            </button>
+          </li>
+        </ul>
       </div>
 
-
+      {/* Gallery Grid */}
+      <div className="card shadow-sm p-3 border-0 bg-light">
+        {filteredGallery.length === 0 ? (
+          <p className="text-muted text-center my-4">
+            No <strong>{activeTab}</strong> found.
+          </p>
+        ) : (
+          <div className="row">
+            {filteredGallery.map((item, index) => (
+              <div className="col-xl-4 col-md-4 col-sm-6 mb-4" key={item.id}>
+                <div className="card shadow-sm border-0 rounded-4 h-100">
+                  {item.file_type === "image" ? (
+                    <img
+                      src={item.file_path}
+                      alt="Gallery"
+                      className="card-img-top rounded-top-4"
+                      style={{ height: "250px", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <video
+                      controls
+                      className="card-img-top rounded-top-4"
+                      style={{ height: "250px", objectFit: "cover" }}
+                    >
+                      <source src={item.file_path} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  )}
+                  <div className="card-body text-center py-3 mt-3">
+                    <button
+                      className="btn btn-danger shadow-sm"
+                      onClick={() => handleDelete(item)}
+                    >
+                      <i className="ri-delete-bin-line me-1"></i>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

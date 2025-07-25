@@ -9,11 +9,14 @@ export default function VendorDetails() {
   const fetchVendor = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get(`http://localhost:8888/admin/user-profile/${id}`, {
-        headers: {
-          Authorization: token,
-        },
-      });
+      const res = await axios.get(
+        `http://localhost:8888/admin/user-profile/${id}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
 
       setVendor(res.data?.data);
     } catch (err) {
@@ -25,15 +28,18 @@ export default function VendorDetails() {
     fetchVendor();
   }, [id]);
 
-  if (!vendor) return <div className="text-center py-5">Loading vendor details...</div>;
+  if (!vendor)
+    return <div className="text-center py-5">Loading vendor details...</div>;
 
   return (
     <div className="page-content container-fluid">
-  <div className="add-page-heading-div mb-3">
-        <Link to="/admin/vendors">
+      <div className="add-page-heading-div mb-3">
+        <Link to="/admin/vendor/allvendors">
           <i className="fa fa-arrow-left"></i>
         </Link>
-        <h2 className="add-page-heading">Vendor Profile: {vendor.owner_name}</h2>
+        <h2 className="add-page-heading">
+          Vendor Profile: {vendor.owner_name}
+        </h2>
       </div>
 
       <div className="card p-4 shadow-sm rounded-4">
@@ -90,12 +96,60 @@ export default function VendorDetails() {
             <div>
               <h5 className="mb-3">🔗 Social Links</h5>
               <div className="d-flex flex-wrap gap-3">
-                {vendor.facebook_link && <a href={vendor.facebook_link} target="_blank" rel="noreferrer">Facebook</a>}
-                {vendor.instagram_link && <a href={vendor.instagram_link} target="_blank" rel="noreferrer">Instagram</a>}
-                {vendor.twitter_link && <a href={vendor.twitter_link} target="_blank" rel="noreferrer">Twitter</a>}
-                {vendor.linkedin_link && <a href={vendor.linkedin_link} target="_blank" rel="noreferrer">LinkedIn</a>}
-                {vendor.youtube_link && <a href={vendor.youtube_link} target="_blank" rel="noreferrer">YouTube</a>}
-                {vendor.website_link && <a href={vendor.website_link} target="_blank" rel="noreferrer">Website</a>}
+                {vendor.facebook_link && (
+                  <a
+                    href={vendor.facebook_link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Facebook
+                  </a>
+                )}
+                {vendor.instagram_link && (
+                  <a
+                    href={vendor.instagram_link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Instagram
+                  </a>
+                )}
+                {vendor.twitter_link && (
+                  <a
+                    href={vendor.twitter_link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Twitter
+                  </a>
+                )}
+                {vendor.linkedin_link && (
+                  <a
+                    href={vendor.linkedin_link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    LinkedIn
+                  </a>
+                )}
+                {vendor.youtube_link && (
+                  <a
+                    href={vendor.youtube_link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    YouTube
+                  </a>
+                )}
+                {vendor.website_link && (
+                  <a
+                    href={vendor.website_link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Website
+                  </a>
+                )}
               </div>
             </div>
           </div>

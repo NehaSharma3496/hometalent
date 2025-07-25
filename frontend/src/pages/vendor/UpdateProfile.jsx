@@ -244,7 +244,7 @@ export default function UpdateProfile() {
   return (
     <div className="page-content container-fluid">
       <div className="add-page-heading-div mb-3 d-flex align-items-center gap-2">
-        <Link to="/admin/dashboard">
+        <Link to="/vendor/dashboard">
           <i className="fa-sharp fa-regular fa-arrow-left"></i>
         </Link>
         <h2 className="add-page-heading mb-0">Request Profile Update</h2>

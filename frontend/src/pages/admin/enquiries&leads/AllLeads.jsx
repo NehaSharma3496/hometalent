@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { GetAllLeads } from "../../../Services/admin/Admin";
 import { Link } from "react-router-dom";
 import Datatable from "../../../extracomponents/Datatable";
+import * as XLSX from "xlsx";
 
 export default function AllLeads() {
   const [leads, setAllLeads] = useState([]);
+  const [searchText, setSearchText] = useState("");
   const token = localStorage.getItem("token");
 
   const fetchAllLeads = async () => {
@@ -19,6 +21,18 @@ export default function AllLeads() {
   useEffect(() => {
     fetchAllLeads();
   }, []);
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(leads);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
+
+    XLSX.writeFile(workbook, "vendor-leads-list.xlsx");
+  };
+
+  const filteredLeads = leads.filter((lead) =>
+    lead.name?.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   const columns = [
     {
@@ -70,12 +84,40 @@ export default function AllLeads() {
             <h2 className="add-page-heading">All Leads</h2>
           </div>
         </div>
+
+          <div className="col-md-6 text-end">
+          <button className="btn btn-success me-2" onClick={exportToExcel}>
+            <i className="fa-solid fa-file-excel me-1"></i>
+            Download Excel
+          </button>
+        </div>
       </div>
 
       <div className="card">
+          <div
+          className="d-flex align-items-center border rounded px-2 "
+          style={{ maxWidth: "250px" }}
+        >
+          <i className="ri-search-line me-2 mx-5 text-muted" />
+          <input
+            type="text"
+            className="form-control border-0 shadow-none"
+            placeholder="Search by client name..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+          {searchText && (
+            <button
+              className="btn btn-sm btn-light border-0"
+              onClick={() => setSearchText("")}
+            >
+              <i className="ri-close-line" />
+            </button>
+          )}
+        </div>
         <div className="row">
           <div className="col-md-12">
-            <Datatable columns={columns} data={leads} pagination />
+            <Datatable columns={columns} data={filteredLeads} pagination />
           </div>
         </div>
       </div>

@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { GetVendoreList } from "../../../Services/admin/Admin";
 import Datatable from "../../../extracomponents/Datatable";
+import * as XLSX from "xlsx";
 
 export default function ApprovedVendors() {
   const [approvedVendors, setApprovedVendors] = useState([]);
+  const [searchText, setSearchText] = useState("");
 
   const fetchApprovedVendors = async () => {
     try {
@@ -20,8 +22,25 @@ export default function ApprovedVendors() {
     fetchApprovedVendors();
   }, []);
 
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(approvedVendors);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Approved Vendor");
+
+    XLSX.writeFile(workbook, "Approved vendor List.xlsx");
+  };
+
+  const filteredApprovedVendors = approvedVendors.filter((vendor) =>
+    vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   const columns = [
-    { name: "ID", selector: (row) => row.id, sortable: true },
+    {
+      name: "S.No",
+      selector: (row, index) => index + 1,
+      sortable: false,
+      width: "70px",
+    },
     { name: "Owner Name", selector: (row) => row.owner_name, sortable: true },
     { name: "Email", selector: (row) => row.email, sortable: true },
     {
@@ -63,17 +82,38 @@ export default function ApprovedVendors() {
             <h2 className="add-page-heading">Approved Vendors</h2>
           </div>
         </div>
+        <div className="col-md-6 text-end">
+          <button className="btn btn-success me-2" onClick={exportToExcel}>
+            <i className="fa-solid fa-file-excel me-1"></i>
+            Download Excel
+          </button>
+        </div>
       </div>
 
       <div className="card">
+        <div className="col-md-4">
+          <div className="d-flex align-items-center border rounded px-2">
+            <i className="ri-search-line me-2 text-muted" />
+            <input
+              type="text"
+              className="form-control border-0 shadow-none"
+              placeholder="Search by vendor name..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+            {searchText && (
+              <button
+                className="btn btn-sm btn-light border-0"
+                onClick={() => setSearchText("")}
+              >
+                <i className="ri-close-line" />
+              </button>
+            )}
+          </div>
+        </div>
         <div className="row">
           <div className="col-md-12">
-            <Datatable
-              columns={columns}
-              data={approvedVendors}
-              pagination
-            
-            />
+            <Datatable columns={columns} data={filteredApprovedVendors} pagination />
           </div>
         </div>
       </div>
