@@ -102,10 +102,11 @@ exports.listSponsoredVendors = async (req, res) => {
     let whereCondition = { is_sponsored: 1 };
     if (category_id) whereCondition.category_id = category_id;
 
-    const { count, rows } = await VendorCategoryRank.findAndCountAll({
+    // Get sponsored vendors
+    const { count, rows: sponsoredRows } = await VendorCategoryRank.findAndCountAll({
       where: whereCondition,
       include: [
-        { model: User, as: 'vendor', attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone'] },
+        { model: User, as: 'vendor', attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone', 'status'] },
         { model: Category, as: 'category', attributes: ['id', 'name'] }
       ],
       order: [['sponsor_rank', 'ASC']],
@@ -113,11 +114,25 @@ exports.listSponsoredVendors = async (req, res) => {
       offset
     });
 
+    // Get all sponsored vendor IDs
+    const sponsoredVendorIds = sponsoredRows.map(r => r.vendor_id);
+
+    // Get remaining active vendors (not sponsored, status=1)
+    const activeVendors = await User.findAll({
+      where: {
+        role_id: 2,
+        status: 1,
+        id: { [require('sequelize').Op.notIn]: sponsoredVendorIds }
+      },
+      attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone', 'status']
+    });
+
     const totalPages = Math.ceil(count / limit);
 
     res.json({
       status: true,
-      data: rows,
+      sponsored: sponsoredRows,
+      remaining_active: activeVendors,
       pagination: {
         current_page: page,
         total_pages: totalPages,
@@ -652,6 +667,27 @@ exports.deletePackage = async (req, res) => {
   }
 };
 
+exports.updatePackageStatus = async (req, res) => {
+  try {
+    const { package_id, status } = req.body;
+    if (!package_id || typeof status === 'undefined') {
+      return res.status(400).json({ status: false, msg: 'package_id and status are required' });
+    }
+    if (![0, 1].includes(Number(status))) {
+      return res.status(400).json({ status: false, msg: 'status must be 0 (inactive) or 1 (active)' });
+    }
+    const pkg = await Package.findByPk(package_id);
+    if (!pkg) {
+      return res.status(404).json({ status: false, msg: 'Package not found' });
+    }
+    pkg.status = status;
+    await pkg.save();
+    res.json({ status: true, msg: `Package ${status == 1 ? 'activated' : 'inactivated'} successfully` });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
 exports.getExpiredVendors = async (req, res) => {
   try {
     const today = new Date();
@@ -671,6 +707,26 @@ exports.getExpiredVendors = async (req, res) => {
       ...((sub.vendor && sub.vendor.dataValues) || {})
     }));
     res.json({ status: true, data: expiredVendors });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.extendVendorPackage = async (req, res) => {
+  try {
+    const { subscription_id, extra_days } = req.body;
+    if (!subscription_id || !extra_days) {
+      return res.status(400).json({ status: false, msg: 'subscription_id and extra_days are required' });
+    }
+    const sub = await VendorPackageSubscription.findByPk(subscription_id);
+    if (!sub) {
+      return res.status(404).json({ status: false, msg: 'Subscription not found' });
+    }
+    const endDate = new Date(sub.end_date);
+    endDate.setDate(endDate.getDate() + Number(extra_days));
+    sub.end_date = endDate;
+    await sub.save();
+    res.json({ status: true, msg: 'Subscription end_date extended successfully', data: sub });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
   }

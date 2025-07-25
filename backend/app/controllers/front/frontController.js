@@ -1,5 +1,5 @@
 
-const { State, City, User, Category, VendorCategoryRank, ContactUs } = require('../../models'); // adjust path to your models
+const { State, City, User, Category, VendorCategoryRank, ContactUs, VendorPackageSubscription } = require('../../models'); // adjust path to your models
 const { Op, Sequelize } = require('sequelize');
 const sequelize = require('../../config/db.config');
 exports.listStatesAndCities = async (req, res) => {
@@ -63,9 +63,21 @@ exports.getVendorsByCategoryId = async (req, res) => {
       whereClause.city_id = city_id;
     }
 
+    // Subscription filter: only vendors with an active subscription
+    const now = new Date();
+    const subscriptionInclude = {
+      model: VendorPackageSubscription,
+      as: 'subscriptions',
+      where: {
+        payment_status: 'completed',
+        start_date: { [Op.lte]: now },
+        end_date: { [Op.gte]: now }
+      },
+      required: true
+    };
+
     // Get sponsored vendors for this specific category/city (ordered by category-specific sponsor_rank)
     let sponsoredWhere = { ...whereClause };
-    // Only filter by category_id for sponsor rank join if present
     let sponsorRankInclude = {
       model: VendorCategoryRank,
       as: 'categoryRanks',
@@ -77,7 +89,7 @@ exports.getVendorsByCategoryId = async (req, res) => {
 
     const sponsoredVendors = await User.findAll({
       where: sponsoredWhere,
-      include: [sponsorRankInclude],
+      include: [sponsorRankInclude, subscriptionInclude],
       order: [[{ model: VendorCategoryRank, as: 'categoryRanks' }, 'sponsor_rank', 'ASC']]
     });
 
@@ -92,7 +104,7 @@ exports.getVendorsByCategoryId = async (req, res) => {
 
     const nonSponsoredVendors = await User.findAll({
       where: whereClause,
-      include: [nonSponsorRankInclude],
+      include: [nonSponsorRankInclude, subscriptionInclude],
       order: [['createdAt', 'DESC']]
     });
 

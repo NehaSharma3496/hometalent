@@ -1,4 +1,4 @@
-const { User, Gallery } = require('../../models');
+const { User, Gallery, VendorPackageSubscription, Package } = require('../../models');
 const fs = require('fs');
 const path = require('path');
 
@@ -383,9 +383,50 @@ exports.getUserCompleteProfile = async (req, res) => {
       });
     }
 
+    // Fetch package subscriptions
+    const now = new Date();
+    const subscriptions = await VendorPackageSubscription.findAll({
+      where: { vendor_id: user_id, payment_status: 'completed' },
+      include: [
+        {
+          model: Package,
+          as: 'Package', // Use the alias as defined in the association
+          required: true
+        }
+      ],
+      order: [['end_date', 'DESC']]
+    });
+
+    // Separate running and expired packages
+    const running_packages = [];
+    const expired_packages = [];
+    subscriptions.forEach(sub => {
+      if (sub.start_date <= now && sub.end_date >= now) {
+        running_packages.push({
+          id: sub.id,
+          start_date: sub.start_date,
+          end_date: sub.end_date,
+          payment_status: sub.payment_status,
+          package: sub.Package
+        });
+      } else if (sub.end_date < now) {
+        expired_packages.push({
+          id: sub.id,
+          start_date: sub.start_date,
+          end_date: sub.end_date,
+          payment_status: sub.payment_status,
+          package: sub.Package
+        });
+      }
+    });
+
     res.json({ 
       status: true, 
-      data: user 
+      data: {
+        user,
+        running_packages,
+        expired_packages
+      }
     });
 
   } catch (error) {

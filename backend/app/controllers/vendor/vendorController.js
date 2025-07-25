@@ -1,5 +1,6 @@
 const { Category, State, City, User, ProfileUpdateRequest, Package, VendorPackageSubscription, Log, ClientLead } = require('../../models'); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
+const { Op } = require('sequelize');
 
 
 exports.listCategories = async (req, res) => {
@@ -189,9 +190,30 @@ exports.subscribePackage = async (req, res) => {
     }
     const pkg = await Package.findByPk(package_id);
     if (!pkg) return res.status(404).json({ status: false, msg: 'Package not found' });
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + pkg.validity_in_months);
+
+    // Find latest running subscription
+    const now = new Date();
+    const runningSub = await VendorPackageSubscription.findOne({
+      where: {
+        vendor_id,
+        payment_status: 'completed',
+        end_date: { [Op.gte]: now }
+      },
+      order: [['end_date', 'DESC']]
+    });
+
+    let startDate, endDate;
+    const validityDays = pkg.validity_in_months * 30;
+    if (runningSub) {
+      // Start from next day after current end_date
+      startDate = new Date(runningSub.end_date);
+      startDate.setDate(startDate.getDate() + 1);
+    } else {
+      startDate = now;
+    }
+    endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + validityDays - 1); // -1 so 1 month = 30 days, 12 months = 360 days
+
     const subscription = await VendorPackageSubscription.create({
       vendor_id,
       package_id,
@@ -229,6 +251,49 @@ exports.getMyLeads = async (req, res) => {
     res.json({ 
       status: true, 
       data: leads,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.getPackageHistory = async (req, res) => {
+  try {
+    const { vendor_id, payment_status, package_id } = req.query;
+    let { page = 1, limit = 10 } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
+    const offset = (page - 1) * limit;
+    if (!vendor_id) {
+      return res.status(400).json({ status: false, msg: 'vendor_id is required' });
+    }
+    const where = { vendor_id };
+    if (payment_status) where.payment_status = payment_status;
+    if (package_id) where.package_id = package_id;
+    const { count, rows } = await VendorPackageSubscription.findAndCountAll({
+      where,
+      include: [
+        {
+          model: Package,
+          required: true
+        }
+      ],
+      order: [['start_date', 'DESC']],
+      limit,
+      offset
+    });
+    const totalPages = Math.ceil(count / limit);
+    res.json({
+      status: true,
+      data: rows,
       pagination: {
         current_page: page,
         total_pages: totalPages,
