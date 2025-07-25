@@ -84,13 +84,14 @@ export async function GetProfileUpdateRequests(
   limit = 100
 ) {
   try {
-    const endpoint =
-      status === "all"
-        ? `${Config.base_url}admin/profile-update-requests`
-        : `${Config.base_url}admin/profile-update-requests/${status}`;
+    const endpoint = `${Config.base_url}admin/profile-update-requests`;
 
     const res = await axios.get(endpoint, {
-      params: { page, limit },
+      params: {
+        status: status === "all" ? undefined : status, // don't send 'status' if it's 'all'
+        page,
+        limit,
+      },
       headers: {
         Authorization: token,
       },
@@ -431,7 +432,6 @@ export const GetSinglePackage = async (id, token) => {
   }
 };
 
-
 // Get All Enquiries
 export async function GetAllContactUs(token) {
   try {
@@ -449,7 +449,7 @@ export async function GetAllContactUs(token) {
   }
 }
 
-// admin Dashboard 
+// admin Dashboard
 
 export async function GetDashboardCounts(token) {
   try {

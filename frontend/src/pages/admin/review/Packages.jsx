@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 const Packages = () => {
   const [packages, setPackages] = useState([]);
   const navigate = useNavigate();
+   const [searchText, setSearchText] = useState("");
 
   const fetchPackages = async () => {
     try {
@@ -17,6 +18,10 @@ const Packages = () => {
       setPackages([]);
     }
   };
+
+const filteredPackages = packages.filter((Package) =>
+    Package.name?.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   useEffect(() => {
     fetchPackages();
@@ -57,23 +62,43 @@ const Packages = () => {
 
   return (
     <div className="page-content">
-     
-        <div className="row align-items-center mb-3">
-          <div className="col-md-6">
-            <div className="add-page-heading-div">
-              <Link to="/admin/dashboard">
-                <i className="fa-sharp fa-regular fa-arrow-left"></i>
-              </Link>
-              <h2 className="add-page-heading">All Packages</h2>
-            </div>
+      <div className="row align-items-center mb-3">
+        <div className="col-md-6">
+          <div className="add-page-heading-div">
+            <Link to="/admin/dashboard">
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </Link>
+            <h2 className="add-page-heading">All Packages</h2>
           </div>
         </div>
- <div className="card">
+      </div>
+      <div className="card">
+        <div
+          className="d-flex align-items-center border rounded px-2 "
+          style={{ maxWidth: "250px" }}
+        >
+          <i className="ri-search-line me-2 mx-5 text-muted" />
+          <input
+            type="text"
+            className="form-control border-0 shadow-none"
+            placeholder="Search by package name..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+          {searchText && (
+            <button
+              className="btn btn-sm btn-light border-0"
+              onClick={() => setSearchText("")}
+            >
+              <i className="ri-close-line" />
+            </button>
+          )}
+        </div>
         <div className="row g-4 px-3 pb-4">
-          {packages.length === 0 ? (
+          {filteredPackages.length === 0 ? (
             <div className="text-center text-muted fs-5">No packages found</div>
           ) : (
-            packages.map((plan, index) => {
+            filteredPackages.map((plan, index) => {
               const featureList = plan.features ? plan.features.split(",") : [];
               const isPopular = plan.price >= 999;
               const isActive = plan.status === 1;

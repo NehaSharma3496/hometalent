@@ -6,7 +6,7 @@ import * as XLSX from "xlsx";
 
 export default function AllLeads() {
   const [leads, setAllLeads] = useState([]);
-  const [searchText, setSearchText] = useState(""); // 🔍 for search
+  const [searchText, setSearchText] = useState(""); 
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;

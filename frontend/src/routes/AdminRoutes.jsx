@@ -24,6 +24,7 @@ import AddPackage from "../pages/admin/review/AddPackage"
 import UpdatePackages from "../pages/admin/review/updatePackages"
 
 import AllEnquiries from "../pages/admin/enquiries&leads/AllEnquiries"
+import UploadGallery from "../pages/admin/adminGallery/UploadGallery";
 
 
 const AdminRoutes = (
@@ -44,6 +45,7 @@ const AdminRoutes = (
     <Route path="vendor/activevendors" element={<ActiveVendor />} />
     <Route path="vendor/addvendors" element={<AddVendor />} />
     <Route path="adminGallery" element={<AdminGallery/>}/>
+    <Route path="uploadgallery" element={<UploadGallery/>}/>
   <Route path="galleryUpdates/vendorgallery/:vendorId" element={<VendorGallery />} />
 <Route path="enquiries/allleads" element={<AllLeads/>}/>
  <Route path="Packages" element={<Packages/>}/>

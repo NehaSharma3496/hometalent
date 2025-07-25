@@ -110,7 +110,7 @@ export default function MyProfile() {
       <div className="row align-items-center mb-1">
         <div className="col-md-6 mb-2">
           <div className="add-page-heading-div">
-            <Link to="/admin/dashboard" className="me-2">
+            <Link to="/vendor/dashboard" className="me-2">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
             <h5 className="add-page-heading mb-0">Vendor Pofile</h5>

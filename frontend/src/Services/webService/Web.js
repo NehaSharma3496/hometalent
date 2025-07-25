@@ -61,7 +61,7 @@ export async function SubmitLead(data) {
 export async function GetAdminGallery(token, userId) {
   try {
     const res = await axios.get(
-      `${Config.base_url}gallery/my-gallery?user_id=${userId}&status=approved`,
+      `${Config.base_url}gallery/my-gallery?user_id=${userId}`,
       {
         headers: {
           Authorization: `${token}`,

@@ -84,9 +84,12 @@ const Login = () => {
         });
       }
     } catch (error) {
+      console.log("Login error:", error.response?.data || error);
+
       Swal.fire({
         title: "Error",
-        text: error.response?.data?.msg || "Invalid credentials",
+        text:
+          error.response?.data?.msg || error.message || "Something went wrong",
         icon: "error",
       });
     }

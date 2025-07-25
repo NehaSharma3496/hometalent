@@ -188,16 +188,16 @@ export async function GetAllVendorLeads(token, id) {
   }
 }
 
-
-
-
 export async function GetGallery(token, userId) {
   try {
-    const res = await axios.get(`${Config.base_url}gallery/my-gallery?user_id=${userId}&status=approved`, {
-      headers: {
-        'Authorization': `${token}`
-      },
-    });
+    const res = await axios.get(
+      `${Config.base_url}gallery/my-gallery?user_id=${userId}&status=approved`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
 
     return res?.data;
   } catch (err) {
@@ -205,19 +205,37 @@ export async function GetGallery(token, userId) {
   }
 }
 
+export async function GetAdminGallery(token, userId) {
+  try {
+    const res = await axios.get(
+      `${Config.base_url}gallery/my-gallery?user_id=${userId}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
 
 export async function RemoveGalleryItem(token, id) {
   try {
-    let userId = localStorage.getItem("userId")
-    const response = await axios.delete(`${Config.base_url}gallery/remove/${id}`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-      data: {
-        user_id: userId,
-      },
-    });
-
+    let userId = localStorage.getItem("userId");
+    const response = await axios.delete(
+      `${Config.base_url}gallery/remove/${id}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+        data: {
+          user_id: userId,
+        },
+      }
+    );
 
     return response?.data;
   } catch (error) {
@@ -225,28 +243,26 @@ export async function RemoveGalleryItem(token, id) {
   }
 }
 
-
 // UpdateGalleryOrder
 export async function UpdateGalleryOrder(token, items) {
   try {
-    let userId = localStorage.getItem("userId")
+    let userId = localStorage.getItem("userId");
     let data = JSON.stringify({
-      "user_id": userId,
-      "items": items
+      user_id: userId,
+      items: items,
     });
 
     let config = {
-      method: 'put',
+      method: "put",
       maxBodyLength: Infinity,
       url: `${Config.base_url}gallery/update-order`,
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      data: data
+      data: data,
     };
 
-    const response = await axios.request(config)
-
+    const response = await axios.request(config);
 
     return response?.data;
   } catch (error) {
@@ -256,31 +272,37 @@ export async function UpdateGalleryOrder(token, items) {
 
 export const getVendorPackages = async (token) => {
   try {
-    const response = await axios.get(`${Config.base_url}vendor/packages?page=1&limit=100`, {
-
-      headers: {
-        'Authorization': `${token}`,
-        'Content-Type': 'application/json'
-      },
-    });
+    const response = await axios.get(
+      `${Config.base_url}vendor/packages?page=1&limit=100`,
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
-    console.error('Error fetching vendor packages:', error);
+    console.error("Error fetching vendor packages:", error);
     throw error;
   }
 };
 
 // Suscribe plan vendor
 
-export const subscribeToPackage = async (payload,token) => {
+export const subscribeToPackage = async (payload, token) => {
   try {
-    const res = await axios.post(`${Config.base_url}vendor/subscribe-package`, payload,{
+    const res = await axios.post(
+      `${Config.base_url}vendor/subscribe-package`,
+      payload,
+      {
         headers: {
-        'Authorization': `${token}`,
-        'Content-Type': 'application/json'
-      },
-    })
-    
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
     return res?.data;
   } catch (err) {
     console.error("Error subscribing to package", err);
@@ -289,6 +311,5 @@ export const subscribeToPackage = async (payload,token) => {
 };
 
 // GET ALL package VENDOR
-
 
 // Suscribe plan vendor

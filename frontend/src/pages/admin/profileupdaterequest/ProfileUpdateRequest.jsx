@@ -6,10 +6,12 @@ import {
   GetProfileUpdateRequests,
   ProcessProfileUpdateRequest,
 } from "../../../Services/admin/Admin";
+import * as XLSX from "xlsx";
 
 export default function ProfileUpdateRequests() {
   const [requests, setRequests] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [searchText, setSearchText] = useState("");
 
   const fetchRequests = async () => {
     try {
@@ -17,18 +19,39 @@ export default function ProfileUpdateRequests() {
       const page = 1;
       const limit = 100;
 
-      const res = await GetProfileUpdateRequests(
-        token,
-        statusFilter,
-        page,
-        limit
-      );
-      const data = res?.data?.requests || [];
+      const status = statusFilter;
+      const res = await GetProfileUpdateRequests(token, status, page, limit);
+
+      console.log("🔎 API Raw Response:", res);
+
+      let data = [];
+
+      if (res?.requests && Array.isArray(res.requests)) {
+        data = res.requests;
+      } else if (res?.data?.requests && Array.isArray(res.data.requests)) {
+        data = res.data.requests;
+      } else {
+        console.warn("⚠️ Unexpected data format, forcing empty array");
+      }
+
       setRequests(data);
     } catch (err) {
-      console.error("Failed to fetch requests:", err);
+      console.error("❌ Failed to fetch requests:", err);
+      setRequests([]);
     }
   };
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(requests);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Request");
+
+    XLSX.writeFile(workbook, "vendor-update-profile-request.xlsx");
+  };
+
+  const filteredRequests = requests.filter((request) =>
+    request.vendor?.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   useEffect(() => {
     fetchRequests();
@@ -59,7 +82,7 @@ export default function ProfileUpdateRequests() {
 
         if (res?.status) {
           Swal.fire("Success", res.msg || "Request processed", "success");
-          fetchRequests(); // refresh
+          fetchRequests();
         } else {
           Swal.fire("Error", res?.msg || "Failed to process", "error");
         }
@@ -81,6 +104,7 @@ export default function ProfileUpdateRequests() {
       name: "Vendor Name",
       selector: (row) => row.vendor?.owner_name || "N/A",
       sortable: true,
+      width: "145px",
     },
     {
       name: "Email",
@@ -99,20 +123,24 @@ export default function ProfileUpdateRequests() {
       name: "Actions",
       cell: (row) =>
         row.status === "pending" ? (
-          <div className="d-flex">
+          <div className="d-flex gap-1">
             <button
-              className="btn btn-success btn-sm me-2"
+              className="btn btn-success btn-sm d-flex align-items-center px-3"
               onClick={() => handleAction(row, "approve")}
               title="Approve"
+              style={{ fontWeight: "500" }}
             >
-              <i className="fa fa-check"></i>
+              <i className="fa fa-check me-1"></i>
+              Approve
             </button>
             <button
-              className="btn btn-danger btn-sm"
+              className="btn btn-danger btn-sm d-flex align-items-center px-3"
               onClick={() => handleAction(row, "reject")}
               title="Reject"
+              style={{ fontWeight: "500" }}
             >
-              <i className="fa fa-times"></i>
+              <i className="fa fa-times me-1"></i>
+              Reject
             </button>
           </div>
         ) : (
@@ -123,16 +151,47 @@ export default function ProfileUpdateRequests() {
 
   return (
     <div className="page-content">
-      <div className="add-page-heading-div mb-3">
-        <Link to="/admin/dashboard">
-          <i className="fa-sharp fa-regular fa-arrow-left"></i>
-        </Link>
-        <h2 className="add-page-heading">Profile Update Requests</h2>
+      <div className="row align-items-center mb-3">
+        <div className="col-md-6">
+          <div className="add-page-heading-div">
+            <Link to="/admin/dashboard">
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </Link>
+            <h2 className="add-page-heading">Profile Update Requests</h2>
+          </div>
+        </div>
+        <div className="col-md-6 text-end">
+          <button className="btn btn-success me-2" onClick={exportToExcel}>
+            <i className="fa-solid fa-file-excel me-1"></i>
+            Download Excel
+          </button>
+        </div>
       </div>
 
       <div className="card">
-        <div className="row mb-3">
-          <div className="col-md-3">
+        <div className="row mb-3 justify-content-between align-items-center">
+          <div className="col-md-4">
+            <div className="d-flex align-items-center border rounded px-2">
+              <i className="ri-search-line me-2 text-muted" />
+              <input
+                type="text"
+                className="form-control border-0 shadow-none"
+                placeholder="Search by vendor name..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+              {searchText && (
+                <button
+                  className="btn btn-sm btn-light border-0"
+                  onClick={() => setSearchText("")}
+                >
+                  <i className="ri-close-line" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="col-md-3 text-end">
             <select
               className="form-control"
               value={statusFilter}
@@ -148,7 +207,7 @@ export default function ProfileUpdateRequests() {
 
         <Datatable
           columns={columns}
-          data={requests}
+          data={filteredRequests}
           pagination
           highlightOnHover
           striped
