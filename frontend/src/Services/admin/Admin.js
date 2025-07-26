@@ -81,7 +81,7 @@ export async function GetProfileUpdateRequests(
   token,
   status = "all",
   page = 1,
-  limit = 1000
+  limit = 10
 ) {
   try {
     const endpoint = `${Config.base_url}admin/profile-update-requests`;

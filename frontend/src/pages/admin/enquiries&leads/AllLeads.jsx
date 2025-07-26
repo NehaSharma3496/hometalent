@@ -71,6 +71,12 @@ export default function AllLeads() {
       selector: (row) => row.query,
       sortable: true,
     },
+   {
+  name: "Date",
+  selector: (row) => new Date(row.createdAt).toLocaleDateString(),
+    sortable: true,
+}
+
   ];
 
   return (

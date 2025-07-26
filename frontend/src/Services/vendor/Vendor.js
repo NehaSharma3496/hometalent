@@ -273,21 +273,20 @@ export async function UpdateGalleryOrder(token, items) {
   }
 }
 
-export const getVendorPackages = async (token) => {
+ export async function getVendorPackages (token) {
   try {
     const response = await axios.get(
-      `${Config.base_url}vendor/packages?page=1&limit=100`,
+      `${Config.base_url}vendor/packages`,
       {
         headers: {
           Authorization: `${token}`,
-          "Content-Type": "application/json",
         },
       }
     );
     return response?.data;
   } catch (error) {
     console.error("Error fetching vendor packages:", error);
-    throw error;
+    return error;
   }
 };
 
@@ -309,29 +308,27 @@ export const subscribeToPackage = async (payload, token) => {
     return res?.data;
   } catch (err) {
     console.error("Error subscribing to package", err);
-    throw err;
+    return err;
   }
 };
 
-export const getVendorPackageHistory = async (token, vendorId, page = 1, limit = 10) => {
+export const getVendorPackageHistory = async (token, vendorId, page = 1, limit = 1000) => {
   try {
     const response = await axios.get(
       `${Config.base_url}vendor/package-history?vendor_id=${vendorId}&page=${page}&limit=${limit}`,
       {
         headers: {
           Authorization: token,
-          "Content-Type": "application/json",
         },
       }
     );
-
-    // Axios directly gives you the data in response.data
     return response.data;
   } catch (error) {
     console.error("Error fetching vendor package history:", error);
-    throw error;
+    return error;
   }
 };
+
 
 
 

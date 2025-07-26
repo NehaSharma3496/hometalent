@@ -114,7 +114,7 @@ const BlogDetail = () => {
               </div>
             </div>
           </div>
-          <div className="comment-section">
+          {/* <div className="comment-section">
             <div className="main-profile">
               <div className="user-img-lg">
                 <img src='../assets/images//news/banner-1.png' alt="travello" />
@@ -229,7 +229,7 @@ const BlogDetail = () => {
                 </div>
               </form>
             </div>
-          </div>
+          </div> */}
         </div>
         <div className="col-xl-4 col-lg-5">
           <div className="row g-4 position-sticky top-0">
@@ -287,7 +287,7 @@ const BlogDetail = () => {
                 </ul>
               </div>
             </div>
-            <div className="col-lg-12">
+            {/* <div className="col-lg-12">
               <div className="destination-offer-three">
                 <div className="destination-content-offer">
                   <span className="highlights">20% off</span>
@@ -295,7 +295,7 @@ const BlogDetail = () => {
                   <a href="payment.html" className="btn-secondary-sm radius-30">Booking Now</a>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

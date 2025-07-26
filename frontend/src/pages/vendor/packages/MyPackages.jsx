@@ -10,9 +10,6 @@ export default function MyPackages() {
   const [searchCurrent, setSearchCurrent] = useState("");
   const [searchExpired, setSearchExpired] = useState("");
 
-  const [currentPage1, setCurrentPage1] = useState(1);
-  const [currentPage2, setCurrentPage2] = useState(1);
-  const rowsPerPage = 10;
 
   const token = localStorage.getItem("token");
   const vendorId = localStorage.getItem("userId");
@@ -33,33 +30,29 @@ export default function MyPackages() {
   };
 
   const fetchPackages = async () => {
-  try {
-    const res = await getVendorPackageHistory(token, vendorId, 1, 100);
+    try {
+      const res = await getVendorPackageHistory(token, vendorId);
+      const packages = res?.data || [];
 
-    // FIX: removed extra .data
-    const packages = res?.data || [];
+      const current = [];
+      const expired = [];
 
-    const current = [];
-    const expired = [];
+      packages.forEach((pkg) => {
+        if (isExpired(pkg.end_date)) {
+          expired.push(pkg);
+        } else {
+          current.push(pkg);
+        }
+      });
 
-    packages.forEach((pkg) => {
-      if (isExpired(pkg.end_date)) {
-        expired.push(pkg);
-      } else {
-        current.push(pkg);
-      }
-    });
-
-    setCurrentPackages(current);
-    setExpiredPackages(expired);
-  } catch (error) {
-    console.error("Failed to load packages", error);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
+      setCurrentPackages(current);
+      setExpiredPackages(expired);
+    } catch (error) {
+      console.error("Failed to load packages", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (token && vendorId) fetchPackages();
@@ -68,7 +61,7 @@ export default function MyPackages() {
   const commonColumns = (page) => [
     {
       name: "S.No",
-      cell: (row, index) => (page - 1) * rowsPerPage + index + 1,
+      cell: (row, index) =>  index + 1,
       width: "80px",
     },
     {
@@ -156,15 +149,9 @@ export default function MyPackages() {
     </div>
 
     <DataTable
-      columns={commonColumns(currentPage1)}
+      columns={commonColumns()}
       data={filterData(currentPackages, searchCurrent)}
       pagination
-      paginationPerPage={rowsPerPage}
-      paginationTotalRows={filterData(currentPackages, searchCurrent).length}
-      onChangePage={(page) => setCurrentPage1(page)}
-      highlightOnHover
-      striped
-      persistTableHead
     />
   </div>
 
@@ -197,16 +184,10 @@ export default function MyPackages() {
     </div>
 
     <DataTable
-      columns={commonColumns(currentPage2)}
+      columns={commonColumns () }
       data={filterData(expiredPackages, searchExpired)}
       pagination
-      paginationPerPage={rowsPerPage}
-      paginationTotalRows={filterData(expiredPackages, searchExpired).length}
-      onChangePage={(page) => setCurrentPage2(page)}
-      highlightOnHover
-      striped
-      persistTableHead
-    />
+        />
   </div>
 </div>
 

@@ -17,7 +17,7 @@ export default function ProfileUpdateRequests() {
     try {
       const token = localStorage.getItem("token");
       const page = 1;
-      const limit = 1000;
+      const limit = 10;
 
       const status = statusFilter;
       const res = await GetProfileUpdateRequests(token, status, page, limit);
