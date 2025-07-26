@@ -33,29 +33,30 @@ export default function MyPackages() {
   };
 
   const fetchPackages = async () => {
-    try {
-      const res = await getVendorPackageHistory(token, vendorId, 1, 100);
-      const packages = res?.data || [];
+  try {
+    const res = await getVendorPackageHistory(token, vendorId, 1, 100);
+    const packages = res?.data?.data || [];
 
-      const current = [];
-      const expired = [];
+    const current = [];
+    const expired = [];
 
-      packages.forEach((pkg) => {
-        if (isExpired(pkg.end_date)) {
-          expired.push(pkg);
-        } else {
-          current.push(pkg);
-        }
-      });
+    packages.forEach((pkg) => {
+      if (isExpired(pkg.end_date)) {
+        expired.push(pkg);
+      } else {
+        current.push(pkg);
+      }
+    });
 
-      setCurrentPackages(current);
-      setExpiredPackages(expired);
-    } catch (error) {
-      console.error("Failed to load packages", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setCurrentPackages(current);
+    setExpiredPackages(expired);
+  } catch (error) {
+    console.error("Failed to load packages", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     if (token && vendorId) fetchPackages();

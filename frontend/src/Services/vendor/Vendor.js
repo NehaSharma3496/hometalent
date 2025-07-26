@@ -318,7 +318,6 @@ export const getVendorPackageHistory = async (token, vendorId, page = 1, limit =
     const response = await axios.get(
       `${Config.base_url}vendor/package-history?vendor_id=${vendorId}&page=${page}&limit=${limit}`,
       {
-        method: "GET",
         headers: {
           Authorization: token,
           "Content-Type": "application/json",
@@ -326,17 +325,14 @@ export const getVendorPackageHistory = async (token, vendorId, page = 1, limit =
       }
     );
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch vendor package history");
-    }
-
-    const data = await response.json();
-    return data;
+    // Axios directly gives you the data in response.data
+    return response.data;
   } catch (error) {
     console.error("Error fetching vendor package history:", error);
     throw error;
   }
 };
+
 
 
 
