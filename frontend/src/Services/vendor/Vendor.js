@@ -315,8 +315,8 @@ export const subscribeToPackage = async (payload, token) => {
 
 export const getVendorPackageHistory = async (token, vendorId, page = 1, limit = 10) => {
   try {
-    const response = await fetch(
-      `http://localhost:8888/vendor/package-history?vendor_id=${vendorId}&page=${page}&limit=${limit}`,
+    const response = await axios.get(
+      `${Config.base_url}vendor/package-history?vendor_id=${vendorId}&page=${page}&limit=${limit}`,
       {
         method: "GET",
         headers: {
