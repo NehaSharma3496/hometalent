@@ -35,7 +35,9 @@ export default function MyPackages() {
   const fetchPackages = async () => {
   try {
     const res = await getVendorPackageHistory(token, vendorId, 1, 100);
-    const packages = res?.data?.data || [];
+
+    // FIX: removed extra .data
+    const packages = res?.data || [];
 
     const current = [];
     const expired = [];
@@ -56,6 +58,7 @@ export default function MyPackages() {
     setLoading(false);
   }
 };
+
 
 
   useEffect(() => {
