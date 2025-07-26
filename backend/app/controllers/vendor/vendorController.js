@@ -182,37 +182,85 @@ exports.getAvailablePackages = async (req, res) => {
   }
 };
 
+// exports.subscribePackage = async (req, res) => 
+//   try {
+//     const { vendor_id, package_id, payment_reference } = req.body;
+//     if (!vendor_id || !package_id || !payment_reference) {
+//       return res.status(400).json({ status: false, msg: 'vendor_id, package_id, and payment_reference are required' });
+//     }
+//     const pkg = await Package.findByPk(package_id);
+//     if (!pkg) return res.status(404).json({ status: false, msg: 'Package not found' });
+
+//     // Find latest running subscription
+//     const now = new Date();
+//     const runningSub = await VendorPackageSubscription.findOne({
+//       where: {
+//         vendor_id,
+//         payment_status: 'completed',
+//         end_date: { [Op.gte]: now }
+//       },
+//       order: [['end_date', 'DESC']]
+//     });
+
+//     let startDate, endDate;
+//     const validityDays = pkg.validity_in_months * 30;
+//     if (runningSub) {
+//       // Start from next day after current end_date
+//       startDate = new Date(runningSub.end_date);
+//       startDate.setDate(startDate.getDate() + 1);
+//     } else {
+//       startDate = now;
+//     }
+//     endDate = new Date(startDate);
+//     endDate.setDate(endDate.getDate() + validityDays - 1); // -1 so 1 month = 30 days, 12 months = 360 days
+
+//     const subscription = await VendorPackageSubscription.create({
+//       vendor_id,
+//       package_id,
+//       start_date: startDate,
+//       end_date: endDate,
+//       payment_status: 'completed',
+//       payment_reference
+//     });
+//     res.json({ status: true, data: subscription });
+//   } catch (error) {
+//     res.status(500).json({ status: false, msg: error.message });
+//   }
+// };
+
 exports.subscribePackage = async (req, res) => {
   try {
     const { vendor_id, package_id, payment_reference } = req.body;
     if (!vendor_id || !package_id || !payment_reference) {
       return res.status(400).json({ status: false, msg: 'vendor_id, package_id, and payment_reference are required' });
     }
+
     const pkg = await Package.findByPk(package_id);
     if (!pkg) return res.status(404).json({ status: false, msg: 'Package not found' });
 
-    // Find latest running subscription
-    const now = new Date();
-    const runningSub = await VendorPackageSubscription.findOne({
+    // ✅ Find latest subscription (past or future)
+    const latestSub = await VendorPackageSubscription.findOne({
       where: {
         vendor_id,
         payment_status: 'completed',
-        end_date: { [Op.gte]: now }
       },
       order: [['end_date', 'DESC']]
     });
 
-    let startDate, endDate;
+    const now = new Date();
+    let startDate;
     const validityDays = pkg.validity_in_months * 30;
-    if (runningSub) {
-      // Start from next day after current end_date
-      startDate = new Date(runningSub.end_date);
-      startDate.setDate(startDate.getDate() + 1);
+
+    if (latestSub) {
+      const latestEndDate = new Date(latestSub.end_date);
+      // if latest subscription ends in future, start from next day
+      startDate = new Date(latestEndDate.setDate(latestEndDate.getDate() + 1));
     } else {
       startDate = now;
     }
-    endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + validityDays - 1); // -1 so 1 month = 30 days, 12 months = 360 days
+
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + validityDays - 1);
 
     const subscription = await VendorPackageSubscription.create({
       vendor_id,
@@ -222,11 +270,14 @@ exports.subscribePackage = async (req, res) => {
       payment_status: 'completed',
       payment_reference
     });
+
     res.json({ status: true, data: subscription });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ status: false, msg: error.message });
   }
 };
+
 
 exports.getMyLeads = async (req, res) => {
   try {
@@ -283,6 +334,7 @@ exports.getPackageHistory = async (req, res) => {
       include: [
         {
           model: Package,
+           as: 'Package',
           required: true
         }
       ],
