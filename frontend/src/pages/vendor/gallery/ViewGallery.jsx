@@ -225,7 +225,15 @@ const ViewGallery = () => {
                       Your browser does not support the video tag.
                     </video>
                   )}
+
                   <div className="card-body text-center py-3 mt-3">
+                    <p className="text-muted small mb-2">
+                      {new Date(item.createdAt).toLocaleDateString("en-IN", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
                     <button
                       className="btn btn-danger shadow-sm"
                       onClick={() => handleDelete(item)}

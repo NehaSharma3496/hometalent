@@ -81,14 +81,14 @@ export async function GetProfileUpdateRequests(
   token,
   status = "all",
   page = 1,
-  limit = 100
+  limit = 1000
 ) {
   try {
     const endpoint = `${Config.base_url}admin/profile-update-requests`;
 
     const res = await axios.get(endpoint, {
       params: {
-        status: status === "all" ? undefined : status, // don't send 'status' if it's 'all'
+        status: status === "all" ? undefined : status, 
         page,
         limit,
       },

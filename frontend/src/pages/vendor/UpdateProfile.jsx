@@ -184,7 +184,8 @@ export default function UpdateProfile() {
           GetVendorDetails(token, vendorId),
         ]);
 
-        const vendor = vendorRes.data;
+        const vendor = vendorRes.data.user;
+
 
         setCategoryData(
           cat.data.map((x) => ({ value: x.id.toString(), label: x.name }))

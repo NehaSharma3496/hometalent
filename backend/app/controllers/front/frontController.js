@@ -75,6 +75,7 @@ exports.getVendorsByCategoryId = async (req, res) => {
       },
       required: true
     };
+    
 
     // Get sponsored vendors for this specific category/city (ordered by category-specific sponsor_rank)
     let sponsoredWhere = { ...whereClause };

@@ -23,6 +23,9 @@ const Category = () => {
   const [filteredVendors, setFilteredVendors] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // CRITICAL FIX: Separate state for category name
+  const [categoryName, setCategoryName] = useState("Category");
+
   const token = localStorage.getItem("token");
 
   // Get category from location state (from Header navigation)
@@ -36,10 +39,10 @@ const Category = () => {
   const effectiveCategoryId = categoryFromState?._id || categoryIdFromUrl;
   const effectiveCityId = cityIdFromUrl;
 
-  // For breadcrumbs and display, use category from state if available
-  const displayCategory = categoryFromState || {
-    _id: categoryIdFromUrl,
-    name: "Selected Category",
+  // CRITICAL FIX: Use categoryName state instead of complex displayCategory object
+  const displayCategory = {
+    _id: effectiveCategoryId,
+    name: categoryFromState?.name || categoryName,
   };
 
   console.log("Category Component State:", {
@@ -48,6 +51,7 @@ const Category = () => {
     cityIdFromUrl,
     effectiveCategoryId,
     effectiveCityId,
+    categoryName,
   });
 
   // Custom function for category-only API call (without city_id parameter)
@@ -70,6 +74,35 @@ const Category = () => {
     } catch (error) {
       console.error("Category-only API error:", error);
       return { status: false, data: [] };
+    }
+  };
+
+  // CRITICAL FIX: Simplified category details fetch function
+  const fetchCategoryDetails = async (categoryId) => {
+    try {
+      console.log("Fetching category details for ID:", categoryId);
+
+      const response = await axios.get(
+        `${base_url}front/categories/${categoryId}`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      console.log("Category details response:", response.data);
+
+      if (response.data && response.data.data && response.data.data.name) {
+        const fetchedName = response.data.data.name;
+        console.log("Setting category name to:", fetchedName);
+        setCategoryName(fetchedName);
+        return fetchedName;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching category details:", error);
+      return null;
     }
   };
 
@@ -165,10 +198,24 @@ const Category = () => {
   useEffect(() => {
     if (effectiveCategoryId || effectiveCityId) {
       fetchVendors();
-    } else {
-      setVendor([]);
     }
   }, [effectiveCategoryId, effectiveCityId, token]);
+
+  // CRITICAL FIX: Simplified useEffect for category name fetching
+  useEffect(() => {
+    // Only fetch category details if we have categoryId from URL and no category from state
+    if (categoryIdFromUrl && !categoryFromState) {
+      console.log(
+        "Fetching category details for URL param:",
+        categoryIdFromUrl
+      );
+      fetchCategoryDetails(categoryIdFromUrl);
+    } else if (categoryFromState) {
+      // If we have category from state, use its name
+      console.log("Using category name from state:", categoryFromState.name);
+      setCategoryName(categoryFromState.name);
+    }
+  }, [categoryIdFromUrl, categoryFromState]);
 
   // Get city name for display
   const selectedCityName = effectiveCityId
@@ -194,6 +241,71 @@ const Category = () => {
     { label: "Home", to: "/" },
     { label: getPageTitle(), to: "#" },
   ];
+
+  // CRITICAL FIX: Improved sorting function
+  const handleSortChange = (e) => {
+    const value = e.target.value;
+    console.log("Sorting by:", value);
+
+    let sorted = [...filteredVendors];
+
+    const getMinPrice = (range) => {
+      if (!range) return 0;
+      const parts = range
+        .split("-")
+        .map((p) => parseInt(p.replace(/[^0-9]/g, "")));
+      return isNaN(parts[0]) ? 0 : parts[0];
+    };
+
+    const getMaxPrice = (range) => {
+      if (!range) return 0;
+      const parts = range
+        .split("-")
+        .map((p) => parseInt(p.replace(/[^0-9]/g, "")));
+      return isNaN(parts[1]) ? parts[0] : parts[1];
+    };
+
+    if (value === "low") {
+      sorted.sort(
+        (a, b) => getMinPrice(a.price_range) - getMinPrice(b.price_range)
+      );
+    } else if (value === "high") {
+      sorted.sort(
+        (a, b) => getMaxPrice(b.price_range) - getMaxPrice(a.price_range)
+      );
+    } else if (value === "new") {
+      sorted.sort((a, b) => {
+        // Try multiple date field possibilities
+        const dateA = new Date(
+          a.created_at || a.createdAt || a.date_created || a.dateCreated || 0
+        );
+        const dateB = new Date(
+          b.created_at || b.createdAt || b.date_created || b.dateCreated || 0
+        );
+        console.log("Sorting dates:", { dateA, dateB });
+        return dateB - dateA; // Newest first
+      });
+    } else if (value === "popular") {
+      // Reset to original order from vendor state
+      sorted = [...vendor].filter((v) => {
+        if (!searchQuery.trim()) return true;
+
+        const ownerMatch = v.owner_name
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase());
+
+        const cityMatch = city
+          .find((c) => c.type === "city" && c.id === v.city_id)
+          ?.name?.toLowerCase()
+          .includes(searchQuery.toLowerCase());
+
+        return ownerMatch || cityMatch;
+      });
+    }
+
+    console.log("Sorted vendors:", sorted.length);
+    setFilteredVendors(sorted);
+  };
 
   return (
     <div>
@@ -257,53 +369,7 @@ const Category = () => {
                   </div>
 
                   <div className="sorting-dropdown">
-                    <select
-                      className="form-select"
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        let sorted = [...vendor];
-
-                        const getMinPrice = (range) => {
-                          if (!range) return 0;
-                          const parts = range
-                            .split("-")
-                            .map((p) => parseInt(p));
-                          return isNaN(parts[0]) ? 0 : parts[0];
-                        };
-
-                        const getMaxPrice = (range) => {
-                          if (!range) return 0;
-                          const parts = range
-                            .split("-")
-                            .map((p) => parseInt(p));
-                          return isNaN(parts[1]) ? 0 : parts[1];
-                        };
-
-                        if (value === "low") {
-                          sorted.sort(
-                            (a, b) =>
-                              getMinPrice(a.price_range) -
-                              getMinPrice(b.price_range)
-                          );
-                        } else if (value === "high") {
-                          sorted.sort(
-                            (a, b) =>
-                              getMaxPrice(b.price_range) -
-                              getMaxPrice(a.price_range)
-                          );
-                        } else if (value === "new") {
-                          sorted.sort(
-                            (a, b) =>
-                              new Date(b.created_at || 0) -
-                              new Date(a.created_at || 0)
-                          );
-                        } else if (value === "popular") {
-                          sorted = [...vendor];
-                        }
-
-                        setVendor(sorted);
-                      }}
-                    >
+                    <select className="form-select" onChange={handleSortChange}>
                       <option value="popular">Sort by Popular</option>
                       <option value="low">Price low to high</option>
                       <option value="high">Price high to low</option>
@@ -378,7 +444,7 @@ const Category = () => {
                               <div className="cart-footer d-flex flex-wrap justify-content-between">
                                 <div className="d-flex gap-6 align-items-center">
                                   <p className="pera">
-                                    ${item.price_range || "Contact for price"}
+                                    ₹{item.price_range || "Contact for price"}
                                   </p>
                                   <p className="sub-pera text-12 text-capitalize">
                                     /person
@@ -407,23 +473,6 @@ const Category = () => {
                             ? "No vendors found for the selected criteria"
                             : "Please select a category or city to view vendors"}
                         </h5>
-                        {/* <p className="text-muted">
-                          {effectiveCategoryId &&
-                            `Category: ${displayCategory.name}`}
-                          {effectiveCategoryId && effectiveCityId && " | "}
-                          {effectiveCityId &&
-                            `City: ${selectedCityName || "Selected City"}`}
-                        </p>
-                        <div className="mt-3">
-                          <p className="small text-info">
-                            Debug Info: CategoryID:{" "}
-                            {effectiveCategoryId || "None"}, CityID:{" "}
-                            {effectiveCityId || "None"}
-                          </p>
-                          <p className="small text-warning">
-                            Check console for API call details
-                          </p>
-                        </div> */}
                       </div>
                     )}
                   </div>

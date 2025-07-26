@@ -172,6 +172,9 @@ export async function SubmitProfileUpdateRequest(data) {
   }
 }
 
+
+
+
 export async function GetAllVendorLeads(token, id) {
   try {
     const response = await axios.get(
@@ -309,6 +312,33 @@ export const subscribeToPackage = async (payload, token) => {
     throw err;
   }
 };
+
+export const getVendorPackageHistory = async (token, vendorId, page = 1, limit = 10) => {
+  try {
+    const response = await fetch(
+      `http://localhost:8888/vendor/package-history?vendor_id=${vendorId}&page=${page}&limit=${limit}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch vendor package history");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching vendor package history:", error);
+    throw error;
+  }
+};
+
+
 
 // GET ALL package VENDOR
 

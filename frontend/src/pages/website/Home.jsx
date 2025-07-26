@@ -10,7 +10,7 @@ import { GetCategories } from "../../Services/webService/Web";
 const Home = () => {
   const [statecity, setStateCity] = useState([]);
   const [categories, setCategories] = useState([]);
- 
+
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -654,7 +654,7 @@ const Home = () => {
             <div className="col-xl-4 col-lg-4 col-sm-6">
               <article className="news-card-two">
                 <figure className="news-banner-two imgEffect">
-                  <Link to="news-details.html">
+                  <Link to="/blog">
                     <img
                       src="../assets/images//news/image-1.png"
                       alt="travello"
@@ -672,7 +672,7 @@ const Home = () => {
                     </div>
                   </div>
                   <h4 className="title mb-2">
-                    <Link to="news-details.html">Wedding arrangements</Link>
+                    <Link to="/blog">Wedding arrangements</Link>
                   </h4>
 
                   <div className="news-description">
@@ -682,10 +682,7 @@ const Home = () => {
                     </p>
                   </div>
                   <div className="">
-                    <Link
-                      to=""
-                      className=" btn-primary-sm btn-primary"
-                    >
+                    <Link to="/blog" className=" btn-primary-sm btn-primary">
                       Read More
                     </Link>
                   </div>
@@ -695,7 +692,7 @@ const Home = () => {
             <div className="col-xl-4 col-lg-4 col-sm-6">
               <article className="news-card-two">
                 <figure className="news-banner-two imgEffect">
-                  <Link to="news-details.html">
+                  <Link to="/blog">
                     <img
                       src="../assets/images//news/image-2.png"
                       alt="travello"
@@ -713,7 +710,7 @@ const Home = () => {
                     </div>
                   </div>
                   <h4 className="title mb-2">
-                    <Link to="news-details.html">Wedding arrangements</Link>
+                    <Link to="/blog">Wedding arrangements</Link>
                   </h4>
 
                   <div className="news-description">
@@ -723,10 +720,7 @@ const Home = () => {
                     </p>
                   </div>
                   <div className="">
-                    <Link
-                      to=""
-                      className=" btn-primary-sm btn-primary"
-                    >
+                    <Link to="/blog" className=" btn-primary-sm btn-primary">
                       Read More
                     </Link>
                   </div>
@@ -736,7 +730,7 @@ const Home = () => {
             <div className="col-xl-4 col-lg-4 col-sm-6">
               <article className="news-card-two">
                 <figure className="news-banner-two imgEffect">
-                  <Link to="news-details.html">
+                  <Link to="/blog">
                     <img
                       src="../assets/images//news/image-3.png"
                       alt="travello"
@@ -754,7 +748,7 @@ const Home = () => {
                     </div>
                   </div>
                   <h4 className="title mb-2">
-                    <Link to="news-details.html">Wedding arrangements</Link>
+                    <Link to="/blog">Wedding arrangements</Link>
                   </h4>
 
                   <div className="news-description">
@@ -764,10 +758,7 @@ const Home = () => {
                     </p>
                   </div>
                   <div className="">
-                    <Link
-                      to=""
-                      className=" btn-primary-sm btn-primary"
-                    >
+                    <Link to="/blog" className=" btn-primary-sm btn-primary">
                       Read More
                     </Link>
                   </div>

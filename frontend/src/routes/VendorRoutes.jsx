@@ -17,6 +17,7 @@ import AllLeads from "../pages/vendor/vendorleads/AllLeads";
 
 import VendorPackages from "../pages/vendor/packages/AvailablePackages"
 import Viewallnotification from "../components/admincomponents/Viewallnotification"
+import MyPackages from "../pages/vendor/packages/MyPackages";
 
 
 
@@ -37,6 +38,9 @@ const AdminRoutes = (
     <Route path="allpackages" element={<VendorPackages/>}/>
     {/* <Route path="clients" element={<Clients />} /> */}
     <Route path="Viewallnotification" element={<Viewallnotification/>}/>
+  <Route path="mypackages" element={<MyPackages/>}/> 
+
+
   </Route>
 );
 

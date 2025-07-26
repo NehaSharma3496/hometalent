@@ -6,7 +6,7 @@ import * as XLSX from "xlsx";
 
 export default function AllLeads() {
   const [leads, setAllLeads] = useState([]);
-  const [searchText, setSearchText] = useState(""); 
+  const [searchText, setSearchText] = useState("");
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
@@ -63,6 +63,11 @@ export default function AllLeads() {
     {
       name: "Client Query",
       selector: (row) => row.query,
+      sortable: true,
+    },
+    {
+      name: "Date",
+      selector: (row) => new Date(row.createdAt).toLocaleDateString(),
       sortable: true,
     },
   ];

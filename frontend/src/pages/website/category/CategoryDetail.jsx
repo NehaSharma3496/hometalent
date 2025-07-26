@@ -130,6 +130,39 @@ const CategoryDetail = () => {
   // Show only first 3 items or all if toggled
   const visibleItems = showAll ? galleryImages : galleryImages.slice(0, 4);
 
+  const socialLinks = [
+    {
+      key: "facebook_link",
+      icon: "fab fa-facebook-f",
+      color: "#1877f2",
+    },
+    {
+      key: "instagram_link",
+      icon: "fab fa-instagram",
+      color: "#e4405f",
+    },
+    {
+      key: "twitter_link",
+      icon: "fab fa-twitter",
+      color: "#1da1f2",
+    },
+    {
+      key: "linkedin_link",
+      icon: "fab fa-linkedin-in",
+      color: "#0077b5",
+    },
+    {
+      key: "youtube_link",
+      icon: "fab fa-youtube",
+      color: "#ff0000",
+    },
+  ];
+
+  // Get links that are actually available from the vendor
+  const availableLinks = socialLinks.filter(
+    (item) => vendors?.[item.key] && vendors[item.key].trim() !== ""
+  );
+
   return (
     <div>
       <Breadcrumbs title={vendors?.category_names} links={breadcrumbLinks} />
@@ -210,25 +243,28 @@ const CategoryDetail = () => {
 
                     {/* One line description */}
                     <div class="tour-details-content mt-15">
-                      <p class="pera ">{vendor?.short_description}</p>
+                      <p class="pera ">{vendors?.short_description}</p>
                     </div>
 
                     {/* price range */}
                     <div className="price-review ">
                       <div className="d-flex  align-items-end">
                         <h3 className="title">Estimated Price Range -</h3>
-                        <h3 className="title">${vendors?.price_range}</h3>
+                        <h3 className="title">₹{vendors?.price_range}</h3>
                       </div>
                       <div className="rating">
                         <p className="pera">Experience Since -</p>
-                        <p className="pera">{vendor?.experience_since}2019</p>
+                        <p className="pera">{vendors?.experience_since}</p>
                       </div>
                     </div>
 
                     {/* Large description */}
                     <div className="tour-details-content mt-10">
                       <h4 className="title">About</h4>
-                      <p className="pera">
+
+                      <p class="pera ">{vendors?.long_description}</p>
+
+                      {/* <p className="pera">
                         {vendor?.long_description}
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                         sed do eiusmod tempor incididunt ut labore et dolore
@@ -258,7 +294,7 @@ const CategoryDetail = () => {
                         voluptate velit esse quam nihil molestiae consequatur,
                         vel illum qui dolorem eum fugiat quo voluptas nulla
                         pariatur?"
-                      </p>
+                      </p> */}
                     </div>
 
                     {/* images and video  */}
@@ -338,73 +374,59 @@ const CategoryDetail = () => {
 
                     {/* social media icons  */}
 
-                    <div className="social-section mt-4">
-                      <div className="d-flex gap-3 flex-wrap">
-                        <a
-                          href="javascript:void(0)"
-                          className="d-flex align-items-center justify-content-center"
-                          style={{
-                            width: "45px",
-                            height: "45px",
-                            borderRadius: "50%",
-                            backgroundColor: "#f0f0f0",
-                            color: "#333",
-                            fontSize: "20px",
-                            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                            transition: "all 0.3s",
-                          }}
-                        >
-                          <i className="ri-facebook-fill"></i>
-                        </a>
-                        <a
-                          href="javascript:void(0)"
-                          className="d-flex align-items-center justify-content-center"
-                          style={{
-                            width: "45px",
-                            height: "45px",
-                            borderRadius: "50%",
-                            backgroundColor: "#f0f0f0",
-                            color: "#333",
-                            fontSize: "20px",
-                            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                            transition: "all 0.3s",
-                          }}
-                        >
-                          <i className="ri-twitter-fill"></i>
-                        </a>
-                        <a
-                          href="javascript:void(0)"
-                          className="d-flex align-items-center justify-content-center"
-                          style={{
-                            width: "45px",
-                            height: "45px",
-                            borderRadius: "50%",
-                            backgroundColor: "#f0f0f0",
-                            color: "#333",
-                            fontSize: "20px",
-                            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                            transition: "all 0.3s",
-                          }}
-                        >
-                          <i className="ri-linkedin-fill"></i>
-                        </a>
-                        <a
-                          href="javascript:void(0)"
-                          className="d-flex align-items-center justify-content-center"
-                          style={{
-                            width: "45px",
-                            height: "45px",
-                            borderRadius: "50%",
-                            backgroundColor: "#f0f0f0",
-                            color: "#333",
-                            fontSize: "20px",
-                            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                            transition: "all 0.3s",
-                          }}
-                        >
-                          <i className="ri-instagram-line"></i>
-                        </a>
+                    <div className="tour-details-content mt-10">
+                      <h4 className="title ">
+                        Social Media & Links
+                      </h4>
+
+                      <div className="d-flex flex-wrap">
+                        {socialLinks.map(({ key, icon, color }) => {
+                          const link = vendors?.[key];
+                          if (!link) return null;
+
+                          const fullUrl = link.startsWith("http")
+                            ? link
+                            : `https://${link}`;
+
+                          return (
+                            <div key={key} className="me-3 mb-2">
+                              <a
+                                href={fullUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="btn btn-outline-secondary w-100 rounded-3 p-3 text-decoration-none d-flex align-items-center gap-3 hover-lift"
+                                style={{
+                                  borderColor: color + "30",
+                                  transition: "all 0.3s ease",
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                    color + "10";
+                                  e.currentTarget.style.borderColor = color;
+                                  e.currentTarget.style.color = color;
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor = "";
+                                  e.currentTarget.style.borderColor =
+                                    color + "30";
+                                  e.currentTarget.style.color = "";
+                                }}
+                              >
+                                <i className={icon} style={{ color }}></i>
+                              </a>
+                            </div>
+                          );
+                        })}
                       </div>
+
+                      {socialLinks.every(({ key }) => !vendors?.[key]) && (
+                        <div className="text-center py-4">
+                          <i className="fas fa-link text-muted mb-2 fs-4"></i>
+                          <p className="text-muted mb-0">
+                            No social links added yet
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                   {/* Right content */}

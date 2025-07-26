@@ -353,6 +353,87 @@ exports.processGalleryRequest = async (req, res) => {
 };
 
 // Get user complete profile with gallery
+// exports.getUserCompleteProfile = async (req, res) => {
+//   try {
+//     const { user_id } = req.params;
+    
+//     if (!user_id) {
+//       return res.status(400).json({ 
+//         status: false, 
+//         msg: 'user_id is required' 
+//       });
+//     }
+
+//     const user = await User.findByPk(user_id, {
+//       include: [
+//         {
+//           model: Gallery,
+//           as: 'gallery',
+//           where: { status: 'approved' },
+//           required: false,
+//           order: [['sort_order', 'ASC'], ['createdAt', 'DESC']]
+//         }
+//       ]
+//     });
+
+//     if (!user) {
+//       return res.status(404).json({ 
+//         status: false, 
+//         msg: 'User not found' 
+//       });
+//     }
+
+//     // Fetch package subscriptions
+//     const now = new Date();
+//     const subscriptions = await VendorPackageSubscription.findAll({
+//       where: { vendor_id: user_id, payment_status: 'completed' },
+//       include: [
+//         {
+//           model: Package,
+//           as: 'Package', // Use the alias as defined in the association
+//           required: true
+//         }
+//       ],
+//       order: [['end_date', 'DESC']]
+//     });
+
+//     // Separate running and expired packages
+//     const running_packages = [];
+//     const expired_packages = [];
+//     subscriptions.forEach(sub => {
+//       if (sub.start_date <= now && sub.end_date >= now) {
+//         running_packages.push({
+//           id: sub.id,
+//           start_date: sub.start_date,
+//           end_date: sub.end_date,
+//           payment_status: sub.payment_status,
+//           package: sub.Package
+//         });
+//       } else if (sub.end_date < now) {
+//         expired_packages.push({
+//           id: sub.id,
+//           start_date: sub.start_date,
+//           end_date: sub.end_date,
+//           payment_status: sub.payment_status,
+//           package: sub.Package
+//         });
+//       }
+//     });
+
+//     res.json({ 
+//       status: true, 
+//       data: {
+//         user,
+//         running_packages,
+//         expired_packages
+//       }
+//     });
+
+//   } catch (error) {
+//     res.json({ status: false, msg: error.message });
+//   }
+// }; 
+
 exports.getUserCompleteProfile = async (req, res) => {
   try {
     const { user_id } = req.params;
@@ -383,25 +464,29 @@ exports.getUserCompleteProfile = async (req, res) => {
       });
     }
 
-    // Fetch package subscriptions
     const now = new Date();
     const subscriptions = await VendorPackageSubscription.findAll({
       where: { vendor_id: user_id, payment_status: 'completed' },
       include: [
         {
           model: Package,
-          as: 'Package', // Use the alias as defined in the association
+          as: 'Package',
           required: true
         }
       ],
       order: [['end_date', 'DESC']]
     });
 
-    // Separate running and expired packages
     const running_packages = [];
     const expired_packages = [];
+    let subscribed_package = null;
+
     subscriptions.forEach(sub => {
-      if (sub.start_date <= now && sub.end_date >= now) {
+      const isRunning = sub.start_date <= now && sub.end_date >= now;
+      const isExpired = sub.end_date < now;
+      const isUpcoming = sub.start_date > now;
+
+      if (isRunning) {
         running_packages.push({
           id: sub.id,
           start_date: sub.start_date,
@@ -409,7 +494,17 @@ exports.getUserCompleteProfile = async (req, res) => {
           payment_status: sub.payment_status,
           package: sub.Package
         });
-      } else if (sub.end_date < now) {
+
+        if (!subscribed_package) {
+          subscribed_package = {
+            id: sub.id,
+            start_date: sub.start_date,
+            end_date: sub.end_date,
+            payment_status: sub.payment_status,
+            package: sub.Package
+          };
+        }
+      } else if (isExpired) {
         expired_packages.push({
           id: sub.id,
           start_date: sub.start_date,
@@ -420,16 +515,31 @@ exports.getUserCompleteProfile = async (req, res) => {
       }
     });
 
+    // If no running package, get the next upcoming one for `subscribed_package`
+    if (!subscribed_package) {
+      const futureSub = subscriptions.find(sub => sub.start_date > now);
+      if (futureSub) {
+        subscribed_package = {
+          id: futureSub.id,
+          start_date: futureSub.start_date,
+          end_date: futureSub.end_date,
+          payment_status: futureSub.payment_status,
+          package: futureSub.Package
+        };
+      }
+    }
+
     res.json({ 
       status: true, 
       data: {
         user,
-        running_packages,
-        expired_packages
+        subscribed_package,     // current running or next
+        running_packages,       // only currently running
+        expired_packages        // only expired
       }
     });
 
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
-}; 
+};

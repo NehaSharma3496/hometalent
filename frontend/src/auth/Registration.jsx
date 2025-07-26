@@ -15,7 +15,7 @@ const Registration = () => {
   const [statesData, setStatesData] = useState([]);
   const [cityData, setCityData] = useState([]);
   const [selectedStateId, setSelectedStateId] = useState("");
-  const token = localStorage.getItem("token"); // or wherever you're storing it
+  const token = localStorage.getItem("token"); 
 
   const initialValues = {
     ownerName: "",
@@ -30,9 +30,13 @@ const Registration = () => {
     category: [],
     experience: "",
     longDesc: "",
-    images: [],
-    // videos: [],
-    // socialLinks: "",
+    facebook_link: "",
+    instagram_link: "",
+    twitter_link: "",
+    linkedin_link: "",
+    youtube_link: "",
+    website_link: "",
+    image: null,
     terms: false,
   };
 
@@ -67,7 +71,6 @@ const Registration = () => {
       type: "select",
       options: statesData,
       onChange: (e) => setSelectedStateId(e.target.value),
-
       colClass: "col-md-4 mb-3",
     },
     {
@@ -99,10 +102,16 @@ const Registration = () => {
       options: categoryData,
     },
     {
+      name: "experience",
+      label: "Experience Since",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    {
       name: "shortDesc",
       label: "One Line Description",
       type: "text",
-      colClass: "col-md-12 mb-3",
+      colClass: "col-12 mb-3",
     },
     {
       name: "longDesc",
@@ -111,27 +120,45 @@ const Registration = () => {
       colClass: "col-12 mb-3",
     },
     {
-      name: "images",
-      label: "Images (Max 30)",
-      type: "file",
+      name: "facebook_link",
+      label: "Facebook Link",
+      type: "text",
       colClass: "col-md-6 mb-3",
     },
-    // {
-    //   name: "videos",
-    //   label: "Videos (Max 3)",
-    //   type: "file",
-    //   colClass: "col-md-6 mb-3",
-    // },
-    // {
-    //   name: "socialLinks",
-    //   label: "Social Media Links",
-    //   type: "text",
-    //   colClass: "col-md-6 mb-3",
-    // },
     {
-      name: "experience",
-      label: "Experience Since",
+      name: "instagram_link",
+      label: "Instagram Link",
       type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "twitter_link",
+      label: "Twitter Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "linkedin_link",
+      label: "LinkedIn Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "youtube_link",
+      label: "YouTube Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "website_link",
+      label: "Website Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "image",
+      label: "Image",
+      type: "file",
       colClass: "col-md-6 mb-3",
     },
     {
@@ -184,99 +211,100 @@ const Registration = () => {
   //   }
   // };
 
-const onSubmit = async (values) => {
-  try {
-    const formData = new FormData();
+  const onSubmit = async (values) => {
+    try {
+      const formData = new FormData();
 
-    formData.append("owner_name", values.ownerName);
-    formData.append("profile_name", values.profileName);
-    formData.append("state_id", values.state);
-    formData.append("city_id", values.city);
-    formData.append("pin_code", values.pin);
-    formData.append("phone", values.phone);
-    formData.append("email", values.email);
-    formData.append("price_range", values.priceRange);
-    formData.append("short_description", values.shortDesc);
-    formData.append("category_id", values.category.join(","));
-    formData.append("experience_since", values.experience);
-    formData.append("long_description", values.longDesc);
-    // formData.append("social_media_link", values.socialLinks || "");
-    formData.append("role_id", 2);
-    formData.append("password", values.password);
-    formData.append("show_password", values.password);
+      formData.append("owner_name", values.ownerName);
+      formData.append("profile_name", values.profileName);
+      formData.append("state_id", values.state);
+      formData.append("city_id", values.city);
+      formData.append("pin_code", values.pin);
+      formData.append("phone", values.phone);
+      formData.append("email", values.email);
+      formData.append("price_range", values.priceRange);
+      formData.append("short_description", values.shortDesc);
+      formData.append("category_id", values.category.join(","));
+      formData.append("experience_since", values.experience);
+      formData.append("long_description", values.longDesc);
+      // formData.append("social_media_link", values.socialLinks || "");
+      formData.append("role_id", 2);
+      formData.append("password", values.password);
+      formData.append("show_password", values.password);
 
-    // Append all selected images (multiple file support)
-    for (let i = 0; i < values.images.length; i++) {
-      formData.append("image", values.images[i]);
+      formData.append("facebook_link", values.facebook_link || "");
+      formData.append("instagram_link", values.instagram_link || "");
+      formData.append("twitter_link", values.twitter_link || "");
+      formData.append("linkedin_link", values.linkedin_link || "");
+      formData.append("youtube_link", values.youtube_link || "");
+      formData.append("website_link", values.website_link || "");
+
+      if (values.image && values.image.length > 0) {
+        formData.append("image", values.image[0]);
+      }
+
+      const res = await VendorRegister(formData); // <-- must handle FormData in this function
+
+      if (res?.data?.status) {
+        Swal.fire("Success", res?.data?.msg || "User registered!", "success");
+      } else {
+        Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+      }
+    } catch (err) {
+      console.error("API ERROR:", err);
+      Swal.fire(
+        "Error",
+        err?.response?.data?.msg || err.message || "Something went wrong",
+        "error"
+      );
     }
+  };
 
-    const res = await VendorRegister(formData); // <-- must handle FormData in this function
-
-    if (res?.data?.status) {
-      Swal.fire("Success", res?.data?.msg || "User registered!", "success");
-    } else {
-      Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+  const fetchCategories = async () => {
+    try {
+      const res = await GetCategories();
+      const catformatted = res.data.map((cat) => ({
+        value: cat.id.toString(),
+        label: cat.name,
+      }));
+      setCategoryData(catformatted);
+    } catch (error) {
+      console.log("error", error);
     }
-  } catch (err) {
-    console.error("API ERROR:", err);
-    Swal.fire(
-      "Error",
-      err?.response?.data?.msg || err.message || "Something went wrong",
-      "error"
-    );
-  }
-};
+  };
 
+  const fetchStates = async () => {
+    try {
+      const res = await GetStates();
+      // console.log("State", res.data);
+      const stateformatted = res.data.map((cat) => ({
+        value: cat.id.toString(),
+        label: cat.name,
+      }));
+      setStatesData(stateformatted);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
 
- const fetchCategories = async () => {
-      try {
-        const res = await GetCategories();
-        const catformatted = res.data.map((cat) => ({
-          value: cat.id.toString(),
-          label: cat.name,
-        }));
-        setCategoryData(catformatted);
-      } catch (error) {
-        console.log("error", error);
-      }
-    };
+  const fetchCities = async () => {
+    if (!selectedStateId) return; // Skip if no state selected
 
-   
-
-    const fetchStates = async () => {
-      try {
-        const res = await GetStates();
-        // console.log("State", res.data);
-        const stateformatted = res.data.map((cat) => ({
-          value: cat.id.toString(),
-          label: cat.name,
-        }));
-        setStatesData(stateformatted);
-      } catch (error) {
-        console.log("error", error);
-      }
-    };
-
-      const fetchCities = async () => {
-      if (!selectedStateId) return; // Skip if no state selected
-
-      try {
-        const res = await GetCities(token, selectedStateId);
-        // console.log("City", res.data);
-        const formatted = res.data.map((city) => ({
-          value: city.id.toString(),
-          label: city.name,
-        }));
-        setCityData(formatted);
-      } catch (error) {
-        console.log("Error fetching cities:", error);
-      }
-    };
-
+    try {
+      const res = await GetCities(token, selectedStateId);
+      // console.log("City", res.data);
+      const formatted = res.data.map((city) => ({
+        value: city.id.toString(),
+        label: city.name,
+      }));
+      setCityData(formatted);
+    } catch (error) {
+      console.log("Error fetching cities:", error);
+    }
+  };
 
   useEffect(() => {
-  
-fetchCategories();
+    fetchCategories();
     fetchStates();
     fetchCities();
   }, [selectedStateId]);
