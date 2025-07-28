@@ -26,7 +26,7 @@ export const MenuItems = {
         { label: "Active Vendor", link: "/admin/vendor/activevendors" },
         { label: "Approve Vendores", link: "/admin/vendor/approvevendors" },
         { label: "Sponsored Vendors", link: "/admin/vendor/sponsoredvendors" },
-        { label: "Blocked Vendors", link: "/admin/vendor/blockedvendors" },
+        { label: "Inactive Vendors", link: "/admin/vendor/blockedvendors" },
         { label: "Pending Vendors", link: "/admin/vendor/pendingvendors" },
         // { label: "Shuffle Vendor Order", link: "/admin/vendor/shuffle-order" },
         // { label: "Leads & Inquiries", link: "/admin/vendor/leads" },

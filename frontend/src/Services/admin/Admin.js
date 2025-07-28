@@ -463,3 +463,44 @@ export async function GetDashboardCounts(token) {
     return err;
   }
 }
+
+
+export async function ExtendPackage(token, updateData) {
+  try {
+    const response = await axios.post(
+      `${Config.base_url}admin/package/extend-vendor`,
+      updateData,
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error extend package:", error);
+    return error;
+  }
+}
+
+export async function UpdatePackageStatus(token, data) {
+  try {
+    const response = await axios.post(
+      `${Config.base_url}admin/package/update-status`,
+      data,
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error update package:", error);
+    return error;
+  }
+}

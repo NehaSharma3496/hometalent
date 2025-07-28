@@ -70,7 +70,7 @@ export default function AllEnquiries() {
       // grow: 2,
     },
     {
-      name: "Created At",
+      name: "Date",
       selector: (row) => {
         if (!row?.createdAt) return "-";
         const d = new Date(row.createdAt);

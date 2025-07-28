@@ -25,6 +25,8 @@ import UpdatePackages from "../pages/admin/review/updatePackages"
 
 import AllEnquiries from "../pages/admin/enquiries&leads/AllEnquiries"
 import UploadGallery from "../pages/admin/adminGallery/UploadGallery";
+import UpdateVendor from "../pages/admin/vendor/UpdateVendor";
+import VendorPackageDetails from "../pages/admin/vendor/VendorPackageDetails";
 
 
 const AdminRoutes = (
@@ -40,7 +42,7 @@ const AdminRoutes = (
     <Route path="users/feedback" element={<FeedbackandReview />} />
     <Route path="vendor/approvevendors" element={<ApprovedVendors />} />
     <Route path="profileupdaterequest" element={<ProfileUpdateRequest />} />
-    <Route path="vendor/:id" element={<VendorDetails />} />
+    <Route path="vendordetails" element={<VendorDetails />} />
     <Route path="vendor/pendingvendors" element={<PendingVendor />} />
     <Route path="vendor/activevendors" element={<ActiveVendor />} />
     <Route path="vendor/addvendors" element={<AddVendor />} />
@@ -53,6 +55,8 @@ const AdminRoutes = (
     <Route path="updatePackages/:packageId" element={<UpdatePackages/>}/>
     {/* <Route path="clients" element={<Clients />} /> */}
     <Route path="enquiries/AllEnquiries" element={<AllEnquiries/>}/>
+    <Route path="vendor/updatevendor" element={<UpdateVendor/>}/>
+    <Route path="vendor/vendorpackagedetails" element={<VendorPackageDetails/>}/>
   </Route>
 );
 

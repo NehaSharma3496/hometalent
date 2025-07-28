@@ -143,7 +143,7 @@ export default function BlockedVendors() {
             <Link to="/admin/dashboard">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
-            <h2 className="add-page-heading">Blocked Vendors</h2>
+            <h2 className="add-page-heading">Inactive Vendors</h2>
           </div>
         </div>
        <div className="col-md-6 text-end">

@@ -1,39 +1,25 @@
 import React, { useEffect, useState } from "react";
-import ReusableForm from "../../extracomponents/ReusableForm";
+import ReusableForm from "../../../extracomponents/ReusableForm";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
+import { useLocation, Link } from "react-router-dom";
 import {
-  GetCategories,
+  SubmitProfileUpdateRequest,
   GetCities,
   GetStates,
-  SubmitProfileUpdateRequest,
+  GetCategories,
   GetVendorDetails,
-} from "../../Services/vendor/Vendor";
-import { Link } from "react-router-dom";
+} from "../../../Services/vendor/Vendor";
 
-export default function UpdateProfile() {
+export default function UpdateVendor() {
   const [categoryData, setCategoryData] = useState([]);
   const [statesData, setStatesData] = useState([]);
   const [cityData, setCityData] = useState([]);
   const [selectedStateId, setSelectedStateId] = useState("");
   const [initialValues, setInitialValues] = useState(null);
-
   const token = localStorage.getItem("token");
-  const vendorId = localStorage.getItem("userId");
-
-  const validationSchema = Yup.object({
-    owner_name: Yup.string().required("Owner name is required"),
-    phone: Yup.string().required("Phone is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    state_id: Yup.string().required("State is required"),
-    city_id: Yup.string().required("City is required"),
-    pin_code: Yup.string().required("Pin Code is required"),
-    price_range: Yup.string().required("Price range is required"),
-    short_description: Yup.string().required("Short description is required"),
-    category_id: Yup.array().min(1, "Select at least one category"),
-    experience_since: Yup.string().required("Experience is required"),
-    long_description: Yup.string().required("Long description is required"),
-  });
+  const location = useLocation();
+  const vendorId = location.state?.vendorId;
 
   const fields = [
     {
@@ -148,7 +134,7 @@ export default function UpdateProfile() {
       for (const key in values) {
         if (key === "category_id") {
           formData.append(key, values[key].join(","));
-        } else if (key === "image" && values[key]) {
+        } else if (key === "image" && values[key] && values[key].length > 0) {
           formData.append("image", values[key][0]);
         } else {
           formData.append(key, values[key]);
@@ -214,7 +200,7 @@ export default function UpdateProfile() {
           linkedin_link: vendor.linkedin_link || "",
           youtube_link: vendor.youtube_link || "",
           website_link: vendor.website_link || "",
-          image: null,
+          image: [],
         });
       } catch (err) {
         console.log("Init fetch error", err);
@@ -258,7 +244,6 @@ export default function UpdateProfile() {
           <div className="col-md-12">
             <ReusableForm
               initialValues={initialValues}
-              validationSchema={validationSchema}
               onSubmit={onSubmit}
               fields={fields}
             />

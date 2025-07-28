@@ -30,7 +30,14 @@ export default function AddVendor() {
     category: [],
     experience: "",
     longDesc: "",
+    facebook_link: "",
+    instagram_link: "",
+    twitter_link: "",
+    linkedin_link: "",
+    youtube_link: "",
+    website_link: "",
     images: [],
+
     terms: false,
     // password: "",
   };
@@ -102,6 +109,12 @@ export default function AddVendor() {
       colClass: "col-md-4 mb-3",
     },
     {
+      name: "experience",
+      label: "Experience Since",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
       name: "shortDesc",
       label: "Short Description",
       type: "text",
@@ -114,8 +127,38 @@ export default function AddVendor() {
       colClass: "col-md-12 mb-3",
     },
     {
-      name: "experience",
-      label: "Experience Since",
+      name: "facebook_link",
+      label: "Facebook Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "instagram_link",
+      label: "Instagram Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "twitter_link",
+      label: "Twitter Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "linkedin_link",
+      label: "LinkedIn Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "youtube_link",
+      label: "YouTube Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "website_link",
+      label: "Website Link",
       type: "text",
       colClass: "col-md-6 mb-3",
     },
@@ -151,10 +194,16 @@ export default function AddVendor() {
       formData.append("email", values.email);
       formData.append("price_range", values.priceRange);
       formData.append("short_description", values.shortDesc);
-      formData.append("category_id", values.category.join(","));
       formData.append("experience_since", values.experience);
+      formData.append("category_id", values.category.join(","));
       formData.append("long_description", values.longDesc);
       formData.append("role_id", 2);
+      formData.append("facebook_link", values.facebook_link || "");
+      formData.append("instagram_link", values.instagram_link || "");
+      formData.append("twitter_link", values.twitter_link || "");
+      formData.append("linkedin_link", values.linkedin_link || "");
+      formData.append("youtube_link", values.youtube_link || "");
+      formData.append("website_link", values.website_link || "");
       // formData.append("password", values.password);
       // formData.append("show_password", values.password);
 

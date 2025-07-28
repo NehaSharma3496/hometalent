@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import axios from "axios";
+import { useLocation, Link, useNavigate } from "react-router-dom";
+import { GetVendorDetails } from "../../../Services/vendor/Vendor";
 
 export default function VendorDetails() {
-  const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [vendor, setVendor] = useState(null);
+  const token = localStorage.getItem("token");
+  const vendorId = location.state?.vendorId;
 
   const fetchVendor = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(
-        `http://localhost:8888/admin/user-profile/${id}`,
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
-      setVendor(res.data?.data);
+      const res = await GetVendorDetails(token, vendorId);
+      console.log("Vendor API Response:", res);
+
+      if (res?.data?.user) {
+        setVendor(res.data.user);
+      } else {
+        console.error("Invalid response structure", res);
+      }
     } catch (err) {
       console.error("Error fetching vendor:", err);
     }
@@ -25,7 +26,7 @@ export default function VendorDetails() {
 
   useEffect(() => {
     fetchVendor();
-  }, [id]);
+  }, [vendorId]);
 
   if (!vendor) {
     return (
@@ -55,9 +56,21 @@ export default function VendorDetails() {
   const profileFields = [
     { label: "Email", value: vendor.email, icon: "fas fa-envelope" },
     { label: "Phone", value: vendor.phone, icon: "fas fa-phone" },
-    { label: "Price Range", value: vendor.price_range, icon: "fas fa-dollar-sign" },
-    { label: "Experience Since", value: vendor.experience_since, icon: "fas fa-calendar-alt" },
-    { label: "Pin Code", value: vendor.pin_code, icon: "fas fa-map-marker-alt" },
+    {
+      label: "Price Range",
+      value: vendor.price_range,
+      icon: "fas fa-dollar-sign",
+    },
+    {
+      label: "Experience Since",
+      value: vendor.experience_since,
+      icon: "fas fa-calendar-alt",
+    },
+    {
+      label: "Pin Code",
+      value: vendor.pin_code,
+      icon: "fas fa-map-marker-alt",
+    },
     { label: "Category IDs", value: vendor.category_id, icon: "fas fa-tags" },
   ];
 
@@ -95,7 +108,9 @@ export default function VendorDetails() {
               <h3 className="mb-2 fw-bold">{vendor.owner_name}</h3>
               <div className="d-flex align-items-center gap-3 mb-2">
                 {vendor.profile_name && (
-                  <span className="badge bg-primary">{vendor.profile_name}</span>
+                  <span className="badge bg-primary">
+                    {vendor.profile_name}
+                  </span>
                 )}
                 {vendor.experience_since && (
                   <span>
@@ -106,6 +121,16 @@ export default function VendorDetails() {
               </div>
             </div>
           </div>
+            <div className="position-absolute top-0 end-0 p-3">
+              <Link
+                to="/admin/vendor/vendorpackagedetails"
+                className="btn btn-outline-primary btn-sm shadow-sm"
+                 state={{ vendorId: vendorId }}
+              >
+                <i className="fas fa-box-open me-1"></i>
+                Vendor Packages
+              </Link>
+            </div>
         </div>
 
         <div className="card-body p-4">
@@ -168,7 +193,9 @@ export default function VendorDetails() {
               {socialLinks.map(({ key, icon, color }) => {
                 const link = vendor[key];
                 if (!link) return null;
-                const fullUrl = link.startsWith("http") ? link : `https://${link}`;
+                const fullUrl = link.startsWith("http")
+                  ? link
+                  : `https://${link}`;
                 return (
                   <div key={key}>
                     <a

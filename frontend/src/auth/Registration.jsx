@@ -227,7 +227,6 @@ const Registration = () => {
       formData.append("category_id", values.category.join(","));
       formData.append("experience_since", values.experience);
       formData.append("long_description", values.longDesc);
-      // formData.append("social_media_link", values.socialLinks || "");
       formData.append("role_id", 2);
       formData.append("password", values.password);
       formData.append("show_password", values.password);

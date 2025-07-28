@@ -1,33 +1,50 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { showPackage, DeletePackage } from "../../../Services/admin/Admin";
 import Swal from "sweetalert2";
+import { showPackage, DeletePackage } from "../../../Services/admin/Admin";
+import Datatable from "../../../extracomponents/Datatable";
+import { UpdatePackageStatus } from "../../../Services/admin/Admin";
 
-const Packages = () => {
+export default function Packages() {
   const [packages, setPackages] = useState([]);
+  const [searchText, setSearchText] = useState("");
   const navigate = useNavigate();
-   const [searchText, setSearchText] = useState("");
 
   const fetchPackages = async () => {
     try {
       const res = await showPackage();
-      const packageData = res?.data || [];
-      setPackages(packageData);
+      setPackages(res?.data || []);
     } catch (error) {
       console.error("Error fetching packages:", error);
-      setPackages([]);
     }
   };
-
-const filteredPackages = packages.filter((Package) =>
-    Package.name?.toLowerCase().includes(searchText.toLowerCase())
-  );
 
   useEffect(() => {
     fetchPackages();
   }, []);
 
-  const handleDeletePlan = async (packageId) => {
+  const handleStatusToggle = async (pkg) => {
+    const token = localStorage.getItem("adminToken");
+    const newStatus = pkg.status === 1 ? 0 : 1;
+
+    try {
+      const res = await UpdatePackageStatus(token, {
+        package_id: pkg.id,
+        status: newStatus,
+      });
+
+      if (res?.status) {
+        Swal.fire("Success", res?.msg || "Status updated", "success");
+        fetchPackages();
+      } else {
+        Swal.fire("Error", res?.msg || "Failed to update status", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", "Server error", "error");
+    }
+  };
+
+  const handleDelete = async (packageId) => {
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -42,23 +59,110 @@ const filteredPackages = packages.filter((Package) =>
       try {
         const token = localStorage.getItem("adminToken");
         const response = await DeletePackage(packageId, token);
-
         if (response?.status) {
           Swal.fire("Deleted!", response.msg || "Package deleted.", "success");
           fetchPackages();
         } else {
           Swal.fire("Error!", "Something went wrong.", "error");
         }
-      } catch (error) {
-        console.error("Delete failed:", error);
-        Swal.fire("Error!", "Server error. Please try again.", "error");
+      } catch (err) {
+        Swal.fire("Error!", "Server error. Try again.", "error");
       }
     }
   };
 
-  const handleUpdateClick = (id) => {
-    navigate(`/admin/UpdatePackages/${id}`);
-  };
+  const filteredPackages = packages.filter((p) =>
+    p.name?.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const columns = [
+    {
+      name: "S.No",
+      selector: (row, index) => index + 1,
+      width: "70px",
+    },
+    {
+      name: "Name",
+      selector: (row) => row.name,
+      sortable: true,
+    },
+    {
+      name: "Description",
+      selector: (row) => row.description,
+      sortable: false,
+    },
+    {
+      name: "Price (₹)",
+      selector: (row) => `₹${row.price}`,
+      sortable: true,
+    },
+    {
+      name: "Validity (Months)",
+      selector: (row) => row.validity_in_months,
+      sortable: true,
+    },
+    {
+      name: "Features",
+      selector: (row) => row.features,
+      sortable: false,
+      wrap: true,
+    },
+{
+  name: "Status",
+  cell: (row) => (
+    <div className="form-check form-switch d-flex justify-content-center">
+      <input
+        className="form-check-input"
+        type="checkbox"
+        id={`statusSwitch-${row.id}`}
+        checked={row.status === 1}
+        onChange={() => handleStatusToggle(row)}
+        style={{
+          cursor: "pointer",
+          width: "3rem",
+          height: "1.5rem",
+        }}
+      />
+    </div>
+  ),
+  center: true,
+},
+
+
+
+    {
+      name: "Created At",
+      selector: (row) => new Date(row.createdAt).toLocaleDateString(),
+    },
+    {
+      name: "Updated At",
+      selector: (row) => new Date(row.updatedAt).toLocaleDateString(),
+    },
+    {
+      name: "Actions",
+      cell: (row) => (
+        <div className="d-flex gap-2">
+          <button
+            className="btn btn-sm btn-primary"
+            disabled={row.status !== 1}
+            onClick={() => navigate(`/admin/UpdatePackages/${row.id}`)}
+          >
+            <i className="fa fa-edit me-1" />
+            Update
+          </button>
+          <button
+            className="btn btn-sm btn-danger"
+            disabled={row.status !== 1}
+            onClick={() => handleDelete(row.id)}
+          >
+            <i className="fa fa-trash me-1" />
+            Delete
+          </button>
+        </div>
+      ),
+      width: "230px",
+    },
+  ];
 
   return (
     <div className="page-content">
@@ -71,126 +175,40 @@ const filteredPackages = packages.filter((Package) =>
             <h2 className="add-page-heading">All Packages</h2>
           </div>
         </div>
-      </div>
-      <div className="card">
-        <div
-          className="d-flex align-items-center border rounded px-2 "
-          style={{ maxWidth: "250px" }}
-        >
-          <i className="ri-search-line me-2 mx-5 text-muted" />
-          <input
-            type="text"
-            className="form-control border-0 shadow-none"
-            placeholder="Search by package name..."
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-          />
-          {searchText && (
-            <button
-              className="btn btn-sm btn-light border-0"
-              onClick={() => setSearchText("")}
-            >
-              <i className="ri-close-line" />
-            </button>
-          )}
+
+        <div className="col-md-6 text-end">
+          <Link to="/admin/addpackage" className="btn btn-primary">
+            + Add Package
+          </Link>
         </div>
-        <div className="row g-4 px-3 pb-4">
-          {filteredPackages.length === 0 ? (
-            <div className="text-center text-muted fs-5">No packages found</div>
-          ) : (
-            filteredPackages.map((plan, index) => {
-              const featureList = plan.features ? plan.features.split(",") : [];
-              const isPopular = plan.price >= 999;
-              const isActive = plan.status === 1;
+      </div>
 
-              return (
-                <div key={index} className="col-lg-4 col-md-6">
-                  <div
-                    className={`card shadow-sm border-0 h-100 position-relative ${
-                      isPopular ? "border border-primary" : ""
-                    }`}
-                  >
-                    {isPopular && (
-                      <div className="position-absolute top-0 end-0 m-2">
-                        <span className="badge bg-primary">Most Popular</span>
-                      </div>
-                    )}
+      <div className="card">
+        <div className="col-md-4 p-3">
+          <div className="d-flex align-items-center border rounded px-2">
+            <i className="ri-search-line me-2 text-muted" />
+            <input
+              type="text"
+              className="form-control border-0 shadow-none"
+              placeholder="Search by package name..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+            {searchText && (
+              <button
+                className="btn btn-sm btn-light border-0"
+                onClick={() => setSearchText("")}
+              >
+                <i className="ri-close-line" />
+              </button>
+            )}
+          </div>
+        </div>
 
-                    <div className="card-body d-flex flex-column">
-                      <h4 className="text-primary fw-bold fs-4">{plan.name}</h4>
-                      <p className="text-muted small mb-1">
-                        {plan.description}
-                      </p>
-
-                      <div className="mb-3">
-                        <h3 className="text-primary display-6 fw-bold mb-0">
-                          ₹{plan.price}
-                        </h3>
-                        <small className="text-muted">
-                          / {plan.validity_in_months} month(s)
-                        </small>
-                      </div>
-
-                      <ul className="list-unstyled mb-3 flex-grow-1">
-                        {featureList.map((feature, i) => (
-                          <li
-                            key={i}
-                            className="d-flex align-items-center mb-2"
-                          >
-                            <i className="fas fa-check text-success me-2"></i>
-                            <span className="small">{feature.trim()}</span>
-                          </li>
-                        ))}
-                      </ul>
-
-                      <div className="mb-2 small text-muted">
-                        <strong>Status:</strong>{" "}
-                        <span
-                          className={isActive ? "text-success" : "text-danger"}
-                        >
-                          {isActive ? "Active" : "Inactive"}
-                        </span>
-                      </div>
-                      <div className="small text-muted">
-                        <strong>Created:</strong>{" "}
-                        {new Date(plan.createdAt).toLocaleDateString()}
-                      </div>
-                      <div className="small text-muted mb-3">
-                        <strong>Updated:</strong>{" "}
-                        {new Date(plan.updatedAt).toLocaleDateString()}
-                      </div>
-
-                      <div className="d-flex">
-                        <button
-                          className={`btn btn-${
-                            isActive ? "primary" : "secondary"
-                          } w-100 fw-semibold mt-auto me-4`}
-                          onClick={() => handleUpdateClick(plan.id)}
-                          disabled={!isActive}
-                        >
-                          {isActive ? "Update" : "Unavailable"}
-                        </button>
-
-                        <button
-                          className={`btn btn-${
-                            isActive ? "danger" : "secondary"
-                          } w-100 fw-semibold mt-auto`}
-                          onClick={() => handleDeletePlan(plan.id)}
-                          disabled={!isActive}
-                        >
-                          {isActive ? "Delete" : "Unavailable"}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
+        <div className="col-md-12">
+          <Datatable columns={columns} data={filteredPackages} pagination />
         </div>
       </div>
     </div>
   );
-};
-
-export default Packages;
+}
