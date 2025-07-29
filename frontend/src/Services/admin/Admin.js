@@ -44,11 +44,14 @@ export async function GetBlockedVendore(token) {
   }
 }
 
-export async function GetApproveVendor(vendorId, token) {
+export async function GetApproveVendor(vendorId, approval, token) {
   try {
     const res = await axios.post(
       `${Config.base_url}admin/vendors/approve`,
-      { vendor_id: vendorId },
+      {
+        vendor_id: vendorId,
+        approval: approval,
+      },
       {
         headers: {
           Authorization: `${token}`,
@@ -62,6 +65,7 @@ export async function GetApproveVendor(vendorId, token) {
     return err;
   }
 }
+
 
 export async function GetApproveVendoreList(token) {
   try {

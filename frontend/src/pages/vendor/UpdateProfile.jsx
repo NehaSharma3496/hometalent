@@ -141,39 +141,63 @@ export default function UpdateProfile() {
     { name: "image", label: "Image", type: "file", colClass: "col-md-6 mb-3" },
   ];
 
-  const onSubmit = async (values) => {
-    try {
-      const formData = new FormData();
-      formData.append("vendor_id", vendorId);
-      for (const key in values) {
-        if (key === "category_id") {
-          formData.append(key, values[key].join(","));
-        } else if (key === "image" && values[key]) {
-          formData.append("image", values[key][0]);
-        } else {
-          formData.append(key, values[key]);
-        }
-      }
+const onSubmit = async (values) => {
+  // Prepare comparable objects (excluding file input)
+  const cleanInitial = { ...initialValues };
+  const cleanCurrent = { ...values };
 
-      const res = await SubmitProfileUpdateRequest(formData);
-      if (res?.data?.status) {
-        Swal.fire(
-          "Success",
-          res.data.msg || "Profile update submitted!",
-          "success"
-        );
-      } else {
-        Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
-      }
-    } catch (err) {
-      console.error("API ERROR:", err);
-      Swal.fire(
-        "Error",
-        err?.response?.data?.msg || err.message || "Failed to submit",
-        "error"
+  // Convert image field and category_id to normalized form for comparison
+  delete cleanInitial.image;
+  delete cleanCurrent.image;
+
+  const isSame = Object.keys(cleanInitial).every((key) => {
+    const initVal = cleanInitial[key];
+    const currVal = cleanCurrent[key];
+
+    if (Array.isArray(initVal)) {
+      return (
+        Array.isArray(currVal) &&
+        initVal.length === currVal.length &&
+        initVal.every((v, i) => v === currVal[i])
       );
     }
-  };
+    return initVal === currVal;
+  });
+
+  if (isSame && (!values.image || values.image.length === 0)) {
+    Swal.fire("No Changes", "No changes were made to the profile.", "info");
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append("vendor_id", vendorId);
+
+    for (const key in values) {
+      if (key === "category_id") {
+        formData.append(key, values[key].join(","));
+      } else if (key === "image" && values[key] && values[key].length > 0) {
+        formData.append("image", values[key][0]);
+      } else {
+        formData.append(key, values[key]);
+      }
+    }
+
+    const res = await SubmitProfileUpdateRequest(formData);
+    if (res?.data?.status) {
+      Swal.fire("Success", res.data.msg || "Profile update submitted!", "success");
+    } else {
+      Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+    }
+  } catch (err) {
+    console.error("API ERROR:", err);
+    Swal.fire(
+      "Error",
+      err?.response?.data?.msg || err.message || "Failed to submit",
+      "error"
+    );
+  }
+};
 
   useEffect(() => {
     const fetchInitial = async () => {
@@ -214,7 +238,7 @@ export default function UpdateProfile() {
           linkedin_link: vendor.linkedin_link || "",
           youtube_link: vendor.youtube_link || "",
           website_link: vendor.website_link || "",
-          image: null,
+          // image: null,
         });
       } catch (err) {
         console.log("Init fetch error", err);

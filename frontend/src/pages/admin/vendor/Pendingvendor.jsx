@@ -17,35 +17,44 @@ export default function PendingVendor() {
   const [categoryMap, setCategoryMap] = useState({});
   const navigate = useNavigate();
 
-  const handleApproveVendor = async (vendorId) => {
+  const handleApproveVendor = async (vendorId, status) => {
     try {
+      const isApprove = status === 1;
+
       const confirm = await Swal.fire({
-        title: "Approve Vendor?",
-        text: "Are you sure you want to approve this vendor?",
+        title: isApprove ? "Approve Vendor?" : "Reject Vendor?",
+        text: isApprove
+          ? "Are you sure you want to approve this vendor?"
+          : "Are you sure you want to reject this vendor?",
         icon: "question",
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, approve it!",
+        confirmButtonColor: isApprove ? "#3085d6" : "#d33",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: isApprove ? "Yes, approve!" : "Yes, reject!",
       });
 
       if (!confirm.isConfirmed) return;
 
       const token = localStorage.getItem("token");
-      const response = await GetApproveVendor(vendorId, token);
+      const response = await GetApproveVendor(vendorId, status, token);
 
       if (response.status === true || response.status === "true") {
         await Swal.fire(
-          "Approved!",
-          "Vendor approved successfully.",
+          "Success",
+          response.message ||
+            (isApprove ? "Vendor approved." : "Vendor rejected."),
           "success"
         );
         fetchPendingVendors();
       } else {
-        await Swal.fire("Failed!", "Failed to approve vendor.", "error");
+        await Swal.fire(
+          "Failed",
+          response.message || "Something went wrong!",
+          "error"
+        );
       }
     } catch (error) {
-      console.error("Error approving vendor:", error);
+      console.error("Error approving/rejecting vendor:", error);
       await Swal.fire("Error!", "Something went wrong.", "error");
     }
   };
@@ -175,19 +184,74 @@ export default function PendingVendor() {
     },
 
     {
-      name: "Action",
-      cell: (row) => (
-        <div className="action-div">
-          <button
-            className="btn btn-sm btn-success d-flex align-items-center gap-1"
-            onClick={() => handleApproveVendor(row.id)}
-            title="Approve"
-          >
-            Approve
-          </button>
-        </div>
-      ),
+      name: "Status",
+      cell: (row) => {
+        const status = row.approval_status;
+
+        // Set button label and color
+        const getStatusLabel = () => {
+          if (status === 1) return "Approved";
+          if (status === 2) return "Rejected";
+          return "Pending";
+        };
+
+        const getButtonClass = () => {
+          if (status === 1) return "btn-success";
+          if (status === 2) return "btn-danger";
+          return "btn-warning dropdown-toggle"; // dropdown only for pending
+        };
+
+        return (
+          <div className="dropdown">
+            {status === 0 ? (
+              <>
+                <button
+                  className={`btn btn-sm ${getButtonClass()}`}
+                  type="button"
+                  id={`statusDropdown-${row.id}`}
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  {getStatusLabel()}
+                </button>
+                <ul
+                  className="dropdown-menu"
+                  aria-labelledby={`statusDropdown-${row.id}`}
+                >
+                  <li>
+                    <button
+                      className="dropdown-item text-success"
+                      onClick={() => handleApproveVendor(row.id, 1)}
+                    >
+                      ✅ Approve
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item text-danger"
+                      onClick={() => handleApproveVendor(row.id, 2)}
+                    >
+                      ❌ Reject
+                    </button>
+                  </li>
+                </ul>
+              </>
+            ) : (
+              <button
+                className={`btn btn-sm ${getButtonClass()}`}
+                type="button"
+                disabled
+                style={{ cursor: "default" }}
+                title={getStatusLabel()}
+              >
+                {getStatusLabel()}
+              </button>
+            )}
+          </div>
+        );
+      },
       sortable: false,
+      width: "180px",
     },
   ];
 
