@@ -38,13 +38,13 @@ export default function CategoryList() {
         <button
           className="btn action-btn btn-primary"
           onClick={() =>
-            navigate("/admin/vendor/sponsoredrankupdate ", {
-              state: { categoryId: row.id },
+            navigate("/admin/vendor/sponsoredrankupdate", {
+              state: { categoryId: row.id, categoryName: row.name },
             })
           }
         >
           Get
-        </button> 
+        </button>
       ),
     },
     ``,

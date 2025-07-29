@@ -7,23 +7,22 @@ export default function SponsoredRankUpdate() {
   const location = useLocation();
   const token = localStorage.getItem("token");
   const categoryId = location.state?.categoryId;
-
+  const categoryname = location.state?.categoryName;
   const [loading, setLoading] = useState(true);
   const [sponsoredVendor, setSponsoredVendor] = useState([]);
 
+  console.log("Category Name", categoryname);
+
   useEffect(() => {
     if (categoryId) {
-        console.log("category Id",categoryId);
       fetchSponsoredVendors();
     }
   }, [categoryId]);
 
   const fetchSponsoredVendors = async () => {
     try {
-      const res = await GetSponsoredVendorsByCategory(categoryId,token);
-      console.log("Sponsor Vendor", res);
-      setSponsoredVendor(res?.remaning_active?.data );
-
+      const res = await GetSponsoredVendorsByCategory(categoryId, token);
+      setSponsoredVendor(res?.remaining_active);
     } catch (error) {
       console.error("Error fetching sponsored vendors", error);
     } finally {
@@ -31,26 +30,25 @@ export default function SponsoredRankUpdate() {
     }
   };
 
-const vendorColumns = [
-  {
-    name: "S.No",
-    selector: (row, index) => index + 1,
-    width: "80px",
-  },
-  {
-    name: "Vendor Name",
-    selector: (row) => row.vendor?.profile_name || "N/A",
-  },
-  {
-    name: "Sponsor Rank",
-    selector: (row) => row.sponsor_rank ?? "Not Ranked",
-  },
-  {
-    name: "Category",
-    selector: (row) => row.category?.name || "N/A",
-  },
-];
-
+  const vendorColumns = [
+    {
+      name: "S.No",
+      selector: (row, index) => index + 1,
+      width: "80px",
+    },
+    {
+      name: "Vendor Name",
+      selector: (row) => row.owner_name || "N/A",
+    },
+    {
+      name: "Sponsor Rank",
+      selector: (row) => row.sponsor_rank ?? "Not Ranked",
+    },
+    {
+      name: "Category",
+      selector: () => categoryname || "N/A",
+    },
+  ];
 
   return (
     <div className="page-content">

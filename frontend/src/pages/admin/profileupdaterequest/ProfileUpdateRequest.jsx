@@ -1,26 +1,21 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Datatable from "../../../extracomponents/Datatable";
-import {
-  GetProfileUpdateRequests,
-  ProcessProfileUpdateRequest,
-} from "../../../Services/admin/Admin";
+import { GetProfileUpdateRequests } from "../../../Services/admin/Admin";
 import * as XLSX from "xlsx";
 
 export default function ProfileUpdateRequests() {
   const [requests, setRequests] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchText, setSearchText] = useState("");
-
+  const navigate = useNavigate();
   const fetchRequests = async () => {
     try {
       const token = localStorage.getItem("token");
-      const page = 1;
-      const limit = 10;
 
       const status = statusFilter;
-      const res = await GetProfileUpdateRequests(token, status, page, limit);
+      const res = await GetProfileUpdateRequests(token, status);
 
       let data = [];
 
@@ -55,42 +50,6 @@ export default function ProfileUpdateRequests() {
     fetchRequests();
   }, [statusFilter]);
 
-  const handleAction = async (row, action) => {
-    const confirm = await Swal.fire({
-      title: `${action === "approve" ? "Approve" : "Reject"} Request?`,
-      text: `Are you sure you want to ${action} this profile update request?`,
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes",
-      cancelButtonText: "No",
-    });
-
-    if (confirm.isConfirmed) {
-      try {
-        const token = localStorage.getItem("token");
-        const adminId = localStorage.getItem("userId");
-
-        const res = await ProcessProfileUpdateRequest(
-          row.id,
-          action,
-          `${action}d by admin`,
-          adminId,
-          token
-        );
-
-        if (res?.status) {
-          Swal.fire("Success", res.msg || "Request processed", "success");
-          fetchRequests();
-        } else {
-          Swal.fire("Error", res?.msg || "Failed to process", "error");
-        }
-      } catch (err) {
-        Swal.fire("Error", "API error occurred", "error");
-        console.error("API Error:", err);
-      }
-    }
-  };
-
   const columns = [
     {
       name: "S.No",
@@ -118,32 +77,23 @@ export default function ProfileUpdateRequests() {
       sortable: true,
     },
     {
-      name: "Actions",
-      cell: (row) =>
-        row.status === "pending" ? (
-          <div className="d-flex gap-1">
-            <button
-              className="btn btn-success btn-sm d-flex align-items-center px-3"
-              onClick={() => handleAction(row, "approve")}
-              title="Approve"
-              style={{ fontWeight: "500" }}
-            >
-              <i className="fa fa-check me-1"></i>
-              Approve
-            </button>
-            <button
-              className="btn btn-danger btn-sm d-flex align-items-center px-3"
-              onClick={() => handleAction(row, "reject")}
-              title="Reject"
-              style={{ fontWeight: "500" }}
-            >
-              <i className="fa fa-times me-1"></i>
-              Reject
-            </button>
-          </div>
-        ) : (
-          <span className="text-muted">No actions</span>
-        ),
+      name: "View",
+      cell: (row) => (
+        <div className="d-flex align-items-center gap-9">
+          <button
+            className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
+            style={{ width: "35px", height: "35px" }}
+            onClick={() =>
+              navigate(`/admin/vendordetails`, {
+                state: { vendorId: row.id },
+              })
+            }
+            title="View"
+          >
+            <i className="fa-regular fa-eye"></i>
+          </button>
+        </div>
+      ),
     },
   ];
 
