@@ -89,7 +89,8 @@ exports.requestProfileUpdate = async (req, res) => {
     // Handle uploaded files
     if (req.files) {
       if (req.files.image && req.files.image[0]) {
-        filteredData.image = req.files.image[0].filename;
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        filteredData.image = req.files.image[0].filename ? `${baseUrl}/media/${req.files.image[0].filename}` : null;
       }
     }
 
@@ -207,7 +208,7 @@ exports.getAvailablePackages = async (req, res) => {
   }
 };
 
-// exports.subscribePackage = async (req, res) => {
+// exports.subscribePackage = async (req, res) => 
 //   try {
 //     const { vendor_id, package_id, payment_reference } = req.body;
 //     if (!vendor_id || !package_id || !payment_reference) {
@@ -300,7 +301,6 @@ exports.subscribePackage = async (req, res) => {
     }
 
     const endDate = new Date(startDate);
-
     endDate.setDate(endDate.getDate() + validityDays - 1);
 
     const subscription = await VendorPackageSubscription.create({
@@ -320,10 +320,10 @@ exports.subscribePackage = async (req, res) => {
     res.json({ status: true, data: subscription });
   } catch (error) {
     console.error(error);
-
     res.status(500).json({ status: false, msg: error.message });
   }
 };
+
 
 exports.getMyLeads = async (req, res) => {
   try {
