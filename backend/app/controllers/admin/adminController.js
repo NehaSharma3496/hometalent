@@ -714,11 +714,11 @@ exports.getExpiredVendors = async (req, res) => {
 
 exports.extendVendorPackage = async (req, res) => {
   try {
-    const { subscription_id, extra_days } = req.body;
-    if (!subscription_id || !extra_days) {
+    const { id, extra_days } = req.body;
+    if (!id || !extra_days) {
       return res.status(400).json({ status: false, msg: 'subscription_id and extra_days are required' });
     }
-    const sub = await VendorPackageSubscription.findByPk(subscription_id);
+    const sub = await VendorPackageSubscription.findByPk(id);
     if (!sub) {
       return res.status(404).json({ status: false, msg: 'Subscription not found' });
     }

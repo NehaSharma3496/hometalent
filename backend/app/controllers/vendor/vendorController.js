@@ -63,7 +63,8 @@ exports.requestProfileUpdate = async (req, res) => {
     // Handle uploaded files
     if (req.files) {
       if (req.files.image && req.files.image[0]) {
-        filteredData.image = req.files.image[0].filename;
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        filteredData.image = req.files.image[0].filename ? `${baseUrl}/media/${req.files.image[0].filename}` : null;
       }
     }
 
