@@ -84,8 +84,11 @@ export default function ProfileUpdateRequests() {
             className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
             style={{ width: "35px", height: "35px" }}
             onClick={() =>
-              navigate(`/admin/vendordetails`, {
-                state: { vendorId: row.id },
+              navigate(`/admin/profileupdaterequest/viewprofilechanges`, {
+                state: {
+                  requestData: row,
+                  adminId: localStorage.getItem("userId"),
+                },
               })
             }
             title="View"
