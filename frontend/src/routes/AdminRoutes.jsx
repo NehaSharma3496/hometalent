@@ -27,6 +27,7 @@ import AllEnquiries from "../pages/admin/enquiries&leads/AllEnquiries"
 import UploadGallery from "../pages/admin/adminGallery/UploadGallery";
 import UpdateVendor from "../pages/admin/vendor/UpdateVendor";
 import VendorPackageDetails from "../pages/admin/vendor/VendorPackageDetails";
+import SponsoredRankUpdate from "../pages/admin/vendor/SponsoredRankUpdate";
 
 
 const AdminRoutes = (
@@ -57,6 +58,7 @@ const AdminRoutes = (
     <Route path="enquiries/AllEnquiries" element={<AllEnquiries/>}/>
     <Route path="vendor/updatevendor" element={<UpdateVendor/>}/>
     <Route path="vendor/vendorpackagedetails" element={<VendorPackageDetails/>}/>
+    <Route path="vendor/sponsoredrankupdate" element={<SponsoredRankUpdate/>}/>
   </Route>
 );
 

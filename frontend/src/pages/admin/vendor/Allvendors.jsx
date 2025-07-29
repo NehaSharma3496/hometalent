@@ -150,21 +150,26 @@ export default function Allvendors() {
       sortable: true,
     },
     {
-      name: "Update Vendor",
+      name: "Update Vendor Status",
       cell: (row) => (
-        <div>
-          <button
-            className="btn btn-primary me-2 shadow-sm"
-            onClick={() =>
-              navigate("/admin/vendor/updatevendor", {
-                state: { vendorId: row.id },
-              })
+        <div className="form-check form-switch m-0 d-flex align-items-center">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            role="switch"
+            id={`toggle-${row.id}`}
+            checked={row.status === 1}
+            disabled={row.status === 0}
+            onChange={(e) =>
+              handleStatusChange(row.id, e.target.checked ? 1 : 2)
             }
-            title="Update"
-          >
-            {" "}
-            <i className="fa fa-edit me-1"></i>Update
-          </button>
+            style={{
+              width: "3.5rem",
+              height: "1.5rem",
+              cursor: row.status === 0 ? "not-allowed" : "pointer",
+              marginTop: "2px",
+            }}
+          />
         </div>
       ),
       width: "150px",
@@ -172,11 +177,12 @@ export default function Allvendors() {
     {
       name: "Action",
       cell: (row) => (
-        <div className="d-flex align-items-center gap-2">
+        <div className="d-flex align-items-center gap-9">
           <button
-            className="btn btn-warning btn-sm"
-             onClick={() =>
-              navigate(`/admin/vendordetails`,{
+            className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
+            style={{ width: "35px", height: "35px" }}
+            onClick={() =>
+              navigate(`/admin/vendordetails`, {
                 state: { vendorId: row.id },
               })
             }
@@ -186,7 +192,8 @@ export default function Allvendors() {
           </button>
 
           <button
-            className="btn btn-info btn-sm"
+            className="btn btn-info btn-sm d-flex align-items-center justify-content-center"
+            style={{ width: "35px", height: "35px" }}
             onClick={() =>
               navigate(`/admin/galleryUpdates/vendorgallery/${row.id}`)
             }
@@ -195,76 +202,44 @@ export default function Allvendors() {
             <i className="fa-solid fa-images"></i>
           </button>
 
-          <div className="form-check form-switch m-0 d-flex align-items-center">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              role="switch"
-              id={`toggle-${row.id}`}
-              checked={row.status === 1}
-              disabled={row.status === 0} 
-              onChange={(e) =>
-                handleStatusChange(row.id, e.target.checked ? 1 : 2)
-              }
-              style={{
-                width: "2.5rem",
-                height: "1.5rem",
-                cursor: row.status === 0 ? "not-allowed" : "pointer",
-                marginTop: "2px",
-              }}
-            />
-            <label
-              className="form-check-label ms-2"
-              htmlFor={`toggle-${row.id}`}
-              style={{
-                fontSize: "13px",
-                whiteSpace: "nowrap",
-                marginBottom: "0",
-                color: row.status === 0 ? "#999" : "#000", 
-              }}
-            >
-              {row.status === 1
-                ? "Active"
-                : row.status === 2
-                ? "Inactive"
-                : "Pending"}
-            </label>
-          </div>
+          <button
+            className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
+            style={{ width: "35px", height: "35px" }}
+            onClick={() =>
+              navigate("/admin/vendor/updatevendor", {
+                state: { vendorId: row.id },
+              })
+            }
+            title="Update"
+          >
+            <i className="fa fa-edit"></i>
+          </button>
         </div>
       ),
       sortable: false,
-      width: "200px",
+      width: "150px",
     },
 
-    {
-      name: "Status",
-      cell: (row) => (
-        <div className="action-div">
-          {row.status === 0 ? (
-            <button
-              className="btn btn-sm btn-success text-nowrap"
-              onClick={() => handleApproveVendor(row.id)}
-              title="Approve"
-            >
-              Approve
-            </button>
-          ) : row.status === 1 ? (
-            <button className="btn btn-sm btn-danger text-nowrap" disabled>
-              Active
-            </button>
-          ) : row.status === 2 ? (
-            <button className="btn btn-sm btn-secondary text-nowrap" disabled>
-              Inactive
-            </button>
-          ) : (
-            <button className="btn btn-sm btn-secondary text-nowrap" disabled>
-              Unknown
-            </button>
-          )}
-        </div>
-      ),
-      sortable: false,
-    },
+   {
+  name: "Status",
+  cell: (row) => (
+    <div className="action-div">
+      {row.status === 0 ? (
+        <button
+          className="btn btn-sm btn-success text-nowrap"
+          onClick={() => handleApproveVendor(row.id)}
+          title="Approve"
+        >
+          Pending
+        </button>
+      ) : row.status === 1 ? (
+        <span className="badge bg-success fs-6">Approved</span>
+      ) : null}
+    </div>
+  ),
+  sortable: false,
+},
+
   ];
 
   return (

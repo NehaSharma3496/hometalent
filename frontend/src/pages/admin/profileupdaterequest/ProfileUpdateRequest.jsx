@@ -22,8 +22,6 @@ export default function ProfileUpdateRequests() {
       const status = statusFilter;
       const res = await GetProfileUpdateRequests(token, status, page, limit);
 
-      console.log("🔎 API Raw Response:", res);
-
       let data = [];
 
       if (res?.requests && Array.isArray(res.requests)) {

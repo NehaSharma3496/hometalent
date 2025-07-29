@@ -88,7 +88,7 @@ export async function GetProfileUpdateRequests(
 
     const res = await axios.get(endpoint, {
       params: {
-        status: status === "all" ? undefined : status, 
+        status: status === "all" ? undefined : status,
         page,
         limit,
       },
@@ -268,10 +268,7 @@ export async function GetSponsoredVendorsByCategory(
     );
     return res?.data;
   } catch (err) {
-    console.error(
-      "Error in GetSponsoredVendorsByCategory:",
-      err?.response || err
-    );
+    console.error("Error in GetSponsoredVendorsByCategory:", err);
     return err;
   }
 }
@@ -463,7 +460,6 @@ export async function GetDashboardCounts(token) {
     return err;
   }
 }
-
 
 export async function ExtendPackage(token, updateData) {
   try {

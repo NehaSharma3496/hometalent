@@ -49,6 +49,8 @@ const Registration = () => {
     email: Yup.string().email("Invalid email").required("Email is required"),
     category: Yup.array().min(1, "Select at least one category"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
+     experience:Yup.string().required("Experience Is required"),
+     priceRange:Yup.string().required("Price Range is required"),
   });
 
   // 👇 Only define fields after categoryData is available
