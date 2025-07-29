@@ -13,6 +13,8 @@ router.get('/vendors', adminController.listAllVendors);
 // 🔍 2. Approve Listings (status = 0)
 router.get('/vendors/pending', adminController.listPendingVendors);
 
+router.get('/vendors/rejected', adminController.listRejectedVendors);
+
 // ✅ Approve a vendor and email credentials
 router.post('/vendors/approve', adminController.approveVendor);
 

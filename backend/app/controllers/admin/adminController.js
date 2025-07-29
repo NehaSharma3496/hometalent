@@ -10,6 +10,7 @@ const {
   ContactUs,
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
+const { Op, Sequelize } = require('sequelize');
 
 exports.listAllVendors = async (req, res) => {
   try {
@@ -81,7 +82,39 @@ exports.listPendingVendors = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const { count, rows: vendors } = await User.findAndCountAll({
-      where: { role_id: 2, status: 0 },
+      where: { role_id: 2, approval_status: 0 },
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset,
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    res.json({
+      status: true,
+      data: vendors,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1,
+      },
+    });
+  } catch (error) {
+    res.json({ status: false, msg: error.message });
+  }
+};
+
+exports.listRejectedVendors = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const { count, rows: vendors } = await User.findAndCountAll({
+      where: { role_id: 2, approval_status: 2 },
       order: [["createdAt", "DESC"]],
       limit,
       offset,
@@ -146,6 +179,7 @@ exports.listSponsoredVendors = async (req, res) => {
     // Get remaining active vendors (not sponsored, status=1)
     const activeVendors = await User.findAll({
       where: {
+        category_id : { [Op.like]: `%${category_id}%` },
         role_id: 2,
         status: 1,
         id: { [require("sequelize").Op.notIn]: sponsoredVendorIds },
@@ -238,7 +272,7 @@ exports.updateVendorStatus = async (req, res) => {
 
 exports.approveVendor = async (req, res) => {
   try {
-    const { vendor_id } = req.body;
+    const { vendor_id, approval} = req.body;
     if (!vendor_id) {
       return res
         .status(400)
@@ -251,7 +285,7 @@ exports.approveVendor = async (req, res) => {
     }
 
     // Update status to approved
-    vendor.status = 1;
+    vendor.approval_status = approval;
     await vendor.save();
 
     // Send email with login credentials
