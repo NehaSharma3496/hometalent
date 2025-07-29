@@ -112,13 +112,24 @@ const User = sequelize.define('User', {
     status: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        defaultValue: 1, 
+        validate: {
+            isIn: [[0, 1, 2]], // Validates that the value is either 0 or 1
+        },
+        comment: '1 = active, 2 = inactive',
+    },
+
+    approval_status: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
         defaultValue: 0, // 0 = pending, 1 = approved, 2 = blocked
         validate: {
             isIn: [[0, 1, 2]], // Validates that the value is either 0 or 1
         },
-        comment: '0 = pending, 1 = approved, 2 = blocked',
+        comment: '0 = pending, 1 = approved, 2 = rejected',
     },
-        is_sponsored: {
+
+    is_sponsored: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0, // 1 = sponsored vendor, 0 = not sponsored
