@@ -112,7 +112,7 @@ const User = sequelize.define('User', {
     status: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 1, 
+        defaultValue: 2, 
         validate: {
             isIn: [[0, 1, 2]], // Validates that the value is either 0 or 1
         },

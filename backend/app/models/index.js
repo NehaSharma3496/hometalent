@@ -11,7 +11,7 @@ const ClientLead = require('./ClientLead');
 const Log = require('./Log');
 const VendorCategoryRank = require('./VendorCategoryRank');
 const ContactUs = require('./ContactUs');
-
+const Blog = require('./Blog');
 const models = {
     User: User,
     Role: Role,
@@ -25,7 +25,8 @@ const models = {
     ClientLead: ClientLead,
     Log: Log,
     VendorCategoryRank: VendorCategoryRank,
-    ContactUs: ContactUs
+    ContactUs: ContactUs,
+    Blog: Blog,
 };
 
 Object.keys(models).forEach(modelName => {
