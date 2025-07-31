@@ -7,7 +7,7 @@ import {
 } from "../../../Services/admin/Admin";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 
 export default function PendingVendor() {
@@ -16,6 +16,11 @@ export default function PendingVendor() {
   const [categoryList, setCategoryList] = useState([]);
   const [categoryMap, setCategoryMap] = useState({});
   const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
 
   const handleApproveVendor = async (vendorId, status) => {
     try {
@@ -59,16 +64,24 @@ export default function PendingVendor() {
     }
   };
 
-  const fetchPendingVendors = async () => {
+  const fetchPendingVendors = async (page, limit) => {
+    setLoading(true);
     try {
-      const response = await GetPendingVendoreList();
-      setPendingVendors(response.data);
-      console.log("Vendor list", response.data);
-    } catch (error) {
-      console.log("error");
+      const token = localStorage.getItem("token");
+      const res = await GetPendingVendoreList(token, page, limit);
+      if (res?.data && res?.pagination) {
+        setPendingVendors(res.data);
+        setTotalRows(res.pagination.total_records);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (err) {
+      console.error("Error fetching vendors:", err);
+      Swal.fire("Error", "Could not load vendor list", "error");
+    } finally {
+      setLoading(false);
     }
   };
-
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(pendingvendors);
     const workbook = XLSX.utils.book_new();
@@ -82,9 +95,18 @@ export default function PendingVendor() {
   );
 
   useEffect(() => {
-    fetchPendingVendors();
+    fetchPendingVendors(currentPage, perPage);
     fetchCategories();
-  }, []);
+  }, [currentPage, perPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
 
   const fetchCategories = async () => {
     try {
@@ -106,8 +128,7 @@ export default function PendingVendor() {
   const columns = [
     {
       name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: false,
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "70px",
     },
     {
@@ -300,7 +321,13 @@ export default function PendingVendor() {
             <Datatable
               columns={columns}
               data={filteredPendingVendors}
-              pagination
+             progressPending={loading}
+            pagination
+            paginationServer
+            paginationTotalRows={totalRows}
+            paginationPerPage={perPage}
+            onChangeRowsPerPage={handlePerRowsChange}
+            onChangePage={handlePageChange}
             />
           </div>
         </div>

@@ -1,22 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { GetAllContactUs } from "../../../Services/admin/Admin"; // adjust path if different
 import { Link } from "react-router-dom";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
-
+import Swal from "sweetalert2";
 export default function AllEnquiries() {
   const [contacts, setContacts] = useState([]);
-  const [pagination, setPagination] = useState(null);
   const token = localStorage.getItem("token");
   const [searchText, setSearchText] = useState("");
 
-  const fetchAllContactUs = async () => {
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+
+  const fetchAllContactUs = async (page, limit) => {
+     setLoading(true);
     try {
-      const response = await GetAllContactUs(token);
-      setContacts(response?.data || []);
-      setPagination(response?.pagination || null);
-    } catch (error) {
-      console.error("Error fetching contact-us:", error);
+        const token = localStorage.getItem("token");
+      const res = await GetAllContactUs(token,page, limit);
+ if (res?.data && res?.pagination) {
+        setContacts(res.data);
+        setTotalRows(res.pagination.total_records);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (err) {
+      console.error("Error fetching vendors:", err);
+      Swal.fire("Error", "Could not load vendor list", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,14 +46,22 @@ export default function AllEnquiries() {
   );
 
   useEffect(() => {
-    fetchAllContactUs();
-  }, []);
+    fetchAllContactUs(currentPage, perPage);
+  }, [currentPage, perPage]);
+
+ const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
 
   const columns = [
-    {
+   {
       name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: false,
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "70px",
     },
     {
@@ -125,7 +146,13 @@ export default function AllEnquiries() {
         </div>
         <div className="row">
           <div className="col-md-12">
-            <Datatable columns={columns} data={filteredContacts} pagination />
+            <Datatable columns={columns} data={filteredContacts}   progressPending={loading}
+            pagination
+            paginationServer
+            paginationTotalRows={totalRows}
+            paginationPerPage={perPage}
+            onChangeRowsPerPage={handlePerRowsChange}
+            onChangePage={handlePageChange}/>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { showPackage, DeletePackage } from "../../../Services/admin/Admin";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "react-data-table-component";
 import { UpdatePackageStatus } from "../../../Services/admin/Admin";
 
 export default function Packages() {
@@ -10,18 +10,42 @@ export default function Packages() {
   const [searchText, setSearchText] = useState("");
   const navigate = useNavigate();
 
-  const fetchPackages = async () => {
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+
+  const fetchPackages = async (page, limit) => {
+    setLoading(true);
     try {
-      const res = await showPackage();
-      setPackages(res?.data || []);
-    } catch (error) {
-      console.error("Error fetching packages:", error);
+      const token = localStorage.getItem("token");
+      const res = await showPackage(token, page, limit);
+      if (res?.data && res?.pagination) {
+        setPackages(res.data);
+        setTotalRows(res.pagination.total_records);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (err) {
+      console.error("Error fetching vendors:", err);
+      Swal.fire("Error", "Could not load vendor list", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPackages();
-  }, []);
+    fetchPackages(currentPage, perPage);
+  }, [currentPage, perPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
 
   const handleStatusToggle = async (pkg) => {
     const token = localStorage.getItem("adminToken");
@@ -78,7 +102,7 @@ export default function Packages() {
   const columns = [
     {
       name: "S.No",
-      selector: (row, index) => index + 1,
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "70px",
     },
     {
@@ -107,28 +131,26 @@ export default function Packages() {
       sortable: false,
       wrap: true,
     },
-{
-  name: "Status",
-  cell: (row) => (
-    <div className="form-check form-switch d-flex justify-content-center">
-      <input
-        className="form-check-input"
-        type="checkbox"
-        id={`statusSwitch-${row.id}`}
-        checked={row.status === 1}
-        onChange={() => handleStatusToggle(row)}
-        style={{
-          cursor: "pointer",
-          width: "3rem",
-          height: "1.5rem",
-        }}
-      />
-    </div>
-  ),
-  center: true,
-},
-
-
+    {
+      name: "Status",
+      cell: (row) => (
+        <div className="form-check form-switch d-flex justify-content-center">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id={`statusSwitch-${row.id}`}
+            checked={row.status === 1}
+            onChange={() => handleStatusToggle(row)}
+            style={{
+              cursor: "pointer",
+              width: "3rem",
+              height: "1.5rem",
+            }}
+          />
+        </div>
+      ),
+      center: true,
+    },
 
     {
       name: "Created At",
@@ -206,7 +228,17 @@ export default function Packages() {
         </div>
 
         <div className="col-md-12">
-          <Datatable columns={columns} data={filteredPackages} pagination />
+          <Datatable
+            columns={columns}
+            data={filteredPackages}
+            progressPending={loading}
+            pagination
+            paginationServer
+            paginationTotalRows={totalRows}
+            paginationPerPage={perPage}
+            onChangeRowsPerPage={handlePerRowsChange}
+            onChangePage={handlePageChange}
+          />
         </div>
       </div>
     </div>

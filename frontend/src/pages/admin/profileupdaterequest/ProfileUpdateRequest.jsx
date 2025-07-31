@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { Link, useNavigate } from "react-router-dom";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "react-data-table-component";
 import { GetProfileUpdateRequests } from "../../../Services/admin/Admin";
 import * as XLSX from "xlsx";
 
@@ -10,29 +10,37 @@ export default function ProfileUpdateRequests() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchText, setSearchText] = useState("");
   const navigate = useNavigate();
-  const fetchRequests = async () => {
-    try {
-      const token = localStorage.getItem("token");
 
-      const status = statusFilter;
-      const res = await GetProfileUpdateRequests(token, status);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
 
-      let data = [];
+ const fetchRequests = async (page, limit) => {
+  setLoading(true);
+  try {
+    const token = localStorage.getItem("token");
+    const res = await GetProfileUpdateRequests(token, statusFilter, page, limit);
+    console.log("API Response:", res);
 
-      if (res?.requests && Array.isArray(res.requests)) {
-        data = res.requests;
-      } else if (res?.data?.requests && Array.isArray(res.data.requests)) {
-        data = res.data.requests;
-      } else {
-        console.warn("⚠️ Unexpected data format, forcing empty array");
-      }
+    // ✅ FIXED condition
+    if (res?.data?.requests && typeof res.data.total === "number") {
+      setRequests(res.data.requests);
+      console.log("Fetched Requests:", res.data.requests);
 
-      setRequests(data);
-    } catch (err) {
-      console.error("❌ Failed to fetch requests:", err);
-      setRequests([]);
+      // ✅ Use total from inside data
+      setTotalRows(res.data.total);
+    } else {
+      throw new Error("Invalid response format");
     }
-  };
+  } catch (err) {
+    console.error("Error fetching vendors:", err);
+    Swal.fire("Error", "Could not load vendor list", "error");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(requests);
@@ -47,14 +55,22 @@ export default function ProfileUpdateRequests() {
   );
 
   useEffect(() => {
-    fetchRequests();
-  }, [statusFilter]);
+    fetchRequests(currentPage, perPage);
+  }, [statusFilter, currentPage, perPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
 
   const columns = [
     {
       name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: false,
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "70px",
     },
     {
@@ -159,10 +175,16 @@ export default function ProfileUpdateRequests() {
         <Datatable
           columns={columns}
           data={filteredRequests}
-          pagination
           highlightOnHover
           striped
           noDataComponent="No profile update requests found."
+          // progressPending={loading}
+          pagination
+          paginationServer
+          paginationTotalRows={totalRows}
+          paginationPerPage={perPage}
+          onChangeRowsPerPage={handlePerRowsChange}
+          onChangePage={handlePageChange}
         />
       </div>
     </div>

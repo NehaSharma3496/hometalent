@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import { GetAllLeads } from "../../../Services/admin/Admin";
 import { Link } from "react-router-dom";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 
 export default function AllLeads() {
@@ -9,18 +10,45 @@ export default function AllLeads() {
   const [searchText, setSearchText] = useState("");
   const token = localStorage.getItem("token");
 
-  const fetchAllLeads = async () => {
+ 
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+
+
+
+  const fetchAllLeads = async (page, limit) => {
+    setLoading(true);
     try {
-      const response = await GetAllLeads(token);
-      setAllLeads(response?.data);
-    } catch (error) {
-      console.error("Error fetching leads:", error);
-    }
+      const token = localStorage.getItem("token");
+      const res = await GetAllLeads(token,page, limit);
+    if (res?.data && res?.pagination) {
+          setAllLeads(res.data);
+          setTotalRows(res.pagination.total_records);
+        } else {
+          throw new Error("Invalid response format");
+        }
+      } catch (err) {
+        console.error("Error fetching vendors:", err);
+        Swal.fire("Error", "Could not load vendor list", "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+  useEffect(() => {
+    fetchAllLeads(currentPage, perPage);
+  }, [currentPage, perPage]);
+
+    const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
-  useEffect(() => {
-    fetchAllLeads();
-  }, []);
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
+
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(leads);
@@ -35,45 +63,44 @@ export default function AllLeads() {
   );
 
   const columns = [
-    {
+   {
       name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: false,
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "70px",
     },
     {
       name: "Vendor Name",
-      selector: (row) => row.vendor.owner_name,
+      selector: (row) => row.vendor?.owner_name,
       sortable: true,
     },
     {
       name: "Vendor Phone",
-      selector: (row) => row.vendor.phone,
+      selector: (row) => row.vendor?.phone,
       sortable: true,
     },
     {
       name: "Client Name",
-      selector: (row) => row.name,
+      selector: (row) => row?.name,
       sortable: true,
     },
     {
       name: " Client Phone",
-      selector: (row) => row.phone,
+      selector: (row) => row?.phone,
       sortable: true,
     },
     {
       name: "Client Email",
-      selector: (row) => row.email,
+      selector: (row) => row?.email,
       sortable: true,
     },
     {
       name: "Client Query",
-      selector: (row) => row.query,
+      selector: (row) => row?.query,
       sortable: true,
     },
    {
   name: "Date",
-  selector: (row) => new Date(row.createdAt).toLocaleDateString(),
+  selector: (row) => new Date(row?.createdAt).toLocaleDateString(),
     sortable: true,
 }
 
@@ -123,7 +150,13 @@ export default function AllLeads() {
         </div>
         <div className="row">
           <div className="col-md-12">
-            <Datatable columns={columns} data={filteredLeads} pagination />
+            <Datatable columns={columns} data={filteredLeads}    progressPending={loading}
+            pagination
+            paginationServer
+            paginationTotalRows={totalRows}
+            paginationPerPage={perPage}
+            onChangeRowsPerPage={handlePerRowsChange}
+            onChangePage={handlePageChange}/>
           </div>
         </div>
       </div>

@@ -2,13 +2,16 @@ import axios from "axios";
 import * as Config from "../../Utils/config";
 const qs = require("qs");
 
-export async function GetVendoreList(token) {
+export async function GetVendoreList(token, page = 1, limit = 10) {
   try {
-    const res = await axios.get(`${Config.base_url}admin/vendors`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
+    const res = await axios.get(
+      `${Config.base_url}admin/vendors?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
 
     return res?.data;
   } catch (err) {
@@ -30,13 +33,16 @@ export async function GetSponsoredVendors(token) {
   }
 }
 
-export async function GetBlockedVendore(token) {
+export async function GetBlockedVendore(token, page = 1, limit = 10) {
   try {
-    const res = await axios.get(`${Config.base_url}admin/vendors/blocked`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
+    const res = await axios.get(
+      `${Config.base_url}admin/vendors/blocked?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
 
     return res?.data;
   } catch (err) {
@@ -66,7 +72,6 @@ export async function GetApproveVendor(vendorId, approval, token) {
   }
 }
 
-
 export async function GetApproveVendoreList(token) {
   try {
     const res = await axios.get(`${Config.base_url}admin/active_vendors`, {
@@ -88,13 +93,11 @@ export async function GetProfileUpdateRequests(
   limit = 10
 ) {
   try {
-    const endpoint = `${Config.base_url}admin/profile-update-requests`;
+    const endpoint = `${Config.base_url}admin/profile-update-requests?page=${page}&limit=${limit}`;
 
     const res = await axios.get(endpoint, {
       params: {
         status: status === "all" ? undefined : status,
-        page,
-        limit,
       },
       headers: {
         Authorization: token,
@@ -165,13 +168,16 @@ export async function ProcessGalleryUpdateRequests(
   }
 }
 
-export async function GetPendingVendoreList(token) {
+export async function GetPendingVendoreList(token, page = 1, limit = 10) {
   try {
-    const res = await axios.get(`${Config.base_url}admin/vendors/pending`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
+    const res = await axios.get(
+      `${Config.base_url}admin/vendors/pending?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
 
     return res?.data;
   } catch (err) {
@@ -198,13 +204,16 @@ export async function UpdateVendorStatus(vendorId, vendorStatus, token) {
   }
 }
 
-export async function GetActiveVendors(token) {
+export async function GetActiveVendors(token, page = 1, limit = 10) {
   try {
-    const res = await axios.get(`${Config.base_url}admin/active_vendors`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
+    const res = await axios.get(
+      `${Config.base_url}admin/active_vendors?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
     return res?.data;
   } catch (err) {
     return err;
@@ -296,10 +305,10 @@ export async function UpdateSponsoredRanks(vendors, token) {
   }
 }
 
-export async function GetAllLeads(token) {
+export async function GetAllLeads(token, page = 1, limit = 10) {
   try {
     const res = await axios.get(
-      `${Config.base_url}admin/leads?page=1&limit=10`,
+      `${Config.base_url}admin/leads?page=${page}&limit=${limit}`,
       {
         headers: {
           Authorization: `${token}`,
@@ -337,15 +346,11 @@ export async function RemoveGalleryItem(token, id) {
 
 // Admin package api
 
-export async function showPackage(token, id) {
+export async function showPackage(token, page = 1, limit = 10) {
   try {
-    const userId = localStorage.getItem("userId");
-    const response = await axios.get(`${Config.base_url}admin/package`, {
+    const response = await axios.get(`${Config.base_url}admin/package?page=${page}&limit=${limit}`, {
       headers: {
         Authorization: `${token}`,
-      },
-      data: {
-        user_id: userId,
       },
     });
 
@@ -434,10 +439,10 @@ export const GetSinglePackage = async (id, token) => {
 };
 
 // Get All Enquiries
-export async function GetAllContactUs(token) {
+export async function GetAllContactUs(token, page = 1, limit = 10) {
   try {
     const res = await axios.get(
-      `${Config.base_url}admin/contact-us?page=1&limit=10`,
+      `${Config.base_url}admin/contact-us?page=${page}&limit=${limit}`,
       {
         headers: {
           Authorization: `${token}`,

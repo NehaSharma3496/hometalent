@@ -6,40 +6,65 @@ import {
   GetApproveVendor,
   UpdateVendorStatus,
 } from "../../../Services/admin/Admin";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 
 export default function Allvendors() {
-  const [vendors, setVendors] = useState([]);
   const navigate = useNavigate();
+  const [vendors, setVendors] = useState([]);
   const [searchText, setSearchText] = useState("");
+  
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
 
-  const fetchVendors = async () => {
+  const fetchVendors = async (page, limit) => {
+    setLoading(true);
     try {
-      const response = await GetVendoreList();
-      console.log("Vendors list", response);
-      setVendors(response.data);
-    } catch (error) {
-      console.log("error");
+      const token = localStorage.getItem("token");
+      const res = await GetVendoreList(token, page, limit);
+      if (res?.data && res?.pagination) {
+        setVendors(res.data);
+        setTotalRows(res.pagination.total_records);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (err) {
+      console.error("Error fetching vendors:", err);
+      Swal.fire("Error", "Could not load vendor list", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(vendors);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "All Vendor");
+  useEffect(() => {
+    fetchVendors(currentPage, perPage);
+  }, [currentPage, perPage]);
 
-    XLSX.writeFile(workbook, "All vendor List.xlsx");
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
-  const filteredVendors = vendors.filter((vendor) =>
-    vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
+
+  const filteredVendors = vendors.filter((vendors) =>
+    vendors.owner_name?.toLowerCase().includes(searchText.toLowerCase())
   );
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredVendors);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "All Vendor");
+    XLSX.writeFile(workbook, "All vendor List.xlsx");
+  };
 
   const handleApproveVendor = async (vendorId, status) => {
     try {
       const isApprove = status === 1;
-
       const confirm = await Swal.fire({
         title: isApprove ? "Approve Vendor?" : "Reject Vendor?",
         text: isApprove
@@ -58,22 +83,13 @@ export default function Allvendors() {
       const response = await GetApproveVendor(vendorId, status, token);
 
       if (response.status === true || response.status === "true") {
-        await Swal.fire(
-          "Success",
-          response.message ||
-            (isApprove ? "Vendor approved." : "Vendor rejected."),
-          "success"
-        );
-        fetchVendors();
+        await Swal.fire("Success", response.message, "success");
+        fetchVendors(currentPage, perPage);
       } else {
-        await Swal.fire(
-          "Failed",
-          response.message || "Something went wrong!",
-          "error"
-        );
+        throw new Error(response.message || "Failed to update approval");
       }
-    } catch (error) {
-      console.error("Error approving/rejecting vendor:", error);
+    } catch (err) {
+      console.error(err);
       await Swal.fire("Error!", "Something went wrong.", "error");
     }
   };
@@ -82,12 +98,11 @@ export default function Allvendors() {
     try {
       const token = localStorage.getItem("token");
       const res = await UpdateVendorStatus(vendorId, newStatus, token);
-
       if (res?.status === true || res?.status === "true") {
         await Swal.fire("Success", "Vendor status updated.", "success");
-        fetchVendors();
+        fetchVendors(currentPage, perPage);
       } else {
-        throw new Error();
+        throw new Error(res?.message || "Failed to update status");
       }
     } catch (err) {
       console.error(err);
@@ -95,27 +110,14 @@ export default function Allvendors() {
     }
   };
 
-  useEffect(() => {
-    fetchVendors();
-  }, []);
-
   const columns = [
     {
       name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: false,
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "70px",
     },
-    {
-      name: "Owner Name",
-      selector: (row) => row.owner_name,
-      sortable: true,
-    },
-    {
-      name: "Email",
-      selector: (row) => row.email,
-      sortable: true,
-    },
+    { name: "Owner Name", selector: (row) => row.owner_name, sortable: true },
+    { name: "Email", selector: (row) => row.email, sortable: true },
     {
       name: "Category Names",
       selector: (row) =>
@@ -124,30 +126,21 @@ export default function Allvendors() {
           : row.category_names,
       sortable: true,
     },
-    {
-      name: "Phone ",
-      selector: (row) => row.phone,
-      sortable: true,
-    },
-    {
-      name: "Price Range",
-      selector: (row) => row.price_range,
-      sortable: true,
-    },
+    { name: "Phone", selector: (row) => row.phone },
+    { name: "Price Range", selector: (row) => row.price_range },
     {
       name: "Short Description",
       selector: (row) => row.short_description,
-      sortable: true,
+      wrap: true,
     },
     {
       name: "Image",
-      selector: (row) => row.image,
       cell: (row) =>
         row.image ? (
           <img
             src={row.image}
             alt={row.profile_name}
-            style={{ width: "50px", height: "50px", objectFit: "cover" }}
+            style={{ width: "70px", height: "70px", objectFit: "cover" }}
           />
         ) : (
           "N/A"
@@ -156,7 +149,6 @@ export default function Allvendors() {
     {
       name: "Experience Since",
       selector: (row) => row.experience_since,
-      sortable: true,
     },
     {
       name: "Update Vendor Status",
@@ -182,28 +174,22 @@ export default function Allvendors() {
           />
         </div>
       ),
-      width: "180px",
     },
     {
       name: "Action",
       cell: (row) => (
-        <div className="d-flex align-items-center gap-9">
+        <div className="d-flex align-items-center gap-2">
           <button
-            className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
-            style={{ width: "35px", height: "35px" }}
+            className="btn btn-warning btn-sm"
             onClick={() =>
-              navigate(`/admin/vendordetails`, {
-                state: { vendorId: row.id },
-              })
+              navigate(`/admin/vendordetails`, { state: { vendorId: row.id } })
             }
             title="View"
           >
             <i className="fa-regular fa-eye"></i>
           </button>
-
           <button
-            className="btn btn-info btn-sm d-flex align-items-center justify-content-center"
-            style={{ width: "35px", height: "35px" }}
+            className="btn btn-info btn-sm"
             onClick={() =>
               navigate(`/admin/galleryUpdates/vendorgallery/${row.id}`)
             }
@@ -211,8 +197,7 @@ export default function Allvendors() {
           >
             <i className="fa-solid fa-images"></i>
           </button>
-
-          <button
+        <button
             className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
             style={{ width: "35px", height: "35px" }}
             onClick={() =>
@@ -226,11 +211,8 @@ export default function Allvendors() {
           </button>
         </div>
       ),
-      sortable: false,
-      width: "150px",
     },
-
-    {
+     {
       name: "Status",
       cell: (row) => {
         const status = row.approval_status;
@@ -315,8 +297,7 @@ export default function Allvendors() {
         </div>
         <div className="col-md-6 text-end">
           <button className="btn btn-success me-2" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i>
-            Download Excel
+            <i className="fa-solid fa-file-excel me-1"></i>Download Excel
           </button>
           <Link to="/admin/vendor/addvendors" className="btn btn-primary">
             + Add User
@@ -325,31 +306,40 @@ export default function Allvendors() {
       </div>
 
       <div className="card">
-        <div className="col-md-4">
-          <div className="d-flex align-items-center border rounded px-2">
-            <i className="ri-search-line me-2 text-muted" />
-            <input
-              type="text"
-              className="form-control border-0 shadow-none"
-              placeholder="Search by vendor name..."
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-            />
-            {searchText && (
-              <button
-                className="btn btn-sm btn-light border-0"
-                onClick={() => setSearchText("")}
-              >
-                <i className="ri-close-line" />
-              </button>
-            )}
+        <div className="card-header">
+          <div className="col-md-4">
+            <div className="d-flex align-items-center border rounded px-2">
+              <i className="ri-search-line me-2 text-muted" />
+              <input
+                type="text"
+                className="form-control border-0 shadow-none"
+                placeholder="Search by Owner Name..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+              {searchText && (
+                <button
+                  className="btn btn-sm btn-light border-0"
+                  onClick={() => setSearchText("")}
+                >
+                  <i className="ri-close-line" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
-
-        <div className="row">
-          <div className="col-md-12">
-            <Datatable columns={columns} data={filteredVendors} pagination />
-          </div>
+        <div className="card-body">
+          <Datatable
+            columns={columns}
+            data={filteredVendors}
+            progressPending={loading}
+            pagination
+            paginationServer
+            paginationTotalRows={totalRows}
+            paginationPerPage={perPage}
+            onChangeRowsPerPage={handlePerRowsChange}
+            onChangePage={handlePageChange}
+          />
         </div>
       </div>
     </div>

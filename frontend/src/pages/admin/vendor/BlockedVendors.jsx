@@ -1,43 +1,56 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { GetBlockedVendore ,GetCategories} from "../../../Services/admin/Admin";
+import {
+  GetBlockedVendore,
+  GetCategories,
+} from "../../../Services/admin/Admin";
 import Datatable from "../../../extracomponents/Datatable";
 import * as XLSX from "xlsx";
 
-
 export default function BlockedVendors() {
   const [blockedvendors, setBlockedVendors] = React.useState([]);
-    const [searchText, setSearchText] = useState("");
-      const [categoryList, setCategoryList] = useState([]);
-      const [categoryMap, setCategoryMap] = useState({});
+  const [searchText, setSearchText] = useState("");
+  const [categoryList, setCategoryList] = useState([]);
+  const [categoryMap, setCategoryMap] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
 
-
-  const fetchBlockedVendors = async () => {
+  const fetchBlockedVendors = async (page, limit) => {
+    setLoading(true);
     try {
-      const response = await GetBlockedVendore();
-      setBlockedVendors(response.data);
-      console.log("Vendor list", response.data);
-    } catch (error) {
-      console.log("error");
+      const token = localStorage.getItem("token");
+      const res = await GetBlockedVendore(token,page, limit);
+      if (res?.data && res?.pagination) {
+        setBlockedVendors(res.data);
+        setTotalRows(res.pagination.total_records);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (err) {
+      console.error("Error fetching vendors:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-   const fetchCategories = async () => {
-      try {
-        const res = await GetCategories();
-        const categories = res.data;
-  
-        const categoryObject = {};
-        categories.forEach((cat) => {
-          categoryObject[cat.id] = cat.name;
-        });
-  
-        setCategoryList(categories);
-        setCategoryMap(categoryObject);
-      } catch (error) {
-        console.log("Error fetching categories", error);
-      }
-    };
+  const fetchCategories = async () => {
+    try {
+      const res = await GetCategories();
+      const categories = res.data;
+
+      const categoryObject = {};
+      categories.forEach((cat) => {
+        categoryObject[cat.id] = cat.name;
+      });
+
+      setCategoryList(categories);
+      setCategoryMap(categoryObject);
+    } catch (error) {
+      console.log("Error fetching categories", error);
+    }
+  };
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(blockedvendors);
@@ -52,15 +65,23 @@ export default function BlockedVendors() {
   );
 
   useEffect(() => {
-    fetchBlockedVendors();
+    fetchBlockedVendors(currentPage, perPage);
     fetchCategories();
-  }, []);
+  }, [currentPage, perPage]);
+
+   const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
 
   const columns = [
-  {
+   {
       name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: false,
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "70px",
     },
     {
@@ -105,7 +126,7 @@ export default function BlockedVendors() {
       sortable: true,
     },
 
-   {
+    {
       name: "Social Media",
       cell: (row) =>
         row.social_media_link ? (
@@ -146,7 +167,7 @@ export default function BlockedVendors() {
             <h2 className="add-page-heading">Inactive Vendors</h2>
           </div>
         </div>
-       <div className="col-md-6 text-end">
+        <div className="col-md-6 text-end">
           <button className="btn btn-success me-2" onClick={exportToExcel}>
             <i className="fa-solid fa-file-excel me-1"></i>
             Download Excel
@@ -154,7 +175,7 @@ export default function BlockedVendors() {
         </div>
       </div>
       <div className="card">
-         <div className="col-md-4">
+        <div className="col-md-4">
           <div className="d-flex align-items-center border rounded px-2">
             <i className="ri-search-line me-2 text-muted" />
             <input
@@ -176,7 +197,17 @@ export default function BlockedVendors() {
         </div>
         <div className="row">
           <div className="col-md-12">
-            <Datatable columns={columns} data={filteredBlockedVendors} pagination />
+            <Datatable
+              columns={columns}
+              data={filteredBlockedVendors}
+           progressPending={loading}
+            pagination
+            paginationServer
+            paginationTotalRows={totalRows}
+            paginationPerPage={perPage}
+            onChangeRowsPerPage={handlePerRowsChange}
+            onChangePage={handlePageChange}
+            />
           </div>
         </div>
       </div>

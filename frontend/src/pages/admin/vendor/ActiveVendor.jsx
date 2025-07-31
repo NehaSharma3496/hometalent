@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { GetActiveVendors, GetCategories } from "../../../Services/admin/Admin";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 
 export default function ActiveVendor() {
@@ -9,20 +9,42 @@ export default function ActiveVendor() {
   const [searchText, setSearchText] = useState("");
   const [categoryList, setCategoryList] = useState([]);
   const [categoryMap, setCategoryMap] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
 
-  const fetchActiveVendors = async () => {
+  const fetchActiveVendors = async (page, limit) => {
+    setLoading(true);
     try {
-      const response = await GetActiveVendors();
-      setActiveVendors(response.data);
-      console.log("Vendor list", response.data);
-    } catch (error) {
-      console.log("error");
+      const token = localStorage.getItem("token");
+      const res = await GetActiveVendors(token, page, limit);
+      if (res?.data && res?.pagination) {
+        setActiveVendors(res.data);
+        setTotalRows(res.pagination.total_records);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (err) {
+      console.error("Error fetching active vendors:", err);
+    } finally {
+      setLoading(false);
     }
   };
+
   useEffect(() => {
-    fetchActiveVendors();
+    fetchActiveVendors(currentPage, perPage);
     fetchCategories();
-  }, []);
+  }, [currentPage, perPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(activevendors);
@@ -32,8 +54,8 @@ export default function ActiveVendor() {
     XLSX.writeFile(workbook, "Active vendor List.xlsx");
   };
 
-  const filteredActiveVendors = activevendors.filter((vendor) =>
-    vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+  const filteredActiveVendors = activevendors.filter((activevendors) =>
+    activevendors.owner_name?.toLowerCase().includes(searchText.toLowerCase())
   );
 
   const fetchCategories = async () => {
@@ -56,8 +78,7 @@ export default function ActiveVendor() {
   const columns = [
     {
       name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: false,
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "70px",
     },
     {
@@ -177,6 +198,11 @@ export default function ActiveVendor() {
               columns={columns}
               data={filteredActiveVendors}
               pagination
+              paginationServer
+              paginationTotalRows={totalRows}
+              paginationPerPage={perPage}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
             />
           </div>
         </div>

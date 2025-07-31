@@ -1,26 +1,48 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { GetVendoreList } from "../../../Services/admin/Admin";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 
 export default function ApprovedVendors() {
   const [approvedVendors, setApprovedVendors] = useState([]);
   const [searchText, setSearchText] = useState("");
-
-  const fetchApprovedVendors = async () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const fetchApprovedVendors = async (page, limit) => {
+    setLoading(true);
     try {
-      const response = await GetVendoreList();
-      const approved = response.data?.filter((vendor) => vendor.status === 1);
+      const token = localStorage.getItem("token");
+      const res = await GetVendoreList(token, page, limit);
+      if (res?.data && res?.pagination) {
+        const approved = res.data?.filter((vendor) => vendor.approval_status === 1);
       setApprovedVendors(approved || []);
-    } catch (error) {
-      console.error("Failed to fetch vendors:", error);
+      
+        setTotalRows(res.pagination.total_records);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (err) {
+      console.error("Error fetching vendors:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchApprovedVendors();
-  }, []);
+    fetchApprovedVendors(currentPage, perPage);
+  }, [currentPage, perPage]);
+
+ const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(approvedVendors);
@@ -35,10 +57,9 @@ export default function ApprovedVendors() {
   );
 
   const columns = [
-    {
+   {
       name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: false,
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "70px",
     },
     { name: "Owner Name", selector: (row) => row.owner_name, sortable: true },
@@ -113,7 +134,17 @@ export default function ApprovedVendors() {
         </div>
         <div className="row">
           <div className="col-md-12">
-            <Datatable columns={columns} data={filteredApprovedVendors} pagination />
+            <Datatable
+              columns={columns}
+              data={filteredApprovedVendors}
+               progressPending={loading}
+            pagination
+            paginationServer
+            paginationTotalRows={totalRows}
+            paginationPerPage={perPage}
+            onChangeRowsPerPage={handlePerRowsChange}
+            onChangePage={handlePageChange}
+            />
           </div>
         </div>
       </div>
