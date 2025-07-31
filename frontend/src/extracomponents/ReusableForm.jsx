@@ -155,7 +155,7 @@ const ReusableForm = ({
   validationSchema,
   onSubmit,
   fields,
-  SubmitBtn
+  SubmitBtn,
 }) => {
   return (
     <Formik
@@ -185,7 +185,7 @@ const ReusableForm = ({
 
           <div className="col-12">
             <button type="submit" className="btn btn-primary mt-2">
-          {SubmitBtn ? SubmitBtn : "Submit"}
+              {SubmitBtn ? SubmitBtn : "Submit"}
             </button>
           </div>
         </Form>

@@ -24,7 +24,7 @@ export const MenuItems = {
         { label: "All Vendors", link: "/admin/vendor/allvendors" },
         { label: "Add Vendor", link: "/admin/vendor/addvendors" },
         { label: "Active Vendor", link: "/admin/vendor/activevendors" },
-        { label: "Approve Vendores", link: "/admin/vendor/approvevendors" },
+        { label: "Approve Vendors", link: "/admin/vendor/approvevendors" },
         { label: "Sponsored Vendors", link: "/admin/vendor/sponsoredvendors" },
         { label: "Inactive Vendors", link: "/admin/vendor/blockedvendors" },
         { label: "Pending Vendors", link: "/admin/vendor/pendingvendors" },
@@ -187,9 +187,10 @@ export const MenuItems = {
     },
     {
       icon: "fa-solid fa-upload",
-      label: "Packeges",
+      label: "Packages",
       children: [
         { label: "All Packages", link: "/vendor/allpackages" },
+        {label:"My Subscription", link:"/vendor/mypackages"}
         // { label: "Manage Portfolio", link: "/vendor/profile/manage" },
         // { label: "Edit Profile", link: "/vendor/profile/edit" },
         // { label: "Add Artwork / Painting", link: "/vendor/profile/artworks" },

@@ -17,6 +17,13 @@ const ViewGallery = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
 
+
+  useEffect(() => {
+    if (userId) {
+      fetchgallery();
+    }
+  }, [userId]);
+
   const fetchgallery = async () => {
     try {
       const response = await GetGallery(token, userId);
@@ -89,11 +96,7 @@ const ViewGallery = () => {
     setDraggedIndex(null);
   };
 
-  useEffect(() => {
-    if (userId) {
-      fetchgallery();
-    }
-  }, [userId]);
+
 
   const filteredGallery = gallery
     .filter((item) =>
@@ -120,11 +123,10 @@ const ViewGallery = () => {
   };
 
   const handleUpdateSortOrder = async () => {
-    const orderedData = getUpdatedOrder(); // This gives updated array
+    const orderedData = getUpdatedOrder();
     console.log("Send this to API:", orderedData);
 
     try {
-      // Suppose you have an API function like UpdateGalleryOrder(token, data)
       const response = await UpdateGalleryOrder(token, orderedData);
       if (response.status) {
         Swal.fire("Updated", "Gallery order updated successfully", "success");
@@ -227,6 +229,21 @@ const ViewGallery = () => {
                   )}
 
                   <div className="card-body text-center py-3 mt-3">
+                    <div className="mb-2">
+                      <span
+                        className={`badge ${
+                          item.status === "approved"
+                            ? "bg-success"
+                            : item.status === "pending"
+                            ? "bg-warning text-dark"
+                            : "bg-secondary"
+                        }`}
+                      >
+                        {item.status?.charAt(0).toUpperCase() +
+                          item.status?.slice(1)}
+                      </span>
+                    </div>
+
                     <p className="text-muted small mb-2">
                       {new Date(item.createdAt).toLocaleDateString("en-IN", {
                         day: "2-digit",
@@ -234,6 +251,7 @@ const ViewGallery = () => {
                         year: "numeric",
                       })}
                     </p>
+
                     <button
                       className="btn btn-danger shadow-sm"
                       onClick={() => handleDelete(item)}

@@ -54,6 +54,15 @@ const CategoryDetail = () => {
       return;
     }
 
+    if (!/^\d{10}$/.test(leadData.phone)) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Phone Number",
+        text: "Mobile number must be exactly 10 digits.",
+      });
+      return;
+    }
+
     const payload = {
       ...leadData,
       vendor_id: vendors?.id || "",
@@ -375,9 +384,7 @@ const CategoryDetail = () => {
                     {/* social media icons  */}
 
                     <div className="tour-details-content mt-10">
-                      <h4 className="title ">
-                        Social Media & Links
-                      </h4>
+                      <h4 className="title ">Social Media & Links</h4>
 
                       <div className="d-flex flex-wrap">
                         {socialLinks.map(({ key, icon, color }) => {
@@ -465,10 +472,17 @@ const CategoryDetail = () => {
                       <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
                         <i className="ri-phone-line fs-8" />
                         <input
-                          type="number"
+                          type="text"
                           name="phone"
                           value={leadData.phone}
-                          onChange={handleChange}
+                          maxLength={10}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, "");
+                            setLeadData((prev) => ({
+                              ...prev,
+                              phone: value,
+                            }));
+                          }}
                           placeholder="Enter your mobile number"
                           className="form-control form-control-m border-0 shadow-none"
                         />

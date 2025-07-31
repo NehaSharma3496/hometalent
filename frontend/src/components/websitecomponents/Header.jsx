@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GetCategories } from "../../Services/webService/Web";
+import { useLocation } from "react-router-dom";
 
 const Header = () => {
   const [category, setCategory] = useState([]);
   const navigate = useNavigate();
-
+  const location = useLocation();
   const token = localStorage.getItem("token");
 
   const fetchcategories = async () => {
@@ -21,7 +22,7 @@ const Header = () => {
           console.log("Available ID fields:", {
             _id: response.data[0]._id,
             id: response.data[0].id,
-            categoryId: response.data[0].categoryId
+            categoryId: response.data[0].categoryId,
           });
         }
       } else {
@@ -40,12 +41,12 @@ const Header = () => {
 
   const handleHeaderCategorySelect = (cat) => {
     console.log("Header category selected:", cat);
-    
+
     // Try to get the correct ID field - check multiple possible fields
     const categoryId = cat._id || cat.id || cat.categoryId;
-    
+
     console.log("Using category ID:", categoryId);
-    
+
     if (categoryId) {
       // Navigate to the category page with the selected category ID as a query parameter
       navigate(`/category?categoryId=${categoryId}`);
@@ -65,7 +66,7 @@ const Header = () => {
                 <div className="top-menu-wrapper d-flex align-items-center justify-content-between">
                   <div className="top-header-right">
                     <div className="logo">
-                      <a href="">
+                      <a href="/">
                         <img
                           src="../assets/images//logo/logo.png"
                           width="100"
@@ -85,20 +86,39 @@ const Header = () => {
                         <div className="d-flex justify-content-between align-items-center">
                           <ul className="listing" id="navigation">
                             <li className="single-list">
-                              <Link to="/" className="single link-active">
-                                Home{" "}
+                              <Link
+                                to="/"
+                                className={`single ${
+                                  location.pathname === "/" ? "link-active" : ""
+                                }`}
+                              >
+                                Home
                               </Link>
                             </li>
                             <li className="single-list">
-                              <Link to="/about" className="single">
+                              <Link
+                                to="/about"
+                                className={`single ${
+                                  location.pathname === "/about"
+                                    ? "link-active"
+                                    : ""
+                                }`}
+                              >
                                 About
                               </Link>
                             </li>
                             <li className="single-list">
-                              <a href="#" className="single">
+                              <Link
+                                to="/category"
+                                className={`single ${
+                                  location.pathname.startsWith("/category")
+                                    ? "link-active"
+                                    : ""
+                                }`}
+                              >
                                 Vendors
-                                <i className="ri-arrow-down-s-line" />
-                              </a>
+                                <i className="ri-arrow-down-s-line" />{" "}
+                              </Link>
 
                               <ul className="row submenu">
                                 {Array.from({ length: 2 }, (_, colIndex) => (
@@ -135,10 +155,17 @@ const Header = () => {
                               </ul>
                             </li>
                             <li className="single-list">
-                              <a href="#" className="single">
+                              <Link
+                                to="/blog"
+                                className={`single ${
+                                  location.pathname.startsWith("/blog")
+                                    ? "link-active"
+                                    : ""
+                                }`}
+                              >
                                 Wedding Vogue
-                                <i className="ri-arrow-down-s-line" />
-                              </a>
+                                <i className="ri-arrow-down-s-line" />{" "}
+                              </Link>
                               <ul className="submenu">
                                 <li className="single-list">
                                   <Link to="/blog" className="single">
@@ -148,12 +175,26 @@ const Header = () => {
                               </ul>
                             </li>
                             <li className="single-list">
-                              <Link to="/gallery" className="single">
+                              <Link
+                                to="/gallery"
+                                className={`single ${
+                                  location.pathname === "/gallery"
+                                    ? "link-active"
+                                    : ""
+                                }`}
+                              >
                                 Gallery
                               </Link>
                             </li>
                             <li className="single-list">
-                              <Link to="/contact" className="single">
+                              <Link
+                                to="/contact"
+                                className={`single ${
+                                  location.pathname === "/contact"
+                                    ? "link-active"
+                                    : ""
+                                }`}
+                              >
                                 Contact us
                               </Link>
                             </li>
@@ -247,4 +288,3 @@ const Header = () => {
 };
 
 export default Header;
-

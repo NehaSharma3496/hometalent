@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useNavigate } from 'react-router-dom';
-
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import MenuItems from "../admincomponents/MenuItems.jsx";
 
 export default function AdminHeader() {
   const role = localStorage.getItem("role");
   const MenuData = MenuItems[role] || [];
+  const navigate = useNavigate();
 
   const [sidebarToggled, setSidebarToggled] = useState(false);
 
@@ -93,12 +94,30 @@ export default function AdminHeader() {
   };
 
   const Logout = async () => {
+    const confirm = await Swal.fire({
+      title: "Are you sure you want to logout?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Yes, logout",
+    });
+
+    if (!confirm.isConfirmed) return;
+
     localStorage.clear();
+
+    await Swal.fire(
+      "Logged out",
+      "You have been successfully logged out.",
+      "success"
+    );
+
+    navigate("/");
   };
-  const navigate = useNavigate();
 
   const handleViewAll = () => {
-    navigate('/vendor/Viewallnotification');
+    navigate("/vendor/Viewallnotification");
   };
 
   return (
@@ -159,7 +178,8 @@ export default function AdminHeader() {
                       >
                         <div className="d-flex justify-content-between align-items-center p-3 border-bottom bg-white shadow-sm rounded-top">
                           <h6 className="mb-0 fw-semibold fs-5 text-primary d-flex align-items-center">
-                            <i className="bi bi-bell-fill me-2 text-warning"></i> Notifications
+                            <i className="bi bi-bell-fill me-2 text-warning"></i>{" "}
+                            Notifications
                           </h6>
                           <button
                             className="btn btn-sm btn-outline-primary rounded-pill px-3"
@@ -169,48 +189,63 @@ export default function AdminHeader() {
                           </button>
                         </div>
 
-                        <div className="overflow-auto bg-light" style={{ maxHeight: "400px" }}>
+                        <div
+                          className="overflow-auto bg-light"
+                          style={{ maxHeight: "400px" }}
+                        >
                           {notifications.map((notification) => (
                             <div
                               key={notification.id}
                               className={`p-3 border-bottom rounded-2 mb-2 mx-2 shadow-sm notification-item hover-effect
-                                 ${notification.isRead ? 'bg-white' : 'bg-primary-subtle border-start border-3 border-primary'}`}
+                                 ${
+                                   notification.isRead
+                                     ? "bg-white"
+                                     : "bg-primary-subtle border-start border-3 border-primary"
+                                 }`}
                               style={{ cursor: "pointer", transition: "0.3s" }}
                             >
-                              <h6 className={`mb-1 fw-bold d-flex align-items-center ${notification.isRead ? 'text-light' : 'text-primary'}`}>
+                              <h6
+                                className={`mb-1 fw-bold d-flex align-items-center ${
+                                  notification.isRead
+                                    ? "text-light"
+                                    : "text-primary"
+                                }`}
+                              >
                                 <i className="bi bi-info-circle-fill me-2"></i>
                                 {notification.title}
                               </h6>
-                              <p className="mb-1 text-muted small">{notification.message}</p>
+                              <p className="mb-1 text-muted small">
+                                {notification.message}
+                              </p>
                               <div className="text-end">
-                                <small className="text-muted fst-italic">{notification.time}</small>
+                                <small className="text-muted fst-italic">
+                                  {notification.time}
+                                </small>
                               </div>
                             </div>
                           ))}
                         </div>
 
-
-
                         <div className="p-3 bg-white text-left rounded-bottom shadow-sm border-top">
                           <button
                             className="btn btn-gradient btn-sm px-4 py-2 rounded-pill fw-semibold text-white"
                             style={{
-                              background: 'linear-gradient(135deg, #4e54c8, #8f94fb)',
-                              transition: 'all 0.3s ease-in-out',
-                              boxShadow: '0 4px 10px rgba(78, 84, 200, 0.3)',
+                              background:
+                                "linear-gradient(135deg, #4e54c8, #8f94fb)",
+                              transition: "all 0.3s ease-in-out",
+                              boxShadow: "0 4px 10px rgba(78, 84, 200, 0.3)",
                             }}
                             onMouseEnter={(e) => {
-                              e.target.style.transform = 'scale(1.05)';
+                              e.target.style.transform = "scale(1.05)";
                             }}
                             onMouseLeave={(e) => {
-                              e.target.style.transform = 'scale(1)';
+                              e.target.style.transform = "scale(1)";
                             }}
-                            onClick={handleViewAll} 
+                            onClick={handleViewAll}
                           >
                             View All Notifications
                           </button>
                         </div>
-
                       </div>
                     </>
                   )}
@@ -239,21 +274,32 @@ export default function AdminHeader() {
                       <i className="fa-solid fa-angle-down"></i>
                     </Link>
 
-                   <ul className="dropdown-menu" aria-labelledby="profile-dropdown">
-  {role === "2" && (
-    <li>
-      <Link className="dropdown-item" to="/vendor/myprofile">
-        <i className="fa-light fa-user"></i> My Profile
-      </Link>
-    </li>
-  )}
-  <li>
-    <Link className="dropdown-item" onClick={Logout} to="/">
-      <i className="fa-regular fa-arrow-right-from-bracket"></i> Logout
-    </Link>
-  </li>
-</ul>
-
+                    <ul
+                      className="dropdown-menu"
+                      aria-labelledby="profile-dropdown"
+                    >
+                      {role === "2" && (
+                        <li>
+                          <Link
+                            className="dropdown-item"
+                            to="/vendor/myprofile"
+                          >
+                            <i className="fa-light fa-user"></i> My Profile
+                          </Link>
+                        </li>
+                      )}
+                      <li>
+                        <Link className="dropdown-item" to="/vendor/myprofile">
+                          <i className="fa-light fa-user"></i> Change Password
+                        </Link>
+                      </li>
+                      <li>
+                        <button className="dropdown-item" onClick={Logout}>
+                          <i className="fa-regular fa-arrow-right-from-bracket"></i>
+                          Log Out
+                        </button>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>

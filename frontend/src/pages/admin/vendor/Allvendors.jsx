@@ -13,7 +13,7 @@ export default function Allvendors() {
   const navigate = useNavigate();
   const [vendors, setVendors] = useState([]);
   const [searchText, setSearchText] = useState("");
-  
+
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
@@ -197,7 +197,7 @@ export default function Allvendors() {
           >
             <i className="fa-solid fa-images"></i>
           </button>
-        <button
+          <button
             className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
             style={{ width: "35px", height: "35px" }}
             onClick={() =>
@@ -211,8 +211,9 @@ export default function Allvendors() {
           </button>
         </div>
       ),
+      width:"125px"
     },
-     {
+    {
       name: "Status",
       cell: (row) => {
         const status = row.approval_status;
@@ -328,18 +329,20 @@ export default function Allvendors() {
             </div>
           </div>
         </div>
-        <div className="card-body">
-          <Datatable
-            columns={columns}
-            data={filteredVendors}
-            progressPending={loading}
-            pagination
-            paginationServer
-            paginationTotalRows={totalRows}
-            paginationPerPage={perPage}
-            onChangeRowsPerPage={handlePerRowsChange}
-            onChangePage={handlePageChange}
-          />
+        <div className="row ">
+          <div className="card-body">
+            <Datatable
+              columns={columns}
+              data={filteredVendors}
+              progressPending={loading}
+              pagination
+              paginationServer
+              paginationTotalRows={totalRows}
+              paginationPerPage={perPage}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
+            />
+          </div>
         </div>
       </div>
     </div>

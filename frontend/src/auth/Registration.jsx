@@ -15,7 +15,7 @@ const Registration = () => {
   const [statesData, setStatesData] = useState([]);
   const [cityData, setCityData] = useState([]);
   const [selectedStateId, setSelectedStateId] = useState("");
-  const token = localStorage.getItem("token"); 
+  const token = localStorage.getItem("token");
 
   const initialValues = {
     ownerName: "",
@@ -44,13 +44,16 @@ const Registration = () => {
     ownerName: Yup.string().required("Owner Name is required"),
     state: Yup.string().required("State is required"),
     city: Yup.string().required("City is required"),
-    pin: Yup.string().required("Pin Code is required"),
-    phone: Yup.string().required("Phone is required"),
+    pin: Yup.string()
+      .matches(/^\d{6}$/, "Pin code must be exactly 6 digits")
+      .required("Pin Code is required"),
+
+    phone: Yup.string() .matches(/^\d{10}$/, "Phone number must be exactly 10 digits").required("Phone is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
     category: Yup.array().min(1, "Select at least one category"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
-     experience:Yup.string().required("Experience Is required"),
-     priceRange:Yup.string().required("Price Range is required"),
+    experience: Yup.string().required("Experience Is required"),
+    priceRange: Yup.string().required("Price Range is required"),
   });
 
   // 👇 Only define fields after categoryData is available
@@ -82,7 +85,14 @@ const Registration = () => {
       options: cityData,
       colClass: "col-md-4 mb-3",
     },
-    { name: "pin", label: "Pin Code", type: "text", colClass: "col-md-4 mb-3" },
+    {
+      name: "pin",
+      label: "Pin Code",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+      maxLength: 6,
+    },
+
     {
       name: "phone",
       label: "Phone (Hidden in profile)",
@@ -170,48 +180,6 @@ const Registration = () => {
       colClass: "col-md-12 mb-3",
     },
   ];
-
-  // const onSubmit = async (values) => {
-  //   const payload = {
-  //     owner_name: values.ownerName,
-  //     profile_name: values.profileName,
-  //     state_id: values.state,
-  //     city_id: values.city,
-  //     pin_code: values.pin,
-  //     phone: values.phone,
-  //     email: values.email,
-  //     price_range: values.priceRange,
-  //     short_description: values.shortDesc,
-  //     category_id: values.category.join(","),
-  //     experience_since: values.experience,
-  //     long_description: values.longDesc,
-  //     // social_media_link: values.socialLinks,
-  //     image: values.images,
-  //     // video: null,
-  //     role_id: 2,
-  //     password: values.password,
-  //     show_password: values.password,
-  //   };
-
-  //   try {
-  //     const res = await VendorRegister(payload);
-
-  //     console.log("API SUCCESS RESPONSE:", res?.data);
-
-  //     if (res?.data?.status) {
-  //       Swal.fire("Success", res?.data?.msg || "User registered!", "success");
-  //     } else {
-  //       Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
-  //     }
-  //   } catch (err) {
-  //     console.error("API ERROR:", err);
-  //     Swal.fire(
-  //       "Error",
-  //       err?.response?.data?.msg || err.message || "Something went wrong",
-  //       "error"
-  //     );
-  //   }
-  // };
 
   const onSubmit = async (values) => {
     try {

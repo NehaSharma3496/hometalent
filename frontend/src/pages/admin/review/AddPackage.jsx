@@ -3,7 +3,7 @@ import ReusableForm from "../../../extracomponents/ReusableForm";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
-import { CreatePackage } from "../../../Services/admin/Admin"; 
+import { CreatePackage } from "../../../Services/admin/Admin";
 
 export default function AddPackage() {
   const token = localStorage.getItem("token");
@@ -20,7 +20,9 @@ export default function AddPackage() {
     name: Yup.string().required("Package Name is required"),
     description: Yup.string().required("Description is required"),
     price: Yup.number().required("Price is required").positive(),
-    validity_in_months: Yup.number().required("Validity is required").positive(),
+    validity_in_months: Yup.number()
+      .required("Validity is required")
+      .positive(),
     features: Yup.string().required("Features are required"),
   });
 
@@ -46,9 +48,24 @@ export default function AddPackage() {
     {
       name: "validity_in_months",
       label: "Validity (in months)*",
-      type: "number",
+      type: "select",
       colClass: "col-md-6 mb-3",
+      options: [
+        { label: "1 Month", value: 1 },
+        { label: "2 Month", value: 2 },
+        { label: "3 Months", value: 3 },
+        { label: "4 Month", value: 4 },
+        { label: "5 Month", value: 5 },
+        { label: "6 Months", value: 6 },
+        { label: "7 Month", value: 7 },
+        { label: "8 Month", value: 8 },
+        { label: "9 Month", value: 9 },
+        { label: "10 Month", value: 10 },
+        { label: "11 Month", value: 11 },
+        { label: "12 Months", value: 12 },
+      ],
     },
+
     {
       name: "features",
       label: "Features*",
@@ -68,7 +85,11 @@ export default function AddPackage() {
       }
     } catch (err) {
       console.error("API ERROR:", err);
-      Swal.fire("Error", err?.response?.data?.msg || "Something went wrong", "error");
+      Swal.fire(
+        "Error",
+        err?.response?.data?.msg || "Something went wrong",
+        "error"
+      );
     }
   };
 

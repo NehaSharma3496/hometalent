@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import {
   getVendorPackages,
   subscribeToPackage,
+  getVendorPackageHistory,
 } from "../../../Services/vendor/Vendor";
 import Datatable from "../../../extracomponents/Datatable";
 import Swal from "sweetalert2";
@@ -15,9 +16,11 @@ const VendorPackages = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const vendorId = user?.id;
   const [searchText, setSearchText] = useState("");
+  const [subscribedPackageIds, setSubscribedPackageIds] = useState([]);
 
   useEffect(() => {
     fetchPackages();
+    fetchSubscribedPackages();
   }, []);
 
   const fetchPackages = async () => {
@@ -29,6 +32,18 @@ const VendorPackages = () => {
       }
     } catch (err) {
       console.error("Failed to load packages", err);
+    }
+  };
+
+  const fetchSubscribedPackages = async () => {
+    try {
+      const res = await getVendorPackageHistory(token, vendorId);
+      if (res.status) {
+        const subscribedIds = res.data.map((pkg) => pkg.package_id);
+        setSubscribedPackageIds(subscribedIds);
+      }
+    } catch (err) {
+      console.error("Failed to load subscribed packages", err);
     }
   };
 
@@ -101,19 +116,38 @@ const VendorPackages = () => {
       selector: (row) => row.features,
       sortable: false,
     },
-    {
-      name: "Subscribe",
-      cell: (row) => (
-        <button
-          className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1 custom-subscribe-btn"
-          onClick={() => handleSubscribe(row.id)}
-        >
-          <i className="fa-solid fa-crown text-warning"></i>
-          <span>Subscribe</span>
-        </button>
-      ),
-      sortable: false,
-    },
+ {
+  name: "Subscribe",
+  cell: (row) => {
+    const isSubscribed = subscribedPackageIds.includes(row.id);
+
+    return (
+      <button
+        className={`btn btn-primary p-1 d-flex align-items-center gap-1 ${
+          isSubscribed ? "btn-outline-secondary" : "btn-primary"
+        }`}
+        onClick={() => handleSubscribe(row.id)} 
+      >
+        <i className="fa-solid fa-crown text-warning"></i>
+        <span>{isSubscribed ? "Subscribed" : "Subscribe"}</span>
+      </button>
+    );
+  },
+  sortable: false,
+  width: "140px",
+},{
+  name: "Status",
+  cell: (row) => {
+    const isSubscribed = subscribedPackageIds.includes(row.id);
+    return (
+      <span className={`badge ${isSubscribed ? "bg-success" : "bg-secondary"}`}>
+        {isSubscribed ? "Active" : "Not Subscribed"}
+      </span>
+    );
+  },
+  sortable: false,
+}
+
   ];
 
   return (
