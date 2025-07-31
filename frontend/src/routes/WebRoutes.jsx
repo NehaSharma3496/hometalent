@@ -31,6 +31,7 @@ const WebRoutes = (
     <Route path="/blogdetail" element={<BlogDetail />} />
     <Route path="/category" element={<Category />} />
     <Route path="/realwedding" element={<RealWedding />} />
+    <Route path="/category/:categoryId" element={<Category />} />
   </Route>
 );
 

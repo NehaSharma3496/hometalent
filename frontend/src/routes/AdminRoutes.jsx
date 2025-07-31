@@ -29,6 +29,7 @@ import UpdateVendor from "../pages/admin/vendor/UpdateVendor";
 import VendorPackageDetails from "../pages/admin/vendor/VendorPackageDetails";
 import SponsoredRankUpdate from "../pages/admin/vendor/SponsoredRankUpdate";
 import ViewProfileChanges from "../pages/admin/profileupdaterequest/ViewProfileChanges";
+import RejectedVendors from "../pages/admin/vendor/RejectedVendors";
 
 
 const AdminRoutes = (
@@ -61,6 +62,7 @@ const AdminRoutes = (
     <Route path="vendor/vendorpackagedetails" element={<VendorPackageDetails/>}/>
     <Route path="vendor/sponsoredrankupdate" element={<SponsoredRankUpdate/>}/>
     <Route path="profileupdaterequest/viewprofilechanges" element={<ViewProfileChanges/>}/>
+    <Route path="vendor/rejectedvendors" element={<RejectedVendors/>}/>   
   </Route>
 );
 

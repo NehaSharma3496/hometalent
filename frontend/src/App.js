@@ -6,12 +6,14 @@ import AdminRoutes from './routes/AdminRoutes.jsx';
 import VendorRoutes from './routes/VendorRoutes.jsx';
 import Login from './auth/Login.jsx';
 import Error from './pages/website/Error.jsx';
+import ScrollToTop from "./components/ScrollToTop";
 
 
 function App() {
   return (
     <>
       <Router>
+           <ScrollToTop />
         <Routes>
 
           <Route path="/login" element={<Login />} />

@@ -5,14 +5,18 @@ import select from "react-select";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { GetCategories } from "../../Services/webService/Web";
+import {
+  GetCategories,
+  GetVendorsByCategoryHeader,
+} from "../../Services/webService/Web";
 
 const Home = () => {
   const [statecity, setStateCity] = useState([]);
   const [categories, setCategories] = useState([]);
-
+  const [showAllCategories, setShowAllCategories] = useState(false);
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
+  const [categoryData, setCategoryData] = useState([]);
 
   // State for storing selected IDs
   const [selectedCityId, setSelectedCityId] = useState("");
@@ -21,16 +25,12 @@ const Home = () => {
   const navigate = useNavigate();
 
   const handleCitySelect = (cityName, cityId) => {
-    console.log("City selected:", cityName, "ID:", cityId);
     setSearch(cityName);
     setSelectedCityId(cityId);
     setShowDropdown(false);
   };
 
   const handleCategorySelect = (categoryValue) => {
-    console.log("=== Category Selection Debug ===");
-    console.log("Category dropdown value:", categoryValue);
-
     // Find the actual category object to get the correct ID
     const selectedCategory = categories.find(
       (cat) =>
@@ -38,8 +38,6 @@ const Home = () => {
         cat.id === categoryValue ||
         cat.name === categoryValue
     );
-
-    console.log("Found category object:", selectedCategory);
 
     // Try to get the actual ID from the category object
     let actualCategoryId = categoryValue;
@@ -51,17 +49,12 @@ const Home = () => {
         selectedCategory._id ||
         selectedCategory.categoryId ||
         categoryValue;
-      console.log("Using category ID:", actualCategoryId);
     }
 
     setSelectedCategoryId(actualCategoryId);
   };
 
   const handleFindNow = () => {
-    console.log("=== Find Now Debug ===");
-    console.log("Selected Category ID:", selectedCategoryId);
-    console.log("Selected City ID:", selectedCityId);
-
     // Validate that we have at least one selection
     if (!selectedCategoryId && !selectedCityId) {
       alert("Please select at least a city or category");
@@ -72,17 +65,15 @@ const Home = () => {
     const queryParams = new URLSearchParams();
 
     if (selectedCategoryId) {
-      console.log("Adding categoryId to URL:", selectedCategoryId);
       queryParams.append("categoryId", selectedCategoryId);
     }
 
     if (selectedCityId) {
-      console.log("Adding cityId to URL:", selectedCityId);
       queryParams.append("cityId", selectedCityId);
     }
 
     const url = `/category?${queryParams.toString()}`;
-    console.log("Final navigation URL:", url);
+
     navigate(url);
   };
 
@@ -92,7 +83,6 @@ const Home = () => {
     try {
       const response = await GetStateCity();
       setStateCity(response.data);
-      console.log("Cities loaded:", response.data?.length || 0);
     } catch (error) {
       console.log("Error fetching cities", error);
     }
@@ -102,37 +92,10 @@ const Home = () => {
     try {
       const response = await GetCategories(token);
       setCategories(response.data);
-      console.log("=== Categories Debug ===");
-      console.log("Categories loaded:", response.data?.length || 0);
-      console.log("Sample category:", response.data?.[0]);
-
+      setCategoryData(response.data);
       // Detailed analysis of category structure
       if (response.data && response.data.length > 0) {
         const sampleCat = response.data[0];
-        console.log("Category structure analysis:");
-        console.log(
-          "- _id:",
-          sampleCat._id,
-          "(type:",
-          typeof sampleCat._id,
-          ")"
-        );
-        console.log("- id:", sampleCat.id, "(type:", typeof sampleCat.id, ")");
-        console.log(
-          "- name:",
-          sampleCat.name,
-          "(type:",
-          typeof sampleCat.name,
-          ")"
-        );
-        console.log(
-          "- categoryId:",
-          sampleCat.categoryId,
-          "(type:",
-          typeof sampleCat.categoryId,
-          ")"
-        );
-        console.log("Full object keys:", Object.keys(sampleCat));
       }
     } catch (error) {
       console.log("Error fetching services", error);
@@ -343,7 +306,6 @@ const Home = () => {
                             <option value="">Select Category</option>
                             {Array.isArray(categories) &&
                               categories.map((cat) => {
-                                // Try to determine the correct ID field to use
                                 const categoryId =
                                   cat.id || cat._id || cat.categoryId;
                                 console.log(
@@ -400,167 +362,45 @@ const Home = () => {
             </div>
           </div>
           <div className="grid5-container">
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15">
-                    <div className="category-name">
-                      <p className="pera">Fabric Painting</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-1.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15">
-                    <div className="category-name">
-                      <p className="pera">Canvas Painting</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-2.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15">
-                    <div className="category-name">
-                      <p className="pera">Mehandi Art</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-3.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15">
-                    <div className="category-name">
-                      <p className="pera">Catering</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-4.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15 py-3">
-                    <div className="category-name">
-                      <p className="pera">Cook/Chef on call</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
+            {(showAllCategories ? categoryData : categoryData.slice(0, 10)).map(
+              (category, index) => {
+                const imageIndex =
+                  index < 10
+                    ? `image${index === 0 ? "" : "-" + index}`
+                    : `image-${index % 10}`;
+                const imageSrc = `../assets/images/category/${imageIndex}.png`;
 
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-5.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15">
-                    <div className="category-name">
-                      <p className="pera">Bakery item</p>
-                    </div>
+                return (
+                  <div className="grid-item" key={category._id}>
+                    <Link
+                      to={`/categorydetail?id=${category._id}`}
+                      className="category-banner"
+                    >
+                      <img src={imageSrc} alt={category.name} />
+                      <div className="category-content">
+                        <div className="category-info py-15">
+                          <div className="category-name">
+                            <p className="pera mb-0">{category.name}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
                   </div>
-                </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-6.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-6">
-                    <div className="category-name">
-                      <p className="pera mb-0">Food </p>
-                      <p
-                        className="small-text mt-0 text-black"
-                        style={{ fontSize: "11px" }}
-                      >
-                        (Namkeen,Sweets, snacks)
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-7.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15">
-                    <div className="category-name">
-                      <p className="pera">Gift & Packaging</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-8.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15">
-                    <div className="category-name">
-                      <p className="pera">Jewellery</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-9.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15 py-3">
-                    <div className="category-name">
-                      <p className="pera">Cosmetics</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
+                );
+              }
+            )}
           </div>
-          <button className="btn-primary mx-auto d-block mt-4">
-            View All Categories{" "}
-          </button>
+
+          {categoryData.length > 10 && !showAllCategories && (
+            <div className="text-center mt-3">
+              <button
+                onClick={() => setShowAllCategories(true)}
+                className="btn btn-primary"
+              >
+                View All Categories
+              </button>
+            </div>
+          )}
         </div>
       </section>
       <section className="platform-area platform-area-bg">

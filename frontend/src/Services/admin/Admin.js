@@ -509,3 +509,17 @@ export async function UpdatePackageStatus(token, data) {
     return error;
   }
 }
+
+export async function GetRejectedVendor(token) {
+  try {
+    const res = await axios.get(`${Config.base_url}admin/vendors/rejected`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+

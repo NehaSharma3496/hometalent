@@ -28,6 +28,7 @@ export const MenuItems = {
         { label: "Sponsored Vendors", link: "/admin/vendor/sponsoredvendors" },
         { label: "Inactive Vendors", link: "/admin/vendor/blockedvendors" },
         { label: "Pending Vendors", link: "/admin/vendor/pendingvendors" },
+        {label:"Rejected Vendors" , link:"/admin/vendor/rejectedvendors"},
         // { label: "Shuffle Vendor Order", link: "/admin/vendor/shuffle-order" },
         // { label: "Leads & Inquiries", link: "/admin/vendor/leads" },
       ],
@@ -90,7 +91,7 @@ export const MenuItems = {
       label: "Payments",
       children: [
         { label: "Subscription Packages", link: "/admin/payments/packages" },
-        { label: "Add packeges", link: "addpackage" },
+        { label: "Add packages", link: "addpackage" },
         // { label: "Renewals", link: "/payments/renewals" },
         // { label: "Offers / Discounts", link: "/payments/offers" },
       ],

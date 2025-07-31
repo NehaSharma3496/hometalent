@@ -166,31 +166,40 @@ export default function Allvendors() {
       name: "Experience Since",
       selector: (row) => row.experience_since,
     },
-    {
-      name: "Update Vendor Status",
-      cell: (row) => (
-        <div className="form-check form-switch m-0 d-flex align-items-center">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            role="switch"
-            id={`toggle-${row.id}`}
-            checked={row.status === 1}
-            disabled={row.approval_status !== 1}
-            onChange={(e) =>
-              row.approval_status === 1 &&
-              handleStatusChange(row.id, e.target.checked ? 1 : 2)
-            }
-            style={{
-              width: "3.5rem",
-              height: "1.5rem",
-              cursor: row.approval_status !== 1 ? "not-allowed" : "pointer",
-              marginTop: "2px",
-            }}
-          />
-        </div>
-      ),
-    },
+   {
+  name: "Update Vendor Status",
+  cell: (row) => (
+    <div className="form-check form-switch m-0 d-flex align-items-center">
+      <input
+        className="form-check-input"
+        type="checkbox"
+        role="switch"
+        id={`toggle-${row.id}`}
+        checked={row.status === 1}
+        onChange={(e) => {
+          if (row.approval_status === 1) {
+            handleStatusChange(row.id, e.target.checked ? 1 : 2);
+          } else {
+            Swal.fire({
+              icon: "warning",
+              title: "Action not allowed",
+              text: "Vendor must be approved first to change status.",
+              confirmButtonColor: "#3085d6",
+              confirmButtonText: "OK",
+            });
+          }
+        }}
+        style={{
+          width: "3.5rem",
+          height: "1.5rem",
+          cursor: row.approval_status !== 1 ? "not-allowed" : "pointer",
+          marginTop: "2px",
+        }}
+      />
+    </div>
+  ),
+}
+,
     {
       name: "Action",
       cell: (row) => (
