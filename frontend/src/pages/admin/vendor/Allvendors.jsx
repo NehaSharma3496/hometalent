@@ -94,21 +94,37 @@ export default function Allvendors() {
     }
   };
 
-  const handleStatusChange = async (vendorId, newStatus) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await UpdateVendorStatus(vendorId, newStatus, token);
-      if (res?.status === true || res?.status === "true") {
-        await Swal.fire("Success", "Vendor status updated.", "success");
-        fetchVendors(currentPage, perPage);
-      } else {
-        throw new Error(res?.message || "Failed to update status");
-      }
-    } catch (err) {
-      console.error(err);
-      await Swal.fire("Error", "Failed to update status.", "error");
+ const handleStatusChange = async (vendorId, newStatus) => {
+  const isEnabling = newStatus === 1;
+
+  const confirm = await Swal.fire({
+    title: isEnabling ? "Enable Vendor?" : "Disable Vendor?",
+    text: isEnabling
+      ? "Are you sure you want to enable this vendor?"
+      : "Are you sure you want to disable this vendor?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: isEnabling ? "Yes, enable" : "Yes, disable",
+    cancelButtonText: "Cancel",
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  try {
+    const token = localStorage.getItem("token");
+    const res = await UpdateVendorStatus(vendorId, newStatus, token);
+    if (res?.status === true || res?.status === "true") {
+      await Swal.fire("Success", "Vendor status updated.", "success");
+      fetchVendors(currentPage, perPage);
+    } else {
+      throw new Error(res?.message || "Failed to update status");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    await Swal.fire("Error", "Failed to update status.", "error");
+  }
+};
+
 
   const columns = [
     {
@@ -211,7 +227,7 @@ export default function Allvendors() {
           </button>
         </div>
       ),
-      width:"125px"
+      width: "125px",
     },
     {
       name: "Status",

@@ -578,7 +578,7 @@ const Home = () => {
                     grow. For customers, we make it easy to discover and support
                     local makers and service providers.
                   </p>
-                  <Link to="">Read More...</Link>
+                  <Link to="/about">Read More...</Link>
                 </div>
               </div>
             </div>

@@ -46,8 +46,8 @@ export default function AddVendor() {
     ownerName: Yup.string().required("Owner Name is required"),
     state: Yup.string().required("State is required"),
     city: Yup.string().required("City is required"),
-    pin: Yup.string().required("Pin Code is required"),
-    phone: Yup.string().required("Phone is required"),
+    pin: Yup.string().matches(/^\d{6}$/, "Pin code must be exactly 6 digits").required("Pin Code is required"),
+    phone: Yup.string().matches(/^\d{10}$/, "Phone number must be exactly 10 digits").required("Phone is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
     category: Yup.array().min(1, "Select at least one category"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
@@ -183,49 +183,50 @@ export default function AddVendor() {
   ];
 
   const onSubmit = async (values) => {
-    try {
-      const formData = new FormData();
-      formData.append("owner_name", values.ownerName);
-      formData.append("profile_name", values.profileName);
-      formData.append("state_id", values.state);
-      formData.append("city_id", values.city);
-      formData.append("pin_code", values.pin);
-      formData.append("phone", values.phone);
-      formData.append("email", values.email);
-      formData.append("price_range", values.priceRange);
-      formData.append("short_description", values.shortDesc);
-      formData.append("experience_since", values.experience);
-      formData.append("category_id", values.category.join(","));
-      formData.append("long_description", values.longDesc);
-      formData.append("role_id", 2);
-      formData.append("facebook_link", values.facebook_link || "");
-      formData.append("instagram_link", values.instagram_link || "");
-      formData.append("twitter_link", values.twitter_link || "");
-      formData.append("linkedin_link", values.linkedin_link || "");
-      formData.append("youtube_link", values.youtube_link || "");
-      formData.append("website_link", values.website_link || "");
-      // formData.append("password", values.password);
-      // formData.append("show_password", values.password);
+  try {
+    const formData = new FormData();
+    formData.append("owner_name", values.ownerName);
+    formData.append("profile_name", values.profileName);
+    formData.append("state_id", values.state);
+    formData.append("city_id", values.city);
+    formData.append("pin_code", values.pin);
+    formData.append("phone", values.phone);
+    formData.append("email", values.email);
+    formData.append("price_range", values.priceRange);
+    formData.append("short_description", values.shortDesc);
+    formData.append("experience_since", values.experience);
+    formData.append("category_id", values.category.join(","));
+    formData.append("long_description", values.longDesc);
+    formData.append("role_id", 2);
+    formData.append("facebook_link", values.facebook_link || "");
+    formData.append("instagram_link", values.instagram_link || "");
+    formData.append("twitter_link", values.twitter_link || "");
+    formData.append("linkedin_link", values.linkedin_link || "");
+    formData.append("youtube_link", values.youtube_link || "");
+    formData.append("website_link", values.website_link || "");
 
-      for (let i = 0; i < values.images.length; i++) {
-        formData.append("image", values.images[i]);
-      }
-
-      const res = await VendorRegister(formData);
-      if (res?.data?.status) {
-        Swal.fire("Success", res?.data?.msg || "Vendor added!", "success");
-      } else {
-        Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
-      }
-    } catch (err) {
-      console.error("API ERROR:", err);
-      Swal.fire(
-        "Error",
-        err?.response?.data?.msg || "Something went wrong",
-        "error"
-      );
+    for (let i = 0; i < values.images.length; i++) {
+      formData.append("image", values.images[i]);
     }
-  };
+
+    const res = await VendorRegister(formData);
+    if (res?.data?.status) {
+      Swal.fire("Success", res?.data?.msg || "Vendor added!", "success").then(() => {
+        window.location.reload(); 
+      });
+    } else {
+      Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+    }
+  } catch (err) {
+    console.error("API ERROR:", err);
+    Swal.fire(
+      "Error",
+      err?.response?.data?.msg || "Something went wrong",
+      "error"
+    );
+  }
+};
+
 
   const fetchCategories = async () => {
     try {

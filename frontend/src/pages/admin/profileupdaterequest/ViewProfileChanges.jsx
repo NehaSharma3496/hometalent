@@ -19,7 +19,8 @@ export default function ViewProfileChanges() {
   const [newData, setNewData] = useState({});
   const [categories, setCategories] = useState([]);
   const [states, setStates] = useState([]);
-  const [cities, setCities] = useState([]);
+  const [oldCities, setOldCities] = useState([]);
+  const [newCities, setNewCities] = useState([]);
   const [comparisonRows, setComparisonRows] = useState([]);
 
   useEffect(() => {
@@ -51,13 +52,24 @@ export default function ViewProfileChanges() {
   }, [state, token]);
 
   useEffect(() => {
-    const stateId = newData?.state;
-    if (stateId) {
-      GetCities(token, stateId).then(
-        (res) => res?.status && setCities(res.data || [])
-      );
+    if (newData?.state_id) {
+      GetCities(token, newData.state_id).then((res) => {
+        if (res?.status) {
+          setNewCities(res.data || []);
+        }
+      });
     }
-  }, [newData?.state, token]);
+  }, [newData?.state_id, token]);
+
+  useEffect(() => {
+    if (oldData?.state_id) {
+      GetCities(token, oldData.state_id).then((res) => {
+        if (res?.status) {
+          setOldCities(res.data || []);
+        }
+      });
+    }
+  }, [oldData?.state_id, token]);
 
   useEffect(() => {
     const rows = Object.keys(newData || {})
@@ -65,15 +77,19 @@ export default function ViewProfileChanges() {
         const oldValRaw = oldData?.[key];
         const newValRaw = newData?.[key];
 
-        const resolveField = (key, value) => {
+        const resolveField = (key, value, type = "new") => {
           if (!value && value !== 0) return "-";
 
           switch (key) {
-            case "state":
+            case "state_id":
               return states.find((s) => s.id === +value)?.name || value;
+
+            case "city_id":
             case "city":
-              return cities.find((c) => c.id === +value)?.name || value;
-            case "category":
+              const cityList = type === "old" ? oldCities : newCities;
+              return cityList.find((c) => c.id === +value)?.name || value;
+
+            case "category_id":
               const ids = Array.isArray(value)
                 ? value
                 : value?.toString().split(",") || [];
@@ -83,19 +99,28 @@ export default function ViewProfileChanges() {
                   .filter(Boolean)
                   .join(", ") || value
               );
+
             default:
               return value;
           }
         };
 
-        const oldVal = resolveField(key, oldValRaw);
-        const newVal = resolveField(key, newValRaw);
+        const oldVal = resolveField(key, oldValRaw, "old");
+        const newVal = resolveField(key, newValRaw, "new");
         const hasChanged = `${oldVal}` !== `${newVal}`;
 
         if (!hasChanged) return null;
 
         return {
-          field: key.replace(/_/g, " "),
+          field:
+            key === "state_id" || key === "state"
+              ? "State"
+              : key === "city_id" || key === "city"
+              ? "City"
+              : key === "category_id" || key === "category"
+              ? "Category"
+              : key.replace(/_/g, " "),
+
           oldVal: oldVal || "-",
           newVal: newVal || "-",
         };
@@ -103,7 +128,7 @@ export default function ViewProfileChanges() {
       .filter(Boolean);
 
     setComparisonRows(rows);
-  }, [oldData, newData, states, cities, categories]);
+  }, [oldData, newData, states, oldCities, newCities, categories]);
 
   const handleAction = async (actionType) => {
     const confirm = await Swal.fire({

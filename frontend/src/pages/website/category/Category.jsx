@@ -350,11 +350,11 @@ const Category = () => {
                     className="d-flex align-items-center border rounded px-2 py-1"
                     style={{ maxWidth: "400px", margin: "auto" }}
                   >
-                    <i className="ri-search-line me-2 text-muted" />
+                    <i className="ri-search-line text-muted" />
                     <input
                       type="text"
                       className="form-control border-0 shadow-none"
-                      placeholder="Search vendors by name..."
+                      placeholder="Search by city or name "
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />

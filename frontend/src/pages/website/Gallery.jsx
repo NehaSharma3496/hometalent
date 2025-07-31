@@ -41,7 +41,6 @@ const Gallery = () => {
     }
   };
 
-
   useEffect(() => {
     fetchGallery();
   }, []);
@@ -58,35 +57,38 @@ const Gallery = () => {
       <section className="destination-section-two section-padding package-area">
         <div className="container">
           <div className="row g-4">
-            {gallery.map((slide, i) => (
-              <div key={i} className="col-xl-3 col-lg-4 col-sm-6">
-                <div className="package-card h-calc">
-                  <div
-                    className="package-img imgEffect4 thumbnail"
-                    onClick={() => {
-                      setIndex(i);
-                      setOpen(true);
-                    }}
-                  >
-                    <img
-                      src={slide.src}
-                      alt={`Gallery ${i + 1}`}
-                      style={{
-                        width: "100%",
-                        height: "400px",
-                        objectFit: "cover",
-                        cursor: "pointer",
-                      }}
-                    />
-
-                    <div className="image-badge">
-                      <p className="pera">{slide.title}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+  {gallery.length === 0 ? (
+    <div className="col-12 text-center">
+      <p className="text-danger fs-5">No records found</p>
+    </div>
+  ) : (
+    gallery.map((slide, i) => (
+      <div key={i} className="col-xl-3 col-lg-4 col-sm-6">
+        <div className="package-card h-calc">
+          <div
+            className="package-img imgEffect4 thumbnail"
+            onClick={() => {
+              setIndex(i);
+              setOpen(true);
+            }}
+          >
+            <img
+              src={slide.src}
+              alt={`Gallery ${i + 1}`}
+              style={{
+                width: "100%",
+                height: "400px",
+                objectFit: "cover",
+                cursor: "pointer",
+              }}
+            />
           </div>
+        </div>
+      </div>
+    ))
+  )}
+</div>
+
         </div>
       </section>
 

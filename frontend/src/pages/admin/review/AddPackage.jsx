@@ -52,16 +52,16 @@ export default function AddPackage() {
       colClass: "col-md-6 mb-3",
       options: [
         { label: "1 Month", value: 1 },
-        { label: "2 Month", value: 2 },
+        { label: "2 Months", value: 2 },
         { label: "3 Months", value: 3 },
-        { label: "4 Month", value: 4 },
-        { label: "5 Month", value: 5 },
+        { label: "4 Months", value: 4 },
+        { label: "5 Months", value: 5 },
         { label: "6 Months", value: 6 },
-        { label: "7 Month", value: 7 },
-        { label: "8 Month", value: 8 },
-        { label: "9 Month", value: 9 },
-        { label: "10 Month", value: 10 },
-        { label: "11 Month", value: 11 },
+        { label: "7 Months", value: 7 },
+        { label: "8 Months", value: 8 },
+        { label: "9 Months", value: 9 },
+        { label: "10 Months", value: 10 },
+        { label: "11 Months", value: 11 },
         { label: "12 Months", value: 12 },
       ],
     },
@@ -79,7 +79,11 @@ export default function AddPackage() {
       const res = await CreatePackage(values, token);
 
       if (res?.status) {
-        Swal.fire("Success", res?.msg || "Package created!", "success");
+        Swal.fire("Success", res?.msg || "Package created!", "success").then(
+          () => {
+            window.location.reload();
+          }
+        );
       } else {
         Swal.fire("Error", res?.msg || "Something went wrong", "error");
       }

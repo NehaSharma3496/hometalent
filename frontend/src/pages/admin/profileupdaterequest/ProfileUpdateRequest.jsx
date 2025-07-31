@@ -16,31 +16,35 @@ export default function ProfileUpdateRequests() {
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
 
- const fetchRequests = async (page, limit) => {
-  setLoading(true);
-  try {
-    const token = localStorage.getItem("token");
-    const res = await GetProfileUpdateRequests(token, statusFilter, page, limit);
-    console.log("API Response:", res);
+  const fetchRequests = async (page, limit) => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await GetProfileUpdateRequests(
+        token,
+        statusFilter,
+        page,
+        limit
+      );
+      console.log("API Response:", res);
 
-    // ✅ FIXED condition
-    if (res?.data?.requests && typeof res.data.total === "number") {
-      setRequests(res.data.requests);
-      console.log("Fetched Requests:", res.data.requests);
+      // ✅ FIXED condition
+      if (res?.data?.requests && typeof res.data.total === "number") {
+        setRequests(res.data.requests);
+        console.log("Fetched Requests:", res.data.requests);
 
-      // ✅ Use total from inside data
-      setTotalRows(res.data.total);
-    } else {
-      throw new Error("Invalid response format");
+        // ✅ Use total from inside data
+        setTotalRows(res.data.total);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (err) {
+      console.error("Error fetching vendors:", err);
+      Swal.fire("Error", "Could not load vendor list", "error");
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Error fetching vendors:", err);
-    Swal.fire("Error", "Could not load vendor list", "error");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(requests);
@@ -90,29 +94,58 @@ export default function ProfileUpdateRequests() {
     {
       name: "Status",
       selector: (row) => row.status,
+      cell: (row) => {
+        let badgeClass = "";
+        if (row.status === "pending") {
+          badgeClass = "bg-warning text-dark";
+        } else if (row.status === "approved") {
+          badgeClass = "bg-success";
+        } else if (row.status === "rejected") {
+          badgeClass = "bg-danger";
+        } else {
+          badgeClass = "bg-secondary";
+        }
+
+        return (
+          <span className={`badge fs-6 ${badgeClass}`}>
+            {row.status?.charAt(0).toUpperCase() + row.status?.slice(1)}
+          </span>
+        );
+      },
       sortable: true,
     },
+
     {
       name: "View",
-      cell: (row) => (
-        <div className="d-flex align-items-center gap-9">
-          <button
-            className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
-            style={{ width: "35px", height: "35px" }}
-            onClick={() =>
-              navigate(`/admin/profileupdaterequest/viewprofilechanges`, {
-                state: {
-                  requestData: row,
-                  adminId: localStorage.getItem("userId"),
-                },
-              })
-            }
-            title="View"
-          >
-            <i className="fa-regular fa-eye"></i>
-          </button>
-        </div>
-      ),
+      cell: (row) => {
+        if (row.status === "pending") {
+          return (
+            <div className="d-flex align-items-center gap-9">
+              <button
+                className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
+                style={{ width: "35px", height: "35px" }}
+                onClick={() =>
+                  navigate(`/admin/profileupdaterequest/viewprofilechanges`, {
+                    state: {
+                      requestData: row,
+                      adminId: localStorage.getItem("userId"),
+                    },
+                  })
+                }
+                title="View"
+              >
+                <i className="fa-regular fa-eye"></i>
+              </button>
+            </div>
+          );
+        } else {
+          return (
+            <span className="text-muted fw-semibold">
+              {row.status === "approved" ? "Approved" : "Rejected"}
+            </span>
+          );
+        }
+      },
     },
   ];
 

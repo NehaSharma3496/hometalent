@@ -54,9 +54,10 @@ export default function AllLeads() {
     XLSX.writeFile(workbook, "vendor-leads-list.xlsx");
   };
 
-  const filteredLeads = leads.filter((lead) =>
-    lead.name?.toLowerCase().includes(searchText.toLowerCase())
-  );
+ const filteredLeads = leads.filter((lead) =>
+  lead.vendor?.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+);
+
 
   const columns = [
     {
@@ -122,12 +123,13 @@ export default function AllLeads() {
       </div>
 
       <div className="card">
-        <div className="d-flex align-items-center border rounded px-2 ">
+        <div className="d-flex align-items-center border rounded px-2 "
+           style={{ maxWidth: "250px" }}>
           <i className="ri-search-line me-2 mx-5 text-muted" />
           <input
             type="text"
             className="form-control border-0 shadow-none"
-            placeholder="Search by client name..."
+            placeholder="Search by vendor name..."
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />

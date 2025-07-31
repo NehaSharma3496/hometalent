@@ -140,13 +140,18 @@ const VendorPackages = () => {
   cell: (row) => {
     const isSubscribed = subscribedPackageIds.includes(row.id);
     return (
-      <span className={`badge ${isSubscribed ? "bg-success" : "bg-secondary"}`}>
+      <button
+        className={`btn btn-sm ${isSubscribed ? "btn-success" : "btn-secondary"} `}
+        disabled
+      >
         {isSubscribed ? "Active" : "Not Subscribed"}
-      </span>
+      </button>
     );
   },
   sortable: false,
+   width: "140px",
 }
+
 
   ];
 

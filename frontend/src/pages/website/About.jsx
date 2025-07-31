@@ -1,9 +1,12 @@
 import React from "react";
 import Breadcrumbs from "../../components/websitecomponents/Breadcrumbs";
-import { Link } from "react-router-dom";
+import { Link ,useNavigate} from "react-router-dom";
 
 
 const About = () => {
+
+const navigate=useNavigate();
+
   const breadcrumbLinks = [
     { label: "Home", to: "/" },
     { label: "About Us", to: "#" }, // or current route
@@ -161,7 +164,7 @@ const About = () => {
             
             <div class="news-details-quote mt-0">
                             <h4 class="title">Ready to discover something unique or share your talent with the world?</h4>
-                           <button class="btn-primary">Join HomeTalent4U Today</button>
+                           <button   onClick={() => navigate("/contact")} class="btn-primary">Join HomeTalent4U Today</button>
                         </div>
           </div>
         </div>

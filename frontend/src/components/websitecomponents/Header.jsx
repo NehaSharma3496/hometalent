@@ -120,39 +120,35 @@ const Header = () => {
                                 <i className="ri-arrow-down-s-line" />{" "}
                               </Link>
 
-                              <ul className="row submenu">
-                                {Array.from({ length: 2 }, (_, colIndex) => (
-                                  <div className="col-lg-6" key={colIndex}>
-                                    <ul className="single-list">
-                                      {category
-                                        .filter((_, idx) =>
-                                          colIndex === 0
-                                            ? idx <
-                                              Math.ceil(category.length / 2)
-                                            : idx >=
-                                              Math.ceil(category.length / 2)
-                                        )
-                                        .map((cat) => (
-                                          <li
-                                            className="single-list"
-                                            key={cat._id || cat.id}
-                                          >
-                                            <a
-                                              href="#"
-                                              onClick={(e) => {
-                                                e.preventDefault();
-                                                handleHeaderCategorySelect(cat);
-                                              }}
-                                              className="single"
-                                            >
-                                              {cat.name}
-                                            </a>
-                                          </li>
-                                        ))}
-                                    </ul>
-                                  </div>
-                                ))}
-                              </ul>
+                             <ul className="row submenu">
+  {Array.from({ length: 2 }, (_, colIndex) => (
+    <div className="col-lg-6" key={colIndex}>
+      <ul>
+        {category
+          .filter((_, idx) =>
+            colIndex === 0
+              ? idx < Math.ceil(category.length / 2)
+              : idx >= Math.ceil(category.length / 2)
+          )
+          .map((cat) => (
+            <li key={cat._id || cat.id} className="mb-2">
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleHeaderCategorySelect(cat);
+                }}
+                className="single"
+              >
+                {cat.name}
+              </a>
+            </li>
+          ))}
+      </ul>
+    </div>
+  ))}
+</ul>
+
                             </li>
                             <li className="single-list">
                               <Link
