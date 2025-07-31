@@ -4,7 +4,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { commonEmail } = require("../../helper/commonEmail");
 const { Op, Sequelize } = require('sequelize');
-
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 
 
@@ -133,6 +134,49 @@ exports.login = async (req, res) => {
     res.json({ status: false, msg: error.message });
   }
 };
+
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+
+    if (!user)
+      return res.json({ status: false, msg: 'Email not registered.' });
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = new Date(Date.now() + 3600000); // 1 hour
+
+    await user.update({
+      password_reset_token: token,
+      password_reset_expires: expires,
+    });
+
+    const resetLink = `https://yourdomain.com/reset-password/${token}`;
+
+    // Configure transporter
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: 'your-email@gmail.com',
+        pass: 'your-email-password'
+      }
+    });
+
+    await transporter.sendMail({
+      to: email,
+      subject: 'Reset Password',
+      html: `<p>Click to reset your password: <a href="${resetLink}">${resetLink}</a></p>`
+    });
+
+    return res.json({ status: true, msg: 'Password reset link sent to your email.' });
+
+  } catch (error) {
+    console.error('Forgot Password Error:', error);
+    return res.json({ status: false, msg: error.message });
+  }
+};
+
 
 
 
