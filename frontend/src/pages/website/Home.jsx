@@ -392,16 +392,15 @@ const Home = () => {
           </div>
 
           {categoryData.length > 10 && (
-  <div className="text-center mt-3">
-    <button
-      onClick={() => setShowAllCategories((prev) => !prev)}
-      className="btn btn-primary"
-    >
-      {showAllCategories ? "View Less" : "View All Categories"}
-    </button>
-  </div>
-)}
-
+            <div className="text-center mt-3">
+              <button
+                onClick={() => setShowAllCategories((prev) => !prev)}
+                className="btn btn-primary"
+              >
+                {showAllCategories ? "View Less" : "View All Categories"}
+              </button>
+            </div>
+          )}
         </div>
       </section>
       <section className="platform-area platform-area-bg">

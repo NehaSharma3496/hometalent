@@ -85,6 +85,10 @@ export default function MyPackages() {
       name: "Payment Status",
       selector: (row) => row.payment_status,
     },
+    {
+      name: "Payment Date",
+         selector: (row) => new Date(row.createdAt).toLocaleDateString(),
+    },
   ];
 
   const filterData = (data, query) => {

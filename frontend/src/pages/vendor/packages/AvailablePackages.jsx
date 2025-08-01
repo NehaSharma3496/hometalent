@@ -173,24 +173,31 @@ const VendorPackages = () => {
       sortable: false,
       width: "140px",
     },
-    {
-      name: "Status",
-      cell: (row) => {
-        const isSubscribed = subscribedPackageIds.includes(row.id);
-        return (
-          <button
-            className={`badge ${
-              isSubscribed ? "bg-success" : "bg-secondary"
-            } fs-6`}
-            disabled
-          >
-            {isSubscribed ? "Active" : "Not Subscribed"}
-          </button>
-        );
-      },
-      sortable: false,
-      width: "155px",
-    },
+{
+  name: "Status",
+  cell: (row) => {
+    const isSubscribed = subscribedPackageIds.includes(row.id);
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "40px", width: "100%" }}
+      >
+        <span
+          className={`fs-6 ${isSubscribed ? "badge bg-success" : "text-muted"}`}
+        >
+          {isSubscribed ? "Active" : "-"}
+        </span>
+      </div>
+    );
+  },
+  sortable: false,
+  width: "155px",
+}
+
+
+
+
+
   ];
 
   return (

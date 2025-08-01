@@ -28,29 +28,10 @@ export async function GetStateCity(token) {
   }
 }
 
-export async function GetVendorsByCategory(token, categoryId, cityId) {
-  try {
-    const res = await axios.get(
-      `${Config.base_url}front/vendors-by-category/${categoryId}?city_id=${cityId}`,
-      {
-        headers: {
-          Authorization: `${token}`,
-        },
-      }
-    );
-    return res?.data;
-  } catch (err) {
-    return err;
-  }
-}
-
 export async function SubmitLead(data) {
   try {
-    const response = await axios.post(
-      `${Config.base_url}client/lead`,
-      data
-    );
-     console.log(response.body);
+    const response = await axios.post(`${Config.base_url}client/lead`, data);
+    console.log(response.body);
     console.log("Lead submitted successfully", response);
     return response;
   } catch (error) {
@@ -86,17 +67,36 @@ export async function SubmitContactData(data) {
   }
 }
 
+// export async function GetVendorsByCategoryHeader(token, categoryId) {
+//   try {
+//     const res = await axios.get(
+//       `${Config.base_url}front/vendors-by-category/${categoryId}`,
+//       {
+//         headers: {
+//           Authorization: `${token}`,
+//         },
+//       }
+//     );
+//     return res?.data;
+//   } catch (err) {
+//     return err;
+//   }
+// }
 
-export async function GetVendorsByCategoryHeader(token, categoryId) {
+export async function GetVendorsByCategory(token, categoryId, cityId) {
   try {
-    const res = await axios.get(
-      `${Config.base_url}front/vendors-by-category/${categoryId}`,
-      {
-        headers: {
-          Authorization: `${token}`,
-        },
-      }
-    );
+    let url = `${Config.base_url}front/vendors-by-category/${categoryId}`;
+
+   
+    if (cityId && cityId !== "undefined") {
+      url += `?city_id=${cityId}`;
+    }
+
+    const res = await axios.get(url, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
     return res?.data;
   } catch (err) {
     return err;

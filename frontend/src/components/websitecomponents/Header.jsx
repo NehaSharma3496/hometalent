@@ -11,49 +11,16 @@ const Header = () => {
 
   const fetchcategories = async () => {
     try {
-      const response = await GetCategories(token);
-
-      if (Array.isArray(response.data)) {
-        setCategory(response.data);
-        console.log("Categories loaded in Header:", response.data);
-        // Debug: Check the structure of first category
-        if (response.data.length > 0) {
-          console.log("Sample category structure:", response.data[0]);
-          console.log("Available ID fields:", {
-            _id: response.data[0]._id,
-            id: response.data[0].id,
-            categoryId: response.data[0].categoryId,
-          });
-        }
-      } else {
-        console.error("Expected array but got:", response.data);
-        setCategory([]); // fallback
-      }
-    } catch (error) {
-      console.log("Error fetching categories", error);
-      setCategory([]); // fallback on error
+      const res = await GetCategories(token);
+      setCategory(res?.data);
+    } catch (err) {
+      console.log("Error in fetchig categories");
     }
   };
 
   useEffect(() => {
     fetchcategories();
   }, []);
-
-  const handleHeaderCategorySelect = (cat) => {
-    console.log("Header category selected:", cat);
-
-    // Try to get the correct ID field - check multiple possible fields
-    const categoryId = cat._id || cat.id || cat.categoryId;
-
-    console.log("Using category ID:", categoryId);
-
-    if (categoryId) {
-      // Navigate to the category page with the selected category ID as a query parameter
-      navigate(`/category?categoryId=${categoryId}`);
-    } else {
-      console.error("No valid category ID found in:", cat);
-    }
-  };
 
   return (
     <header className="header-area-three">
@@ -137,16 +104,15 @@ const Header = () => {
                                             key={cat._id || cat.id}
                                             className="mb-2"
                                           >
-                                            <a
-                                              href="#"
-                                              onClick={(e) => {
-                                                e.preventDefault();
-                                                handleHeaderCategorySelect(cat);
+                                            <Link
+                                              to="/category"
+                                              state={{
+                                                categoryId: cat.id,
                                               }}
                                               className="single"
                                             >
                                               {cat.name}
-                                            </a>
+                                            </Link>
                                           </li>
                                         ))}
                                     </ul>

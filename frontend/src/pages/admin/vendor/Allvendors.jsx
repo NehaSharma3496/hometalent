@@ -201,41 +201,40 @@ export default function Allvendors() {
     {
       name: "Action",
       cell: (row) => (
-       <div className="d-flex align-items-center gap-2">
-  <button
-    className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
-    style={{ width: "35px", height: "35px" }}
-    onClick={() =>
-      navigate(`/admin/vendordetails`, { state: { vendorId: row.id } })
-    }
-    title="View"
-  >
-    <i className="fa-regular fa-eye"></i>
-  </button>
-  <button
-    className="btn btn-info btn-sm d-flex align-items-center justify-content-center"
-    style={{ width: "35px", height: "35px" }}
-    onClick={() =>
-      navigate(`/admin/galleryUpdates/vendorgallery/${row.id}`)
-    }
-    title="View Gallery"
-  >
-    <i className="fa-solid fa-images"></i>
-  </button>
-  <button
-    className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
-    style={{ width: "35px", height: "35px" }}
-    onClick={() =>
-      navigate("/admin/vendor/updatevendor", {
-        state: { vendorId: row.id },
-      })
-    }
-    title="Update"
-  >
-    <i className="fa fa-edit"></i>
-  </button>
-</div>
-
+        <div className="d-flex align-items-center gap-2">
+          <button
+            className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
+            style={{ width: "35px", height: "35px" }}
+            onClick={() =>
+              navigate(`/admin/vendordetails`, { state: { vendorId: row.id } })
+            }
+            title="View"
+          >
+            <i className="fa-regular fa-eye"></i>
+          </button>
+          <button
+            className="btn btn-info btn-sm d-flex align-items-center justify-content-center"
+            style={{ width: "35px", height: "35px" }}
+            onClick={() =>
+              navigate(`/admin/galleryUpdates/vendorgallery/${row.id}`)
+            }
+            title="View Gallery"
+          >
+            <i className="fa-solid fa-images"></i>
+          </button>
+          <button
+            className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
+            style={{ width: "35px", height: "35px" }}
+            onClick={() =>
+              navigate("/admin/vendor/updatevendor", {
+                state: { vendorId: row.id },
+              })
+            }
+            title="Update"
+          >
+            <i className="fa fa-edit"></i>
+          </button>
+        </div>
       ),
       width: "125px",
     },

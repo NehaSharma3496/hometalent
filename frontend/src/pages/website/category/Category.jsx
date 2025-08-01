@@ -1,328 +1,89 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
-
 import Breadcrumbs from "../../../components/websitecomponents/Breadcrumbs";
-
-import { useParams, Navigate } from "react-router-dom";
 import {
   GetStateCity,
+  GetCategories,
   GetVendorsByCategory,
 } from "../../../Services/webService/Web";
 
-// Import base_url as named export
-import { base_url } from "../../../Utils/config";
-
 const Category = () => {
   const location = useLocation();
-  const [searchParams] = useSearchParams();
-
   const [vendor, setVendor] = useState([]);
   const [city, setCity] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredVendors, setFilteredVendors] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // CRITICAL FIX: Separate state for category name
-  const [categoryName, setCategoryName] = useState("Category");
-
   const token = localStorage.getItem("token");
 
-  // Get category from location state (from Header navigation)
-  const categoryFromState = location?.state?.category;
+  const categoryId = location?.state?.categoryId;
 
-  // Get parameters from URL search params (from Home page navigation)
-  const categoryIdFromUrl = searchParams.get("categoryId");
-  const cityIdFromUrl = searchParams.get("cityId");
+  const categoryName = categories.find((cat) => cat.id === categoryId)?.name;
 
-  // Determine effective IDs for API call
-  const effectiveCategoryId = categoryFromState?._id || categoryIdFromUrl;
-  const effectiveCityId = cityIdFromUrl;
+  useEffect(() => {
+    fetchCategories();
+    fetchStateCity();
+    fetchVendors();
+  }, [categoryId]);
 
-  // CRITICAL FIX: Use categoryName state instead of complex displayCategory object
-  const displayCategory = {
-    _id: effectiveCategoryId,
-    name: categoryFromState?.name || categoryName,
-  };
-
-  console.log("Category Component State:", {
-    categoryFromState,
-    categoryIdFromUrl,
-    cityIdFromUrl,
-    effectiveCategoryId,
-    effectiveCityId,
-    categoryName,
-  });
-
-  // Custom function for category-only API call (without city_id parameter)
-  const getCategoryOnlyVendors = async (categoryId) => {
-    try {
-      console.log("Making category-only API call for categoryId:", categoryId);
-
-      // Direct axios call without city_id parameter using base_url
-      const response = await axios.get(
-        `${base_url}front/vendors-by-category/${categoryId}`,
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
+  useEffect(() => {
+    const filtered = vendor.filter((v) => {
+      const cityName =
+        city.find((c) => c.type === "city" && c.id === v.city_id)?.name || "";
+      return (
+        v.owner_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        cityName.toLowerCase().includes(searchQuery.toLowerCase())
       );
+    });
+    setFilteredVendors(filtered);
+  }, [searchQuery, vendor, city]);
 
-      console.log("Category-only API response:", response.data);
-      return response.data;
-    } catch (error) {
-      console.error("Category-only API error:", error);
-      return { status: false, data: [] };
+  const fetchStateCity = async () => {
+    try {
+      const res = await GetStateCity(token);
+      setCity(res?.data);
+    } catch (err) {
+      console.log("Error in fetching city", err);
     }
   };
 
-  // CRITICAL FIX: Simplified category details fetch function
-  const fetchCategoryDetails = async (categoryId) => {
+  const fetchCategories = async () => {
     try {
-      console.log("Fetching category details for ID:", categoryId);
-
-      const response = await axios.get(
-        `${base_url}front/categories/${categoryId}`,
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
-      );
-
-      console.log("Category details response:", response.data);
-
-      if (response.data && response.data.data && response.data.data.name) {
-        const fetchedName = response.data.data.name;
-        console.log("Setting category name to:", fetchedName);
-        setCategoryName(fetchedName);
-        return fetchedName;
-      }
-      return null;
-    } catch (error) {
-      console.error("Error fetching category details:", error);
-      return null;
+      const res = await GetCategories(token);
+      setCategories(res?.data);
+    } catch (err) {
+      console.log("Error in fetching city", err);
     }
   };
 
   const fetchVendors = async () => {
     setLoading(true);
     try {
-      console.log("Fetching vendors with params:", {
-        categoryId: effectiveCategoryId,
-        cityId: effectiveCityId,
-      });
-
-      let response;
-
-      if (effectiveCategoryId && effectiveCityId) {
-        // Both category and city selected - use original API function
-        console.log("API Call: Both category and city");
-        response = await GetVendorsByCategory(
-          token,
-          effectiveCategoryId,
-          effectiveCityId
-        );
-      } else if (effectiveCategoryId) {
-        // Only category selected - use custom function without city_id
-        console.log("API Call: Only category - using custom function");
-        response = await getCategoryOnlyVendors(effectiveCategoryId);
-      } else if (effectiveCityId) {
-        // Only city selected - use original API function with empty category
-        console.log("API Call: Only city - using empty string for category");
-        response = await GetVendorsByCategory(token, "", effectiveCityId);
-      } else {
-        console.log("No filters provided");
-        setVendor([]);
-        setLoading(false);
-        return;
-      }
-
-      console.log("API Response:", response);
-
-      if (response && response.data && Array.isArray(response.data)) {
-        setVendor(response.data);
-        console.log(`Successfully loaded ${response.data.length} vendors`);
-      } else {
-        console.log("No vendor data in response or invalid format");
-        setVendor([]);
-      }
-    } catch (error) {
-      console.error("Error fetching vendors:", error);
-      setVendor([]);
+      const res = await GetVendorsByCategory(token, categoryId, null);
+      setVendor(res?.data);
+    } catch (err) {
+      console.log("Error in fetching vendorsby categories", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchCities = async () => {
-    try {
-      const response = await GetStateCity();
-      console.log("Cities fetched:", response?.data?.length || 0);
-      setCity(response.data || []);
-    } catch (error) {
-      console.log("Error in fetching cities", error);
-      setCity([]);
-    }
-  };
-
-  // Filter vendors based on search query
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredVendors(vendor);
-    } else {
-      const filtered = vendor.filter((v) => {
-        const ownerMatch = v.owner_name
-          ?.toLowerCase()
-          .includes(searchQuery.toLowerCase());
-
-        const cityMatch = city
-          .find((c) => c.type === "city" && c.id === v.city_id)
-          ?.name?.toLowerCase()
-          .includes(searchQuery.toLowerCase());
-
-        return ownerMatch || cityMatch;
-      });
-
-      setFilteredVendors(filtered);
-    }
-  }, [searchQuery, vendor, city]);
-
-  // Fetch cities on component mount
-  useEffect(() => {
-    fetchCities();
-  }, []);
-
-  // Fetch vendors when parameters change
-  useEffect(() => {
-    if (effectiveCategoryId || effectiveCityId) {
-      fetchVendors();
-    }
-  }, [effectiveCategoryId, effectiveCityId, token]);
-
-  // CRITICAL FIX: Simplified useEffect for category name fetching
-  useEffect(() => {
-    // Only fetch category details if we have categoryId from URL and no category from state
-    if (categoryIdFromUrl && !categoryFromState) {
-      console.log(
-        "Fetching category details for URL param:",
-        categoryIdFromUrl
-      );
-      fetchCategoryDetails(categoryIdFromUrl);
-    } else if (categoryFromState) {
-      // If we have category from state, use its name
-      console.log("Using category name from state:", categoryFromState.name);
-      setCategoryName(categoryFromState.name);
-    }
-  }, [categoryIdFromUrl, categoryFromState]);
-
-  // Get city name for display
-  const selectedCityName = effectiveCityId
-    ? city.find((c) => c.type === "city" && c.id === parseInt(effectiveCityId))
-        ?.name
-    : null;
-
-  // Dynamic page title
-  const getPageTitle = () => {
-    if (effectiveCategoryId && effectiveCityId) {
-      return `${displayCategory.name} in ${
-        selectedCityName || "Selected City"
-      }`;
-    } else if (effectiveCategoryId) {
-      return displayCategory.name;
-    } else if (effectiveCityId) {
-      return `Vendors in ${selectedCityName || "Selected City"}`;
-    }
-    return "Vendors";
-  };
-
   const breadcrumbLinks = [
     { label: "Home", to: "/" },
-    { label: getPageTitle(), to: "#" },
+    { label: categoryName, to: "#" },
   ];
-
-  // CRITICAL FIX: Improved sorting function
-  const handleSortChange = (e) => {
-    const value = e.target.value;
-    console.log("Sorting by:", value);
-
-    let sorted = [...filteredVendors];
-
-    const getMinPrice = (range) => {
-      if (!range) return 0;
-      const parts = range
-        .split("-")
-        .map((p) => parseInt(p.replace(/[^0-9]/g, "")));
-      return isNaN(parts[0]) ? 0 : parts[0];
-    };
-
-    const getMaxPrice = (range) => {
-      if (!range) return 0;
-      const parts = range
-        .split("-")
-        .map((p) => parseInt(p.replace(/[^0-9]/g, "")));
-      return isNaN(parts[1]) ? parts[0] : parts[1];
-    };
-
-    if (value === "low") {
-      sorted.sort(
-        (a, b) => getMinPrice(a.price_range) - getMinPrice(b.price_range)
-      );
-    } else if (value === "high") {
-      sorted.sort(
-        (a, b) => getMaxPrice(b.price_range) - getMaxPrice(a.price_range)
-      );
-    } else if (value === "new") {
-      sorted.sort((a, b) => {
-        // Try multiple date field possibilities
-        const dateA = new Date(
-          a.created_at || a.createdAt || a.date_created || a.dateCreated || 0
-        );
-        const dateB = new Date(
-          b.created_at || b.createdAt || b.date_created || b.dateCreated || 0
-        );
-        console.log("Sorting dates:", { dateA, dateB });
-        return dateB - dateA; // Newest first
-      });
-    } else if (value === "popular") {
-      // Reset to original order from vendor state
-      sorted = [...vendor].filter((v) => {
-        if (!searchQuery.trim()) return true;
-
-        const ownerMatch = v.owner_name
-          ?.toLowerCase()
-          .includes(searchQuery.toLowerCase());
-
-        const cityMatch = city
-          .find((c) => c.type === "city" && c.id === v.city_id)
-          ?.name?.toLowerCase()
-          .includes(searchQuery.toLowerCase());
-
-        return ownerMatch || cityMatch;
-      });
-    }
-
-    console.log("Sorted vendors:", sorted.length);
-    setFilteredVendors(sorted);
-  };
 
   return (
     <div>
-      <Breadcrumbs title={getPageTitle()} links={breadcrumbLinks} />
+      <Breadcrumbs title={categoryName} links={breadcrumbLinks} />
       <section className="tour-list-section top-bottom-padding2">
         <div className="container">
           <div className="row g-4">
             <div className="col-xl-12">
               <div className="showing-result">
-                <h4 className="title">
-                  {loading
-                    ? "Loading..."
-                    : `Showing ${filteredVendors.length} of ${vendor.length} Results`}
-                  {effectiveCategoryId && ` for ${displayCategory.name}`}
-                  {effectiveCityId &&
-                    ` in ${selectedCityName || "Selected City"}`}
-                </h4>
+                <h4 className="title"></h4>
 
                 <div className="d-flex gap-10 align-items-center">
                   <div
@@ -369,7 +130,7 @@ const Category = () => {
                   </div>
 
                   <div className="sorting-dropdown">
-                    <select className="form-select" onChange={handleSortChange}>
+                    <select className="form-select">
                       <option value="">All</option>
                       <option value="low">Price low to high</option>
                       <option value="high">Price high to low</option>
@@ -398,8 +159,7 @@ const Category = () => {
                                 to="/categorydetail"
                                 state={{
                                   vendor: item,
-                                  category: displayCategory,
-                                  cities: city,
+                                  cityName: city,
                                 }}
                               >
                                 <img
@@ -424,16 +184,16 @@ const Category = () => {
                                   to="/categorydetail"
                                   state={{
                                     vendor: item,
-                                    category: displayCategory,
-                                    cities: city,
                                   }}
                                 >
                                   {item.owner_name}
                                 </Link>
                               </h4>
-                              <p className="category-name text-capitalize text-primary small">
-                                {displayCategory.name}
+                              <p className="category-name text-capitalize text-primary">
+                                <i className="fa-solid fa-layer-group me-2"></i>
+                                {categoryName}
                               </p>
+
                               <div className="location">
                                 <i className="ri-map-pin-line" />
                                 <div className="name text-capitalize">
@@ -455,14 +215,12 @@ const Category = () => {
                                 </div>
                                 <Link
                                   to="/categorydetail"
-                                  className="browse-btn"
                                   state={{
                                     vendor: item,
-                                    category: displayCategory,
-                                    cities: city,
                                   }}
+                                  className="browse-btn"
                                 >
-                                  book now
+                                  Book now
                                 </Link>
                               </div>
                             </div>
@@ -471,11 +229,7 @@ const Category = () => {
                       ))
                     ) : (
                       <div className="text-center py-5">
-                        <h5 className="text-danger">
-                          {effectiveCategoryId || effectiveCityId
-                            ? "No vendors found for the selected criteria"
-                            : "Please select a category or city to view vendors"}
-                        </h5>
+                        <h5 className="text-danger">No vendors found</h5>
                       </div>
                     )}
                   </div>
