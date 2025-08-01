@@ -57,7 +57,12 @@ exports.getVendorsByCategoryId = async (req, res) => {
       status: 1
     };
     if (category_id) {
-      whereClause.category_id = { [Op.like]: `%${category_id}%` };
+        whereClause[Op.or] = [
+    { category_id: category_id }, // Exact match
+    { category_id: { [Op.like]: `%,${category_id},%` } }, // Middle
+    { category_id: { [Op.like]: `${category_id},%` } },   // Start
+    { category_id: { [Op.like]: `%,${category_id}` } }    // End
+  ];
     }
     if (city_id) {
       whereClause.city_id = city_id;

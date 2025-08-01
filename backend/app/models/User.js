@@ -143,7 +143,17 @@ const User = sequelize.define('User', {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0, // 1 = sponsored vendor, 0 = not sponsored
-    },  
+    },
+    
+    password_reset_token: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    },
+
+   password_reset_expires: {
+   type: DataTypes.DATE,
+   allowNull: true,
+   },
 },
     {
         tableName: 'users',
