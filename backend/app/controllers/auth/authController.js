@@ -141,8 +141,9 @@ exports.forgotPassword = async (req, res) => {
   try {
     const user = await User.findOne({ where: { email } });
 
-    if (!user)
+    if (!user){
       return res.json({ status: false, msg: 'Email not registered.' });
+    }
 
     const token = crypto.randomBytes(32).toString('hex');
     const expires = new Date(Date.now() + 3600000); // 1 hour
@@ -153,26 +154,44 @@ exports.forgotPassword = async (req, res) => {
     });
 
     const resetLink = `https://yourdomain.com/reset-password/${token}`;
-
-    // Configure transporter
-    const transporter = nodemailer.createTransport({
-      service: 'Gmail',
-      auth: {
-        user: 'your-email@gmail.com',
-        pass: 'your-email-password'
-      }
-    });
-
-    await transporter.sendMail({
-      to: email,
-      subject: 'Reset Password',
-      html: `<p>Click to reset your password: <a href="${resetLink}">${resetLink}</a></p>`
-    });
-
+    var message = `<p>Click to reset your password: <a href="${resetLink}">${resetLink}</a></p>`;
+     await commonEmail(email, 'Reset Password', message);
     return res.json({ status: true, msg: 'Password reset link sent to your email.' });
 
   } catch (error) {
     console.error('Forgot Password Error:', error);
+    return res.json({ status: false, msg: error.message });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { token, new_password } = req.body;
+
+  try {
+    const user = await User.findOne({
+      where: {
+        password_reset_token: token,
+        password_reset_expires: { [Op.gt]: new Date() }
+      }
+    });
+
+    if (!user) {
+      return res.json({ status: false, msg: 'Invalid or expired token.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(new_password, 10);
+
+    await user.update({
+      password: hashedPassword,
+      show_password: null,
+      password_reset_token: null,
+      password_reset_expires: null,
+    });
+
+    return res.json({ status: true, msg: 'Password reset successful.' });
+
+  } catch (error) {
+    console.error('Reset Password Error:', error);
     return res.json({ status: false, msg: error.message });
   }
 };
