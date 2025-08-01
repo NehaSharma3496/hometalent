@@ -8,6 +8,7 @@ import {
 import Datatable from "../../../extracomponents/Datatable";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
+import { loadScript } from "../../../Utils/razorpayLoader";
 
 const VendorPackages = () => {
   const [packages, setPackages] = useState([]);
@@ -59,7 +60,15 @@ const VendorPackages = () => {
     XLSX.writeFile(workbook, "vendor-packages.xlsx");
   };
 
-  const handleSubscribe = async (packageId) => {
+  const AddSubscribeplan = async (pkg) => {
+  try {
+    const amount = pkg.price; 
+    const getkey = "rzp_test_22mEHcDzJbcUmz"; 
+
+    if (!window.Razorpay) {
+      await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+    }
+
     const confirm = await Swal.fire({
       title: "Are you sure?",
       text: "Do you want to subscribe to this package?",
@@ -68,21 +77,49 @@ const VendorPackages = () => {
       confirmButtonText: "Yes, subscribe",
     });
 
-    if (confirm.isConfirmed) {
-      const payload = {
-        vendor_id: vendorId,
-        package_id: packageId,
-        payment_reference: `TXN${Date.now()}`,
-      };
+    if (!confirm.isConfirmed) return;
 
-      try {
-        await subscribeToPackage(payload);
-        Swal.fire("Success", "Subscribed successfully!", "success");
-      } catch (err) {
-        Swal.fire("Error", "Subscription failed", "error");
-      }
-    }
-  };
+    const finalAmount = Math.round(amount * 100);
+
+    const options = {
+      key: getkey,
+      amount: finalAmount,
+      name: "Hometalent4u",
+      currency: "INR",
+      description: pkg.name || "Subscription Plan",
+      handler: async function (response) {
+        const data = {
+          vendor_id: vendorId,
+          package_id: pkg.id,
+          
+          // price: amount,
+          payment_reference: response.razorpay_payment_id, 
+        };
+
+        const result = await subscribeToPackage(data, token);
+        if (result?.status) {
+          Swal.fire("Subscribed!", "Your package is now active.", "success");
+          fetchSubscribedPackages(); 
+        }
+      },
+      prefill: {
+        email: user?.email,
+        contact: user?.phone,
+        name: user?.name,
+      },
+      theme: {
+        color: "#F37254",
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  } catch (error) {
+    console.error("Subscription error:", error);
+    Swal.fire("Error", "Something went wrong during subscription.", "error");
+  }
+};
+
 
   const columns = [
     {
@@ -116,43 +153,44 @@ const VendorPackages = () => {
       selector: (row) => row.features,
       sortable: false,
     },
- {
-  name: "Subscribe",
-  cell: (row) => {
-    const isSubscribed = subscribedPackageIds.includes(row.id);
+    {
+      name: "Subscribe",
+      cell: (row) => {
+        const isSubscribed = subscribedPackageIds.includes(row.id);
 
-    return (
-      <button
-        className={`btn btn-primary p-1 d-flex align-items-center gap-1 ${
-          isSubscribed ? "btn-outline-secondary" : "btn-primary"
-        }`}
-        onClick={() => handleSubscribe(row.id)} 
-      >
-        <i className="fa-solid fa-crown text-warning"></i>
-        <span>{isSubscribed ? "Subscribed" : "Subscribe"}</span>
-      </button>
-    );
-  },
-  sortable: false,
-  width: "140px",
-},{
-  name: "Status",
-  cell: (row) => {
-    const isSubscribed = subscribedPackageIds.includes(row.id);
-    return (
-      <button
-        className={`btn btn-sm ${isSubscribed ? "btn-success" : "btn-secondary"} `}
-        disabled
-      >
-        {isSubscribed ? "Active" : "Not Subscribed"}
-      </button>
-    );
-  },
-  sortable: false,
-   width: "140px",
-}
-
-
+        return (
+          <button
+            className={`btn btn-primary p-1 d-flex align-items-center gap-1 ${
+              isSubscribed ? "btn-outline-secondary" : "btn-primary"
+            }`}
+            onClick={() => AddSubscribeplan(row)}
+          >
+            <i className="fa-solid fa-crown text-warning"></i>
+            <span>{isSubscribed ? "Subscribed" : "Subscribe"}</span>
+          </button>
+        );
+      },
+      sortable: false,
+      width: "140px",
+    },
+    {
+      name: "Status",
+      cell: (row) => {
+        const isSubscribed = subscribedPackageIds.includes(row.id);
+        return (
+          <button
+            className={`badge ${
+              isSubscribed ? "bg-success" : "bg-secondary"
+            } fs-6`}
+            disabled
+          >
+            {isSubscribed ? "Active" : "Not Subscribed"}
+          </button>
+        );
+      },
+      sortable: false,
+      width: "155px",
+    },
   ];
 
   return (

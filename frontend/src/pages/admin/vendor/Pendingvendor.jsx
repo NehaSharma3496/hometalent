@@ -172,26 +172,19 @@ export default function PendingVendor() {
       selector: (row) => row.short_description,
       sortable: true,
     },
-
-    {
-      name: "Social Media",
+ {
+      name: "Image",
       cell: (row) =>
-        row.social_media_link ? (
-          <a
-            href={row.social_media_link}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <i className="fa-brands fa-instagram" />
-          </a>
+        row.image ? (
+          <img
+            src={row.image}
+            alt={row.profile_name}
+            style={{ width: "70px", height: "70px", objectFit: "cover" }}
+          />
         ) : (
-          <span className="text-muted">Not Provided</span>
+          "N/A"
         ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
     },
-
     {
       name: "Pin Code",
       selector: (row) => row.pin_code,

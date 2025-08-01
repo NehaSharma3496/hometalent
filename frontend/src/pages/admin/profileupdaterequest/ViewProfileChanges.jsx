@@ -14,7 +14,6 @@ export default function ViewProfileChanges() {
   const { state } = useLocation();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
   const [oldData, setOldData] = useState({});
   const [newData, setNewData] = useState({});
   const [categories, setCategories] = useState([]);
@@ -151,6 +150,7 @@ export default function ViewProfileChanges() {
 
     if (result?.status) {
       Swal.fire("Success", "Request processed successfully", "success");
+      navigate("/admin/profileupdaterequest")
     } else {
       Swal.fire("Error", result?.message || "Something went wrong", "error");
     }

@@ -94,37 +94,36 @@ export default function Allvendors() {
     }
   };
 
- const handleStatusChange = async (vendorId, newStatus) => {
-  const isEnabling = newStatus === 1;
+  const handleStatusChange = async (vendorId, newStatus) => {
+    const isEnabling = newStatus === 1;
 
-  const confirm = await Swal.fire({
-    title: isEnabling ? "Enable Vendor?" : "Disable Vendor?",
-    text: isEnabling
-      ? "Are you sure you want to enable this vendor?"
-      : "Are you sure you want to disable this vendor?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: isEnabling ? "Yes, enable" : "Yes, disable",
-    cancelButtonText: "Cancel",
-  });
+    const confirm = await Swal.fire({
+      title: isEnabling ? "Enable Vendor?" : "Disable Vendor?",
+      text: isEnabling
+        ? "Are you sure you want to enable this vendor?"
+        : "Are you sure you want to disable this vendor?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: isEnabling ? "Yes, enable" : "Yes, disable",
+      cancelButtonText: "Cancel",
+    });
 
-  if (!confirm.isConfirmed) return;
+    if (!confirm.isConfirmed) return;
 
-  try {
-    const token = localStorage.getItem("token");
-    const res = await UpdateVendorStatus(vendorId, newStatus, token);
-    if (res?.status === true || res?.status === "true") {
-      await Swal.fire("Success", "Vendor status updated.", "success");
-      fetchVendors(currentPage, perPage);
-    } else {
-      throw new Error(res?.message || "Failed to update status");
+    try {
+      const token = localStorage.getItem("token");
+      const res = await UpdateVendorStatus(vendorId, newStatus, token);
+      if (res?.status === true || res?.status === "true") {
+        await Swal.fire("Success", "Vendor status updated.", "success");
+        fetchVendors(currentPage, perPage);
+      } else {
+        throw new Error(res?.message || "Failed to update status");
+      }
+    } catch (err) {
+      console.error(err);
+      await Swal.fire("Error", "Failed to update status.", "error");
     }
-  } catch (err) {
-    console.error(err);
-    await Swal.fire("Error", "Failed to update status.", "error");
-  }
-};
-
+  };
 
   const columns = [
     {
@@ -166,75 +165,77 @@ export default function Allvendors() {
       name: "Experience Since",
       selector: (row) => row.experience_since,
     },
-   {
-  name: "Update Vendor Status",
-  cell: (row) => (
-    <div className="form-check form-switch m-0 d-flex align-items-center">
-      <input
-        className="form-check-input"
-        type="checkbox"
-        role="switch"
-        id={`toggle-${row.id}`}
-        checked={row.status === 1}
-        onChange={(e) => {
-          if (row.approval_status === 1) {
-            handleStatusChange(row.id, e.target.checked ? 1 : 2);
-          } else {
-            Swal.fire({
-              icon: "warning",
-              title: "Action not allowed",
-              text: "Vendor must be approved first to change status.",
-              confirmButtonColor: "#3085d6",
-              confirmButtonText: "OK",
-            });
-          }
-        }}
-        style={{
-          width: "3.5rem",
-          height: "1.5rem",
-          cursor: row.approval_status !== 1 ? "not-allowed" : "pointer",
-          marginTop: "2px",
-        }}
-      />
-    </div>
-  ),
-}
-,
+    {
+      name: "Update Vendor Status",
+      cell: (row) => (
+        <div className="form-check form-switch m-0 d-flex align-items-center">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            role="switch"
+            id={`toggle-${row.id}`}
+            checked={row.status === 1}
+            onChange={(e) => {
+              if (row.approval_status === 1) {
+                handleStatusChange(row.id, e.target.checked ? 1 : 2);
+              } else {
+                Swal.fire({
+                  icon: "warning",
+                  title: "Action not allowed",
+                  text: "Vendor must be approved first to change status.",
+                  confirmButtonColor: "#3085d6",
+                  confirmButtonText: "OK",
+                });
+              }
+            }}
+            style={{
+              width: "3.5rem",
+              height: "1.5rem",
+              cursor: row.approval_status !== 1 ? "not-allowed" : "pointer",
+              marginTop: "2px",
+            }}
+          />
+        </div>
+      ),
+    },
     {
       name: "Action",
       cell: (row) => (
-        <div className="d-flex align-items-center gap-2">
-          <button
-            className="btn btn-warning btn-sm"
-            onClick={() =>
-              navigate(`/admin/vendordetails`, { state: { vendorId: row.id } })
-            }
-            title="View"
-          >
-            <i className="fa-regular fa-eye"></i>
-          </button>
-          <button
-            className="btn btn-info btn-sm"
-            onClick={() =>
-              navigate(`/admin/galleryUpdates/vendorgallery/${row.id}`)
-            }
-            title="View Gallery"
-          >
-            <i className="fa-solid fa-images"></i>
-          </button>
-          <button
-            className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
-            style={{ width: "35px", height: "35px" }}
-            onClick={() =>
-              navigate("/admin/vendor/updatevendor", {
-                state: { vendorId: row.id },
-              })
-            }
-            title="Update"
-          >
-            <i className="fa fa-edit"></i>
-          </button>
-        </div>
+       <div className="d-flex align-items-center gap-2">
+  <button
+    className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
+    style={{ width: "35px", height: "35px" }}
+    onClick={() =>
+      navigate(`/admin/vendordetails`, { state: { vendorId: row.id } })
+    }
+    title="View"
+  >
+    <i className="fa-regular fa-eye"></i>
+  </button>
+  <button
+    className="btn btn-info btn-sm d-flex align-items-center justify-content-center"
+    style={{ width: "35px", height: "35px" }}
+    onClick={() =>
+      navigate(`/admin/galleryUpdates/vendorgallery/${row.id}`)
+    }
+    title="View Gallery"
+  >
+    <i className="fa-solid fa-images"></i>
+  </button>
+  <button
+    className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
+    style={{ width: "35px", height: "35px" }}
+    onClick={() =>
+      navigate("/admin/vendor/updatevendor", {
+        state: { vendorId: row.id },
+      })
+    }
+    title="Update"
+  >
+    <i className="fa fa-edit"></i>
+  </button>
+</div>
+
       ),
       width: "125px",
     },
@@ -243,7 +244,6 @@ export default function Allvendors() {
       cell: (row) => {
         const status = row.approval_status;
 
-        // Set button label and color
         const getStatusLabel = () => {
           if (status === 1) return "Approved";
           if (status === 2) return "Rejected";
@@ -251,9 +251,9 @@ export default function Allvendors() {
         };
 
         const getButtonClass = () => {
-          if (status === 1) return "btn-success";
-          if (status === 2) return "btn-danger";
-          return "btn-warning dropdown-toggle"; // dropdown only for pending
+          if (status === 1) return "bg-success";
+          if (status === 2) return "bg-warning";
+          return "bg-warning dropdown-toggle fs-6";
         };
 
         return (
@@ -261,7 +261,7 @@ export default function Allvendors() {
             {status === 0 ? (
               <>
                 <button
-                  className={`btn btn-sm ${getButtonClass()}`}
+                  className={`badge ${getButtonClass()}`}
                   type="button"
                   id={`statusDropdown-${row.id}`}
                   data-bs-toggle="dropdown"

@@ -49,7 +49,7 @@ export default function AddVendor() {
     pin: Yup.string().matches(/^\d{6}$/, "Pin code must be exactly 6 digits").required("Pin Code is required"),
     phone: Yup.string().matches(/^\d{10}$/, "Phone number must be exactly 10 digits").required("Phone is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
-    category: Yup.array().min(1, "Select at least one category"),
+    category: Yup.string().required("Category is required"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
     // password: Yup.string().required("Password is required"),
   });
@@ -103,8 +103,8 @@ export default function AddVendor() {
     },
     {
       name: "category",
-      label: "Categories (max 2)*",
-      type: "multiSelect",
+      label: "Category*",
+      type: "select",
       options: categoryData,
       colClass: "col-md-4 mb-3",
     },
@@ -164,7 +164,7 @@ export default function AddVendor() {
     },
     {
       name: "images",
-      label: "Images (Max 30)",
+      label: "Image",
       type: "file",
       colClass: "col-md-6 mb-3",
     },
@@ -195,7 +195,7 @@ export default function AddVendor() {
     formData.append("price_range", values.priceRange);
     formData.append("short_description", values.shortDesc);
     formData.append("experience_since", values.experience);
-    formData.append("category_id", values.category.join(","));
+    formData.append("category_id", values.category); 
     formData.append("long_description", values.longDesc);
     formData.append("role_id", 2);
     formData.append("facebook_link", values.facebook_link || "");

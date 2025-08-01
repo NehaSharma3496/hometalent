@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
-  GetGallery,
+  GetAdminGallery,
   RemoveGalleryItem,
   UpdateGalleryOrder,
 } from "../../../Services/vendor/Vendor";
@@ -26,7 +26,7 @@ const ViewGallery = () => {
 
   const fetchgallery = async () => {
     try {
-      const response = await GetGallery(token, userId);
+      const response = await GetAdminGallery(token, userId);
       setGallery(response.data);
     } catch (error) {
       console.error("Error fetching gallery:", error);
@@ -237,7 +237,7 @@ const ViewGallery = () => {
                             : item.status === "pending"
                             ? "bg-warning text-dark"
                             : "bg-secondary"
-                        }`}
+                        } fs-6`}
                       >
                         {item.status?.charAt(0).toUpperCase() +
                           item.status?.slice(1)}

@@ -348,11 +348,14 @@ export async function RemoveGalleryItem(token, id) {
 
 export async function showPackage(token, page = 1, limit = 10) {
   try {
-    const response = await axios.get(`${Config.base_url}admin/package?page=${page}&limit=${limit}`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${Config.base_url}admin/package?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
 
     return response.data;
   } catch (error) {
@@ -523,3 +526,19 @@ export async function GetRejectedVendor(token) {
   }
 }
 
+export async function AddAdminBlog(token, data) {
+  console.log("Data from frontend",data)
+  try {
+    const response = await axios.post(`${Config.base_url}blogs`, data, {
+      headers: {
+        Authorization: `${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error update package:", error);
+    return error;
+  }
+}

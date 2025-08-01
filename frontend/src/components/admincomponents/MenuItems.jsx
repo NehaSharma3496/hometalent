@@ -28,7 +28,7 @@ export const MenuItems = {
         { label: "Sponsored Vendors", link: "/admin/vendor/sponsoredvendors" },
         { label: "Inactive Vendors", link: "/admin/vendor/blockedvendors" },
         { label: "Pending Vendors", link: "/admin/vendor/pendingvendors" },
-        {label:"Rejected Vendors" , link:"/admin/vendor/rejectedvendors"},
+        { label: "Rejected Vendors", link: "/admin/vendor/rejectedvendors" },
         // { label: "Shuffle Vendor Order", link: "/admin/vendor/shuffle-order" },
         // { label: "Leads & Inquiries", link: "/admin/vendor/leads" },
       ],
@@ -115,6 +115,14 @@ export const MenuItems = {
         // { label: "Conversion Reports", link: "/enquiries/reports" },
       ],
     },
+    //  {
+    //     icon: "fa-solid fa-pen-to-square",
+    //   label: "Blog",
+    //   children: [
+    //     { label: "All Blogs", link: "/admin/blog/allblogs" },
+    //     { label: "Add Blog", link: "/admin/blog/addblog" },
+    //   ],
+    // },
     // {
     //   icon: 'fa-solid fa-gear',
     //   label: 'Settings',
@@ -191,7 +199,7 @@ export const MenuItems = {
       label: "Packages",
       children: [
         { label: "All Packages", link: "/vendor/allpackages" },
-        {label:"My Subscription", link:"/vendor/mypackages"}
+        { label: "My Subscription", link: "/vendor/mypackages" },
         // { label: "Manage Portfolio", link: "/vendor/profile/manage" },
         // { label: "Edit Profile", link: "/vendor/profile/edit" },
         // { label: "Add Artwork / Painting", link: "/vendor/profile/artworks" },

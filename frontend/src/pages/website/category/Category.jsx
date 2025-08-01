@@ -370,7 +370,7 @@ const Category = () => {
 
                   <div className="sorting-dropdown">
                     <select className="form-select" onChange={handleSortChange}>
-                      <option value="popular">Sort by Popular</option>
+                      <option value="">All</option>
                       <option value="low">Price low to high</option>
                       <option value="high">Price high to low</option>
                       <option value="new">Sort by Newest</option>
@@ -407,7 +407,7 @@ const Category = () => {
                                   alt={item.owner_name}
                                 />
                               </Link>
-                              <div className="rating-badge-car">
+                              {/* <div className="rating-badge-car">
                                 <div className="rating">
                                   <i className="ri-star-s-fill" />
                                   <p className="pera">
@@ -415,7 +415,7 @@ const Category = () => {
                                     Reviews)
                                   </p>
                                 </div>
-                              </div>
+                              </div> */}
                             </div>
 
                             <div className="hotel-content">
@@ -431,6 +431,9 @@ const Category = () => {
                                   {item.owner_name}
                                 </Link>
                               </h4>
+                              <p className="category-name text-capitalize text-primary small">
+                                {displayCategory.name}
+                              </p>
                               <div className="location">
                                 <i className="ri-map-pin-line" />
                                 <div className="name text-capitalize">

@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@mantine/core": "^8.2.2",
+    "@mantine/hooks": "^8.2.2",
+    "@mantine/rte": "^5.10.5",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -20,6 +23,7 @@
     "react-dom": "^19.1.0",
     "react-image-lightbox": "^5.1.4",
     "react-modal": "^3.16.3",
+    "react-quill": "^2.0.0-beta.4",
     "react-router-dom": "^7.6.2",
     "react-scripts": "5.0.1",
     "react-select": "^5.10.1",

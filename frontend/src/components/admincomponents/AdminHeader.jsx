@@ -80,7 +80,6 @@ export default function AdminHeader() {
     }
   }, []);
 
-  // Apply/remove body class based on state
   useEffect(() => {
     if (sidebarToggled) {
       document.body.classList.add("sidebar-toggle");
@@ -128,7 +127,7 @@ export default function AdminHeader() {
             <div className="col-9">
               <div className="left-header">
                 <div className="logo-div me-5">
-                  <Link to="/">
+                  <Link to="#">
                     <img
                       src="/assets/images/logo/logo.png"
                       style={{ width: "100px" }}
@@ -289,7 +288,7 @@ export default function AdminHeader() {
                         </li>
                       )}
                       <li>
-                        <Link className="dropdown-item" to="/vendor/myprofile">
+                        <Link className="dropdown-item" to="#">
                           <i className="fa-light fa-user"></i> Change Password
                         </Link>
                       </li>

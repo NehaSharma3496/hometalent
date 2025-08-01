@@ -65,8 +65,8 @@ export default function UpdateVendor() {
     },
     {
       name: "category_id",
-      label: "Categories",
-      type: "multiSelect",
+      label: "Category",
+      type: "select",
       options: categoryData,
       colClass: "col-md-4 mb-3",
     },
@@ -160,8 +160,10 @@ export default function UpdateVendor() {
       formData.append("vendor_id", vendorId);
 
       for (const key in values) {
-        if (key === "category_id") {
-          formData.append(key, values[key].join(","));
+      if (key === "category_id") {
+  formData.append(key, values[key]);
+
+
         } else if (key === "image" && values[key] && values[key].length > 0) {
           formData.append("image", values[key][0]);
         } else {
@@ -175,7 +177,7 @@ export default function UpdateVendor() {
           "Success",
           res.data.msg || "Profile update submitted!",
           "success"
-        );
+        )
       } else {
         Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
       }
@@ -214,8 +216,8 @@ export default function UpdateVendor() {
           pin_code: vendor.pin_code || "",
           price_range: vendor.price_range || "",
           short_description: vendor.short_description || "",
-          category_id:
-            vendor.category_id?.split(",").map((id) => id.toString()) || [],
+        category_id: vendor.category_id?.toString() || "",
+
           experience_since: vendor.experience_since || "",
           long_description: vendor.long_description || "",
           facebook_link: vendor.facebook_link || "",

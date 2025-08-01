@@ -52,7 +52,7 @@ const Registration = () => {
       .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
       .required("Phone is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
-    category: Yup.array().min(1, "Select at least one category"),
+    category: Yup.string().required("Category is required"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
     experience: Yup.string().required("Experience Is required"),
     priceRange: Yup.string().required("Price Range is required"),
@@ -110,8 +110,8 @@ const Registration = () => {
     },
     {
       name: "category",
-      label: "Category Select* (max 2)",
-      type: "multiSelect",
+      label: "Category Select*",
+      type: "select",
       colClass: "col-md-4 mb-3",
       options: categoryData,
     },
@@ -184,55 +184,58 @@ const Registration = () => {
   ];
 
   const onSubmit = async (values) => {
-  try {
-    const formData = new FormData();
+    try {
+      const formData = new FormData();
 
-    formData.append("owner_name", values.ownerName);
-    formData.append("profile_name", values.profileName);
-    formData.append("state_id", values.state);
-    formData.append("city_id", values.city);
-    formData.append("pin_code", values.pin);
-    formData.append("phone", values.phone);
-    formData.append("email", values.email);
-    formData.append("price_range", values.priceRange);
-    formData.append("short_description", values.shortDesc);
-    formData.append("category_id", values.category.join(","));
-    formData.append("experience_since", values.experience);
-    formData.append("long_description", values.longDesc);
-    formData.append("role_id", 2);
-    formData.append("password", values.password);
-    formData.append("show_password", values.password);
+      formData.append("owner_name", values.ownerName);
+      formData.append("profile_name", values.profileName);
+      formData.append("state_id", values.state);
+      formData.append("city_id", values.city);
+      formData.append("pin_code", values.pin);
+      formData.append("phone", values.phone);
+      formData.append("email", values.email);
+      formData.append("price_range", values.priceRange);
+      formData.append("short_description", values.shortDesc);
+      formData.append("category_id", values.category);
+      formData.append("experience_since", values.experience);
+      formData.append("long_description", values.longDesc);
+      formData.append("role_id", 2);
+      formData.append("password", values.password);
+      formData.append("show_password", values.password);
 
-    formData.append("facebook_link", values.facebook_link || "");
-    formData.append("instagram_link", values.instagram_link || "");
-    formData.append("twitter_link", values.twitter_link || "");
-    formData.append("linkedin_link", values.linkedin_link || "");
-    formData.append("youtube_link", values.youtube_link || "");
-    formData.append("website_link", values.website_link || "");
+      formData.append("facebook_link", values.facebook_link || "");
+      formData.append("instagram_link", values.instagram_link || "");
+      formData.append("twitter_link", values.twitter_link || "");
+      formData.append("linkedin_link", values.linkedin_link || "");
+      formData.append("youtube_link", values.youtube_link || "");
+      formData.append("website_link", values.website_link || "");
 
-    if (values.image && values.image.length > 0) {
-      formData.append("image", values.image[0]);
+      if (values.image && values.image.length > 0) {
+        formData.append("image", values.image[0]);
+      }
+
+      const res = await VendorRegister(formData);
+
+      if (res?.data?.status) {
+        Swal.fire(
+          "Success",
+          "User registered! We will reach you soon on mail",
+          "success"
+        ).then(() => {
+          window.location.reload(); 
+        });
+      } else {
+        Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+      }
+    } catch (err) {
+      console.error("API ERROR:", err);
+      Swal.fire(
+        "Error",
+        err?.response?.data?.msg || err.message || "Something went wrong",
+        "error"
+      );
     }
-
-    const res = await VendorRegister(formData);
-
-    if (res?.data?.status) {
-      Swal.fire("Success", "User registered! We will reach you soon on mail", "success").then(() => {
-        window.location.reload(); // ✅ Refresh the page after success
-      });
-    } else {
-      Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
-    }
-  } catch (err) {
-    console.error("API ERROR:", err);
-    Swal.fire(
-      "Error",
-      err?.response?.data?.msg || err.message || "Something went wrong",
-      "error"
-    );
-  }
-};
-
+  };
 
   const fetchCategories = async () => {
     try {
