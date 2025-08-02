@@ -15,6 +15,11 @@ const VendorPackageSubscription = sequelize.define('VendorPackageSubscription', 
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+
+    amount: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+    },
     start_date: {
         type: DataTypes.DATE,
         allowNull: false,
