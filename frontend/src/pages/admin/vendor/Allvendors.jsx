@@ -56,10 +56,31 @@ export default function Allvendors() {
   );
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(filteredVendors);
+    const exportData = filteredVendors.map((row, index) => ({
+      "S.No": (currentPage - 1) * perPage + index + 1,
+      "Owner Name": row.owner_name || "",
+      Email: row.email || "",
+      "Category Name": Array.isArray(row.category_names)
+        ? row.category_names.join(", ")
+        : row.category_names || "",
+      Phone: row.phone || "",
+      "Price Range": row.price_range || "",
+      "Short Description": row.short_description || "",
+      "Experience Since": row.experience_since || "",
+      Image: row.image ? "Available" : "N/A",
+      Status:
+        row.approval_status === 1
+          ? "Approved"
+          : row.approval_status === 2
+          ? "Rejected"
+          : "Pending",
+      "Enable Status": row.status === 1 ? "Enabled" : "Disabled",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "All Vendor");
-    XLSX.writeFile(workbook, "All vendor List.xlsx");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "All Vendors");
+    XLSX.writeFile(workbook, "All_Vendor_List.xlsx");
   };
 
   const handleApproveVendor = async (vendorId, status) => {

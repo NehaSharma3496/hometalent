@@ -47,17 +47,32 @@ export default function AllLeads() {
   };
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(leads);
+    if (filteredLeads.length === 0) {
+      Swal.fire("No Data", "There are no leads to export", "info");
+      return;
+    }
+
+    const exportData = filteredLeads.map((lead, index) => ({
+      "S.No": index + 1,
+      "Vendor Name": lead.vendor?.owner_name || "-",
+      "Vendor Phone": lead.vendor?.phone || "-",
+      "Client Name": lead.name || "-",
+      "Client Phone": lead.phone || "-",
+      "Client Email": lead.email || "-",
+      "Client Query": lead.query || "-",
+      Date: new Date(lead.createdAt).toLocaleDateString(),
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
 
     XLSX.writeFile(workbook, "vendor-leads-list.xlsx");
   };
 
- const filteredLeads = leads.filter((lead) =>
-  lead.vendor?.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-);
-
+  const filteredLeads = leads.filter((lead) =>
+    lead.vendor?.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   const columns = [
     {
@@ -123,8 +138,10 @@ export default function AllLeads() {
       </div>
 
       <div className="card">
-        <div className="d-flex align-items-center border rounded px-2 "
-           style={{ maxWidth: "250px" }}>
+        <div
+          className="d-flex align-items-center border rounded px-2 "
+          style={{ maxWidth: "250px" }}
+        >
           <i className="ri-search-line me-2 mx-5 text-muted" />
           <input
             type="text"

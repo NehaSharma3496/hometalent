@@ -17,9 +17,11 @@ export default function ApprovedVendors() {
       const token = localStorage.getItem("token");
       const res = await GetVendoreList(token, page, limit);
       if (res?.data && res?.pagination) {
-        const approved = res.data?.filter((vendor) => vendor.approval_status === 1);
-      setApprovedVendors(approved || []);
-      
+        const approved = res.data?.filter(
+          (vendor) => vendor.approval_status === 1
+        );
+        setApprovedVendors(approved || []);
+
         setTotalRows(res.pagination.total_records);
       } else {
         throw new Error("Invalid response format");
@@ -35,7 +37,7 @@ export default function ApprovedVendors() {
     fetchApprovedVendors(currentPage, perPage);
   }, [currentPage, perPage]);
 
- const handlePageChange = (page) => {
+  const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
@@ -45,11 +47,23 @@ export default function ApprovedVendors() {
   };
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(approvedVendors);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Approved Vendor");
+    const exportData = filteredApprovedVendors.map((row, index) => ({
+      "S.No": (currentPage - 1) * perPage + index + 1,
+      "Owner Name": row.owner_name || "",
+      Email: row.email || "",
+      Categories: Array.isArray(row.category_names)
+        ? row.category_names.join(", ")
+        : row.category_names || "",
+      Phone: row.phone || "",
+      "Price Range": row.price_range || "",
+      Experience: row.experience_since || "",
+      Image: row.image ? "Available" : "N/A",
+    }));
 
-    XLSX.writeFile(workbook, "Approved vendor List.xlsx");
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Approved Vendors");
+    XLSX.writeFile(workbook, "Approved_Vendor_List.xlsx");
   };
 
   const filteredApprovedVendors = approvedVendors.filter((vendor) =>
@@ -57,7 +71,7 @@ export default function ApprovedVendors() {
   );
 
   const columns = [
-   {
+    {
       name: "S.No",
       selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "70px",
@@ -137,13 +151,13 @@ export default function ApprovedVendors() {
             <Datatable
               columns={columns}
               data={filteredApprovedVendors}
-               progressPending={loading}
-            pagination
-            paginationServer
-            paginationTotalRows={totalRows}
-            paginationPerPage={perPage}
-            onChangeRowsPerPage={handlePerRowsChange}
-            onChangePage={handlePageChange}
+              progressPending={loading}
+              pagination
+              paginationServer
+              paginationTotalRows={totalRows}
+              paginationPerPage={perPage}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
             />
           </div>
         </div>

@@ -4,6 +4,7 @@ import DataTable from "react-data-table-component";
 import { Link, useLocation } from "react-router-dom";
 import { ExtendPackage } from "../../../Services/admin/Admin";
 import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
 
 export default function VendorPackageDetails() {
   const [currentPackages, setCurrentPackages] = useState([]);
@@ -68,31 +69,46 @@ export default function VendorPackageDetails() {
   }, [token, vendorId]);
 
   const handleExtendPackage = async () => {
-  if (!extendDays || isNaN(extendDays) || Number(extendDays) <= 0) {
-    return Swal.fire("Invalid", "Enter a valid number of days.", "warning");
-  }
-
-  try {
-    const response = await ExtendPackage(token, {
-      id: latestPackageId,
-      extra_days: Number(extendDays), 
-    });
-
-    console.log("Extend response:", response); 
-
-    if (response?.status === true || response?.status === "true") {
-      Swal.fire("Extended!", "Package extended successfully.", "success");
-      setExtendDays("");
-      fetchPackages(); 
-    } else {
-      Swal.fire("Failed", response?.message || "Extension failed.", "error");
+    if (!extendDays || isNaN(extendDays) || Number(extendDays) <= 0) {
+      return Swal.fire("Invalid", "Enter a valid number of days.", "warning");
     }
-  } catch (err) {
-    console.error("Extension failed:", err);
-    Swal.fire("Error", "Failed to extend package.", "error");
-  }
-};
 
+    try {
+      const response = await ExtendPackage(token, {
+        id: latestPackageId,
+        extra_days: Number(extendDays),
+      });
+
+      console.log("Extend response:", response);
+
+      if (response?.status === true || response?.status === "true") {
+        Swal.fire("Extended!", "Package extended successfully.", "success");
+        setExtendDays("");
+        fetchPackages();
+      } else {
+        Swal.fire("Failed", response?.message || "Extension failed.", "error");
+      }
+    } catch (err) {
+      console.error("Extension failed:", err);
+      Swal.fire("Error", "Failed to extend package.", "error");
+    }
+  };
+
+  const exportToExcel = (data, type) => {
+    const exportData = data.map((pkg, index) => ({
+      "S.No": index + 1,
+      "Package Name": pkg?.Package?.name || "N/A",
+      "Start Date": formatDate(pkg.start_date),
+      "End Date": formatDate(pkg.end_date),
+      Amount: pkg?.Package?.price ? `₹${pkg.Package.price}` : "N/A",
+      "Payment Status": pkg.payment_status || "N/A",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, `${type} Packages`);
+    XLSX.writeFile(workbook, `${type}_Packages.xlsx`);
+  };
 
   const commonColumns = () => [
     {
@@ -185,6 +201,36 @@ export default function VendorPackageDetails() {
               <i className="fa fa-arrow-left"></i>
             </Link>
             <h5 className="add-page-heading mb-0">My Packages</h5>
+          </div>
+        </div>
+        <div className="col-md-6 text-end">
+          <div className="text-end mb-2">
+            <button
+              className="btn btn-success btn-sm"
+              onClick={() =>
+                exportToExcel(
+                  filterData(currentPackages, searchCurrent),
+                  "Current"
+                )
+              }
+            >
+              <i className="fa fa-file-excel me-1"></i> Download Current
+              Packages
+            </button>
+          </div>
+          <div className="text-end mb-2">
+            <button
+              className="btn btn-danger btn-sm"
+              onClick={() =>
+                exportToExcel(
+                  filterData(expiredPackages, searchExpired),
+                  "Expired"
+                )
+              }
+            >
+              <i className="fa fa-file-excel me-1"></i> Download Expired
+              Packages
+            </button>
           </div>
         </div>
       </div>

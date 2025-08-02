@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Breadcrumbs from "../../../components/websitecomponents/Breadcrumbs";
 import { useLocation } from "react-router-dom";
-import { SubmitLead } from "../../../Services/webService/Web";
+import { SubmitLead ,GetStateCity} from "../../../Services/webService/Web";
 import { GetGallery } from "../../../Services/vendor/Vendor";
 import Swal from "sweetalert2";
 import Lightbox from "yet-another-react-lightbox";
@@ -16,10 +16,30 @@ const CategoryDetail = () => {
   const vendor = location.state?.vendor?.id;
   const vendors = location.state?.vendor;
   const category = location.state?.category;
-  const cities = location.state?.cities;
+  const cityId = location.state?.vendor?.city_id;
+  const [cityName, setCityName] = useState("");
 
-  // console.log(location.state?.cities);
-  console.log("Vendor", vendors);
+  useEffect(() => {
+    const fetchCityName = async () => {
+      try {
+        const res = await GetStateCity();
+        if (res?.status && Array.isArray(res?.data)) {
+          const citiesList = res.data.filter((c) => c.type === "city");
+          const matchedCity = citiesList.find(
+            (city) => String(city.id) === String(cityId)
+          );
+          setCityName(matchedCity?.name || "Unknown City");
+        }
+      } catch (error) {
+        console.error("Error fetching city name", error);
+      }
+    };
+
+    if (cityId) {
+      fetchCityName();
+    }
+  }, [cityId]);
+
 
   const [leadData, setLeadData] = useState({
     name: "",
@@ -34,12 +54,6 @@ const CategoryDetail = () => {
   };
 
   const handleSubmit = async () => {
-    console.log("Submitting lead...");
-    console.log("vendor_id:", vendor);
-    console.log("name:", vendors.name);
-    console.log("phone:", vendors.phone);
-    console.log("email:", vendors.email);
-
     if (
       !leadData.name ||
       !leadData.phone ||
@@ -96,14 +110,14 @@ const CategoryDetail = () => {
 
   const breadcrumbLinks = [
     { label: "Home", to: "/" },
-    { label: vendors?.category_names, to: "#" }, // or current route
+    { label: vendors?.category_names, to: "#" },
   ];
 
   useEffect(() => {
     const fetchGalleryImages = async () => {
       if (vendor) {
         try {
-          const token = localStorage.getItem("token"); // or wherever you store the auth token
+          const token = localStorage.getItem("token");
           const res = await GetGallery(token, vendor);
 
           if (res?.status) {
@@ -123,7 +137,6 @@ const CategoryDetail = () => {
     .map((item) => ({ src: item.file_path }));
 
   const handleImageClick = (clickedIndex) => {
-    // Map clicked index to image-only index
     const imageOnlyIndex = galleryImages
       .filter((item) => item.file_type === "image")
       .findIndex(
@@ -133,10 +146,8 @@ const CategoryDetail = () => {
     setIndex(imageOnlyIndex);
     setOpen(true);
   };
-
-  // Filter only image paths for lightbox
   const imageItems = galleryImages.filter((item) => item.file_type === "image");
-  // Show only first 3 items or all if toggled
+
   const visibleItems = showAll ? galleryImages : galleryImages.slice(0, 4);
 
   const socialLinks = [
@@ -167,7 +178,6 @@ const CategoryDetail = () => {
     },
   ];
 
-  // Get links that are actually available from the vendor
   const availableLinks = socialLinks.filter(
     (item) => vendors?.[item.key] && vendors[item.key].trim() !== ""
   );
@@ -222,11 +232,7 @@ const CategoryDetail = () => {
                               style={{ color: "#ff5e14" }}
                             />
                             <div className="name text-capitalize">
-                              {cities?.find(
-                                (c) =>
-                                  c.type === "city" &&
-                                  String(c.id) === String(vendors?.city_id)
-                              )?.name || "Unknown Location"}
+                              {cityName}
                             </div>
                           </div>
 

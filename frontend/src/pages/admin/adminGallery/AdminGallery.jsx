@@ -3,57 +3,94 @@ import {
   GetAdminGallery,
   RemoveGalleryItem,
 } from "../../../Services/vendor/Vendor";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const AdminGallery = () => {
   const [gallery, setGallery] = useState([]);
   const [activeTab, setActiveTab] = useState("images");
-  const navigate = useNavigate();
+  const [selectedItems, setSelectedItems] = useState([]);
 
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
 
-  const fetchgallery = async () => {
+  const fetchGallery = async () => {
     try {
       const response = await GetAdminGallery(token, userId);
-      setGallery(response.data);
+      setGallery(response.data || []);
     } catch (error) {
       console.error("Error fetching gallery:", error);
     }
   };
 
-  const handleDelete = async (item) => {
-    const confirm = await Swal.fire({
-      title: "Are you sure?",
-      text: "This will permanently delete the item.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete it!",
-    });
+  useEffect(() => {
+    if (userId) fetchGallery();
+  }, [userId]);
 
-    if (confirm.isConfirmed) {
-      try {
-        const res = await RemoveGalleryItem(token, item.id);
-        if (res.status) {
-          Swal.fire("Deleted!", "Item has been deleted.", "success");
-          fetchgallery();
-        } else {
-          Swal.fire("Error", "Failed to delete item.", "error");
-        }
-      } catch (err) {
-        console.error("Error deleting item:", err);
-        Swal.fire("Error", "An error occurred while deleting.", "error");
-      }
-    }
+  const toggleSelect = (id) => {
+    setSelectedItems((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
   };
 
-  useEffect(() => {
-    if (userId) {
-      fetchgallery();
+  const handleSingleDelete = async (id) => {
+  const isBulk = selectedItems.includes(id);
+  const idsToDelete = isBulk ? selectedItems : [id];
+
+  const confirm = await Swal.fire({
+    title: `Are you sure you want to delete ${isBulk ? idsToDelete.length : 1} item(s)?`,
+    text: "This will permanently delete the selected item(s).",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, delete it!",
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  try {
+    const res = await RemoveGalleryItem(token, idsToDelete);
+    if (res.status) {
+      Swal.fire("Deleted!", "Item(s) have been deleted.", "success");
+      setSelectedItems([]);
+      fetchGallery();
+    } else {
+      Swal.fire("Error", res.message || "Failed to delete item(s).", "error");
     }
-  }, [userId]);
+  } catch (err) {
+    Swal.fire("Error", "An error occurred while deleting.", "error");
+  }
+};
+
+
+  const handleBulkDelete = async () => {
+    if (selectedItems.length === 0) {
+      Swal.fire("Info", "No items selected for deletion.", "info");
+      return;
+    }
+
+    const confirm = await Swal.fire({
+      title: `Are you sure you want to delete ${selectedItems.length} item(s)?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const res = await RemoveGalleryItem(token, selectedItems);
+      if (res.status) {
+        Swal.fire("Deleted!", "Selected items deleted.", "success");
+        setSelectedItems([]);
+        fetchGallery();
+      } else {
+        Swal.fire("Error", res.message || "Delete failed.", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", "An error occurred during deletion.", "error");
+    }
+  };
 
   const filteredGallery = gallery.filter((item) =>
     activeTab === "images"
@@ -67,7 +104,7 @@ const AdminGallery = () => {
         <div className="col-md-6 mb-4">
           <div className="add-page-heading-div">
             <Link to="/admin/dashboard" className="me-2">
-              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+              <i className="fa fa-arrow-left"></i>
             </Link>
             <h5 className="add-page-heading mb-0">Gallery</h5>
           </div>
@@ -81,7 +118,6 @@ const AdminGallery = () => {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="card shadow-sm border-0 mb-3 p-3">
         <ul className="nav nav-tabs">
           <li className="nav-item">
@@ -103,7 +139,14 @@ const AdminGallery = () => {
         </ul>
       </div>
 
-      {/* Gallery Grid */}
+      {selectedItems.length > 0 && (
+        <div className="mb-3 d-flex gap-2">
+          <button className="btn btn-danger" onClick={handleBulkDelete}>
+            Delete Selected
+          </button>
+        </div>
+      )}
+
       <div className="card shadow-sm p-3 border-0 bg-light">
         {filteredGallery.length === 0 ? (
           <p className="text-muted text-center my-4">
@@ -111,7 +154,7 @@ const AdminGallery = () => {
           </p>
         ) : (
           <div className="row">
-            {filteredGallery.map((item, index) => (
+            {filteredGallery.map((item) => (
               <div className="col-xl-4 col-md-4 col-sm-6 mb-4" key={item.id}>
                 <div className="card shadow-sm border-0 rounded-4 h-100">
                   {item.file_type === "image" ? (
@@ -131,10 +174,20 @@ const AdminGallery = () => {
                       Your browser does not support the video tag.
                     </video>
                   )}
+
                   <div className="card-body text-center py-3 mt-3">
+                    <div className="form-check d-flex justify-content-center mb-2">
+                      <input
+                        type="checkbox"
+                        style={{ transform: "scale(1.3)" }}
+                        checked={selectedItems.includes(item.id)}
+                        onChange={() => toggleSelect(item.id)}
+                      />
+                    </div>
+
                     <button
-                      className="btn btn-danger shadow-sm"
-                      onClick={() => handleDelete(item)}
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleSingleDelete(item.id)}
                     >
                       <i className="ri-delete-bin-line me-1"></i>
                       Delete

@@ -138,7 +138,7 @@ export async function GetGalleryUpdateRequests({
 }
 
 export async function ProcessGalleryUpdateRequests(
-  gallery_id,
+  gallery_ids,
   action,
   remarks,
   admin_id,
@@ -148,7 +148,7 @@ export async function ProcessGalleryUpdateRequests(
     const res = await axios.post(
       `${Config.base_url}admin/gallery-requests/process`,
       {
-        gallery_id,
+        gallery_ids,
         action,
         remarks,
         admin_id,

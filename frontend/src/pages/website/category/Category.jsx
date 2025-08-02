@@ -159,7 +159,6 @@ const Category = () => {
                                 to="/categorydetail"
                                 state={{
                                   vendor: item,
-                                  cityName: city,
                                 }}
                               >
                                 <img

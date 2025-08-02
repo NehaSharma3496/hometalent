@@ -172,9 +172,6 @@ export async function SubmitProfileUpdateRequest(data) {
   }
 }
 
-
-
-
 export async function GetAllVendorLeads(token, id) {
   try {
     const response = await axios.get(
@@ -225,17 +222,16 @@ export async function GetAdminGallery(token, userId) {
   }
 }
 
-export async function RemoveGalleryItem(token, id) {
+export async function RemoveGalleryItem(token, gallery_ids) {
   try {
-    let userId = localStorage.getItem("userId");
-    const response = await axios.delete(
-      `${Config.base_url}gallery/remove/${id}`,
+    const response = await axios.post(
+      `${Config.base_url}gallery/remove`,
+      {
+        gallery_ids,
+      },
       {
         headers: {
           Authorization: `${token}`,
-        },
-        data: {
-          user_id: userId,
         },
       }
     );
@@ -273,22 +269,19 @@ export async function UpdateGalleryOrder(token, items) {
   }
 }
 
- export async function getVendorPackages (token) {
+export async function getVendorPackages(token) {
   try {
-    const response = await axios.get(
-      `${Config.base_url}vendor/packages`,
-      {
-        headers: {
-          Authorization: `${token}`,
-        },
-      }
-    );
+    const response = await axios.get(`${Config.base_url}vendor/packages`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
     return response?.data;
   } catch (error) {
     console.error("Error fetching vendor packages:", error);
     return error;
   }
-};
+}
 
 // Suscribe plan vendor
 
@@ -312,7 +305,12 @@ export const subscribeToPackage = async (payload, token) => {
   }
 };
 
-export const getVendorPackageHistory = async (token, vendorId, page = 1, limit = 1000) => {
+export const getVendorPackageHistory = async (
+  token,
+  vendorId,
+  page = 1,
+  limit = 1000
+) => {
   try {
     const response = await axios.get(
       `${Config.base_url}vendor/package-history?vendor_id=${vendorId}&page=${page}&limit=${limit}`,
@@ -328,10 +326,6 @@ export const getVendorPackageHistory = async (token, vendorId, page = 1, limit =
     return error;
   }
 };
-
-
-
-
 
 // GET ALL package VENDOR
 

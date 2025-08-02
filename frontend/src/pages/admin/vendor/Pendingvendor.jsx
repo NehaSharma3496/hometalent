@@ -83,12 +83,40 @@ export default function PendingVendor() {
     }
   };
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(pendingvendors);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Pending Vendor");
+  const exportData = filteredPendingVendors.map((row, index) => {
+    const categoryNames = row.category_id
+      ? row.category_id
+          .split(",")
+          .map((id) => categoryMap[id.trim()] || `ID-${id.trim()}`)
+          .join(", ")
+      : "—";
 
-    XLSX.writeFile(workbook, "Pending vendor List.xlsx");
-  };
+    let statusText = "Pending";
+    if (row.approval_status === 1) statusText = "Approved";
+    else if (row.approval_status === 2) statusText = "Rejected";
+
+    return {
+      "S.No": (currentPage - 1) * perPage + index + 1,
+      "Owner Name": row.owner_name || "",
+      "Email": row.email || "",
+      "Category Names": categoryNames,
+      "Profile Name": row.profile_name || "",
+      "Phone Number": row.phone || "",
+      "Price Range": row.price_range || "",
+      "Short Description": row.short_description || "",
+      "Image": row.image ? "Available" : "N/A",
+      "Pin Code": row.pin_code || "",
+      "Experience Since": row.experience_since || "",
+      "Status": statusText,
+    };
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Pending Vendors");
+  XLSX.writeFile(workbook, "Pending_Vendor_List.xlsx");
+};
+
 
   const filteredPendingVendors = pendingvendors.filter((vendor) =>
     vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())

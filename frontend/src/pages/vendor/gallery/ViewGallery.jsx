@@ -11,49 +11,62 @@ const ViewGallery = () => {
   const [gallery, setGallery] = useState([]);
   const [activeTab, setActiveTab] = useState("images");
   const [draggedIndex, setDraggedIndex] = useState(null);
-  const navigate = useNavigate();
+  const [selectedItems, setSelectedItems] = useState([]);
 
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
 
-
   useEffect(() => {
-    if (userId) {
-      fetchgallery();
-    }
+    if (userId) fetchGallery();
   }, [userId]);
 
-  const fetchgallery = async () => {
+  const fetchGallery = async () => {
     try {
       const response = await GetAdminGallery(token, userId);
-      setGallery(response.data);
+      setGallery(response.data || []);
+      setSelectedItems([]);
     } catch (error) {
       console.error("Error fetching gallery:", error);
     }
   };
 
-  const handleDelete = async (item) => {
+  const toggleSelect = (id) => {
+    setSelectedItems((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleDelete = async (itemId) => {
+    let idsToDelete = [];
+
+    if (selectedItems.includes(itemId)) {
+      idsToDelete = selectedItems;
+    } else {
+      idsToDelete = [itemId];
+    }
+
     const confirm = await Swal.fire({
       title: "Are you sure?",
-      text: "This will permanently delete the item.",
+      text: `You are about to delete ${idsToDelete.length} item(s).`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: "Yes, delete",
     });
 
     if (confirm.isConfirmed) {
       try {
-        const res = await RemoveGalleryItem(token, item.id);
-        if (res.status) {
-          Swal.fire("Deleted!", "Item has been deleted.", "success");
-          fetchgallery();
+        const res = await RemoveGalleryItem(token, idsToDelete);
+        if (res?.status) {
+          Swal.fire("Deleted!", "Item(s) deleted successfully.", "success");
+          fetchGallery();
         } else {
-          Swal.fire("Error", "Failed to delete item.", "error");
+          Swal.fire("Error", res?.message || "Failed to delete.", "error");
         }
       } catch (err) {
-        console.error("Error deleting item:", err);
-        Swal.fire("Error", "An error occurred while deleting.", "error");
+        console.error("Delete error:", err);
+        Swal.fire("Error", "Something went wrong while deleting.", "error");
       }
     }
   };
@@ -63,9 +76,7 @@ const ViewGallery = () => {
     e.dataTransfer.effectAllowed = "move";
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
+  const handleDragOver = (e) => e.preventDefault();
 
   const handleDrop = (e, dropIndex) => {
     e.preventDefault();
@@ -77,65 +88,53 @@ const ViewGallery = () => {
         : item.file_type === "video"
     );
 
-    const newFiltered = [...filteredItems];
-    const draggedItem = newFiltered[draggedIndex];
-    newFiltered.splice(draggedIndex, 1);
-    newFiltered.splice(dropIndex, 0, draggedItem);
+    const reordered = [...filteredItems];
+    const [dragged] = reordered.splice(draggedIndex, 1);
+    reordered.splice(dropIndex, 0, dragged);
 
-    const updatedFiltered = newFiltered.map((item, index) => ({
+    const updatedFiltered = reordered.map((item, index) => ({
       ...item,
       sort_order: index + 1,
     }));
 
     const updatedGallery = gallery.map((item) => {
-      const updatedItem = updatedFiltered.find((u) => u.id === item.id);
-      return updatedItem || item;
+      const update = updatedFiltered.find((i) => i.id === item.id);
+      return update || item;
     });
 
     setGallery(updatedGallery);
     setDraggedIndex(null);
   };
 
-
-
-  const filteredGallery = gallery
-    .filter((item) =>
-      activeTab === "images"
-        ? item.file_type === "image"
-        : item.file_type === "video"
-    )
-    .sort((a, b) => a.sort_order - b.sort_order);
-
-  const getUpdatedOrder = () => {
-    const updated = gallery
+  const getSortedItems = () =>
+    gallery
       .filter((item) =>
         activeTab === "images"
           ? item.file_type === "image"
           : item.file_type === "video"
       )
-      .sort((a, b) => a.sort_order - b.sort_order)
-      .map((item, index) => ({
-        id: item.id,
-        sort_order: index + 1,
-      }));
-
-    return updated;
-  };
+      .sort((a, b) => a.sort_order - b.sort_order);
 
   const handleUpdateSortOrder = async () => {
-    const orderedData = getUpdatedOrder();
-    console.log("Send this to API:", orderedData);
+    const sorted = getSortedItems().map((item, index) => ({
+      id: item.id,
+      sort_order: index + 1,
+    }));
 
     try {
-      const response = await UpdateGalleryOrder(token, orderedData);
-      if (response.status) {
-        Swal.fire("Updated", "Gallery order updated successfully", "success");
+      const res = await UpdateGalleryOrder(token, sorted);
+      if (res.status) {
+        Swal.fire("Updated", "Gallery order updated", "success");
+      } else {
+        Swal.fire("Error", "Failed to update order", "error");
       }
-    } catch (error) {
-      console.error("Update failed:", error);
-      Swal.fire("Error", "Failed to update order", "error");
+    } catch (err) {
+      console.error("Sort update failed:", err);
+      Swal.fire("Error", "API error occurred", "error");
     }
   };
+
+  const filteredGallery = getSortedItems();
 
   return (
     <div className="page-content">
@@ -154,20 +153,25 @@ const ViewGallery = () => {
             to="/vendor/gallery/upload"
             className="btn btn-primary me-2 shadow-sm"
           >
-            <i className="ri-upload-cloud-line me-1"></i>
-            Upload
+            <i className="ri-upload-cloud-line me-1"></i> Upload
           </Link>
           <button
-            className="btn btn-success shadow-sm"
+            className="btn btn-success me-2 shadow-sm"
             onClick={handleUpdateSortOrder}
           >
-            <i className="ri-check-double-line me-1"></i>
-            Update Order
+            <i className="ri-check-double-line me-1"></i> Update Order
           </button>
+          {selectedItems.length > 0 && (
+            <button
+              className="btn btn-danger shadow-sm"
+              onClick={() => handleDelete(selectedItems[0])}
+            >
+              <i className="ri-delete-bin-line me-1"></i> Delete Selected
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="card shadow-sm border-0 mb-3 p-3">
         <ul className="nav nav-tabs">
           <li className="nav-item">
@@ -189,7 +193,6 @@ const ViewGallery = () => {
         </ul>
       </div>
 
-      {/* Gallery Grid */}
       <div className="card shadow-sm p-3 border-0 bg-light">
         {filteredGallery.length === 0 ? (
           <p className="text-muted text-center my-4">No {activeTab} found.</p>
@@ -197,8 +200,8 @@ const ViewGallery = () => {
           <div className="row">
             {filteredGallery.map((item, index) => (
               <div
-                className="col-xl-4 col-md-4 col-sm-6 mb-4"
                 key={item.id}
+                className="col-xl-4 col-md-4 col-sm-6 mb-4"
                 draggable
                 onDragStart={(e) => handleDragStart(e, index)}
                 onDragOver={handleDragOver}
@@ -224,7 +227,6 @@ const ViewGallery = () => {
                       style={{ height: "250px", objectFit: "cover" }}
                     >
                       <source src={item.file_path} type="video/mp4" />
-                      Your browser does not support the video tag.
                     </video>
                   )}
 
@@ -239,8 +241,8 @@ const ViewGallery = () => {
                             : "bg-secondary"
                         } fs-6`}
                       >
-                        {item.status?.charAt(0).toUpperCase() +
-                          item.status?.slice(1)}
+                        {item.status.charAt(0).toUpperCase() +
+                          item.status.slice(1)}
                       </span>
                     </div>
 
@@ -252,12 +254,24 @@ const ViewGallery = () => {
                       })}
                     </p>
 
+                    <div className="form-check d-flex justify-content-center mb-2">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        style={{ transform: "scale(1.3)" }}
+                        checked={selectedItems.includes(item.id)}
+                        onChange={() => toggleSelect(item.id)}
+                      />
+                    </div>
+
                     <button
                       className="btn btn-danger shadow-sm"
-                      onClick={() => handleDelete(item)}
+                      onClick={() => handleDelete(item.id)}
                     >
                       <i className="ri-delete-bin-line me-1"></i>
-                      Delete
+                      {selectedItems.includes(item.id)
+                        ? "Delete Selected"
+                        : "Delete"}
                     </button>
                   </div>
                 </div>

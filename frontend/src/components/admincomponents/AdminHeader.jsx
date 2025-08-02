@@ -15,64 +15,64 @@ export default function AdminHeader() {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const notifications = [
-    {
-      id: 1,
-      title: "New booking request",
-      message: "John Doe requested Canvas Painting service",
-      time: "2 minutes ago",
-      type: "booking",
-      isRead: false,
-    },
-    {
-      id: 2,
-      title: "Payment received",
-      message: "Payment of ₹2500 received for Mehandi Art",
-      time: "1 hour ago",
-      type: "payment",
-      isRead: true,
-    },
-    {
-      id: 3,
-      title: "New review",
-      message: "You received a 5-star review for Fabric Painting",
-      time: "3 hours ago",
-      type: "review",
-      isRead: true,
-    },
-    {
-      id: 4,
-      title: "Service reminder",
-      message: "You have a Catering booking tomorrow at 3 PM",
-      time: "1 day ago",
-      type: "reminder",
-      isRead: true,
-    },
-    {
-      id: 5,
-      title: "Profile update",
-      message: "Your profile has been successfully updated",
-      time: "2 days ago",
-      type: "profile",
-      isRead: true,
-    },
-    {
-      id: 6,
-      title: "Profile update",
-      message: "Your profile has been successfully updated",
-      time: "3 days ago",
-      type: "profile",
-      isRead: false,
-    },
-    {
-      id: 7,
-      title: "Payment received",
-      message: "Payment of ₹5500 received for Mehandi Art",
-      time: "4 days ago",
-      type: "payment",
-      isRead: false,
-    },
-  ];
+  // const notifications = [
+  //   {
+  //     id: 1,
+  //     title: "New booking request",
+  //     message: "John Doe requested Canvas Painting service",
+  //     time: "2 minutes ago",
+  //     type: "booking",
+  //     isRead: false,
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "Payment received",
+  //     message: "Payment of ₹2500 received for Mehandi Art",
+  //     time: "1 hour ago",
+  //     type: "payment",
+  //     isRead: true,
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "New review",
+  //     message: "You received a 5-star review for Fabric Painting",
+  //     time: "3 hours ago",
+  //     type: "review",
+  //     isRead: true,
+  //   },
+  //   {
+  //     id: 4,
+  //     title: "Service reminder",
+  //     message: "You have a Catering booking tomorrow at 3 PM",
+  //     time: "1 day ago",
+  //     type: "reminder",
+  //     isRead: true,
+  //   },
+  //   {
+  //     id: 5,
+  //     title: "Profile update",
+  //     message: "Your profile has been successfully updated",
+  //     time: "2 days ago",
+  //     type: "profile",
+  //     isRead: true,
+  //   },
+  //   {
+  //     id: 6,
+  //     title: "Profile update",
+  //     message: "Your profile has been successfully updated",
+  //     time: "3 days ago",
+  //     type: "profile",
+  //     isRead: false,
+  //   },
+  //   {
+  //     id: 7,
+  //     title: "Payment received",
+  //     message: "Payment of ₹5500 received for Mehandi Art",
+  //     time: "4 days ago",
+  //     type: "payment",
+  //     isRead: false,
+  //   },
+  // ];
 
   useEffect(() => {
     if (window.innerWidth < 1200) {
@@ -149,14 +149,14 @@ export default function AdminHeader() {
                   <div>
                     <button
                       className="btn p-0 setting-link position-relative"
-                      onClick={() => setIsOpen(!isOpen)}
+                      // onClick={() => setIsOpen(!isOpen)}
                       style={{ background: "none", border: "none" }}
                     >
                       <i className="fa-solid fa-bell text-primary fs-5"></i>
                     </button>
                   </div>
 
-                  {isOpen && (
+                  {/* {isOpen && (
                     <>
                       <div
                         className="position-fixed top-0 start-0 w-100 h-100"
@@ -247,7 +247,7 @@ export default function AdminHeader() {
                         </div>
                       </div>
                     </>
-                  )}
+                  )} */}
                 </div>
 
                 <div>

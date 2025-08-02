@@ -20,13 +20,23 @@ export default function AllLeads() {
     }
   };
 
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(leads);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
+ const exportToExcel = () => {
+  const exportData = filteredLeads.map((lead, index) => ({
+    "S.No": index + 1,
+    "Client Name": lead.name,
+    "Client Phone": lead.phone,
+    "Client Email": lead.email,
+    "Client Query": lead.query,
+    "Date": new Date(lead.createdAt).toLocaleDateString(),
+  }));
 
-    XLSX.writeFile(workbook, "vendor-leads.xlsx");
-  };
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
+
+  XLSX.writeFile(workbook, "vendor-leads.xlsx");
+};
+
 
   useEffect(() => {
     if (userId) {

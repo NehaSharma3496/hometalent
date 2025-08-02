@@ -15,11 +15,11 @@ export default function AllEnquiries() {
   const [totalRows, setTotalRows] = useState(0);
 
   const fetchAllContactUs = async (page, limit) => {
-     setLoading(true);
+    setLoading(true);
     try {
-        const token = localStorage.getItem("token");
-      const res = await GetAllContactUs(token,page, limit);
- if (res?.data && res?.pagination) {
+      const token = localStorage.getItem("token");
+      const res = await GetAllContactUs(token, page, limit);
+      if (res?.data && res?.pagination) {
         setContacts(res.data);
         setTotalRows(res.pagination.total_records);
       } else {
@@ -34,11 +34,27 @@ export default function AllEnquiries() {
   };
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(contacts);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Contacts");
+    const filteredData = contacts.filter((item) =>
+      item.name?.toLowerCase().includes(searchText.toLowerCase())
+    );
 
-    XLSX.writeFile(workbook, "Enquiries-list.xlsx");
+    const formattedData = filteredData.map((item, index) => ({
+      "S.No": (currentPage - 1) * perPage + index + 1,
+      Name: item.name || "",
+      Email: item.email || "",
+      Phone: item.phone || "",
+      Subject: item.subject || "",
+      Message: item.message || "",
+      Date: item.createdAt
+        ? new Date(item.createdAt).toLocaleDateString("en-GB")
+        : "-",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(formattedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Enquiries");
+
+    XLSX.writeFile(workbook, "Current-Enquiries.xlsx");
   };
 
   const filteredContacts = contacts.filter((Enquiries) =>
@@ -49,7 +65,7 @@ export default function AllEnquiries() {
     fetchAllContactUs(currentPage, perPage);
   }, [currentPage, perPage]);
 
- const handlePageChange = (page) => {
+  const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
@@ -59,7 +75,7 @@ export default function AllEnquiries() {
   };
 
   const columns = [
-   {
+    {
       name: "S.No",
       selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "70px",
@@ -146,13 +162,17 @@ export default function AllEnquiries() {
         </div>
         <div className="row">
           <div className="col-md-12">
-            <Datatable columns={columns} data={filteredContacts}   progressPending={loading}
-            pagination
-            paginationServer
-            paginationTotalRows={totalRows}
-            paginationPerPage={perPage}
-            onChangeRowsPerPage={handlePerRowsChange}
-            onChangePage={handlePageChange}/>
+            <Datatable
+              columns={columns}
+              data={filteredContacts}
+              progressPending={loading}
+              pagination
+              paginationServer
+              paginationTotalRows={totalRows}
+              paginationPerPage={perPage}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
+            />
           </div>
         </div>
       </div>

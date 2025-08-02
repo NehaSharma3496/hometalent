@@ -7,7 +7,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import {
   GetCategories,
-  GetVendorsByCategoryHeader,
+  GetVendorsByCategory,
 } from "../../Services/webService/Web";
 
 const Home = () => {
@@ -372,10 +372,7 @@ const Home = () => {
 
                 return (
                   <div className="grid-item" key={category._id}>
-                    <Link
-                      to={`/categorydetail?id=${category._id}`}
-                      className="category-banner"
-                    >
+                    <Link to={`/category}`} className="category-banner">
                       <img src={imageSrc} alt={category.name} />
                       <div className="category-content">
                         <div className="category-info py-15">

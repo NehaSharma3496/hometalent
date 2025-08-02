@@ -53,7 +53,19 @@ const VendorPackages = () => {
   );
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(packages);
+    const exportData = filteredPackages.map((pkg, index) => ({
+      "S.No.": index + 1,
+      "Package Name": pkg.name,
+      Description: pkg.description,
+      "Price (₹)": pkg.price,
+      "Validity (Months)": pkg.validity_in_months,
+      Features: pkg.features,
+      Status: subscribedPackageIds.includes(pkg.id)
+        ? "Active"
+        : "Not Subscribed",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Packages");
 
@@ -61,65 +73,64 @@ const VendorPackages = () => {
   };
 
   const AddSubscribeplan = async (pkg) => {
-  try {
-    const amount = pkg.price; 
-    const getkey = "rzp_test_22mEHcDzJbcUmz"; 
+    try {
+      const amount = pkg.price;
+      const getkey = "rzp_test_22mEHcDzJbcUmz";
 
-    if (!window.Razorpay) {
-      await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+      if (!window.Razorpay) {
+        await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+      }
+
+      const confirm = await Swal.fire({
+        title: "Are you sure?",
+        text: "Do you want to subscribe to this package?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes, subscribe",
+      });
+
+      if (!confirm.isConfirmed) return;
+
+      const finalAmount = Math.round(amount * 100);
+
+      const options = {
+        key: getkey,
+        amount: finalAmount,
+        name: "Hometalent4u",
+        currency: "INR",
+        description: pkg.name || "Subscription Plan",
+        handler: async function (response) {
+          const data = {
+            vendor_id: vendorId,
+            package_id: pkg.id,
+            amount: pkg.price,
+            status: "completed",
+            payment_reference: response.razorpay_payment_id,
+          };
+
+          const result = await subscribeToPackage(data, token);
+          if (result?.status) {
+            Swal.fire("Subscribed!", "Your package is now active.", "success");
+            fetchSubscribedPackages();
+          }
+        },
+        prefill: {
+          email: user?.email,
+          contact: user?.phone,
+          name: user?.name,
+        },
+        theme: {
+          color: "#F37254",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error("Subscription error:", error);
+      Swal.fire("Error", "Something went wrong during subscription.", "error");
     }
-
-    const confirm = await Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to subscribe to this package?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, subscribe",
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    const finalAmount = Math.round(amount * 100);
-
-    const options = {
-      key: getkey,
-      amount: finalAmount,
-      name: "Hometalent4u",
-      currency: "INR",
-      description: pkg.name || "Subscription Plan",
-      handler: async function (response) {
-        const data = {
-          vendor_id: vendorId,
-          package_id: pkg.id,
-          
-          // price: amount,
-          payment_reference: response.razorpay_payment_id, 
-        };
-
-        const result = await subscribeToPackage(data, token);
-        if (result?.status) {
-          Swal.fire("Subscribed!", "Your package is now active.", "success");
-          fetchSubscribedPackages(); 
-        }
-      },
-      prefill: {
-        email: user?.email,
-        contact: user?.phone,
-        name: user?.name,
-      },
-      theme: {
-        color: "#F37254",
-      },
-    };
-
-    const rzp = new window.Razorpay(options);
-    rzp.open();
-  } catch (error) {
-    console.error("Subscription error:", error);
-    Swal.fire("Error", "Something went wrong during subscription.", "error");
-  }
-};
-
+  };
 
   const columns = [
     {
@@ -173,31 +184,28 @@ const VendorPackages = () => {
       sortable: false,
       width: "140px",
     },
-{
-  name: "Status",
-  cell: (row) => {
-    const isSubscribed = subscribedPackageIds.includes(row.id);
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ height: "40px", width: "100%" }}
-      >
-        <span
-          className={`fs-6 ${isSubscribed ? "badge bg-success" : "text-muted"}`}
-        >
-          {isSubscribed ? "Active" : "-"}
-        </span>
-      </div>
-    );
-  },
-  sortable: false,
-  width: "155px",
-}
-
-
-
-
-
+    {
+      name: "Status",
+      cell: (row) => {
+        const isSubscribed = subscribedPackageIds.includes(row.id);
+        return (
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ height: "40px", width: "100%" }}
+          >
+            <span
+              className={`fs-6 ${
+                isSubscribed ? "badge bg-success" : "text-muted"
+              }`}
+            >
+              {isSubscribed ? "Active" : "-"}
+            </span>
+          </div>
+        );
+      },
+      sortable: false,
+      width: "155px",
+    },
   ];
 
   return (

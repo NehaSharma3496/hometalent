@@ -47,11 +47,24 @@ export default function ProfileUpdateRequests() {
   };
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(requests);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Request");
+    const exportData = filteredRequests.map((row, index) => ({
+      "S.No": (currentPage - 1) * perPage + index + 1,
+      "Vendor Name": row.vendor?.owner_name || "N/A",
+      Email: row.vendor?.email || "N/A",
+      Phone: row.vendor?.phone || "N/A",
+      Status:
+        row.status?.charAt(0).toUpperCase() + row.status?.slice(1) || "N/A",
+    }));
 
-    XLSX.writeFile(workbook, "vendor-update-profile-request.xlsx");
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Profile Update Requests"
+    );
+
+    XLSX.writeFile(workbook, "Profile_Update_Requests.xlsx");
   };
 
   const filteredRequests = requests.filter((request) =>
