@@ -125,19 +125,21 @@ exports.requestProfileUpdate = async (req, res) => {
 
     // Log the request
     await Log.create({
+      request_id: profileUpdateRequest.id,
       user_id: vendor_id,
       user_type: "vendor",
       action: "profile_update_request",
       details: JSON.stringify(filteredData),
     });
 
-    res.json({
+    return res.json({
       status: true,
       msg: "Profile update request submitted successfully. Waiting for admin approval.",
       data: {
         requested_changes: filteredData,
       },
     });
+     
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }

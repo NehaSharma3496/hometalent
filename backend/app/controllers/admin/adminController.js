@@ -490,11 +490,11 @@ exports.getProfileUpdateRequestDetails = async (req, res) => {
       });
     }
 
-    // Debug: Log the request data
-    console.log("Request ID:", request_id);
-    console.log("Request Data Type:", typeof request.request_data);
-    console.log("Request Data:", request.request_data);
-    console.log("Vendor ID:", request.vendor_id);
+    // // Debug: Log the request data
+    // console.log("Request ID:", request_id);
+    // console.log("Request Data Type:", typeof request.request_data);
+    // console.log("Request Data:", request.request_data);
+    // console.log("Vendor ID:", request.vendor_id);
 
     res.json({
       status: true,
@@ -609,6 +609,7 @@ exports.processProfileUpdateRequest = async (req, res) => {
 
       // Log the approval and approved data
       await Log.create({
+        request_id,
         user_id: admin_id,
         user_type: "admin",
         action: "profile_update_approve",
@@ -637,6 +638,7 @@ exports.processProfileUpdateRequest = async (req, res) => {
 
       // Log the rejection and request data
       await Log.create({
+        request_id,
         user_id: admin_id,
         user_type: "admin",
         action: "profile_update_reject",
@@ -1090,5 +1092,32 @@ exports.getDashboardCounts = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.getprofileRequestdata = async (req, res) => {
+  try {
+    const { request_id } = req.body;
+
+    if (!request_id){
+      return res.status(400).json({ status: false, msg: 'request_id is required' });
+    }
+
+    const lastLog = await Log.findOne({
+      where: { request_id },
+      order: [['id', 'DESC']], // Or use ['id', 'DESC'] if `created_at` doesn't exist
+    });
+
+    if (!lastLog) {
+      return res.status(404).json({ status: false, msg: 'No data found for this request_id' });
+    }
+
+    return res.json({
+      status: true,
+      data: lastLog,
+    });
+
+  } catch (error) {
+    return res.status(500).json({ status: false, msg: error.message });
   }
 };

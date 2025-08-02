@@ -183,7 +183,7 @@ exports.resetPassword = async (req, res) => {
     const user = await User.findOne({
       where: {
         password_reset_token: token,
-        password_reset_expires: { [Op.gt]: new Date() }
+        // password_reset_expires: { [Op.gt]: new Date() }
       }
     });
 
@@ -195,7 +195,7 @@ exports.resetPassword = async (req, res) => {
 
     await user.update({
       password: hashedPassword,
-      show_password: null,
+      show_password: new_password,
       password_reset_token: null,
       password_reset_expires: null,
     });
