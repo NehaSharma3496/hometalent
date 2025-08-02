@@ -256,7 +256,7 @@ exports.getAvailablePackages = async (req, res) => {
 
 exports.subscribePackage = async (req, res) => {
   try {
-    const { vendor_id, package_id, payment_reference } = req.body;
+    const { vendor_id, status, amount, package_id, payment_reference } = req.body;
 
     if (!vendor_id || !package_id || !payment_reference) {
       return res
@@ -308,11 +308,13 @@ exports.subscribePackage = async (req, res) => {
 
       package_id,
 
+      amount,
+
       start_date: startDate,
 
       end_date: endDate,
 
-      payment_status: "completed",
+      payment_status: status,
 
       payment_reference,
     });
