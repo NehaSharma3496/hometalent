@@ -304,53 +304,65 @@ exports.getPendingGalleryRequests = async (req, res) => {
 // Process gallery request (approve/reject)
 exports.processGalleryRequest = async (req, res) => {
   try {
-    const { gallery_id, action, admin_id, remarks } = req.body;
-    
-    if (!gallery_id || !action || !admin_id) {
-      return res.status(400).json({ 
-        status: false, 
-        msg: 'gallery_id, action, and admin_id are required' 
+    const { gallery_ids, action, admin_id, remarks } = req.body;
+
+    // ✅ Validate inputs
+    if (!gallery_ids || !Array.isArray(gallery_ids) || gallery_ids.length === 0 || !action || !admin_id) {
+      return res.status(400).json({
+        status: false,
+        msg: 'gallery_ids (array), action, and admin_id are required'
       });
     }
 
     if (!['approve', 'reject'].includes(action)) {
-      return res.status(400).json({ 
-        status: false, 
-        msg: 'Action must be either "approve" or "reject"' 
+      return res.status(400).json({
+        status: false,
+        msg: 'Action must be either "approve" or "reject"'
       });
     }
 
-    const galleryItem = await Gallery.findByPk(gallery_id);
-    if (!galleryItem) {
-      return res.status(404).json({ 
-        status: false, 
-        msg: 'Gallery item not found' 
+    // ✅ Fetch gallery items by IDs
+    const galleryItems = await Gallery.findAll({
+      where: { id: gallery_ids }
+    });
+
+    if (!galleryItems.length) {
+      return res.status(404).json({
+        status: false,
+        msg: 'No matching gallery items found'
       });
     }
 
     const newStatus = action === 'approve' ? 'approved' : 'rejected';
-    
-    await galleryItem.update({
-      status: newStatus,
-      admin_remarks: remarks || null,
-      admin_id: admin_id,
-      processed_at: new Date()
-    });
 
-    res.json({ 
-      status: true, 
-      msg: `Gallery request ${action}d successfully`,
-      data: {
-        id: galleryItem.id,
-        status: newStatus,
-        processed_at: galleryItem.processed_at
-      }
+    // ✅ Update all matching gallery items
+    await Promise.all(
+      galleryItems.map(item =>
+        item.update({
+          status: newStatus,
+          admin_remarks: remarks || null,
+          admin_id,
+          processed_at: new Date()
+        })
+      )
+    );
+
+    res.json({
+      status: true,
+      msg: `Gallery items ${action}d successfully`,
+      updated_count: galleryItems.length,
+      data: galleryItems.map(item => ({
+        id: item.id,
+        status: item.status,
+        processed_at: item.processed_at
+      }))
     });
 
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    res.status(500).json({ status: false, msg: error.message });
   }
 };
+
 
 // Get user complete profile with gallery
 exports.getUserCompleteProfile = async (req, res) => {

@@ -7,7 +7,7 @@ const multer = require('multer');
 // Gallery routes for vendors
 router.post('/upload', galleryUpload, galleryController.uploadGalleryFiles);
 router.get('/my-gallery', galleryController.getUserGallery);
-router.delete('/remove/:gallery_id', galleryController.removeGalleryItem);
+router.post('/remove', galleryController.removeGalleryItem);
 router.put('/update-order', galleryController.updateGalleryOrder);
 
 // Test route to check if middleware is working

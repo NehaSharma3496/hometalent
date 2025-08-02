@@ -96,24 +96,31 @@ exports.getVendorsByCategoryId = async (req, res) => {
     const sponsoredVendors = await User.findAll({
       where: sponsoredWhere,
       include: [sponsorRankInclude, subscriptionInclude],
-      order: [[{ model: VendorCategoryRank, as: 'categoryRanks' }, 'sponsor_rank', 'ASC']]
+      order: [[{ model: VendorCategoryRank, as: 'categoryRanks' }, 'sponsor_rank', 'ASC']],
+      distinct: true
     });
-
+  //  return res.json({ status: true, data: sponsoredVendors });
+   
     // Get non-sponsored vendors for this filter
     let nonSponsorRankInclude = {
       model: VendorCategoryRank,
       as: 'categoryRanks',
-      where: { is_sponsored: 0 },
+      where: { is_sponsored: 0, category_id:category_id },
       required: false
     };
+
     if (category_id) nonSponsorRankInclude.where.category_id = category_id;
 
-    const nonSponsoredVendors = await User.findAll({
-      where: whereClause,
+    const sponsoredIds = sponsoredVendors.map(v => v.id);
+        const nonSponsoredVendors = await User.findAll({
+            where: {
+        ...whereClause,
+        id: { [Op.notIn]: sponsoredIds } // EXCLUDE already fetched sponsored vendors
+      },
       include: [nonSponsorRankInclude, subscriptionInclude],
       order: [['createdAt', 'DESC']]
     });
-
+    
     // Shuffle non-sponsored vendors
     const shuffledNonSponsored = nonSponsoredVendors.sort(() => Math.random() - 0.5);
 
@@ -130,9 +137,9 @@ exports.getVendorsByCategoryId = async (req, res) => {
       v.dataValues.category_names = categoryNames.map(c => c.name);
     }
 
-    res.json({ status: true, data: allVendors });
+    return res.json({ status: true, data: allVendors });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
