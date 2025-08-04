@@ -71,5 +71,6 @@ router.get('/contact-us', adminController.getAllContactUs);
 
 // Dashboard summary counts
 router.get('/dashboard-counts', adminController.getDashboardCounts);
+router.post('/getprofileRequestdata', adminController.getprofileRequestdata)
 
 module.exports = router;
