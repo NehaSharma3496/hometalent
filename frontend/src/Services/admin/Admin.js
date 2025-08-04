@@ -357,7 +357,7 @@ export async function showPackage(token, page = 1, limit = 10) {
       }
     );
 
-    return response.data;
+    return response?.data;
   } catch (error) {
     throw error?.response?.data || error;
   }
@@ -378,7 +378,7 @@ export async function CreatePackage(packageData, token) {
       }
     );
 
-    return response.data;
+    return response?.data;
   } catch (error) {
     console.error("Error creating package:", error);
     return error;
@@ -420,7 +420,7 @@ export async function UpdatePackage(packageId, data, token) {
       }
     );
     console.log("Update API response:", res.data);
-    return res.data;
+    return res?.data;
   } catch (err) {
     console.error("Error updating package:", err.response?.data || err);
     throw err;
@@ -434,7 +434,7 @@ export const GetSinglePackage = async (id, token) => {
     const res = await axios.get(`${Config.base_url}admin/package/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    return res.data;
+    return res?.data;
   } catch (err) {
     console.error("GetSinglePackage error:", err);
     return { status: false };
@@ -486,7 +486,7 @@ export async function ExtendPackage(token, updateData) {
       }
     );
 
-    return response.data;
+    return response?.data;
   } catch (error) {
     console.error("Error extend package:", error);
     return error;
@@ -506,7 +506,7 @@ export async function UpdatePackageStatus(token, data) {
       }
     );
 
-    return response.data;
+    return response?.data;
   } catch (error) {
     console.error("Error update package:", error);
     return error;
@@ -527,18 +527,72 @@ export async function GetRejectedVendor(token) {
 }
 
 export async function AddAdminBlog(token, data) {
-  console.log("Data from frontend",data)
+  console.log("Data from frontend", data);
   try {
     const response = await axios.post(`${Config.base_url}blogs`, data, {
       headers: {
         Authorization: `${token}`,
-        "Content-Type": "application/json",
       },
     });
 
-    return response.data;
+    return response?.data;
   } catch (error) {
     console.error("Error update package:", error);
+    return error;
+  }
+}
+
+export async function GetAllAdminBlog(token, page = 1, limit = 10) {
+  try {
+    const response = await axios.get(
+      `${Config.base_url}blogs?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function UpdateAdminBlog(token, blogId, data) {
+  try {
+    const res = await axios.put(`${Config.base_url}blogs/${blogId}`, data, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
+export async function GetSingleAdminBlog(token, blogId) {
+  try {
+    const response = await axios.get(`${Config.base_url}blogs/${blogId}`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function DeleteAdminBlog(token, blogId) {
+  try {
+    const response = await axios.delete(`${Config.base_url}blogs/${blogId}`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
     return error;
   }
 }

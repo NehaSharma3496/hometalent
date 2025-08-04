@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import {
   GetBlockedVendore,
   GetCategories,
+  UpdateVendorStatus
 } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
@@ -54,6 +55,38 @@ export default function BlockedVendors() {
       console.log("Error fetching categories", error);
     }
   };
+
+  const handleStatusChange = async (vendorId, newStatus) => {
+  const isEnabling = newStatus === 1;
+
+  const confirm = await Swal.fire({
+    title: isEnabling ? "Enable Vendor?" : "Disable Vendor?",
+    text: isEnabling
+      ? "Are you sure you want to enable this vendor?"
+      : "Are you sure you want to disable this vendor?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: isEnabling ? "Yes, enable" : "Yes, disable",
+    cancelButtonText: "Cancel",
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  try {
+    const token = localStorage.getItem("token");
+    const res = await UpdateVendorStatus(vendorId, newStatus, token);
+    if (res?.status === true || res?.status === "true") {
+      await Swal.fire("Success", "Vendor status updated.", "success");
+      fetchBlockedVendors(currentPage, perPage); 
+    } else {
+      throw new Error(res?.message || "Failed to update status");
+    }
+  } catch (err) {
+    console.error(err);
+    await Swal.fire("Error", "Failed to update status.", "error");
+  }
+};
+
 
   const fetchAllBlockedVendors = async () => {
   try {
@@ -240,6 +273,30 @@ const exportToExcel = async () => {
       selector: (row) => row.experience_since,
       sortable: true,
     },
+    {
+  name: "Active Status",
+  cell: (row) => (
+    <div className="form-check form-switch m-0 d-flex align-items-center">
+      <input
+        className="form-check-input"
+        type="checkbox"
+        role="switch"
+        id={`toggle-${row.id}`}
+        checked={row.status === 1}
+        onChange={(e) =>
+          handleStatusChange(row.id, e.target.checked ? 1 : 2)
+        }
+        style={{
+          width: "3.5rem",
+          height: "1.5rem",
+          cursor: "pointer",
+          marginTop: "2px",
+        }}
+      />
+    </div>
+  ),
+},
+
   ];
 
   return (

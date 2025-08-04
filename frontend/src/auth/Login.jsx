@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
@@ -116,13 +116,21 @@ const Login = () => {
                 fields={fields}
               />
 
-              <div className="login-footer">
+              <div className="login-footer d-flex">
                 <div className="create-account text-center mt-3">
                   <p>
                     Don’t have an account?{" "}
                     <a href="/registration" className="text-primary">
                       Register
                     </a>
+                  </p>
+                </div>
+                <div className="create-account text-center mt-3">
+                  <p>
+                    Forgot Password?{""}
+                  <a href="/forgotpassword" className="text-primary">
+                    Forgot Password
+                  </a>
                   </p>
                 </div>
               </div>

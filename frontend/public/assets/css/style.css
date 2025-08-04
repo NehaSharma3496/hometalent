@@ -6162,3 +6162,7 @@ background-color: #2278b6 !important;
     font-weight: 500;
     transition: all 0.2s;
 }
+
+.custom-quill-editor .ql-editor {
+  min-height: 400px;
+}

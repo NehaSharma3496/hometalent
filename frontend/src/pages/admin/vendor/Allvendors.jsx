@@ -13,7 +13,7 @@ export default function Allvendors() {
   const navigate = useNavigate();
   const [vendors, setVendors] = useState([]);
   const [searchText, setSearchText] = useState("");
-const [allVendors, setAllVendors] = useState([]);
+  const [allVendors, setAllVendors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
@@ -39,37 +39,36 @@ const [allVendors, setAllVendors] = useState([]);
   };
 
   const fetchAllVendors = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    let fullList = [];
-    let page = 1;
-    const limit = 100;
-    let totalPages = 1;
+    try {
+      const token = localStorage.getItem("token");
+      let fullList = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
 
-    while (page <= totalPages) {
-      const res = await GetVendoreList(token, page, limit);
-      const { data, pagination } = res || {};
-      if (data?.length) fullList = [...fullList, ...data];
+      while (page <= totalPages) {
+        const res = await GetVendoreList(token, page, limit);
+        const { data, pagination } = res || {};
+        if (data?.length) fullList = [...fullList, ...data];
 
-      if (pagination) {
-        totalPages = Math.ceil(pagination.total_records / limit);
-      } else {
-        break;
+        if (pagination) {
+          totalPages = Math.ceil(pagination.total_records / limit);
+        } else {
+          break;
+        }
+
+        page++;
       }
 
-      page++;
+      setAllVendors(fullList);
+    } catch (err) {
+      console.error("Error fetching all vendors:", err);
     }
-
-    setAllVendors(fullList);
-  } catch (err) {
-    console.error("Error fetching all vendors:", err);
-  }
-};
-
+  };
 
   useEffect(() => {
     fetchVendors(currentPage, perPage);
-     fetchAllVendors();
+    fetchAllVendors();
   }, [currentPage, perPage]);
 
   const handlePageChange = (page) => {
@@ -81,11 +80,11 @@ const [allVendors, setAllVendors] = useState([]);
     setCurrentPage(1);
   };
 
- const filteredVendors = searchText
-  ? allVendors.filter((v) =>
-      v.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-    )
-  : vendors;
+  const filteredVendors = searchText
+    ? allVendors.filter((v) =>
+        v.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : vendors;
 
   const exportToExcel = async () => {
     try {
@@ -245,7 +244,7 @@ const [allVendors, setAllVendors] = useState([]);
       selector: (row) => row.experience_since,
     },
     {
-      name: "Update Vendor Status",
+      name: "Active Status",
       cell: (row) => (
         <div className="form-check form-switch m-0 d-flex align-items-center">
           <input
@@ -318,7 +317,7 @@ const [allVendors, setAllVendors] = useState([]);
       width: "125px",
     },
     {
-      name: "Status",
+      name: "Approval Status",
       cell: (row) => {
         const status = row.approval_status;
 

@@ -30,7 +30,10 @@ import VendorPackageDetails from "../pages/admin/vendor/VendorPackageDetails";
 import SponsoredRankUpdate from "../pages/admin/vendor/SponsoredRankUpdate";
 import ViewProfileChanges from "../pages/admin/profileupdaterequest/ViewProfileChanges";
 import RejectedVendors from "../pages/admin/vendor/RejectedVendors";
-import AddBlogs from "../pages/admin/blog/AddBlog";
+import AddBlog from "../pages/admin/blog/AddBlog";
+import AllBlog from "../pages/admin/blog/AllBlog";
+import UpdateBlog from "../pages/admin/blog/UpdateBlog";
+
 
 const AdminRoutes = (
   <Route path="/admin" element={<AdminLayout />}>
@@ -75,7 +78,9 @@ const AdminRoutes = (
       element={<ViewProfileChanges />}
     />
     <Route path="vendor/rejectedvendors" element={<RejectedVendors />} />
-    <Route path="blog/addblog" element={<AddBlogs />} />
+    <Route path="blog/addblog" element={<AddBlog />} />
+    <Route path="blog/allblogs" element={<AllBlog/>}/>
+    <Route path="updatepackage/:blogId" element={<UpdateBlog/>}/>
   </Route>
 );
 

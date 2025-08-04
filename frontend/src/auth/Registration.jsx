@@ -222,7 +222,7 @@ const Registration = () => {
           "User registered! We will reach you soon on mail",
           "success"
         ).then(() => {
-          window.location.reload(); 
+          window.location.reload();
         });
       } else {
         Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");

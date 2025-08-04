@@ -15,6 +15,10 @@ import TermsCondition from "../pages/website/TermsCondition";
 import CategoryDetail from "../pages/website/category/CategoryDetail";
 import BlogDetail from "../pages/website/weddingVogue/BlogDetail";
 import RealWedding from "../pages/website/realWedding/RealWedding";
+import ForgotPassword from "../auth/ForgotPassword";
+import ResetPassword from "../auth/ResetPassword";
+import Login from "../auth/Login";
+
 
 const WebRoutes = (
   <Route element={<MainLayout />}>
@@ -32,6 +36,10 @@ const WebRoutes = (
     <Route path="/category" element={<Category />} />
     <Route path="/realwedding" element={<RealWedding />} />
     <Route path="/category/:categoryId" element={<Category />} />
+    <Route path="/forgotpassword" element={<ForgotPassword />} />
+    <Route path="/reset-password/:token" element={<ResetPassword/>} />
+    <Route path="/login" element={<Login/>}/>
+
   </Route>
 );
 

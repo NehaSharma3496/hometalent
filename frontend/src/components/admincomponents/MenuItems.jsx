@@ -119,8 +119,9 @@ export const MenuItems = {
       icon: "fa-solid fa-pen-to-square",
       label: "Blog",
       children: [
-        { label: "All Blogs", link: "/admin/blog/allblogs" },
         { label: "Add Blog", link: "/admin/blog/addblog" },
+        { label: "All Blogs", link: "/admin/blog/allblogs" },
+        
       ],
     },
     // {
