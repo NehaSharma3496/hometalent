@@ -1017,7 +1017,19 @@ exports.getDashboardCounts = async (req, res) => {
     const totalVendors = await User.count({ where: { role_id: 2 } });
     // Pending vendors
     const pendingVendors = await User.count({
-      where: { role_id: 2, status: 0 },
+      where: { role_id: 2, approval_status: 0 },
+    });
+
+    const approveVendors = await User.count({
+      where: { role_id: 2, approval_status: 1 },
+    });
+
+    const activeVendors = await User.count({
+      where: { role_id: 2, status: 1 },
+    });
+
+        const inactiveVendors = await User.count({
+      where: { role_id: 2, status: 1 },
     });
 
     // Current month counts
@@ -1027,10 +1039,11 @@ exports.getDashboardCounts = async (req, res) => {
     const vendorsCurrentMonth = await User.count({
       where: { role_id: 2, createdAt: { [Op.gte]: startOfCurrentMonth } },
     });
+
     const pendingVendorsCurrentMonth = await User.count({
       where: {
         role_id: 2,
-        status: 0,
+        approval_status: 0,
         createdAt: { [Op.gte]: startOfCurrentMonth },
       },
     });
@@ -1056,7 +1069,26 @@ exports.getDashboardCounts = async (req, res) => {
     const pendingVendorsPrevMonth = await User.count({
       where: {
         role_id: 2,
-        status: 0,
+        approval_status: 0,
+        createdAt: {
+          [Op.gte]: startOfPrevMonth,
+          [Op.lt]: startOfCurrentMonth,
+        },
+      },
+    });
+    
+    const approveVendorsCurrentMonth = await User.count({
+      where: {
+        role_id: 2,
+        approval_status: 1,
+        createdAt: { [Op.gte]: startOfCurrentMonth },
+      },
+    });
+
+    const approveVendorsPrevMonth = await User.count({
+      where: {
+        role_id: 2,
+        approval_status: 1,
         createdAt: {
           [Op.gte]: startOfPrevMonth,
           [Op.lt]: startOfCurrentMonth,
@@ -1064,6 +1096,43 @@ exports.getDashboardCounts = async (req, res) => {
       },
     });
 
+    const activeVendorsCurrentMonth = await User.count({
+      where: {
+        role_id: 2,
+        status: 1,
+        createdAt: { [Op.gte]: startOfCurrentMonth },
+      },
+    });
+
+    const activeVendorsPrevMonth = await User.count({
+      where: {
+        role_id: 2,
+        status: 1,
+        createdAt: {
+          [Op.gte]: startOfPrevMonth,
+          [Op.lt]: startOfCurrentMonth,
+        },
+      },
+    });
+
+    const inactiveVendorsCurrentMonth = await User.count({
+      where: {
+        role_id: 2,
+        status: 0,
+        createdAt: { [Op.gte]: startOfCurrentMonth },
+      },
+    });
+
+    const inactiveVendorsPrevMonth = await User.count({
+      where: {
+        role_id: 2,
+        status: 0,
+        createdAt: {
+          [Op.gte]: startOfPrevMonth,
+          [Op.lt]: startOfCurrentMonth,
+        },
+      },
+    });
     // Percentage increase calculation helper
     function getPercentageIncrease(current, prev) {
       if (prev === 0) return current > 0 ? 100 : 0;
@@ -1076,6 +1145,9 @@ exports.getDashboardCounts = async (req, res) => {
         total_leads: totalLeads,
         total_vendors: totalVendors,
         pending_vendors: pendingVendors,
+        approve_vendors: approveVendors,
+        active_vendors: activeVendors,
+        inactive_vendors: inactiveVendors,
         leads_percentage_increase: getPercentageIncrease(
           leadsCurrentMonth,
           leadsPrevMonth
@@ -1087,6 +1159,18 @@ exports.getDashboardCounts = async (req, res) => {
         pending_vendors_percentage_increase: getPercentageIncrease(
           pendingVendorsCurrentMonth,
           pendingVendorsPrevMonth
+        ),
+        approve_vendors_percentage_increase: getPercentageIncrease(
+          approveVendorsCurrentMonth,
+          approveVendorsPrevMonth
+        ),
+        active_vendors_percentage_increase: getPercentageIncrease(
+          activeVendorsCurrentMonth,
+          activeVendorsPrevMonth
+        ),
+        inactive_vendors_percentage_increase: getPercentageIncrease(
+          inactiveVendorsCurrentMonth,
+          inactiveVendorsPrevMonth
         ),
       },
     });
