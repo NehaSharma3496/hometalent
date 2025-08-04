@@ -46,9 +46,35 @@ export default function ProfileUpdateRequests() {
     }
   };
 
-  const exportToExcel = () => {
-    const exportData = filteredRequests.map((row, index) => ({
-      "S.No": (currentPage - 1) * perPage + index + 1,
+  const exportToExcel = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    let allRequests = [];
+    let page = 1;
+    const limit = 100;
+    let totalPages = 1;
+
+    // Fetch all paginated profile update requests
+    while (page <= totalPages) {
+      const res = await GetProfileUpdateRequests(token, statusFilter, page, limit);
+
+      if (res?.data?.requests && typeof res.data.total === "number") {
+        allRequests = [...allRequests, ...res.data.requests];
+        totalPages = Math.ceil(res.data.total / limit);
+      } else {
+        throw new Error("Invalid response format");
+      }
+
+      page++;
+    }
+
+    if (!allRequests.length) {
+      return Swal.fire("No Data", "No profile update requests found to export", "info");
+    }
+
+    const exportData = allRequests.map((row, index) => ({
+      "S.No": index + 1,
       "Vendor Name": row.vendor?.owner_name || "N/A",
       Email: row.vendor?.email || "N/A",
       Phone: row.vendor?.phone || "N/A",
@@ -58,14 +84,17 @@ export default function ProfileUpdateRequests() {
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Profile Update Requests"
-    );
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Profile Update Requests");
 
     XLSX.writeFile(workbook, "Profile_Update_Requests.xlsx");
-  };
+
+    Swal.fire("Success", "Profile update requests downloaded successfully", "success");
+  } catch (error) {
+    console.error("Export error:", error);
+    Swal.fire("Error", "Failed to export profile update requests", "error");
+  }
+};
+
 
   const filteredRequests = requests.filter((request) =>
     request.vendor?.owner_name?.toLowerCase().includes(searchText.toLowerCase())

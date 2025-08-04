@@ -82,41 +82,68 @@ export default function PendingVendor() {
       setLoading(false);
     }
   };
-  const exportToExcel = () => {
-  const exportData = filteredPendingVendors.map((row, index) => {
-    const categoryNames = row.category_id
-      ? row.category_id
-          .split(",")
-          .map((id) => categoryMap[id.trim()] || `ID-${id.trim()}`)
-          .join(", ")
-      : "—";
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    let statusText = "Pending";
-    if (row.approval_status === 1) statusText = "Approved";
-    else if (row.approval_status === 2) statusText = "Rejected";
+      let allVendors = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
 
-    return {
-      "S.No": (currentPage - 1) * perPage + index + 1,
-      "Owner Name": row.owner_name || "",
-      "Email": row.email || "",
-      "Category Names": categoryNames,
-      "Profile Name": row.profile_name || "",
-      "Phone Number": row.phone || "",
-      "Price Range": row.price_range || "",
-      "Short Description": row.short_description || "",
-      "Image": row.image ? "Available" : "N/A",
-      "Pin Code": row.pin_code || "",
-      "Experience Since": row.experience_since || "",
-      "Status": statusText,
-    };
-  });
+      // Fetch all paginated data
+      while (page <= totalPages) {
+        const res = await GetPendingVendoreList(token, page, limit);
+        if (res?.data && res?.pagination) {
+          allVendors = [...allVendors, ...res.data];
+          totalPages = Math.ceil(res.pagination.total_records / limit);
+        } else {
+          throw new Error("Invalid response format");
+        }
+        page++;
+      }
 
-  const worksheet = XLSX.utils.json_to_sheet(exportData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Pending Vendors");
-  XLSX.writeFile(workbook, "Pending_Vendor_List.xlsx");
-};
+      // Map to export format
+      const exportData = allVendors.map((row, index) => {
+        const categoryNames = row.category_id
+          ? row.category_id
+              .split(",")
+              .map((id) => categoryMap[id.trim()] || `ID-${id.trim()}`)
+              .join(", ")
+          : "—";
 
+        const statusText =
+          row.approval_status === 1
+            ? "Approved"
+            : row.approval_status === 2
+            ? "Rejected"
+            : "Pending";
+
+        return {
+          "S.No": index + 1,
+          "Owner Name": row.owner_name || "",
+          Email: row.email || "",
+          "Category Names": categoryNames,
+          "Profile Name": row.profile_name || "",
+          "Phone Number": row.phone || "",
+          "Price Range": row.price_range || "",
+          "Short Description": row.short_description || "",
+          Image: row.image ? "Available" : "N/A",
+          "Pin Code": row.pin_code || "",
+          "Experience Since": row.experience_since || "",
+          Status: statusText,
+        };
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Pending Vendors");
+      XLSX.writeFile(workbook, "Pending_Vendor_List.xlsx");
+    } catch (error) {
+      console.error("Export error:", error);
+      Swal.fire("Error", "Failed to export pending vendors", "error");
+    }
+  };
 
   const filteredPendingVendors = pendingvendors.filter((vendor) =>
     vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
@@ -200,7 +227,7 @@ export default function PendingVendor() {
       selector: (row) => row.short_description,
       sortable: true,
     },
- {
+    {
       name: "Image",
       cell: (row) =>
         row.image ? (
@@ -342,13 +369,13 @@ export default function PendingVendor() {
             <Datatable
               columns={columns}
               data={filteredPendingVendors}
-             progressPending={loading}
-            pagination
-            paginationServer
-            paginationTotalRows={totalRows}
-            paginationPerPage={perPage}
-            onChangeRowsPerPage={handlePerRowsChange}
-            onChangePage={handlePageChange}
+              progressPending={loading}
+              pagination
+              paginationServer
+              paginationTotalRows={totalRows}
+              paginationPerPage={perPage}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
             />
           </div>
         </div>

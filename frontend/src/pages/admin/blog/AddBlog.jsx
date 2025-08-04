@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import Swal from 'sweetalert2';
 import { AddAdminBlog } from '../../../Services/admin/Admin';
 import { useNavigate } from 'react-router-dom';
+import 'react-quill/dist/quill.snow.css';
+
+const ReactQuill = lazy(() => import('react-quill'));
 
 export default function AddBlogs() {
   const [title, setTitle] = useState('');
@@ -23,12 +26,12 @@ export default function AddBlogs() {
     formData.append('long_description', longDescription);
     formData.append('image', image);
 
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('token');
     const result = await AddAdminBlog(token, formData);
 
     if (result?.status) {
       Swal.fire('Success', 'Blog added successfully!', 'success');
-
+      navigate('/admin/blogs');
     } else {
       Swal.fire('Error', result?.msg || 'Failed to add blog', 'error');
     }
@@ -48,7 +51,9 @@ export default function AddBlogs() {
         </div>
         <div className="mb-3">
           <label>Long Description</label>
-          <textarea className="form-control" value={longDescription} onChange={(e) => setLongDescription(e.target.value)} />
+          <Suspense fallback={<div>Loading editor...</div>}>
+            <ReactQuill theme="snow" value={longDescription} onChange={setLongDescription} />
+          </Suspense>
         </div>
         <div className="mb-3">
           <label>Image</label>

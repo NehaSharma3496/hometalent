@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import { showPackage, DeletePackage } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import { UpdatePackageStatus } from "../../../Services/admin/Admin";
+import * as XLSX from "xlsx";
 
 export default function Packages() {
   const [packages, setPackages] = useState([]);
@@ -31,6 +32,59 @@ export default function Packages() {
       Swal.fire("Error", "Could not load vendor list", "error");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      let allPackages = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
+
+      // Fetch all paginated packages
+      while (page <= totalPages) {
+        const res = await showPackage(token, page, limit);
+
+        if (res?.data && res?.pagination?.total_records) {
+          allPackages = [...allPackages, ...res.data];
+          totalPages = Math.ceil(res.pagination.total_records / limit);
+        } else {
+          throw new Error("Invalid response format");
+        }
+
+        page++;
+      }
+
+      if (!allPackages.length) {
+        return Swal.fire("No Data", "No packages found to export", "info");
+      }
+
+      const exportData = allPackages.map((pkg, index) => ({
+        "S.No": index + 1,
+        Name: pkg.name || "N/A",
+        Description: pkg.description || "N/A",
+        "Price (₹)": `₹${pkg.price}`,
+        "Validity (Months)": pkg.validity_in_months,
+        Features: pkg.features,
+        Status: pkg.status === 1 ? "Active" : "Inactive",
+        "Created At": new Date(pkg.createdAt).toLocaleDateString(),
+        "Updated At": new Date(pkg.updatedAt).toLocaleDateString(),
+      }));
+
+      const XLSX = await import("xlsx");
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Packages");
+
+      XLSX.writeFile(workbook, "All_Packages.xlsx");
+
+      Swal.fire("Success", "Packages downloaded successfully", "success");
+    } catch (error) {
+      console.error("Export error:", error);
+      Swal.fire("Error", "Failed to export packages", "error");
     }
   };
 
@@ -199,6 +253,12 @@ export default function Packages() {
         </div>
 
         <div className="col-md-6 text-end">
+         
+            <button className="btn btn-success me-2" onClick={exportToExcel}>
+              <i className="fa-solid fa-file-excel me-1"></i>
+              Download Excel
+            </button>
+        
           <Link to="/admin/addpackage" className="btn btn-primary">
             + Add Package
           </Link>

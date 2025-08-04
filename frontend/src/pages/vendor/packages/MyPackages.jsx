@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { getVendorPackageHistory } from "../../../Services/vendor/Vendor";
-import DataTable from "react-data-table-component";
+import Datatable from "react-data-table-component";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
 
 export default function MyPackages() {
   const [currentPackages, setCurrentPackages] = useState([]);
   const [expiredPackages, setExpiredPackages] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchCurrent, setSearchCurrent] = useState("");
   const [searchExpired, setSearchExpired] = useState("");
 
   const token = localStorage.getItem("token");
   const vendorId = localStorage.getItem("userId");
+
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -69,9 +73,10 @@ export default function MyPackages() {
     XLSX.writeFile(workbook, "expired-packages.xlsx");
   };
 
-  const fetchPackages = async () => {
+  const fetchPackages = async (page, limit) => {
+     setLoading(true);
     try {
-      const res = await getVendorPackageHistory(token, vendorId);
+      const res = await getVendorPackageHistory(token, vendorId,page, limit);
       const packages = res?.data || [];
 
       const current = [];
@@ -89,8 +94,6 @@ export default function MyPackages() {
       setExpiredPackages(expired);
     } catch (error) {
       console.error("Failed to load packages", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -137,22 +140,6 @@ export default function MyPackages() {
       item?.Package?.name?.toLowerCase().includes(query.toLowerCase())
     );
   };
-
-  if (loading) {
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ minHeight: "60vh" }}
-      >
-        <div className="text-center">
-          <div className="spinner-border text-primary mb-3" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <h5 className="text-muted">Loading Your Packages...</h5>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="page-content">
@@ -215,7 +202,7 @@ export default function MyPackages() {
           )}
         </div>
 
-        <DataTable
+        <Datatable
           columns={commonColumns()}
           data={filterData(currentPackages, searchCurrent)}
           pagination
@@ -250,7 +237,7 @@ export default function MyPackages() {
           )}
         </div>
 
-        <DataTable
+        <Datatable
           columns={commonColumns()}
           data={filterData(expiredPackages, searchExpired)}
           pagination

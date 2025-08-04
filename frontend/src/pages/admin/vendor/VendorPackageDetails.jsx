@@ -68,18 +68,44 @@ export default function VendorPackageDetails() {
     if (token && vendorId) fetchPackages();
   }, [token, vendorId]);
 
-  const handleExtendPackage = async () => {
-    if (!extendDays || isNaN(extendDays) || Number(extendDays) <= 0) {
-      return Swal.fire("Invalid", "Enter a valid number of days.", "warning");
+  const handleExtendPackage = async (currentEndDateStr) => {
+    if (!extendDays) {
+      return Swal.fire("Invalid", "Please select a date.", "warning");
     }
+
+    const currentEndDate = new Date(currentEndDateStr);
+    const selectedDate = new Date(extendDays);
+    const extraDays = Math.ceil(
+      (selectedDate - currentEndDate) / (1000 * 60 * 60 * 24)
+    );
+
+    if (isNaN(extraDays) || extraDays <= 0) {
+      return Swal.fire(
+        "Invalid",
+        "Select a date after current end date.",
+        "warning"
+      );
+    }
+
+    // 🔔 Confirmation popup before proceeding
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      html: `You are about to extend the package by <strong>${extraDays} day(s)</strong> until <strong>${selectedDate.toLocaleDateString(
+        "en-IN"
+      )}</strong>.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, extend it",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirm.isConfirmed) return;
 
     try {
       const response = await ExtendPackage(token, {
         id: latestPackageId,
-        extra_days: Number(extendDays),
+        extra_days: extraDays,
       });
-
-      console.log("Extend response:", response);
 
       if (response?.status === true || response?.status === "true") {
         Swal.fire("Extended!", "Package extended successfully.", "success");
@@ -139,7 +165,7 @@ export default function VendorPackageDetails() {
     },
     {
       name: "Actions",
-      minWidth: "200px",
+      minWidth: "240px",
       cell: (row) => {
         if (row.id !== latestPackageId)
           return <span className="text-muted">—</span>;
@@ -147,16 +173,16 @@ export default function VendorPackageDetails() {
         return (
           <div className="d-flex flex-column flex-md-row align-items-start gap-2">
             <input
-              type="number"
+              type="date"
               className="form-control form-control-sm"
-              placeholder="Days"
-              style={{ width: "80px" }}
+              style={{ width: "180px" }}
+              min={row.end_date?.split("T")[0]}
               value={extendDays}
               onChange={(e) => setExtendDays(e.target.value)}
             />
             <button
               className="btn btn-success btn-sm"
-              onClick={handleExtendPackage}
+              onClick={() => handleExtendPackage(row.end_date)}
             >
               Extend
             </button>
@@ -166,6 +192,7 @@ export default function VendorPackageDetails() {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
+      width: "280px",
     },
   ];
 

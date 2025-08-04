@@ -55,32 +55,58 @@ export default function Allvendors() {
     vendors.owner_name?.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  const exportToExcel = () => {
-    const exportData = filteredVendors.map((row, index) => ({
-      "S.No": (currentPage - 1) * perPage + index + 1,
-      "Owner Name": row.owner_name || "",
-      Email: row.email || "",
-      "Category Name": Array.isArray(row.category_names)
-        ? row.category_names.join(", ")
-        : row.category_names || "",
-      Phone: row.phone || "",
-      "Price Range": row.price_range || "",
-      "Short Description": row.short_description || "",
-      "Experience Since": row.experience_since || "",
-      Image: row.image ? "Available" : "N/A",
-      Status:
-        row.approval_status === 1
-          ? "Approved"
-          : row.approval_status === 2
-          ? "Rejected"
-          : "Pending",
-      "Enable Status": row.status === 1 ? "Enabled" : "Disabled",
-    }));
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "All Vendors");
-    XLSX.writeFile(workbook, "All_Vendor_List.xlsx");
+      let allVendors = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
+
+      while (page <= totalPages) {
+        const res = await GetVendoreList(token, page, limit);
+        const { data, pagination } = res || {};
+        if (data?.length) allVendors = [...allVendors, ...data];
+
+        if (pagination) {
+          totalPages = Math.ceil(pagination.total_records / limit);
+        } else {
+          break; // fallback if pagination info missing
+        }
+
+        page++;
+      }
+
+      const exportData = allVendors.map((row, index) => ({
+        "S.No": index + 1,
+        "Owner Name": row.owner_name || "",
+        Email: row.email || "",
+        "Category Name": Array.isArray(row.category_names)
+          ? row.category_names.join(", ")
+          : row.category_names || "",
+        Phone: row.phone || "",
+        "Price Range": row.price_range || "",
+        "Short Description": row.short_description || "",
+        "Experience Since": row.experience_since || "",
+        Image: row.image ? "Available" : "N/A",
+        Status:
+          row.approval_status === 1
+            ? "Approved"
+            : row.approval_status === 2
+            ? "Rejected"
+            : "Pending",
+        "Enable Status": row.status === 1 ? "Enabled" : "Disabled",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "All Vendors");
+      XLSX.writeFile(workbook, "All_Vendor_List.xlsx");
+    } catch (err) {
+      console.error("Error exporting vendors:", err);
+      Swal.fire("Error", "Failed to export all vendors", "error");
+    }
   };
 
   const handleApproveVendor = async (vendorId, status) => {

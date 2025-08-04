@@ -6,6 +6,8 @@ import {
 } from "../../../Services/admin/Admin";
 import Datatable from "../../../extracomponents/Datatable";
 import * as XLSX from "xlsx";
+import Swal from "sweetalert2";
+
 
 export default function BlockedVendors() {
   const [blockedvendors, setBlockedVendors] = React.useState([]);
@@ -52,35 +54,66 @@ export default function BlockedVendors() {
     }
   };
 
- const exportToExcel = () => {
-  const exportData = filteredBlockedVendors.map((row, index) => {
-    const categoryNames = row.category_id
-      ? row.category_id
-          .split(",")
-          .map((id) => categoryMap[id.trim()] || `ID-${id.trim()}`)
-          .join(", ")
-      : "—";
+const exportToExcel = async () => {
+  try {
+    const token = localStorage.getItem("token");
 
-    return {
-      "S.No": (currentPage - 1) * perPage + index + 1,
-      "Owner Name": row.owner_name || "",
-      "Email": row.email || "",
-      "Category Names": categoryNames,
-      "Profile Name": row.profile_name || "",
-      "Phone Number": row.phone || "",
-      "Price Range": row.price_range || "",
-      "Short Description": row.short_description || "",
-      "Image": row.image ? "Available" : "N/A",
-      "Pin Code": row.pin_code || "",
-      "Experience Since": row.experience_since || "",
-    };
-  });
+    let allVendors = [];
+    let page = 1;
+    const limit = 100;
+    let totalPages = 1;
 
-  const worksheet = XLSX.utils.json_to_sheet(exportData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Inactive Vendors");
-  XLSX.writeFile(workbook, "Inactive_Vendor_List.xlsx");
+    while (page <= totalPages) {
+      const res = await GetBlockedVendore(token, page, limit);
+      const { data, pagination } = res || {};
+
+      if (data?.length) {
+        allVendors = [...allVendors, ...data];
+      }
+
+      if (pagination) {
+        totalPages = Math.ceil(pagination.total_records / limit);
+      } else {
+        break;
+      }
+
+      page++;
+    }
+
+    const exportData = allVendors.map((row, index) => {
+      const categoryNames = row.category_id
+        ? row.category_id
+            .split(",")
+            .map((id) => categoryMap[id.trim()] || `ID-${id.trim()}`)
+            .join(", ")
+        : "—";
+
+      return {
+        "S.No": index + 1,
+        "Owner Name": row.owner_name || "",
+        Email: row.email || "",
+        "Category Names": categoryNames,
+        "Profile Name": row.profile_name || "",
+        "Phone Number": row.phone || "",
+        "Price Range": row.price_range || "",
+        "Short Description": row.short_description || "",
+        Image: row.image ? "Available" : "N/A",
+        "Pin Code": row.pin_code || "",
+        "Experience Since": row.experience_since || "",
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Blocked Vendors");
+    XLSX.writeFile(workbook, "Blocked_Vendor_List.xlsx");
+  } catch (err) {
+    console.error("Error exporting blocked vendors:", err);
+    Swal.fire("Error", "Failed to export blocked vendors", "error");
+  }
 };
+
+
 
 
   const filteredBlockedVendors = blockedvendors.filter((vendor) =>

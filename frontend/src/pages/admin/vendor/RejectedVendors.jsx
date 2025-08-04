@@ -6,6 +6,8 @@ import {
 } from "../../../Services/admin/Admin";
 import Datatable from "../../../extracomponents/Datatable";
 import * as XLSX from "xlsx";
+import Swal from "sweetalert2";
+
 
 export default function RejectedVendors() {
   const [rejectedvendors, setRejectedVendors] = React.useState([]);
@@ -52,35 +54,66 @@ export default function RejectedVendors() {
     }
   };
 
-const exportToExcel = () => {
-  const exportData = filteredRejectedVendors.map((row, index) => {
-    const categoryNames = row.category_id
-      ? row.category_id
-          .split(",")
-          .map((id) => categoryMap[id.trim()] || `ID-${id.trim()}`)
-          .join(", ")
-      : "—";
+const exportToExcel = async () => {
+  try {
+    const token = localStorage.getItem("token");
 
-    return {
-      "S.No": (currentPage - 1) * perPage + index + 1,
-      "Owner Name": row.owner_name || "",
-      "Email": row.email || "",
-      "Category Names": categoryNames,
-      "Profile Name": row.profile_name || "",
-      "Phone Number": row.phone || "",
-      "Price Range": row.price_range || "",
-      "Short Description": row.short_description || "",
-      "Image": row.image ? "Available" : "N/A",
-      "Pin Code": row.pin_code || "",
-      "Experience Since": row.experience_since || "",
-    };
-  });
+    let allVendors = [];
+    let page = 1;
+    const limit = 100;
+    let totalPages = 1;
 
-  const worksheet = XLSX.utils.json_to_sheet(exportData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Rejected Vendors");
-  XLSX.writeFile(workbook, "Rejected_Vendor_List.xlsx");
+    // Fetch all paginated rejected vendors
+    while (page <= totalPages) {
+      const res = await GetRejectedVendor(token, page, limit);
+      if (res?.data && res?.pagination) {
+        allVendors = [...allVendors, ...res.data];
+        totalPages = Math.ceil(res.pagination.total_records / limit);
+      } else {
+        throw new Error("Invalid response format");
+      }
+      page++;
+    }
+
+    if (!allVendors.length) {
+      return Swal.fire("No Data", "No rejected vendors found to export", "info");
+    }
+
+    const exportData = allVendors.map((row, index) => {
+      const categoryNames = row.category_id
+        ? row.category_id
+            .split(",")
+            .map((id) => categoryMap[id.trim()] || `ID-${id.trim()}`)
+            .join(", ")
+        : "—";
+
+      return {
+        "S.No": index + 1,
+        "Owner Name": row.owner_name || "",
+        Email: row.email || "",
+        "Category Names": categoryNames,
+        "Profile Name": row.profile_name || "",
+        "Phone Number": row.phone || "",
+        "Price Range": row.price_range || "",
+        "Short Description": row.short_description || "",
+        Image: row.image ? "Available" : "N/A",
+        "Pin Code": row.pin_code || "",
+        "Experience Since": row.experience_since || "",
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Rejected Vendors");
+    XLSX.writeFile(workbook, "Rejected_Vendor_List.xlsx");
+
+    Swal.fire("Success", "Rejected vendor list downloaded successfully", "success");
+  } catch (error) {
+    console.error("Export error:", error);
+    Swal.fire("Error", "Failed to export rejected vendors", "error");
+  }
 };
+
 
 
   const filteredRejectedVendors = rejectedvendors.filter((vendor) =>

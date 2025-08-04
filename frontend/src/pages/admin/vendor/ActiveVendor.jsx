@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { GetActiveVendors, GetCategories } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
+import Swal from "sweetalert2";
+
 
 export default function ActiveVendor() {
   const [activevendors, setActiveVendors] = React.useState([]);
@@ -46,8 +48,31 @@ export default function ActiveVendor() {
     setCurrentPage(1);
   };
 
-  const exportToExcel = () => {
-    const exportData = filteredActiveVendors.map((row, index) => {
+const exportToExcel = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    let allVendors = [];
+    let page = 1;
+    const limit = 100;
+    let totalPages = 1;
+
+    while (page <= totalPages) {
+      const res = await GetActiveVendors(token, page, limit);
+      const { data, pagination } = res || {};
+
+      if (data?.length) allVendors = [...allVendors, ...data];
+
+      if (pagination) {
+        totalPages = Math.ceil(pagination.total_records / limit);
+      } else {
+        break;
+      }
+
+      page++;
+    }
+
+    const exportData = allVendors.map((row, index) => {
       const categoryNames = row.category_id
         ? row.category_id
             .split(",")
@@ -56,7 +81,7 @@ export default function ActiveVendor() {
         : "—";
 
       return {
-        "S.No": (currentPage - 1) * perPage + index + 1,
+        "S.No": index + 1,
         "Owner Name": row.owner_name || "",
         Email: row.email || "",
         "Category Names": categoryNames,
@@ -74,7 +99,12 @@ export default function ActiveVendor() {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Active Vendors");
     XLSX.writeFile(workbook, "Active_Vendor_List.xlsx");
-  };
+  } catch (err) {
+    console.error("Error exporting vendors:", err);
+    Swal.fire("Error", "Failed to export all active vendors", "error");
+  }
+};
+
 
   const filteredActiveVendors = activevendors.filter((activevendors) =>
     activevendors.owner_name?.toLowerCase().includes(searchText.toLowerCase())

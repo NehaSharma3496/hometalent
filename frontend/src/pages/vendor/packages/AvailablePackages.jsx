@@ -5,35 +5,54 @@ import {
   subscribeToPackage,
   getVendorPackageHistory,
 } from "../../../Services/vendor/Vendor";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "react-data-table-component";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import { loadScript } from "../../../Utils/razorpayLoader";
 
 const VendorPackages = () => {
   const [packages, setPackages] = useState([]);
-  const [pagination, setPagination] = useState({});
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
   const vendorId = user?.id;
   const [searchText, setSearchText] = useState("");
   const [subscribedPackageIds, setSubscribedPackageIds] = useState([]);
 
-  useEffect(() => {
-    fetchPackages();
-    fetchSubscribedPackages();
-  }, []);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
 
-  const fetchPackages = async () => {
+  useEffect(() => {
+    fetchPackages(currentPage, perPage);
+    fetchSubscribedPackages();
+  }, [currentPage, perPage]);
+
+  const fetchPackages = async (page, limit) => {
+    setLoading(true);
     try {
-      const res = await getVendorPackages(1, 15, token);
-      if (res.status) {
+      const res = await getVendorPackages(token, page, limit);
+      if (res?.data && res?.pagination) {
         setPackages(res.data);
-        setPagination(res.pagination);
+        setTotalRows(res.pagination.total_records);
+      } else {
+        throw new Error("Invalid response format");
       }
     } catch (err) {
-      console.error("Failed to load packages", err);
+      console.error("Error fetching vendors:", err);
+      Swal.fire("Error", "Could not load vendor package list", "error");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
   };
 
   const fetchSubscribedPackages = async () => {
@@ -134,10 +153,9 @@ const VendorPackages = () => {
 
   const columns = [
     {
-      name: "S.No.",
-      selector: (row, index) => index + 1,
-      sortable: true,
-      width: "80px",
+      name: "S.No",
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
+      width: "70px",
     },
     {
       name: "Package Name",
@@ -253,7 +271,17 @@ const VendorPackages = () => {
 
         <div className="row">
           <div className="col-md-12">
-            <Datatable columns={columns} data={filteredPackages} pagination />
+            <Datatable
+              columns={columns}
+              data={filteredPackages}
+              progressPending={loading}
+              pagination
+              paginationServer
+              paginationTotalRows={totalRows}
+              paginationPerPage={perPage}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
+            />
           </div>
         </div>
       </div>

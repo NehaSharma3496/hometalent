@@ -172,10 +172,10 @@ export async function SubmitProfileUpdateRequest(data) {
   }
 }
 
-export async function GetAllVendorLeads(token, id) {
+export async function GetAllVendorLeads(token, id, page = 1, limit = 10) {
   try {
     const response = await axios.get(
-      `${Config.base_url}vendor/my-leads?vendor_id=${id}&page=1&limit=10`,
+      `${Config.base_url}vendor/my-leads?vendor_id=${id}&page=${page}&limit=${limit}`,
       {
         headers: {
           Authorization: `${token}`,
@@ -269,13 +269,16 @@ export async function UpdateGalleryOrder(token, items) {
   }
 }
 
-export async function getVendorPackages(token) {
+export async function getVendorPackages(token, page = 1, limit = 10) {
   try {
-    const response = await axios.get(`${Config.base_url}vendor/packages`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${Config.base_url}vendor/packages?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     console.error("Error fetching vendor packages:", error);
@@ -309,7 +312,7 @@ export const getVendorPackageHistory = async (
   token,
   vendorId,
   page = 1,
-  limit = 1000
+  limit = 10
 ) => {
   try {
     const response = await axios.get(

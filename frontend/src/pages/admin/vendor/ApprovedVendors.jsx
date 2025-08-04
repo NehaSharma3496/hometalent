@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { GetVendoreList } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
+import Swal from "sweetalert2";
+
 
 export default function ApprovedVendors() {
   const [approvedVendors, setApprovedVendors] = useState([]);
@@ -46,9 +48,34 @@ export default function ApprovedVendors() {
     setCurrentPage(1);
   };
 
-  const exportToExcel = () => {
-    const exportData = filteredApprovedVendors.map((row, index) => ({
-      "S.No": (currentPage - 1) * perPage + index + 1,
+ const exportToExcel = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    let allVendors = [];
+    let page = 1;
+    const limit = 100;
+    let totalPages = 1;
+
+    while (page <= totalPages) {
+      const res = await GetVendoreList(token, page, limit);
+      const { data, pagination } = res || {};
+      if (data?.length) {
+        const approvedOnly = data.filter((vendor) => vendor.approval_status === 1);
+        allVendors = [...allVendors, ...approvedOnly];
+      }
+
+      if (pagination) {
+        totalPages = Math.ceil(pagination.total_records / limit);
+      } else {
+        break;
+      }
+
+      page++;
+    }
+
+    const exportData = allVendors.map((row, index) => ({
+      "S.No": index + 1,
       "Owner Name": row.owner_name || "",
       Email: row.email || "",
       Categories: Array.isArray(row.category_names)
@@ -64,7 +91,12 @@ export default function ApprovedVendors() {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Approved Vendors");
     XLSX.writeFile(workbook, "Approved_Vendor_List.xlsx");
-  };
+  } catch (err) {
+    console.error("Error exporting vendors:", err);
+    Swal.fire("Error", "Failed to export approved vendors", "error");
+  }
+};
+
 
   const filteredApprovedVendors = approvedVendors.filter((vendor) =>
     vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())

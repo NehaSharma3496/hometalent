@@ -115,14 +115,14 @@ export const MenuItems = {
         // { label: "Conversion Reports", link: "/enquiries/reports" },
       ],
     },
-    //  {
-    //     icon: "fa-solid fa-pen-to-square",
-    //   label: "Blog",
-    //   children: [
-    //     { label: "All Blogs", link: "/admin/blog/allblogs" },
-    //     { label: "Add Blog", link: "/admin/blog/addblog" },
-    //   ],
-    // },
+    {
+      icon: "fa-solid fa-pen-to-square",
+      label: "Blog",
+      children: [
+        { label: "All Blogs", link: "/admin/blog/allblogs" },
+        { label: "Add Blog", link: "/admin/blog/addblog" },
+      ],
+    },
     // {
     //   icon: 'fa-solid fa-gear',
     //   label: 'Settings',

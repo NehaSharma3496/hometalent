@@ -46,28 +46,57 @@ export default function AllLeads() {
     setCurrentPage(1);
   };
 
-  const exportToExcel = () => {
-    if (filteredLeads.length === 0) {
-      Swal.fire("No Data", "There are no leads to export", "info");
-      return;
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      let allLeads = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
+
+      // Fetch all paginated leads
+      while (page <= totalPages) {
+        const res = await GetAllLeads(token, page, limit);
+
+        if (res?.data && res?.pagination?.total_records) {
+          allLeads = [...allLeads, ...res.data];
+          totalPages = Math.ceil(res.pagination.total_records / limit);
+        } else {
+          throw new Error("Invalid response format");
+        }
+
+        page++;
+      }
+
+      if (!allLeads.length) {
+        Swal.fire("No Data", "There are no leads to export", "info");
+        return;
+      }
+
+      const exportData = allLeads.map((lead, index) => ({
+        "S.No": index + 1,
+        "Vendor Name": lead.vendor?.owner_name || "-",
+        "Vendor Phone": lead.vendor?.phone || "-",
+        "Client Name": lead.name || "-",
+        "Client Phone": lead.phone || "-",
+        "Client Email": lead.email || "-",
+        "Client Query": lead.query || "-",
+        Date: new Date(lead.createdAt).toLocaleDateString(),
+      }));
+
+      const XLSX = await import("xlsx");
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
+
+      XLSX.writeFile(workbook, "vendor-leads-list.xlsx");
+
+      Swal.fire("Success", "Leads exported successfully", "success");
+    } catch (error) {
+      console.error("Export error:", error);
+      Swal.fire("Error", "Failed to export leads", "error");
     }
-
-    const exportData = filteredLeads.map((lead, index) => ({
-      "S.No": index + 1,
-      "Vendor Name": lead.vendor?.owner_name || "-",
-      "Vendor Phone": lead.vendor?.phone || "-",
-      "Client Name": lead.name || "-",
-      "Client Phone": lead.phone || "-",
-      "Client Email": lead.email || "-",
-      "Client Query": lead.query || "-",
-      Date: new Date(lead.createdAt).toLocaleDateString(),
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
-
-    XLSX.writeFile(workbook, "vendor-leads-list.xlsx");
   };
 
   const filteredLeads = leads.filter((lead) =>

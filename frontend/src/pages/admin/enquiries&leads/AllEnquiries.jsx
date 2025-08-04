@@ -33,28 +33,66 @@ export default function AllEnquiries() {
     }
   };
 
-  const exportToExcel = () => {
-    const filteredData = contacts.filter((item) =>
-      item.name?.toLowerCase().includes(searchText.toLowerCase())
-    );
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    const formattedData = filteredData.map((item, index) => ({
-      "S.No": (currentPage - 1) * perPage + index + 1,
-      Name: item.name || "",
-      Email: item.email || "",
-      Phone: item.phone || "",
-      Subject: item.subject || "",
-      Message: item.message || "",
-      Date: item.createdAt
-        ? new Date(item.createdAt).toLocaleDateString("en-GB")
-        : "-",
-    }));
+      let allContacts = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
 
-    const worksheet = XLSX.utils.json_to_sheet(formattedData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Enquiries");
+      while (page <= totalPages) {
+        const res = await GetAllContactUs(token, page, limit);
 
-    XLSX.writeFile(workbook, "Current-Enquiries.xlsx");
+        if (res?.data && res?.pagination?.total_records) {
+          allContacts = [...allContacts, ...res.data];
+          totalPages = Math.ceil(res.pagination.total_records / limit);
+        } else {
+          throw new Error("Invalid response format");
+        }
+
+        page++;
+      }
+
+      if (!allContacts.length) {
+        Swal.fire("No Data", "There are no enquiries to export", "info");
+        return;
+      }
+
+      const filteredData = allContacts.filter((item) =>
+        item.name?.toLowerCase().includes(searchText.toLowerCase())
+      );
+
+      if (!filteredData.length) {
+        Swal.fire("No Matches", "No enquiries match your search", "info");
+        return;
+      }
+
+      const formattedData = filteredData.map((item, index) => ({
+        "S.No": index + 1,
+        Name: item.name || "",
+        Email: item.email || "",
+        Phone: item.phone || "",
+        Subject: item.subject || "",
+        Message: item.message || "",
+        Date: item.createdAt
+          ? new Date(item.createdAt).toLocaleDateString("en-GB")
+          : "-",
+      }));
+
+      const XLSX = await import("xlsx");
+      const worksheet = XLSX.utils.json_to_sheet(formattedData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Enquiries");
+
+      XLSX.writeFile(workbook, "All-Enquiries.xlsx");
+
+      Swal.fire("Success", "Enquiries exported successfully", "success");
+    } catch (error) {
+      console.error("Export error:", error);
+      Swal.fire("Error", "Failed to export enquiries", "error");
+    }
   };
 
   const filteredContacts = contacts.filter((Enquiries) =>
