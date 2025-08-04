@@ -13,7 +13,7 @@ export default function Allvendors() {
   const navigate = useNavigate();
   const [vendors, setVendors] = useState([]);
   const [searchText, setSearchText] = useState("");
-
+const [allVendors, setAllVendors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
@@ -38,8 +38,38 @@ export default function Allvendors() {
     }
   };
 
+  const fetchAllVendors = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    let fullList = [];
+    let page = 1;
+    const limit = 100;
+    let totalPages = 1;
+
+    while (page <= totalPages) {
+      const res = await GetVendoreList(token, page, limit);
+      const { data, pagination } = res || {};
+      if (data?.length) fullList = [...fullList, ...data];
+
+      if (pagination) {
+        totalPages = Math.ceil(pagination.total_records / limit);
+      } else {
+        break;
+      }
+
+      page++;
+    }
+
+    setAllVendors(fullList);
+  } catch (err) {
+    console.error("Error fetching all vendors:", err);
+  }
+};
+
+
   useEffect(() => {
     fetchVendors(currentPage, perPage);
+     fetchAllVendors();
   }, [currentPage, perPage]);
 
   const handlePageChange = (page) => {
@@ -51,9 +81,11 @@ export default function Allvendors() {
     setCurrentPage(1);
   };
 
-  const filteredVendors = vendors.filter((vendors) =>
-    vendors.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-  );
+ const filteredVendors = searchText
+  ? allVendors.filter((v) =>
+      v.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+    )
+  : vendors;
 
   const exportToExcel = async () => {
     try {

@@ -6,9 +6,10 @@ import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 
 export default function AllLeads() {
-  const [leads, setAllLeads] = useState([]);
+  const [leads, setLeads] = useState([]);
   const [searchText, setSearchText] = useState("");
   const token = localStorage.getItem("token");
+  const [allLeads, setAllLeads] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,7 +22,7 @@ export default function AllLeads() {
       const token = localStorage.getItem("token");
       const res = await GetAllLeads(token, page, limit);
       if (res?.data && res?.pagination) {
-        setAllLeads(res.data);
+        setLeads(res.data);
         setTotalRows(res.pagination.total_records);
       } else {
         throw new Error("Invalid response format");
@@ -35,6 +36,7 @@ export default function AllLeads() {
   };
   useEffect(() => {
     fetchAllLeads(currentPage, perPage);
+    fetchGlobalLeads();
   }, [currentPage, perPage]);
 
   const handlePageChange = (page) => {
@@ -99,9 +101,35 @@ export default function AllLeads() {
     }
   };
 
-  const filteredLeads = leads.filter((lead) =>
-    lead.vendor?.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-  );
+
+  const fetchGlobalLeads = async () => {
+  const token = localStorage.getItem("token");
+  let completeList = [];
+  let page = 1;
+  const limit = 100;
+  let totalPages = 1;
+
+  while (page <= totalPages) {
+    const res = await GetAllLeads(token, page, limit);
+    if (res?.data && res?.pagination?.total_records) {
+      completeList = [...completeList, ...res.data];
+      totalPages = Math.ceil(res.pagination.total_records / limit);
+    } else {
+      break;
+    }
+    page++;
+  }
+
+  setAllLeads(completeList);
+};
+
+
+const filteredLeads = searchText
+  ? allLeads.filter((lead) =>
+      lead.vendor?.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+    )
+  : leads;
+
 
   const columns = [
     {

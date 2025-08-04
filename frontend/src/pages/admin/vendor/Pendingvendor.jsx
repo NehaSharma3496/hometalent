@@ -16,6 +16,7 @@ export default function PendingVendor() {
   const [categoryList, setCategoryList] = useState([]);
   const [categoryMap, setCategoryMap] = useState({});
   const navigate = useNavigate();
+const [allPendingVendors, setAllPendingVendors] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -82,6 +83,33 @@ export default function PendingVendor() {
       setLoading(false);
     }
   };
+
+const fetchAllPendingVendors = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    let fullList = [];
+    let page = 1;
+    const limit = 100;
+    let totalPages = 1;
+
+    while (page <= totalPages) {
+      const res = await GetPendingVendoreList(token, page, limit);
+      if (res?.data && res?.pagination) {
+        fullList = [...fullList, ...res.data];
+        totalPages = Math.ceil(res.pagination.total_records / limit);
+      } else {
+        throw new Error("Invalid response format");
+      }
+      page++;
+    }
+
+    setAllPendingVendors(fullList);
+  } catch (err) {
+    console.error("Error fetching all pending vendors:", err);
+  }
+};
+
+
   const exportToExcel = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -145,12 +173,16 @@ export default function PendingVendor() {
     }
   };
 
-  const filteredPendingVendors = pendingvendors.filter((vendor) =>
-    vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-  );
+ const filteredPendingVendors = searchText
+  ? allPendingVendors.filter((vendor) =>
+      vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+    )
+  : pendingvendors;
+
 
   useEffect(() => {
     fetchPendingVendors(currentPage, perPage);
+     fetchAllPendingVendors();
     fetchCategories();
   }, [currentPage, perPage]);
 

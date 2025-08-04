@@ -5,7 +5,6 @@ import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 
-
 export default function ActiveVendor() {
   const [activevendors, setActiveVendors] = React.useState([]);
   const [searchText, setSearchText] = useState("");
@@ -15,6 +14,7 @@ export default function ActiveVendor() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
+  const [allActiveVendors, setAllActiveVendors] = useState([]);
 
   const fetchActiveVendors = async (page, limit) => {
     setLoading(true);
@@ -36,6 +36,7 @@ export default function ActiveVendor() {
 
   useEffect(() => {
     fetchActiveVendors(currentPage, perPage);
+    fetchAllActiveVendors();
     fetchCategories();
   }, [currentPage, perPage]);
 
@@ -48,67 +49,96 @@ export default function ActiveVendor() {
     setCurrentPage(1);
   };
 
-const exportToExcel = async () => {
-  try {
-    const token = localStorage.getItem("token");
+  const fetchAllActiveVendors = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      let fullList = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
 
-    let allVendors = [];
-    let page = 1;
-    const limit = 100;
-    let totalPages = 1;
+      while (page <= totalPages) {
+        const res = await GetActiveVendors(token, page, limit);
+        const { data, pagination } = res || {};
+        if (data?.length) fullList = [...fullList, ...data];
 
-    while (page <= totalPages) {
-      const res = await GetActiveVendors(token, page, limit);
-      const { data, pagination } = res || {};
+        if (pagination) {
+          totalPages = Math.ceil(pagination.total_records / limit);
+        } else {
+          break;
+        }
 
-      if (data?.length) allVendors = [...allVendors, ...data];
-
-      if (pagination) {
-        totalPages = Math.ceil(pagination.total_records / limit);
-      } else {
-        break;
+        page++;
       }
 
-      page++;
+      setAllActiveVendors(fullList);
+    } catch (err) {
+      console.error("Error fetching all active vendors:", err);
     }
+  };
 
-    const exportData = allVendors.map((row, index) => {
-      const categoryNames = row.category_id
-        ? row.category_id
-            .split(",")
-            .map((id) => categoryMap[id.trim()] || `ID-${id.trim()}`)
-            .join(", ")
-        : "—";
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-      return {
-        "S.No": index + 1,
-        "Owner Name": row.owner_name || "",
-        Email: row.email || "",
-        "Category Names": categoryNames,
-        "Profile Name": row.profile_name || "",
-        "Phone Number": row.phone || "",
-        "Price Range": row.price_range || "",
-        "Short Description": row.short_description || "",
-        Image: row.image ? "Available" : "N/A",
-        "Pin Code": row.pin_code || "",
-        "Experience Since": row.experience_since || "",
-      };
-    });
+      let allVendors = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Active Vendors");
-    XLSX.writeFile(workbook, "Active_Vendor_List.xlsx");
-  } catch (err) {
-    console.error("Error exporting vendors:", err);
-    Swal.fire("Error", "Failed to export all active vendors", "error");
-  }
-};
+      while (page <= totalPages) {
+        const res = await GetActiveVendors(token, page, limit);
+        const { data, pagination } = res || {};
 
+        if (data?.length) allVendors = [...allVendors, ...data];
 
-  const filteredActiveVendors = activevendors.filter((activevendors) =>
-    activevendors.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-  );
+        if (pagination) {
+          totalPages = Math.ceil(pagination.total_records / limit);
+        } else {
+          break;
+        }
+
+        page++;
+      }
+
+      const exportData = allVendors.map((row, index) => {
+        const categoryNames = row.category_id
+          ? row.category_id
+              .split(",")
+              .map((id) => categoryMap[id.trim()] || `ID-${id.trim()}`)
+              .join(", ")
+          : "—";
+
+        return {
+          "S.No": index + 1,
+          "Owner Name": row.owner_name || "",
+          Email: row.email || "",
+          "Category Names": categoryNames,
+          "Profile Name": row.profile_name || "",
+          "Phone Number": row.phone || "",
+          "Price Range": row.price_range || "",
+          "Short Description": row.short_description || "",
+          Image: row.image ? "Available" : "N/A",
+          "Pin Code": row.pin_code || "",
+          "Experience Since": row.experience_since || "",
+        };
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Active Vendors");
+      XLSX.writeFile(workbook, "Active_Vendor_List.xlsx");
+    } catch (err) {
+      console.error("Error exporting vendors:", err);
+      Swal.fire("Error", "Failed to export all active vendors", "error");
+    }
+  };
+
+  const filteredActiveVendors = searchText
+    ? allActiveVendors.filter((v) =>
+        v.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : activevendors;
 
   const fetchCategories = async () => {
     try {

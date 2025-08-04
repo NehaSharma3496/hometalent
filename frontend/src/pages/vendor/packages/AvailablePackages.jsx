@@ -17,6 +17,7 @@ const VendorPackages = () => {
   const vendorId = user?.id;
   const [searchText, setSearchText] = useState("");
   const [subscribedPackageIds, setSubscribedPackageIds] = useState([]);
+  const [allPackages, setAllPackages] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,6 +26,7 @@ const VendorPackages = () => {
 
   useEffect(() => {
     fetchPackages(currentPage, perPage);
+    fetchAllPackages();
     fetchSubscribedPackages();
   }, [currentPage, perPage]);
 
@@ -45,6 +47,32 @@ const VendorPackages = () => {
       setLoading(false);
     }
   };
+
+
+  const fetchAllPackages = async () => {
+  try {
+    let fullList = [];
+    let page = 1;
+    const limit = 100;
+    let totalPages = 1;
+
+    while (page <= totalPages) {
+      const res = await getVendorPackages(token, page, limit);
+      if (res?.data && res?.pagination?.total_records) {
+        fullList = [...fullList, ...res.data];
+        totalPages = Math.ceil(res.pagination.total_records / limit);
+      } else {
+        break;
+      }
+      page++;
+    }
+
+    setAllPackages(fullList);
+  } catch (error) {
+    console.error("Error fetching full package list:", error);
+  }
+};
+
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -67,28 +95,58 @@ const VendorPackages = () => {
     }
   };
 
-  const filteredPackages = packages.filter((pkg) =>
-    pkg.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+ const filteredPackages = searchText
+  ? allPackages.filter((pkg) =>
+      pkg.name.toLowerCase().includes(searchText.toLowerCase())
+    )
+  : packages;
 
-  const exportToExcel = () => {
-    const exportData = filteredPackages.map((pkg, index) => ({
-      "S.No.": index + 1,
-      "Package Name": pkg.name,
-      Description: pkg.description,
-      "Price (₹)": pkg.price,
-      "Validity (Months)": pkg.validity_in_months,
-      Features: pkg.features,
-      Status: subscribedPackageIds.includes(pkg.id)
-        ? "Active"
-        : "Not Subscribed",
-    }));
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Packages");
+      let allPackages = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
 
-    XLSX.writeFile(workbook, "vendor-packages.xlsx");
+      while (page <= totalPages) {
+        const res = await getVendorPackages(token, page, limit);
+        const { data, pagination } = res || {};
+        if (data?.length) allPackages = [...allPackages, ...data];
+
+        if (pagination) {
+          totalPages = Math.ceil(pagination.total_records / limit);
+        } else {
+          break;
+        }
+
+        page++;
+      }
+
+      // Get subscribed packages once
+      const subRes = await getVendorPackageHistory(token, vendorId);
+      const subscribedIds = subRes?.data?.map((pkg) => pkg.package_id) || [];
+
+      const exportData = allPackages.map((pkg, index) => ({
+        "S.No.": index + 1,
+        "Package Name": pkg.name,
+        Description: pkg.description,
+        "Price (₹)": pkg.price,
+        "Validity (Months)": pkg.validity_in_months,
+        Features: pkg.features,
+        Status: subscribedIds.includes(pkg.id) ? "Active" : "Not Subscribed",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "All Packages");
+
+      XLSX.writeFile(workbook, "vendor-packages.xlsx");
+    } catch (error) {
+      console.error("Failed to export packages:", error);
+      Swal.fire("Error", "Failed to export all packages", "error");
+    }
   };
 
   const AddSubscribeplan = async (pkg) => {

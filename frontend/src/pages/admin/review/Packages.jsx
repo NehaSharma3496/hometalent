@@ -10,6 +10,7 @@ export default function Packages() {
   const [packages, setPackages] = useState([]);
   const [searchText, setSearchText] = useState("");
   const navigate = useNavigate();
+const [allPackages, setAllPackages] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,6 +35,28 @@ export default function Packages() {
       setLoading(false);
     }
   };
+
+  const fetchAllPackages = async () => {
+  const token = localStorage.getItem("token");
+  let fullList = [];
+  let page = 1;
+  const limit = 100;
+  let totalPages = 1;
+
+  while (page <= totalPages) {
+    const res = await showPackage(token, page, limit);
+    if (res?.data && res?.pagination?.total_records) {
+      fullList = [...fullList, ...res.data];
+      totalPages = Math.ceil(res.pagination.total_records / limit);
+    } else {
+      break;
+    }
+    page++;
+  }
+
+  setAllPackages(fullList);
+};
+
 
   const exportToExcel = async () => {
     try {
@@ -90,6 +113,7 @@ export default function Packages() {
 
   useEffect(() => {
     fetchPackages(currentPage, perPage);
+     fetchAllPackages();
   }, [currentPage, perPage]);
 
   const handlePageChange = (page) => {
@@ -149,9 +173,11 @@ export default function Packages() {
     }
   };
 
-  const filteredPackages = packages.filter((p) =>
-    p.name?.toLowerCase().includes(searchText.toLowerCase())
-  );
+const filteredPackages = searchText
+  ? allPackages.filter((p) =>
+      p.name?.toLowerCase().includes(searchText.toLowerCase())
+    )
+  : packages;
 
   const columns = [
     {

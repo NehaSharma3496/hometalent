@@ -18,6 +18,7 @@ export default function RejectedVendors() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
+const [allRejectedVendors, setAllRejectedVendors] = useState([]);
 
   const fetchRejectedVendors = async (page, limit) => {
     setLoading(true);
@@ -53,6 +54,32 @@ export default function RejectedVendors() {
       console.log("Error fetching categories", error);
     }
   };
+
+  const fetchAllRejectedVendors = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    let fullList = [];
+    let page = 1;
+    const limit = 100;
+    let totalPages = 1;
+
+    while (page <= totalPages) {
+      const res = await GetRejectedVendor(token, page, limit);
+      if (res?.data && res?.pagination) {
+        fullList = [...fullList, ...res.data];
+        totalPages = Math.ceil(res.pagination.total_records / limit);
+      } else {
+        break;
+      }
+      page++;
+    }
+
+    setAllRejectedVendors(fullList);
+  } catch (err) {
+    console.error("Error fetching all rejected vendors:", err);
+  }
+};
+
 
 const exportToExcel = async () => {
   try {
@@ -116,12 +143,16 @@ const exportToExcel = async () => {
 
 
 
-  const filteredRejectedVendors = rejectedvendors.filter((vendor) =>
-    vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-  );
+ const filteredRejectedVendors = searchText
+  ? allRejectedVendors.filter((vendor) =>
+      vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+    )
+  : rejectedvendors;
+
 
   useEffect(() => {
     fetchRejectedVendors(currentPage, perPage);
+     fetchAllRejectedVendors();
     fetchCategories();
   }, [currentPage, perPage]);
 

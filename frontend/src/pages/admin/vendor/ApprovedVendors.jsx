@@ -5,10 +5,10 @@ import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 
-
 export default function ApprovedVendors() {
   const [approvedVendors, setApprovedVendors] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [allApprovedVendors, setAllApprovedVendors] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
@@ -37,6 +37,7 @@ export default function ApprovedVendors() {
 
   useEffect(() => {
     fetchApprovedVendors(currentPage, perPage);
+    fetchAllApprovedVendors();
   }, [currentPage, perPage]);
 
   const handlePageChange = (page) => {
@@ -48,59 +49,95 @@ export default function ApprovedVendors() {
     setCurrentPage(1);
   };
 
- const exportToExcel = async () => {
-  try {
-    const token = localStorage.getItem("token");
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    let allVendors = [];
-    let page = 1;
-    const limit = 100;
-    let totalPages = 1;
+      let allVendors = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
 
-    while (page <= totalPages) {
-      const res = await GetVendoreList(token, page, limit);
-      const { data, pagination } = res || {};
-      if (data?.length) {
-        const approvedOnly = data.filter((vendor) => vendor.approval_status === 1);
-        allVendors = [...allVendors, ...approvedOnly];
+      while (page <= totalPages) {
+        const res = await GetVendoreList(token, page, limit);
+        const { data, pagination } = res || {};
+        if (data?.length) {
+          const approvedOnly = data.filter(
+            (vendor) => vendor.approval_status === 1
+          );
+          allVendors = [...allVendors, ...approvedOnly];
+        }
+
+        if (pagination) {
+          totalPages = Math.ceil(pagination.total_records / limit);
+        } else {
+          break;
+        }
+
+        page++;
       }
 
-      if (pagination) {
-        totalPages = Math.ceil(pagination.total_records / limit);
-      } else {
-        break;
-      }
+      const exportData = allVendors.map((row, index) => ({
+        "S.No": index + 1,
+        "Owner Name": row.owner_name || "",
+        Email: row.email || "",
+        Categories: Array.isArray(row.category_names)
+          ? row.category_names.join(", ")
+          : row.category_names || "",
+        Phone: row.phone || "",
+        "Price Range": row.price_range || "",
+        Experience: row.experience_since || "",
+        Image: row.image ? "Available" : "N/A",
+      }));
 
-      page++;
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Approved Vendors");
+      XLSX.writeFile(workbook, "Approved_Vendor_List.xlsx");
+    } catch (err) {
+      console.error("Error exporting vendors:", err);
+      Swal.fire("Error", "Failed to export approved vendors", "error");
     }
+  };
 
-    const exportData = allVendors.map((row, index) => ({
-      "S.No": index + 1,
-      "Owner Name": row.owner_name || "",
-      Email: row.email || "",
-      Categories: Array.isArray(row.category_names)
-        ? row.category_names.join(", ")
-        : row.category_names || "",
-      Phone: row.phone || "",
-      "Price Range": row.price_range || "",
-      Experience: row.experience_since || "",
-      Image: row.image ? "Available" : "N/A",
-    }));
+  const filteredApprovedVendors = searchText
+    ? allApprovedVendors.filter((vendor) =>
+        vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : approvedVendors;
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Approved Vendors");
-    XLSX.writeFile(workbook, "Approved_Vendor_List.xlsx");
-  } catch (err) {
-    console.error("Error exporting vendors:", err);
-    Swal.fire("Error", "Failed to export approved vendors", "error");
-  }
-};
+  const fetchAllApprovedVendors = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      let fullList = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
 
+      while (page <= totalPages) {
+        const res = await GetVendoreList(token, page, limit);
+        const { data, pagination } = res || {};
+        if (data?.length) {
+          const approvedOnly = data.filter(
+            (vendor) => vendor.approval_status === 1
+          );
+          fullList = [...fullList, ...approvedOnly];
+        }
 
-  const filteredApprovedVendors = approvedVendors.filter((vendor) =>
-    vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-  );
+        if (pagination) {
+          totalPages = Math.ceil(pagination.total_records / limit);
+        } else {
+          break;
+        }
+
+        page++;
+      }
+
+      setAllApprovedVendors(fullList);
+    } catch (err) {
+      console.error("Error fetching all approved vendors:", err);
+    }
+  };
 
   const columns = [
     {

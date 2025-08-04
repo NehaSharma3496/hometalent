@@ -4,7 +4,7 @@ import {
   GetBlockedVendore,
   GetCategories,
 } from "../../../Services/admin/Admin";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 
@@ -13,6 +13,7 @@ export default function BlockedVendors() {
   const [blockedvendors, setBlockedVendors] = React.useState([]);
   const [searchText, setSearchText] = useState("");
   const [categoryList, setCategoryList] = useState([]);
+  const [allBlockedVendors, setAllBlockedVendors] = useState([]);
   const [categoryMap, setCategoryMap] = useState({});
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,6 +54,38 @@ export default function BlockedVendors() {
       console.log("Error fetching categories", error);
     }
   };
+
+  const fetchAllBlockedVendors = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    let fullList = [];
+    let page = 1;
+    const limit = 100;
+    let totalPages = 1;
+
+    while (page <= totalPages) {
+      const res = await GetBlockedVendore(token, page, limit);
+      const { data, pagination } = res || {};
+
+      if (data?.length) {
+        fullList = [...fullList, ...data];
+      }
+
+      if (pagination) {
+        totalPages = Math.ceil(pagination.total_records / limit);
+      } else {
+        break;
+      }
+
+      page++;
+    }
+
+    setAllBlockedVendors(fullList);
+  } catch (err) {
+    console.error("Error fetching all blocked vendors:", err);
+  }
+};
+
 
 const exportToExcel = async () => {
   try {
@@ -116,12 +149,15 @@ const exportToExcel = async () => {
 
 
 
-  const filteredBlockedVendors = blockedvendors.filter((vendor) =>
-    vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-  );
+ const filteredBlockedVendors = searchText
+  ? allBlockedVendors.filter((vendor) =>
+      vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+    )
+  : blockedvendors;
 
   useEffect(() => {
     fetchBlockedVendors(currentPage, perPage);
+      fetchAllBlockedVendors();
     fetchCategories();
   }, [currentPage, perPage]);
 

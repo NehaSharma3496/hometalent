@@ -3,12 +3,15 @@ import { getVendorPackageHistory } from "../../../Services/vendor/Vendor";
 import Datatable from "react-data-table-component";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
+import Swal from "sweetalert2";
 
 export default function MyPackages() {
   const [currentPackages, setCurrentPackages] = useState([]);
   const [expiredPackages, setExpiredPackages] = useState([]);
   const [searchCurrent, setSearchCurrent] = useState("");
   const [searchExpired, setSearchExpired] = useState("");
+  const [allCurrentPackages, setAllCurrentPackages] = useState([]);
+  const [allExpiredPackages, setAllExpiredPackages] = useState([]);
 
   const token = localStorage.getItem("token");
   const vendorId = localStorage.getItem("userId");
@@ -33,79 +36,163 @@ export default function MyPackages() {
     return endDate < today;
   };
 
-  const exportCurrentToExcel = () => {
-    const exportData = filterData(currentPackages, searchCurrent).map(
-      (item, index) => ({
+  const exportAllPackages = async () => {
+    try {
+      let allPackages = [];
+      const limit = 100;
+      let page = 1;
+
+      const firstRes = await getVendorPackageHistory(
+        token,
+        vendorId,
+        page,
+        limit
+      );
+      if (!firstRes?.data?.length) return;
+
+      allPackages = [...firstRes.data];
+      const totalPages = Math.ceil(firstRes.pagination.total_records / limit);
+
+      for (page = 2; page <= totalPages; page++) {
+        const res = await getVendorPackageHistory(token, vendorId, page, limit);
+        if (res?.data?.length) {
+          allPackages = [...allPackages, ...res.data];
+        }
+      }
+
+      const now = new Date();
+      const currentPackages = allPackages.filter(
+        (pkg) => new Date(pkg.end_date) >= now
+      );
+      const expiredPackages = allPackages.filter(
+        (pkg) => new Date(pkg.end_date) < now
+      );
+
+      const formatDate = (dateStr) =>
+        dateStr ? new Date(dateStr).toLocaleDateString() : "";
+
+      const currentData = currentPackages.map((pkg, index) => ({
         "S.No": index + 1,
-        "Package Name": item?.Package?.name || "N/A",
-        "Start Date": formatDate(item.start_date),
-        "End Date": formatDate(item.end_date),
-        Amount: `₹${item?.Package?.price}`,
-        "Payment Status": item.payment_status,
-        "Payment Date": new Date(item.createdAt).toLocaleDateString(),
-      })
-    );
+        "Package Name": pkg?.Package?.name || "",
+        Price: pkg?.Package?.price || "",
+        "Start Date": formatDate(pkg.start_date),
+        "End Date": formatDate(pkg.end_date),
+        Status: pkg?.payment_status || "",
+        "Payment Date": pkg?.createdAt
+          ? new Date(pkg.createdAt).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+          : "",
+      }));
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Current Packages");
-
-    XLSX.writeFile(workbook, "current-packages.xlsx");
-  };
-
-  const exportExpiredToExcel = () => {
-    const exportData = filterData(expiredPackages, searchExpired).map(
-      (item, index) => ({
+      const expiredData = expiredPackages.map((pkg, index) => ({
         "S.No": index + 1,
-        "Package Name": item?.Package?.name || "N/A",
-        "Start Date": formatDate(item.start_date),
-        "End Date": formatDate(item.end_date),
-        Amount: `₹${item?.Package?.price}`,
-        "Payment Status": item.payment_status,
-        "Payment Date": new Date(item.createdAt).toLocaleDateString(),
-      })
-    );
+        "Package Name": pkg?.Package?.name || "",
+        Price: pkg?.Package?.price || "",
+        Duration: pkg?.Package?.duration || "",
+        "Start Date": formatDate(pkg.start_date),
+        "End Date": formatDate(pkg.end_date),
+        Status: "Expired",
+      }));
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Expired Packages");
+      const workbook = XLSX.utils.book_new();
+      const ws1 = XLSX.utils.json_to_sheet(currentData);
+      const ws2 = XLSX.utils.json_to_sheet(expiredData);
 
-    XLSX.writeFile(workbook, "expired-packages.xlsx");
+      XLSX.utils.book_append_sheet(workbook, ws1, "Current Packages");
+      XLSX.utils.book_append_sheet(workbook, ws2, "Expired Packages");
+
+      XLSX.writeFile(workbook, "all-vendor-packages.xlsx");
+    } catch (error) {
+      console.error("Export All Packages Error:", error);
+      Swal.fire("Error", "Failed to export packages", "error");
+    }
   };
 
   const fetchPackages = async (page, limit) => {
-     setLoading(true);
+    setLoading(true);
     try {
-      const res = await getVendorPackageHistory(token, vendorId,page, limit);
-      const packages = res?.data || [];
+      const res = await getVendorPackageHistory(token, vendorId, page, limit);
 
-      const current = [];
-      const expired = [];
+      if (res?.data && res?.pagination) {
+        const packages = res?.data || [];
+        const current = [];
+        const expired = [];
+        packages.forEach((pkg) => {
+          if (isExpired(pkg.end_date)) {
+            expired.push(pkg);
+          } else {
+            current.push(pkg);
+          }
+        });
 
-      packages.forEach((pkg) => {
-        if (isExpired(pkg.end_date)) {
-          expired.push(pkg);
-        } else {
-          current.push(pkg);
-        }
-      });
-
-      setCurrentPackages(current);
-      setExpiredPackages(expired);
+        setCurrentPackages(current);
+        setExpiredPackages(expired);
+        setTotalRows(res.pagination.total_records);
+      } else {
+        throw new Error("Invalid response format");
+      }
     } catch (error) {
       console.error("Failed to load packages", error);
+      Swal.fire("Error", "Could not load package subscription list", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAllPackages = async () => {
+    try {
+      let allPackages = [];
+      const limit = 100;
+      let page = 1;
+
+      const res = await getVendorPackageHistory(token, vendorId, page, limit);
+      if (!res?.data?.length) return;
+
+      allPackages = [...res.data];
+      const totalPages = Math.ceil(res.pagination.total_records / limit);
+
+      for (page = 2; page <= totalPages; page++) {
+        const res = await getVendorPackageHistory(token, vendorId, page, limit);
+        if (res?.data?.length) {
+          allPackages = [...allPackages, ...res.data];
+        }
+      }
+
+      const now = new Date();
+      const current = allPackages.filter(
+        (pkg) => new Date(pkg.end_date) >= now
+      );
+      const expired = allPackages.filter((pkg) => new Date(pkg.end_date) < now);
+
+      setAllCurrentPackages(current);
+      setAllExpiredPackages(expired);
+    } catch (err) {
+      console.error("Failed to fetch all packages for search", err);
     }
   };
 
   useEffect(() => {
-    if (token && vendorId) fetchPackages();
-  }, [token, vendorId]);
+    if (token && vendorId) fetchPackages(currentPage, perPage);
+    fetchAllPackages();
+  }, [token, vendorId, currentPage, perPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
 
   const commonColumns = (page) => [
     {
       name: "S.No",
-      cell: (row, index) => index + 1,
-      width: "80px",
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
+      width: "70px",
     },
     {
       name: "Package Name",
@@ -134,10 +221,10 @@ export default function MyPackages() {
     },
   ];
 
-  const filterData = (data, query) => {
-    if (!query.trim()) return data;
-    return data.filter((item) =>
-      item?.Package?.name?.toLowerCase().includes(query.toLowerCase())
+  const filterData = (list, searchText, allList) => {
+    if (!searchText.trim()) return list;
+    return allList.filter((item) =>
+      item?.Package?.name?.toLowerCase().includes(searchText.toLowerCase())
     );
   };
 
@@ -152,25 +239,14 @@ export default function MyPackages() {
             <h5 className="add-page-heading mb-0">My Packages</h5>
           </div>
         </div>
-        <div className="col-md-6 text-end">
-          <div className="text-end mb-2">
-            <button
-              className="btn btn-success btn-sm"
-              onClick={exportCurrentToExcel}
-            >
-              <i className="fa-solid fa-file-excel me-1"></i> Download Current
-              Packages
-            </button>
-          </div>
-          <div className="text-end mb-2">
-            <button
-              className="btn btn-danger btn-sm"
-              onClick={exportExpiredToExcel}
-            >
-              <i className="fa-solid fa-file-excel me-1"></i> Download Expired
-              Packages
-            </button>
-          </div>
+        <div className="text-end mb-2">
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={exportAllPackages}
+          >
+            <i className="fa-solid fa-file-excel me-1"></i> Download All
+            Packages
+          </button>
         </div>
       </div>
 
@@ -204,8 +280,14 @@ export default function MyPackages() {
 
         <Datatable
           columns={commonColumns()}
-          data={filterData(currentPackages, searchCurrent)}
+          data={filterData(currentPackages, searchCurrent, allCurrentPackages)}
+          progressPending={loading}
           pagination
+          paginationServer
+          paginationTotalRows={totalRows}
+          paginationPerPage={perPage}
+          onChangeRowsPerPage={handlePerRowsChange}
+          onChangePage={handlePageChange}
         />
       </div>
 
@@ -240,7 +322,13 @@ export default function MyPackages() {
         <Datatable
           columns={commonColumns()}
           data={filterData(expiredPackages, searchExpired)}
+          progressPending={loading}
           pagination
+          paginationServer
+          paginationTotalRows={totalRows}
+          paginationPerPage={perPage}
+          onChangeRowsPerPage={handlePerRowsChange}
+          onChangePage={handlePageChange}
         />
       </div>
     </div>

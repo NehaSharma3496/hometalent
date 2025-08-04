@@ -1029,7 +1029,7 @@ exports.getDashboardCounts = async (req, res) => {
     });
 
         const inactiveVendors = await User.count({
-      where: { role_id: 2, status: 1 },
+      where: { role_id: 2, status: 2 },
     });
 
     // Current month counts
@@ -1118,7 +1118,7 @@ exports.getDashboardCounts = async (req, res) => {
     const inactiveVendorsCurrentMonth = await User.count({
       where: {
         role_id: 2,
-        status: 0,
+        status: 2,
         createdAt: { [Op.gte]: startOfCurrentMonth },
       },
     });
@@ -1126,7 +1126,7 @@ exports.getDashboardCounts = async (req, res) => {
     const inactiveVendorsPrevMonth = await User.count({
       where: {
         role_id: 2,
-        status: 0,
+        status: 2,
         createdAt: {
           [Op.gte]: startOfPrevMonth,
           [Op.lt]: startOfCurrentMonth,

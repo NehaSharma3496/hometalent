@@ -8,6 +8,7 @@ export default function AllEnquiries() {
   const [contacts, setContacts] = useState([]);
   const token = localStorage.getItem("token");
   const [searchText, setSearchText] = useState("");
+  const [allContacts, setAllContacts] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,6 +32,27 @@ export default function AllEnquiries() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchGlobalContactUs = async () => {
+    const token = localStorage.getItem("token");
+    let allData = [];
+    let page = 1;
+    const limit = 100;
+    let totalPages = 1;
+
+    while (page <= totalPages) {
+      const res = await GetAllContactUs(token, page, limit);
+      if (res?.data && res?.pagination?.total_records) {
+        allData = [...allData, ...res.data];
+        totalPages = Math.ceil(res.pagination.total_records / limit);
+      } else {
+        break;
+      }
+      page++;
+    }
+
+    setAllContacts(allData);
   };
 
   const exportToExcel = async () => {
@@ -95,12 +117,15 @@ export default function AllEnquiries() {
     }
   };
 
-  const filteredContacts = contacts.filter((Enquiries) =>
-    Enquiries.name?.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const filteredContacts = searchText
+    ? allContacts.filter((entry) =>
+        entry.name?.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : contacts;
 
   useEffect(() => {
     fetchAllContactUs(currentPage, perPage);
+    fetchGlobalContactUs();
   }, [currentPage, perPage]);
 
   const handlePageChange = (page) => {

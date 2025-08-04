@@ -10,6 +10,7 @@ export default function ProfileUpdateRequests() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchText, setSearchText] = useState("");
   const navigate = useNavigate();
+const [allRequests, setAllRequests] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -95,13 +96,37 @@ export default function ProfileUpdateRequests() {
   }
 };
 
+const fetchAllRequests = async () => {
+  const token = localStorage.getItem("token");
+  const filter = statusFilter === "all" ? "" : statusFilter;
 
-  const filteredRequests = requests.filter((request) =>
-    request.vendor?.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-  );
+  let full = [];
+  let page = 1;
+  const limit = 100;
+  let totalPages = 1;
+
+  while (page <= totalPages) {
+    const res = await GetProfileUpdateRequests(token, filter, page, limit);
+    full = [...full, ...res.data.requests];
+    totalPages = Math.ceil(res.data.total / limit);
+    page++;
+  }
+
+  setAllRequests(full);
+};
+
+
+
+  const filteredRequests = searchText
+  ? allRequests.filter(r =>
+      r.vendor?.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+    )
+  : requests;
+
 
   useEffect(() => {
     fetchRequests(currentPage, perPage);
+    fetchAllRequests();
   }, [statusFilter, currentPage, perPage]);
 
   const handlePageChange = (page) => {
