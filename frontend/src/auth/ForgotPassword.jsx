@@ -5,18 +5,12 @@ import Swal from "sweetalert2";
 import { Forgotpassword } from "../Services/auth/Login";
 import { Link } from "react-router-dom";
 
-console.log(
-  "URl",
-  `${window.location.protocol}//${window.location.host}/reset-password`
-);
-
 const ForgotPassword = () => {
   const initialValues = {
     email: "",
     url: `${window.location.protocol}//${window.location.host}/reset-password`,
   };
 
-  console.log("Protocol", window.location.protocol);
   const validationSchema = Yup.object({
     email: Yup.string()
       .email("Invalid email address")
