@@ -10,7 +10,7 @@ const {
   ContactUs,
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
-const { Op, Sequelize } = require('sequelize');
+const { Op, Sequelize,literal } = require('sequelize');
 
 exports.listAllVendors = async (req, res) => {
   try {
@@ -152,26 +152,34 @@ exports.listSponsoredVendors = async (req, res) => {
     // Get sponsored vendors
     const { count, rows: sponsoredRows } =
       await VendorCategoryRank.findAndCountAll({
-        where: whereCondition,
-        include: [
-          {
-            model: User,
-            as: "vendor",
-            attributes: [
-              "id",
-              "owner_name",
-              "profile_name",
-              "email",
-              "phone",
-              "status",
-            ],
-          },
-          { model: Category, as: "category", attributes: ["id", "name"] },
-        ],
-        order: [["sponsor_rank", "ASC"]],
-        limit,
-        offset,
-      });
+  where: {
+    ...whereCondition,
+    [Op.and]: literal(`FIND_IN_SET(VendorCategoryRank.category_id, vendor.category_id)`)
+  },
+  include: [
+    {
+      model: User,
+      as: "vendor",
+      attributes: [
+        "id",
+        "owner_name",
+        "profile_name",
+        "email",
+        "phone",
+        "status",
+        "category_id" // make sure to include this to use in FIND_IN_SET
+      ]
+    },
+    {
+      model: Category,
+      as: "category",
+      attributes: ["id", "name"]
+    }
+  ],
+  order: [["sponsor_rank", "ASC"]],
+  limit,
+  offset,
+});
 
     // Get all sponsored vendor IDs
     const sponsoredVendorIds = sponsoredRows.map((r) => r.vendor_id);
