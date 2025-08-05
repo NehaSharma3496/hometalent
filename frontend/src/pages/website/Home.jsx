@@ -8,6 +8,7 @@ import {
   GetCategories,
   GetVendorsByCategory,
 } from "../../Services/webService/Web";
+import { GetAllAdminBlog } from "../../Services/admin/Admin";
 
 const Home = () => {
   const [statecity, setStateCity] = useState([]);
@@ -17,10 +18,14 @@ const Home = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [categoryData, setCategoryData] = useState([]);
   const categorySectionRef = useRef(null);
+  const blogSectionRef = useRef(null);
 
   // State for storing selected IDs
   const [selectedCityId, setSelectedCityId] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [blog, setBlog] = useState([]);
+  const [showAllBlog, setShowAllBlog] = useState(false);
+  const [blogdata, setBlogData] = useState([]);
 
   const navigate = useNavigate();
 
@@ -93,12 +98,27 @@ const Home = () => {
       const response = await GetCategories(token);
       setCategories(response.data);
       setCategoryData(response.data);
-      // Detailed analysis of category structure
-      if (response.data && response.data.length > 0) {
-        const sampleCat = response.data[0];
-      }
     } catch (error) {
       console.log("Error fetching services", error);
+    }
+  };
+
+  const fetchblog = async () => {
+    try {
+      const res = await GetAllAdminBlog(token);
+      setBlog(res?.data);
+      setBlogData(res?.data);
+    } catch (error) {
+      console.log("Error in fetching blogs", error);
+    }
+  };
+
+  const scrollToSection = (ref) => {
+    if (ref.current) {
+      window.scrollTo({
+        top: ref.current.offsetTop - 100, // Adjust the offset as needed
+        behavior: "smooth",
+      });
     }
   };
 
@@ -144,6 +164,7 @@ const Home = () => {
   useEffect(() => {
     fetchstatecity();
     fetchcategories();
+    fetchblog();
   }, []);
 
   const testimonials = [
@@ -348,7 +369,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="category-area" ref={categorySectionRef}>
+      <section className="category-area " ref={categorySectionRef}>
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-7">
@@ -361,21 +382,44 @@ const Home = () => {
               </div>
             </div>
           </div>
+
           <div className="grid5-container">
             {(showAllCategories ? categoryData : categoryData.slice(0, 10)).map(
-              (category, index) => {
-                const imageIndex =
-                  index < 10
-                    ? `image${index === 0 ? "" : "-" + index}`
-                    : `image-${index % 10}`;
-                const imageSrc = `../assets/images/category/${imageIndex}.png`;
+              (category) => {
+                const imageSrc = `/assets/images/category/${category.name
+                  .replace(/\s+/g, "-")
+                  .toLowerCase()}.png`;
 
                 return (
                   <div className="grid-item" key={category._id}>
-                    <Link to={`/category}`} className="category-banner">
-                      <img src={imageSrc} alt={category.name} />
+                    <Link
+                      to="/category"
+                      state={{ categoryId: category._id || category.id }}
+                      className="category-banner"
+                    >
+                      <img
+                        src={`/assets/images/category/${category.name}.png`}
+                        alt={category.name}
+                        onError={(e1) => {
+                          const baseName = category.name;
+
+                          e1.target.onerror = (e2) => {
+                            e2.target.onerror = (e3) => {
+                              e3.target.onerror = (e4) => {
+                                e4.target.onerror = null;
+                                e4.target.src = `/assets/images/category/${baseName}.JPG`;
+                              };
+                              e3.target.src = `/assets/images/category/${baseName}.jpeg`;
+                            };
+                            e2.target.src = `/assets/images/category/${baseName}.jpg`;
+                          };
+                          e1.target.src = `/assets/images/category/${baseName}.png`;
+                        }}
+                        className="your-class-name"
+                      />
+
                       <div className="category-content">
-                        <div className="category-info py-15">
+                        <div className="category-info p-15">
                           <div className="category-name">
                             <p className="pera mb-0">{category.name}</p>
                           </div>
@@ -393,15 +437,9 @@ const Home = () => {
               <button
                 onClick={() => {
                   setShowAllCategories((prev) => {
-                    const nextValue = !prev;
-                    if (prev === true && categorySectionRef.current) {
-                      setTimeout(() => {
-                        categorySectionRef.current.scrollIntoView({
-                          behavior: "smooth",
-                        });
-                      }, 100);
-                    }
-                    return nextValue;
+                    const newState = !prev;
+                    if (!newState) scrollToSection(categorySectionRef);
+                    return newState;
                   });
                 }}
                 className="btn btn-primary"
@@ -412,6 +450,7 @@ const Home = () => {
           )}
         </div>
       </section>
+
       <section className="platform-area platform-area-bg">
         <div className="container">
           <div className="row align-items-end">
@@ -431,7 +470,6 @@ const Home = () => {
                 </div>
               </div>
             </div>
-            <div className="col-lg-4"></div>
           </div>
         </div>
       </section>
@@ -485,7 +523,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="news-area section-padding2">
+      <section className="news-area section-padding2" ref={blogSectionRef}>
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-7">
@@ -499,122 +537,85 @@ const Home = () => {
               </div>
             </div>
           </div>
+
           <div className="row g-4">
-            <div className="col-xl-4 col-lg-4 col-sm-6">
-              <article className="news-card-two">
-                <figure className="news-banner-two imgEffect">
-                  <Link to="/blog">
-                    <img
-                      src="../assets/images//news/image-1.png"
-                      alt="travello"
-                    />
-                  </Link>
-                </figure>
-                <div className="news-content">
-                  <div className="date d-lg-flex ">
-                    <div className="news-info">
-                      <p className="date-time">12 Jan 2023</p>
+            {(showAllBlog ? blogdata : blogdata.slice(0, 3)).map(
+              (item, index) => (
+                <div className="col-xl-4 col-lg-4 col-sm-6" key={item.id}>
+                  <article className="news-card-two">
+                    <figure className="news-banner-two imgEffect">
+                      <Link to={`/blog`}>
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          style={{
+                            width: "100%",
+                            height: "230px",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </Link>
+                    </figure>
+                    <div className="news-content">
+                      <div className="date d-lg-flex">
+                        <div className="news-info">
+                          <p className="date-time">
+                            {new Date(item.createdAt).toLocaleDateString(
+                              "en-IN",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              }
+                            )}
+                          </p>
+                        </div>
+                        <span className="px-15">|</span>
+                        <div className="category-name">
+                          <span className=" text-primary">Home Talent</span>
+                        </div>
+                      </div>
+                      <h4 className="title mb-2">
+                        <Link to={`/blog`} className="clamp-title">
+                          {item.title}
+                        </Link>
+                      </h4>
+                      <div className="news-description">
+                        <p className="pera clamp-description ">
+                          {item.short_description?.slice(0, 100)}...
+                        </p>
+                      </div>
+                      <div className="">
+                        <Link
+                          to={`/blog`}
+                          className=" btn-primary-sm btn-primary"
+                        >
+                          Read More
+                        </Link>
+                      </div>
                     </div>
-                    <span className="px-15">|</span>
-                    <div className="category-name">
-                      <span className=" text-primary">Home Talent</span>
-                    </div>
-                  </div>
-                  <h4 className="title mb-2">
-                    <Link to="/blog">Wedding arrangements</Link>
-                  </h4>
-
-                  <div className="news-description">
-                    <p className="pera">
-                      It is a long established fact that a reader will be
-                      distracted by the readable content.
-                    </p>
-                  </div>
-                  <div className="">
-                    <Link to="/blog" className=" btn-primary-sm btn-primary">
-                      Read More
-                    </Link>
-                  </div>
+                  </article>
                 </div>
-              </article>
-            </div>
-            <div className="col-xl-4 col-lg-4 col-sm-6">
-              <article className="news-card-two">
-                <figure className="news-banner-two imgEffect">
-                  <Link to="/blog">
-                    <img
-                      src="../assets/images//news/image-2.png"
-                      alt="travello"
-                    />
-                  </Link>
-                </figure>
-                <div className="news-content">
-                  <div className="date d-lg-flex ">
-                    <div className="news-info">
-                      <p className="date-time">12 Jan 2023</p>
-                    </div>
-                    <span className="px-15">|</span>
-                    <div className="category-name">
-                      <span className=" text-primary">Home Talent</span>
-                    </div>
-                  </div>
-                  <h4 className="title mb-2">
-                    <Link to="/blog">Wedding arrangements</Link>
-                  </h4>
-
-                  <div className="news-description">
-                    <p className="pera">
-                      It is a long established fact that a reader will be
-                      distracted by the readable content.
-                    </p>
-                  </div>
-                  <div className="">
-                    <Link to="/blog" className=" btn-primary-sm btn-primary">
-                      Read More
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            </div>
-            <div className="col-xl-4 col-lg-4 col-sm-6">
-              <article className="news-card-two">
-                <figure className="news-banner-two imgEffect">
-                  <Link to="/blog">
-                    <img
-                      src="../assets/images//news/image-3.png"
-                      alt="travello"
-                    />
-                  </Link>
-                </figure>
-                <div className="news-content">
-                  <div className="date d-lg-flex ">
-                    <div className="news-info">
-                      <p className="date-time">12 Jan 2023</p>
-                    </div>
-                    <span className="px-15">|</span>
-                    <div className="category-name">
-                      <span className=" text-primary">Home Talent</span>
-                    </div>
-                  </div>
-                  <h4 className="title mb-2">
-                    <Link to="/blog">Wedding arrangements</Link>
-                  </h4>
-
-                  <div className="news-description">
-                    <p className="pera">
-                      It is a long established fact that a reader will be
-                      distracted by the readable content.
-                    </p>
-                  </div>
-                  <div className="">
-                    <Link to="/blog" className=" btn-primary-sm btn-primary">
-                      Read More
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            </div>
+              )
+            )}
           </div>
+
+          {blogdata.length > 3 && (
+            <div className="text-center mt-3">
+              <button
+                onClick={() => {
+                  setShowAllBlog((prev) => {
+                    const newState = !prev;
+                    if (!newState) scrollToSection(blogSectionRef);
+                    return newState;
+                  });
+                }}
+                className="btn btn-primary"
+              >
+                {showAllBlog ? "View Less" : "View All Blogs"}
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </div>

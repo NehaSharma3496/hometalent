@@ -32,7 +32,7 @@ const WebRoutes = (
     <Route path="/privacypolicy" element={<PrivacyPolicy />} />
     <Route path="/termscondition" element={<TermsCondition />} />
     <Route path="/categorydetail" element={<CategoryDetail />} />
-    <Route path="/blogdetail" element={<BlogDetail />} />
+    <Route path="/blogdetail/:blogId" element={<BlogDetail />} />
     <Route path="/category" element={<Category />} />
     <Route path="/realwedding" element={<RealWedding />} />
     <Route path="/category/:categoryId" element={<Category />} />
