@@ -115,6 +115,12 @@ const Login = () => {
                 onSubmit={handleSubmit}
                 fields={fields}
               />
+              <div className="create-account mt-3">
+                {" "}
+                <a href="/forgotpassword" className="text-primary ">
+                  Forgot Password
+                </a>
+              </div>
 
               <div className="login-footer d-flex">
                 <div className="create-account text-center mt-3">
@@ -123,14 +129,6 @@ const Login = () => {
                     <a href="/registration" className="text-primary">
                       Register
                     </a>
-                  </p>
-                </div>
-                <div className="create-account text-center mt-3">
-                  <p>
-                    Forgot Password?{""}
-                  <a href="/forgotpassword" className="text-primary">
-                    Forgot Password
-                  </a>
                   </p>
                 </div>
               </div>

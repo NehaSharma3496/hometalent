@@ -33,6 +33,7 @@ import RejectedVendors from "../pages/admin/vendor/RejectedVendors";
 import AddBlog from "../pages/admin/blog/AddBlog";
 import AllBlog from "../pages/admin/blog/AllBlog";
 import UpdateBlog from "../pages/admin/blog/UpdateBlog";
+import ChangePassword from "../pages/admin/forgotpassword/ChangePasword";
 
 
 const AdminRoutes = (
@@ -81,6 +82,7 @@ const AdminRoutes = (
     <Route path="blog/addblog" element={<AddBlog />} />
     <Route path="blog/allblogs" element={<AllBlog/>}/>
     <Route path="updatepackage/:blogId" element={<UpdateBlog/>}/>
+    <Route path="forgotpassword/changepassword" element={<ChangePassword/>}/>
   </Route>
 );
 

@@ -288,7 +288,7 @@ export default function AdminHeader() {
                         </li>
                       )}
                       <li>
-                        <Link className="dropdown-item" to="#">
+                        <Link className="dropdown-item" to="/admin/forgotpassword/changepassword">
                           <i className="fa-light fa-user"></i> Change Password
                         </Link>
                       </li>

@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState ,useRef} from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GetStateCity } from "../../Services/webService/Web";
-import select from "react-select";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -10,6 +9,7 @@ import {
   GetVendorsByCategory,
 } from "../../Services/webService/Web";
 
+
 const Home = () => {
   const [statecity, setStateCity] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -17,6 +17,7 @@ const Home = () => {
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [categoryData, setCategoryData] = useState([]);
+const categorySectionRef = useRef(null);
 
   // State for storing selected IDs
   const [selectedCityId, setSelectedCityId] = useState("");
@@ -348,8 +349,8 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="category-area ">
-        <div className="container">
+      <section className="category-area" ref={categorySectionRef}>
+  <div className="container">
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-7">
               <div className="section-title text-center mx-auto position-relative">
@@ -391,11 +392,22 @@ const Home = () => {
           {categoryData.length > 10 && (
             <div className="text-center mt-3">
               <button
-                onClick={() => setShowAllCategories((prev) => !prev)}
-                className="btn btn-primary"
-              >
-                {showAllCategories ? "View Less" : "View All Categories"}
-              </button>
+  onClick={() => {
+    setShowAllCategories((prev) => {
+      const nextValue = !prev;
+      if (prev === true && categorySectionRef.current) {
+        setTimeout(() => {
+          categorySectionRef.current.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+      return nextValue;
+    });
+  }}
+  className="btn btn-primary"
+>
+  {showAllCategories ? "View Less" : "View All Categories"}
+</button>
+
             </div>
           )}
         </div>

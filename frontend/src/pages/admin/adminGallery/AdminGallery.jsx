@@ -10,6 +10,7 @@ const AdminGallery = () => {
   const [gallery, setGallery] = useState([]);
   const [activeTab, setActiveTab] = useState("images");
   const [selectedItems, setSelectedItems] = useState([]);
+const [selectAll, setSelectAll] = useState(false);
 
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
@@ -28,40 +29,63 @@ const AdminGallery = () => {
     if (userId) fetchGallery();
   }, [userId]);
 
-  const toggleSelect = (id) => {
-    setSelectedItems((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const handleSingleDelete = async (id) => {
-  const isBulk = selectedItems.includes(id);
-  const idsToDelete = isBulk ? selectedItems : [id];
-
-  const confirm = await Swal.fire({
-    title: `Are you sure you want to delete ${isBulk ? idsToDelete.length : 1} item(s)?`,
-    text: "This will permanently delete the selected item(s).",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Yes, delete it!",
-  });
-
-  if (!confirm.isConfirmed) return;
-
-  try {
-    const res = await RemoveGalleryItem(token, idsToDelete);
-    if (res.status) {
-      Swal.fire("Deleted!", "Item(s) have been deleted.", "success");
-      setSelectedItems([]);
-      fetchGallery();
-    } else {
-      Swal.fire("Error", res.message || "Failed to delete item(s).", "error");
-    }
-  } catch (err) {
-    Swal.fire("Error", "An error occurred while deleting.", "error");
+  const handleSelectAll = () => {
+  if (selectAll) {
+    setSelectedItems([]);
+  } else {
+    const ids = filteredGallery.map((item) => item.id);
+    setSelectedItems(ids);
   }
+  setSelectAll(!selectAll);
 };
 
+const toggleSelect = (id) => {
+  setSelectedItems((prev) => {
+    const updated = prev.includes(id)
+      ? prev.filter((item) => item !== id)
+      : [...prev, id];
+
+    if (updated.length !== filteredGallery.length) {
+      setSelectAll(false);
+    } else {
+      setSelectAll(true);
+    }
+
+    return updated;
+  });
+};
+
+
+
+  const handleSingleDelete = async (id) => {
+    const isBulk = selectedItems.includes(id);
+    const idsToDelete = isBulk ? selectedItems : [id];
+
+    const confirm = await Swal.fire({
+      title: `Are you sure you want to delete ${
+        isBulk ? idsToDelete.length : 1
+      } item(s)?`,
+      text: "This will permanently delete the selected item(s).",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const res = await RemoveGalleryItem(token, idsToDelete);
+      if (res.status) {
+        Swal.fire("Deleted!", "Item(s) have been deleted.", "success");
+        setSelectedItems([]);
+        fetchGallery();
+      } else {
+        Swal.fire("Error", res.message || "Failed to delete item(s).", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", "An error occurred while deleting.", "error");
+    }
+  };
 
   const handleBulkDelete = async () => {
     if (selectedItems.length === 0) {
@@ -139,13 +163,29 @@ const AdminGallery = () => {
         </ul>
       </div>
 
-      {selectedItems.length > 0 && (
-        <div className="mb-3 d-flex gap-2">
-          <button className="btn btn-danger" onClick={handleBulkDelete}>
-            Delete Selected
-          </button>
-        </div>
-      )}
+      {filteredGallery.length > 0 && (
+  <div className="mb-3 d-flex justify-content-between align-items-center">
+    <div className="form-check">
+      <input
+        type="checkbox"
+        id="selectAll"
+        className="form-check-input"
+        checked={selectAll}
+        onChange={handleSelectAll}
+      />
+      <label htmlFor="selectAll" className="form-check-label">
+        Select All
+      </label>
+    </div>
+
+    {selectedItems.length > 0 && (
+      <button className="btn btn-danger" onClick={handleBulkDelete}>
+        Delete Selected ({selectedItems.length})
+      </button>
+    )}
+  </div>
+)}
+
 
       <div className="card shadow-sm p-3 border-0 bg-light">
         {filteredGallery.length === 0 ? (

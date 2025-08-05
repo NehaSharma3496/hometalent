@@ -12,6 +12,7 @@ const ViewGallery = () => {
   const [activeTab, setActiveTab] = useState("images");
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -27,15 +28,33 @@ const ViewGallery = () => {
       const response = await GetAdminGallery(token, userId);
       setGallery(response.data || []);
       setSelectedItems([]);
+      setSelectAll(false);
     } catch (error) {
       console.error("Error fetching gallery:", error);
     }
   };
 
   const toggleSelect = (id) => {
-    setSelectedItems((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+    setSelectedItems((prev) => {
+      const updated = prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : [...prev, id];
+
+      const filteredIds = filteredGallery.map((item) => item.id);
+      setSelectAll(updated.length === filteredIds.length);
+
+      return updated;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedItems([]);
+    } else {
+      const allIds = filteredGallery.map((item) => item.id);
+      setSelectedItems(allIds);
+    }
+    setSelectAll(!selectAll);
   };
 
   const handleDelete = async (itemId) => {
@@ -161,14 +180,7 @@ const ViewGallery = () => {
           >
             <i className="ri-check-double-line me-1"></i> Update Order
           </button>
-          {selectedItems.length > 0 && (
-            <button
-              className="btn btn-danger shadow-sm"
-              onClick={() => handleDelete(selectedItems[0])}
-            >
-              <i className="ri-delete-bin-line me-1"></i> Delete Selected
-            </button>
-          )}
+         
         </div>
       </div>
 
@@ -177,7 +189,11 @@ const ViewGallery = () => {
           <li className="nav-item">
             <button
               className={`nav-link ${activeTab === "images" ? "active" : ""}`}
-              onClick={() => setActiveTab("images")}
+              onClick={() => {
+                setActiveTab("images");
+                setSelectedItems([]);
+                setSelectAll(false);
+              }}
             >
               Images
             </button>
@@ -185,7 +201,11 @@ const ViewGallery = () => {
           <li className="nav-item">
             <button
               className={`nav-link ${activeTab === "videos" ? "active" : ""}`}
-              onClick={() => setActiveTab("videos")}
+              onClick={() => {
+                setActiveTab("videos");
+                setSelectedItems([]);
+                setSelectAll(false);
+              }}
             >
               Videos
             </button>
@@ -194,8 +214,37 @@ const ViewGallery = () => {
       </div>
 
       <div className="card shadow-sm p-3 border-0 bg-light">
+        {filteredGallery.length > 0 && (
+          <div className="mb-3 d-flex justify-content-between align-items-center">
+            <div className="form-check">
+              <input
+                type="checkbox"
+                id="selectAll"
+                className="form-check-input"
+                checked={selectAll}
+                onChange={handleSelectAll}
+              />
+              <label htmlFor="selectAll" className="form-check-label">
+                Select All
+              </label>
+            </div>
+
+            {selectedItems.length > 0 && (
+              <button
+                className="btn btn-danger"
+                onClick={() => handleDelete(selectedItems[0])}
+              >
+                <i className="ri-delete-bin-line me-1"></i> Delete Selected (
+                {selectedItems.length})
+              </button>
+            )}
+          </div>
+        )}
+
         {filteredGallery.length === 0 ? (
-          <p className="text-muted text-center my-4">No {activeTab} found.</p>
+          <p className="text-muted text-center my-4">
+            No <strong>{activeTab}</strong> found.
+          </p>
         ) : (
           <div className="row">
             {filteredGallery.map((item, index) => (

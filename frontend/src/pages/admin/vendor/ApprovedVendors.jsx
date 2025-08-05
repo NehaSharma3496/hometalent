@@ -100,11 +100,15 @@ export default function ApprovedVendors() {
     }
   };
 
-  const filteredApprovedVendors = searchText
-    ? allApprovedVendors.filter((vendor) =>
-        vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-      )
-    : approvedVendors;
+ const filtered = allApprovedVendors.filter((vendor) =>
+  vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+);
+
+const filteredApprovedVendors = filtered.slice(
+  (currentPage - 1) * perPage,
+  currentPage * perPage
+);
+
 
   const fetchAllApprovedVendors = async () => {
     try {

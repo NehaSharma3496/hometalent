@@ -64,8 +64,8 @@ const ForgotPassword = () => {
                 onSubmit={handleSubmit}
               >
                 <Form>
-                  <div className="form-group mb-3">
-                    <label htmlFor="email">Email</label>
+                  <div className="form-group mb-5">
+                    <label className="mb-3" htmlFor="email">Email</label>
                     <Field
                       type="email"
                       name="email"

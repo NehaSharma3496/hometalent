@@ -79,3 +79,20 @@ export async function Resetpassword(token, data) {
     return error;
   }
 }
+
+export async function ChangePassword(token, data) {
+  try {
+    const response = await axios.post(
+      `${Config.base_url}change_password`,
+      data,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    return error;
+  }
+}
