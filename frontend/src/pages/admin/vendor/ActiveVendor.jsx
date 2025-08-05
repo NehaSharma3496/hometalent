@@ -6,7 +6,7 @@ import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 
 export default function ActiveVendor() {
-  const [activevendors, setActiveVendors] = React.useState([]);
+  const [activevendors, setActiveVendors] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [categoryList, setCategoryList] = useState([]);
   const [categoryMap, setCategoryMap] = useState({});
