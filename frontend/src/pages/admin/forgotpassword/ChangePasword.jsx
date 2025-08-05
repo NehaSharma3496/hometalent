@@ -2,42 +2,28 @@ import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-import { ChangePassword } from "../../../Services/auth/Login";
+import { ChangePasswords } from "../../../Services/auth/Login";
 import { useNavigate } from "react-router-dom";
 
 const ChangePassword = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
-  const storedPassword = user?.show_password;
+  const user_id = user?.id || user?.user_id;
 
   const initialValues = {
-    old_password: "",
-    new_password: "",
+    oldPassword: "",
+    newPassword: "",
   };
 
   const validationSchema = Yup.object({
-    old_password: Yup.string().required("Old password is required"),
-    new_password: Yup.string()
+    oldPassword: Yup.string().required("Old password is required"),
+    newPassword: Yup.string()
       .min(6, "Minimum 6 characters")
       .required("New password is required"),
   });
 
   const handleSubmit = async (values, { resetForm }) => {
-    console.log("Stored Password:", storedPassword);
-    console.log("Entered Old Password:", values.old_password);
-    console.log("User", user);
-    console.log("Token", token);
-
-    if (values.old_password !== storedPassword) {
-      Swal.fire({
-        icon: "error",
-        title: "Incorrect Old Password",
-        text: "The old password you entered does not match.",
-      });
-      return;
-    }
-
     const confirm = await Swal.fire({
       title: "Are you sure?",
       text: "Do you want to change your password?",
@@ -50,27 +36,29 @@ const ChangePassword = () => {
     if (confirm.isConfirmed) {
       try {
         const payload = {
-          token,
-          new_password: values.new_password,
+          user_id: user_id,
+          oldPassword: values.oldPassword,
+          newPassword: values.newPassword,
         };
-        const response = await Resetpassword(token, payload);
+
+        const response = await ChangePasswords(token, payload);
+        console.log("Backend Response:", response);
 
         if (response?.data?.status) {
           Swal.fire({
             icon: "success",
-            title: "Password Changed",
-            text: response.data.msg,
-            timer: 2000,
-            showConfirmButton: false,
+            title: "Password Updated Successfully!",
+            text: response?.data?.message || "Your password has been changed.",
+            confirmButtonText: "OK",
+            confirmButtonText: "OK",
           }).then(() => {
             resetForm();
-            navigate("/dashboard");
           });
         } else {
           Swal.fire({
             icon: "error",
             title: "Error",
-            text: response?.data?.msg || "Something went wrong",
+            text: response?.data?.message || "Something went wrong",
           });
         }
       } catch (error) {
@@ -78,6 +66,7 @@ const ChangePassword = () => {
           icon: "error",
           title: "Oops...",
           text: error?.message || "Server error",
+          confirmButtonText: "OK",
         });
       }
     }
@@ -107,12 +96,12 @@ const ChangePassword = () => {
                     <label>Old Password</label>
                     <Field
                       type="password"
-                      name="old_password"
+                      name="oldPassword"
                       className="form-control"
                       placeholder="Enter old password"
                     />
                     <ErrorMessage
-                      name="old_password"
+                      name="oldPassword"
                       component="div"
                       className="text-danger"
                     />
@@ -122,12 +111,12 @@ const ChangePassword = () => {
                     <label>New Password</label>
                     <Field
                       type="password"
-                      name="new_password"
+                      name="newPassword"
                       className="form-control"
                       placeholder="Enter new password"
                     />
                     <ErrorMessage
-                      name="new_password"
+                      name="newPassword"
                       component="div"
                       className="text-danger"
                     />
@@ -138,9 +127,6 @@ const ChangePassword = () => {
                   </button>
                 </Form>
               </Formik>
-              <div className="text-center mt-3">
-                <a href="/login">← Back to Login</a>
-              </div>
             </div>
           </div>
         </div>

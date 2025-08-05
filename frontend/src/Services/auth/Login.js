@@ -80,7 +80,7 @@ export async function Resetpassword(token, data) {
   }
 }
 
-export async function ChangePassword(token, data) {
+export async function ChangePasswords(token, data) {
   try {
     const response = await axios.post(
       `${Config.base_url}change_password`,
