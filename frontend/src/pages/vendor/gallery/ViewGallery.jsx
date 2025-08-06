@@ -180,7 +180,6 @@ const ViewGallery = () => {
           >
             <i className="ri-check-double-line me-1"></i> Update Order
           </button>
-         
         </div>
       </div>
 
@@ -234,7 +233,7 @@ const ViewGallery = () => {
                 className="btn btn-danger"
                 onClick={() => handleDelete(selectedItems[0])}
               >
-                <i className="ri-delete-bin-line me-1"></i> Delete Selected (
+                <i className="ri-delete-bin-line me-1"></i> Delete(
                 {selectedItems.length})
               </button>
             )}
@@ -280,20 +279,28 @@ const ViewGallery = () => {
                   )}
 
                   <div className="card-body text-center py-3 mt-3">
-                    <div className="mb-2">
-                      <span
-                        className={`badge ${
-                          item.status === "approved"
-                            ? "bg-success"
-                            : item.status === "pending"
-                            ? "bg-warning text-dark"
-                            : "bg-secondary"
-                        } fs-6`}
-                      >
-                        {item.status.charAt(0).toUpperCase() +
-                          item.status.slice(1)}
-                      </span>
-                    </div>
+                  <div className="mb-2 d-flex  justify-content-center gap-15">
+  <span
+    className={`badge ${
+      item.status === "approved"
+        ? "bg-success"
+        : item.status === "pending"
+        ? "bg-warning text-dark"
+        : "bg-secondary"
+    } fs-6`}
+  >
+    {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+  </span>
+
+  <button
+    className="btn btn-danger btn-sm shadow-sm"
+    onClick={() => handleDelete(item.id)}
+  >
+    <i className="ri-delete-bin-line me-1"></i>
+    Delete
+  </button>
+</div>
+
 
                     <p className="text-muted small mb-2">
                       {new Date(item.createdAt).toLocaleDateString("en-IN", {
@@ -312,16 +319,6 @@ const ViewGallery = () => {
                         onChange={() => toggleSelect(item.id)}
                       />
                     </div>
-
-                    <button
-                      className="btn btn-danger shadow-sm"
-                      onClick={() => handleDelete(item.id)}
-                    >
-                      <i className="ri-delete-bin-line me-1"></i>
-                      {selectedItems.includes(item.id)
-                        ? "Delete Selected"
-                        : "Delete"}
-                    </button>
                   </div>
                 </div>
               </div>

@@ -21,19 +21,19 @@ export default function UpdateProfile() {
   const token = localStorage.getItem("token");
   const vendorId = localStorage.getItem("userId");
 
-  const validationSchema = Yup.object({
-    owner_name: Yup.string().required("Owner name is required"),
-    phone: Yup.string().required("Phone is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    state_id: Yup.string().required("State is required"),
-    city_id: Yup.string().required("City is required"),
-    pin_code: Yup.string().required("Pin Code is required"),
-    price_range: Yup.string().required("Price range is required"),
-    short_description: Yup.string().required("Short description is required"),
-    category_id: Yup.array().min(1, "Select at least one category"),
-    experience_since: Yup.string().required("Experience is required"),
-    long_description: Yup.string().required("Long description is required"),
-  });
+  // const validationSchema = Yup.object({
+  //   owner_name: Yup.string().required("Owner name is required"),
+  //   phone: Yup.string().required("Phone is required"),
+  //   email: Yup.string().email("Invalid email").required("Email is required"),
+  //   state_id: Yup.string().required("State is required"),
+  //   city_id: Yup.string().required("City is required"),
+  //   pin_code: Yup.string().required("Pin Code is required"),
+  //   price_range: Yup.string().required("Price range is required"),
+  //   short_description: Yup.string().required("Short description is required"),
+  //   category_id: Yup.array().min(1, "Select at least one category"),
+  //   experience_since: Yup.string().required("Experience is required"),
+  //   long_description: Yup.string().required("Long description is required"),
+  // });
 
   const fields = [
     {
@@ -287,7 +287,7 @@ export default function UpdateProfile() {
           <div className="col-md-12">
             <ReusableForm
               initialValues={initialValues}
-              validationSchema={validationSchema}
+              // validationSchema={validationSchema}
               onSubmit={onSubmit}
               fields={fields}
             />

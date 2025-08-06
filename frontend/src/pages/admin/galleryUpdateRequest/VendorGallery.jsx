@@ -12,6 +12,7 @@ export default function VendorGallery() {
   const [activeTab, setActiveTab] = useState("images");
   const [selectedItems, setSelectedItems] = useState([]);
   const token = localStorage.getItem("token");
+const [selectAll, setSelectAll] = useState(false);
 
   const fetchGallery = async () => {
     try {
@@ -32,11 +33,37 @@ export default function VendorGallery() {
     }
   };
 
-  const toggleSelect = (id) => {
-    setSelectedItems((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
+ const toggleSelect = (id) => {
+  setSelectedItems((prev) => {
+    const updated = prev.includes(id)
+      ? prev.filter((item) => item !== id)
+      : [...prev, id];
+
+    const pendingIds = filteredGallery.filter((item) => item.status === "pending").map((item) => item.id);
+
+    if (updated.length !== pendingIds.length) {
+      setSelectAll(false);
+    } else {
+      setSelectAll(true);
+    }
+
+    return updated;
+  });
+};
+
+
+  const handleSelectAll = () => {
+  const pendingItems = filteredGallery.filter((item) => item.status === "pending").map((item) => item.id);
+
+  if (selectAll) {
+    setSelectedItems([]);
+  } else {
+    setSelectedItems(pendingItems);
+  }
+
+  setSelectAll(!selectAll);
+};
+
 
   const handleSingleAction = async (action, id) => {
     let idsToProcess = [];
@@ -166,19 +193,33 @@ export default function VendorGallery() {
         </ul>
       </div>
 
+      <div className="form-check mb-3">
+  <input
+    type="checkbox"
+    id="selectAll"
+    className="form-check-input"
+    checked={selectAll}
+    onChange={handleSelectAll}
+  />
+  <label htmlFor="selectAll" className="form-check-label">
+    Select All Pending
+  </label>
+</div>
+
+
       {selectedItems.length > 0 && (
         <div className="mb-3 d-flex gap-2">
           <button
             className="btn btn-success"
             onClick={() => handleBulkAction("approve")}
           >
-            Approve Selected
+            Approve
           </button>
           <button
             className="btn btn-danger"
             onClick={() => handleBulkAction("reject")}
           >
-            Reject Selected
+            Reject
           </button>
         </div>
       )}
@@ -231,7 +272,7 @@ export default function VendorGallery() {
 
                         <div className="d-flex justify-content-center gap-2 flex-wrap">
                           <button
-                            className="btn btn-success btn-sm"
+                            className="btn btn-success btn-sm "
                             onClick={() =>
                               handleSingleAction("approve", item.id)
                             }
@@ -251,11 +292,11 @@ export default function VendorGallery() {
                     )}
 
                     {item.status === "approved" && (
-                      <span className="badge bg-success fs-5">Approved</span>
+                      <span className="badge bg-success fs-6">Approved</span>
                     )}
 
                     {item.status === "rejected" && (
-                      <span className="badge bg-danger fs-5">Rejected</span>
+                      <span className="badge bg-danger fs-6">Rejected</span>
                     )}
                   </div>
                 </div>

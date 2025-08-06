@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
@@ -10,18 +10,25 @@ const ChangePassword = () => {
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
   const user_id = user?.id || user?.user_id;
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const initialValues = {
     oldPassword: "",
     newPassword: "",
+      confirmNewPassword: "",
   };
 
-  const validationSchema = Yup.object({
-    oldPassword: Yup.string().required("Old password is required"),
-    newPassword: Yup.string()
-      .min(6, "Minimum 6 characters")
-      .required("New password is required"),
-  });
+ const validationSchema = Yup.object({
+  oldPassword: Yup.string().required("Old password is required"),
+  newPassword: Yup.string()
+    .min(6, "Minimum 6 characters")
+    .required("New password is required"),
+  confirmNewPassword: Yup.string()
+    .oneOf([Yup.ref("newPassword"), null], "Passwords must match")
+    .required("Confirm new password is required"),
+});
+
 
   const handleSubmit = async (values, { resetForm }) => {
     const confirm = await Swal.fire({
@@ -80,7 +87,7 @@ const ChangePassword = () => {
             <div className="login-card">
               <div className="logo mb-40 text-center">
                 <img
-                  src="../../../../public/assets/images/logo/logo.png"
+                  src="/assets/images/logo/logo.png"
                   alt="logo"
                   className="changeLogo w-25"
                 />
@@ -109,18 +116,56 @@ const ChangePassword = () => {
 
                   <div className="form-group mb-3">
                     <label>New Password</label>
-                    <Field
-                      type="password"
-                      name="newPassword"
-                      className="form-control"
-                      placeholder="Enter new password"
-                    />
+                    <div className="input-group">
+                      <Field
+                        type={showNewPassword ? "text" : "password"}
+                        name="newPassword"
+                        className="form-control"
+                        placeholder="Enter new password"
+                      />
+                      <span
+                        className="input-group-text"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => setShowNewPassword((prev) => !prev)}
+                      >
+                        <i
+                          className={`bi ${
+                            showNewPassword ? "bi-eye-slash" : "bi-eye"
+                          }`}
+                        ></i>
+                      </span>
+                    </div>
                     <ErrorMessage
                       name="newPassword"
                       component="div"
                       className="text-danger"
                     />
                   </div>
+
+                   <div className="form-group mb-2">
+  <label className="mb-2">Confirm New Password</label>
+  <div className="input-group">
+   <Field
+  type={showConfirmPassword ? "text" : "password"}
+  name="confirmNewPassword"
+  className="form-control"
+  placeholder="Re-enter new password"
+/>
+    <span
+      className="input-group-text"
+      style={{ cursor: "pointer" }}
+      onClick={() => setShowConfirmPassword((prev) => !prev)}
+    >
+      <i className={`bi ${showConfirmPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+    </span>
+  </div>
+  <ErrorMessage
+  name="confirmNewPassword"
+  component="div"
+  className="text-danger"
+/>
+</div>
+
 
                   <button type="submit" className="btn btn-primary w-100">
                     Change Password

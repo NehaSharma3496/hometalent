@@ -398,6 +398,7 @@ const Home = () => {
                       className="category-banner"
                     >
                       <img
+                        loading="lazy"
                         src={`/assets/images/category/${category.name}.png`}
                         alt={category.name}
                         onError={(e1) => {

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { GetVendorDetails } from "../../Services/vendor/Vendor";
+import { GetVendorDetails, GetCategories } from "../../Services/vendor/Vendor";
 
 export default function MyProfile() {
   const [vendor, setVendor] = useState(null);
-
+  const [category, setCategory] = useState([]);
   const token = localStorage.getItem("token");
   const vendorId = localStorage.getItem("userId");
 
@@ -23,9 +23,26 @@ export default function MyProfile() {
     }
   };
 
+  const fetchCategory = async () => {
+    try {
+      const res = await GetCategories(token);
+      setCategory(res?.data);
+    } catch (error) {
+      console.log("Error in fetching categories", error);
+    }
+  };
+
+  const getCategoryNameById = (id) => {
+    if (!id || !category || category.length === 0) return "Not provided";
+
+    const cat = category.find((c) => String(c.id) === String(id));
+    return cat ? cat.name : "Not provided";
+  };
+
   useEffect(() => {
     if (token && vendorId) {
       fetchVendor();
+      fetchCategory();
     } else {
       console.warn("Missing token or vendor ID");
     }
@@ -59,10 +76,26 @@ export default function MyProfile() {
   const profileFields = [
     { label: "Email", value: vendor.email, icon: "fas fa-envelope" },
     { label: "Phone", value: vendor.phone, icon: "fas fa-phone" },
-    { label: "Price Range", value: vendor.price_range, icon: "fas fa-dollar-sign" },
-    { label: "Experience Since", value: vendor.experience_since, icon: "fas fa-calendar-alt" },
-    { label: "Pin Code", value: vendor.pin_code, icon: "fas fa-map-marker-alt" },
-    { label: "Category IDs", value: vendor.category_id, icon: "fas fa-tags" },
+    {
+      label: "Price Range",
+      value: vendor.price_range,
+      icon: "fas fa-dollar-sign",
+    },
+    {
+      label: "Experience Since",
+      value: vendor.experience_since,
+      icon: "fas fa-calendar-alt",
+    },
+    {
+      label: "Pin Code",
+      value: vendor.pin_code,
+      icon: "fas fa-map-marker-alt",
+    },
+    {
+      label: "Category Name",
+      value: getCategoryNameById(vendor.category_id),
+      icon: "fas fa-tags",
+    },
   ];
 
   return (
@@ -90,47 +123,46 @@ export default function MyProfile() {
 
       <div className="card border-0 shadow-lg rounded-4 overflow-hidden">
         {/* Profile Header with My Packages Button on Top Right */}
-<div className="p-4 position-relative">
-  <div className="row align-items-center">
-    <div className="col-auto">
-      <div className="position-relative">
-        <img
-          src={vendor.image || "/no-image.png"}
-          alt="Vendor"
-          className="rounded-circle border border-3 border-white shadow"
-          style={{
-            width: "120px",
-            height: "120px",
-            objectFit: "cover",
-          }}
-        />
-      </div>
-    </div>
-    <div className="col">
-      <h3 className="mb-2 fw-bold">{vendor.owner_name}</h3>
-      <div className="d-flex align-items-center gap-3 mb-2">
-        {vendor.experience_since && (
-          <span>
-            <i className="fas fa-calendar-alt me-1"></i>
-            Since {vendor.experience_since}
-          </span>
-        )}
-      </div>
-    </div>
-  </div>
+        <div className="p-4 position-relative">
+          <div className="row align-items-center">
+            <div className="col-auto">
+              <div className="position-relative">
+                <img
+                  src={vendor.image || "/no-image.png"}
+                  alt="Vendor"
+                  className="rounded-circle border border-3 border-white shadow"
+                  style={{
+                    width: "120px",
+                    height: "120px",
+                    objectFit: "cover",
+                  }}
+                />
+              </div>
+            </div>
+            <div className="col">
+              <h3 className="mb-2 fw-bold">{vendor.owner_name}</h3>
+              <div className="d-flex align-items-center gap-3 mb-2">
+                {vendor.experience_since && (
+                  <span>
+                    <i className="fas fa-calendar-alt me-1"></i>
+                    Since {vendor.experience_since}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
 
-  {/* My Packages Button on the top right corner of the card */}
-  <div className="position-absolute top-0 end-0 p-3">
-    <Link
-      to="/vendor/mypackages"
-      className="btn btn-outline-primary btn-sm shadow-sm"
-    >
-      <i className="fas fa-box-open me-1"></i>
-      My Packages
-    </Link>
-  </div>
-</div>
-
+          {/* My Packages Button on the top right corner of the card */}
+          <div className="position-absolute top-0 end-0 p-3">
+            <Link
+              to="/vendor/mypackages"
+              className="btn btn-outline-primary btn-sm shadow-sm"
+            >
+              <i className="fas fa-box-open me-1"></i>
+              My Packages
+            </Link>
+          </div>
+        </div>
 
         <div className="card-body p-4">
           <div className="row g-4">

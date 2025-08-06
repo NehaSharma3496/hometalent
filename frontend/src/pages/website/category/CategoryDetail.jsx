@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Breadcrumbs from "../../../components/websitecomponents/Breadcrumbs";
 import { useLocation } from "react-router-dom";
-import { SubmitLead ,GetStateCity} from "../../../Services/webService/Web";
+import { SubmitLead, GetStateCity } from "../../../Services/webService/Web";
 import { GetGallery } from "../../../Services/vendor/Vendor";
 import Swal from "sweetalert2";
 import Lightbox from "yet-another-react-lightbox";
@@ -18,6 +18,7 @@ const CategoryDetail = () => {
   const category = location.state?.category;
   const cityId = location.state?.vendor?.city_id;
   const [cityName, setCityName] = useState("");
+  const imageSectionRef = React.useRef(null);
 
   useEffect(() => {
     const fetchCityName = async () => {
@@ -39,7 +40,6 @@ const CategoryDetail = () => {
       fetchCityName();
     }
   }, [cityId]);
-
 
   const [leadData, setLeadData] = useState({
     name: "",
@@ -314,7 +314,7 @@ const CategoryDetail = () => {
 
                     {/* images and video  */}
 
-                    <div className="row g-4">
+                    <div className="row g-4" ref={imageSectionRef}>
                       {visibleItems.map((item, i) => (
                         <div className="col-lg-3 col-sm-6" key={i}>
                           <div
@@ -366,14 +366,24 @@ const CategoryDetail = () => {
                       ))}
                     </div>
 
-                    {/* View All button */}
-                    {!showAll && galleryImages.length > 3 && (
+                    {galleryImages.length > 4 && (
                       <div className="text-center mt-3">
                         <button
                           className="btn btn-primary"
-                          onClick={() => setShowAll(true)}
+                          onClick={() => {
+                            if (showAll) {
+                              setShowAll(false);
+                              setTimeout(() => {
+                                imageSectionRef.current?.scrollIntoView({
+                                  behavior: "smooth",
+                                });
+                              }, 100);
+                            } else {
+                              setShowAll(true);
+                            }
+                          }}
                         >
-                          View All
+                          {showAll ? "View Less" : "View All"}
                         </button>
                       </div>
                     )}
