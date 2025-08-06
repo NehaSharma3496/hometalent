@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { GetSponsoredVendorsByCategory, UpdateSponsoredRanks } from "../../../Services/admin/Admin";
+import {
+  GetSponsoredVendorsByCategory,
+  UpdateSponsoredRanks,
+} from "../../../Services/admin/Admin";
 import Swal from "sweetalert2";
 
 export default function SponsoredRankUpdate() {
@@ -19,15 +22,18 @@ export default function SponsoredRankUpdate() {
   const fetchVendors = async () => {
     try {
       const res = await GetSponsoredVendorsByCategory(categoryId, token);
-      const sponsored = res?.sponsored?.map((v) => ({
-        ...v.vendor,
-        sponsor_rank: v.sponsor_rank,
-      })) || [];
+      const sponsored =
+        res?.sponsored?.map((v) => ({
+          ...v.vendor,
+          sponsor_rank: v.sponsor_rank,
+        })) || [];
 
       const remaining = res?.remaining_active || [];
 
-      // Merge both lists, ensuring no duplicate vendor_ids
-      const allVendors = [...sponsored, ...remaining.filter(v => !sponsored.some(s => s.id === v.id))];
+      const allVendors = [
+        ...sponsored,
+        ...remaining.filter((v) => !sponsored.some((s) => s.id === v.id)),
+      ];
 
       setVendorList(allVendors);
     } catch (err) {
@@ -37,42 +43,46 @@ export default function SponsoredRankUpdate() {
     }
   };
 
- const handleRankChange = (vendorId, newRank) => {
-  const rankToAssign = parseInt(newRank);
+  const handleRankChange = (vendorId, newRank) => {
+    const rankToAssign = parseInt(newRank);
 
-  setVendorList((prevList) => {
-    const updatedList = [...prevList];
+    setVendorList((prevList) => {
+      const updatedList = [...prevList];
 
-    // Find the vendor who currently has the target rank
-    const existingRankVendor = updatedList.find(
-      (v) => v.sponsor_rank === rankToAssign && v.id !== vendorId
-    );
+      const existingRankVendor = updatedList.find(
+        (v) => v.sponsor_rank === rankToAssign && v.id !== vendorId
+      );
 
-    // If some vendor already has that rank, remove their rank
-    if (existingRankVendor) {
-      existingRankVendor.sponsor_rank = undefined;
-    }
+      if (existingRankVendor) {
+        existingRankVendor.sponsor_rank = undefined;
+      }
 
-    // Assign the new rank to the selected vendor
-    const targetVendor = updatedList.find((v) => v.id === vendorId);
-    if (targetVendor) {
-      targetVendor.sponsor_rank = rankToAssign;
-    }
+      const targetVendor = updatedList.find((v) => v.id === vendorId);
+      if (targetVendor) {
+        targetVendor.sponsor_rank = rankToAssign;
+      }
 
-    return updatedList;
-  });
-};
-
+      return updatedList;
+    });
+  };
 
   const handleSubmit = async () => {
     const updated = vendorList
       .filter((v) => v.sponsor_rank !== undefined)
-      .map((v) => ({ vendor_id: v.id, sponsor_rank: v.sponsor_rank, category_id: categoryId }));
+      .map((v) => ({
+        vendor_id: v.id,
+        sponsor_rank: v.sponsor_rank,
+        category_id: categoryId,
+      }));
 
     const rankSet = new Set();
     for (let entry of updated) {
       if (rankSet.has(entry.sponsor_rank)) {
-        return Swal.fire("Duplicate Ranks", "Two vendors cannot have the same rank!", "warning");
+        return Swal.fire(
+          "Duplicate Ranks",
+          "Two vendors cannot have the same rank!",
+          "warning"
+        );
       }
       rankSet.add(entry.sponsor_rank);
     }
@@ -99,7 +109,9 @@ export default function SponsoredRankUpdate() {
             <Link to="/admin/dashboard" className="me-2">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
-            <h2 className="add-page-heading">Sponsored Vendors - {categoryName}</h2>
+            <h2 className="add-page-heading">
+              Sponsored Vendors - {categoryName}
+            </h2>
           </div>
         </div>
         <div className="col-md-6 text-end">
@@ -125,11 +137,15 @@ export default function SponsoredRankUpdate() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="text-center">Loading...</td>
+                  <td colSpan="6" className="text-center">
+                    Loading...
+                  </td>
                 </tr>
               ) : vendorList.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="text-center">No vendors found</td>
+                  <td colSpan="6" className="text-center">
+                    No vendors found
+                  </td>
                 </tr>
               ) : (
                 vendorList.map((vendor, index) => (
@@ -145,7 +161,9 @@ export default function SponsoredRankUpdate() {
                         className="form-control"
                         min={1}
                         value={vendor.sponsor_rank ?? ""}
-                        onChange={(e) => handleRankChange(vendor.id, e.target.value)}
+                        onChange={(e) =>
+                          handleRankChange(vendor.id, e.target.value)
+                        }
                       />
                     </td>
                   </tr>

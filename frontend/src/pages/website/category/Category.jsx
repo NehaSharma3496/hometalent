@@ -17,6 +17,7 @@ const Category = () => {
   const [filteredVendors, setFilteredVendors] = useState([]);
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
+  const [sortOption, setSortOption] = useState("");
 
   const categoryId = location?.state?.categoryId;
 
@@ -29,7 +30,7 @@ const Category = () => {
   }, [categoryId]);
 
   useEffect(() => {
-    const filtered = vendor.filter((v) => {
+    let filtered = vendor.filter((v) => {
       const cityName =
         city.find((c) => c.type === "city" && c.id === v.city_id)?.name || "";
       return (
@@ -37,8 +38,27 @@ const Category = () => {
         cityName.toLowerCase().includes(searchQuery.toLowerCase())
       );
     });
+
+    const getMinPrice = (range) => {
+      if (!range) return 0;
+      const match = range.match(/\d+/);
+      return match ? parseInt(match[0]) : 0;
+    };
+
+    if (sortOption === "low") {
+      filtered.sort(
+        (a, b) => getMinPrice(a.price_range) - getMinPrice(b.price_range)
+      );
+    } else if (sortOption === "high") {
+      filtered.sort(
+        (a, b) => getMinPrice(b.price_range) - getMinPrice(a.price_range)
+      );
+    } else if (sortOption === "new") {
+      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
     setFilteredVendors(filtered);
-  }, [searchQuery, vendor, city]);
+  }, [searchQuery, vendor, city, sortOption]);
 
   const fetchStateCity = async () => {
     try {
@@ -130,7 +150,11 @@ const Category = () => {
                   </div>
 
                   <div className="sorting-dropdown">
-                    <select className="form-select">
+                    <select
+                      className="form-select"
+                      value={sortOption}
+                      onChange={(e) => setSortOption(e.target.value)}
+                    >
                       <option value="">All</option>
                       <option value="low">Price low to high</option>
                       <option value="high">Price high to low</option>
