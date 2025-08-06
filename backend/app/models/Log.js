@@ -9,11 +9,15 @@ const Log = sequelize.define('Log', {
     },
     request_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
     },
     user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
+    },
+    package_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
     },
     user_type: {
         type: DataTypes.STRING,
@@ -31,5 +35,10 @@ const Log = sequelize.define('Log', {
     tableName: 'logs',
     timestamps: true,
 });
+
+Log.associate = (models) => {
+    Log.belongsTo(models.Package, { foreignKey: 'package_id', as: 'packagelog' });
+    Log.belongsTo(models.User, { foreignKey: 'user_id', as: 'userlog' });
+};
 
 module.exports = Log; 

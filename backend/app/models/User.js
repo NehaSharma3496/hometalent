@@ -170,6 +170,8 @@ User.associate = (models) => {
     User.hasMany(models.VendorCategoryRank, { foreignKey: 'vendor_id', as: 'categoryRanks' });
     User.hasMany(models.Gallery, { foreignKey: 'user_id', as: 'gallery' });
     User.hasMany(models.VendorPackageSubscription, { foreignKey: 'vendor_id', as: 'subscriptions' });
+    User.hasMany(models.Log, { foreignKey: 'package_id', as: 'packagelog' });
+    User.hasMany(models.Log, { foreignKey: 'user_id', as: 'userlog' });
 
     // User.hasMany(models.Order, { foreignKey: 'user_id' });
     //User.belongsTo(models.Category, { foreignKey: 'category_id' });

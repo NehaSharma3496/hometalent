@@ -38,3 +38,10 @@ const Package = sequelize.define('Package', {
 });
 
 module.exports = Package; 
+
+Package.associate = (models) => {
+    Package.hasMany(models.VendorPackageSubscription, { foreignKey: 'package_id', as: 'Package' });
+    Package.hasMany(models.Log, { foreignKey: 'package_id', as: 'packagelog' });
+    
+    // Additional associations can be added here
+}
