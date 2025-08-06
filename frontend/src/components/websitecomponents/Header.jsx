@@ -83,7 +83,7 @@ const Header = () => {
                                     : ""
                                 }`}
                               >
-                                Vendors
+                                Category
                                 <i className="ri-arrow-down-s-line" />{" "}
                               </Link>
 
@@ -129,16 +129,8 @@ const Header = () => {
                                     : ""
                                 }`}
                               >
-                                Wedding Vogue
-                                <i className="ri-arrow-down-s-line" />{" "}
+                                Blog
                               </Link>
-                              <ul className="submenu">
-                                <li className="single-list">
-                                  <Link to="/blog" className="single">
-                                    Blogs/Articles
-                                  </Link>
-                                </li>
-                              </ul>
                             </li>
                             <li className="single-list">
                               <Link

@@ -1,7 +1,6 @@
 import React from "react";
 import { Route } from "react-router-dom";
 import AdminLayout from "../layouts/adminlayout/AdminLayout";
-
 import Dashboard from "../pages/admin/dashboard/Dashboard";
 import Allvendors from "../pages/admin/vendor/Allvendors";
 import BlockedVendors from "../pages/admin/vendor/BlockedVendors";
@@ -22,7 +21,6 @@ import VendorGallery from "../pages/admin/galleryUpdateRequest/VendorGallery";
 import AllLeads from "../pages/admin/enquiries&leads/AllLeads";
 import AddPackage from "../pages/admin/review/AddPackage";
 import UpdatePackages from "../pages/admin/review/updatePackages";
-
 import AllEnquiries from "../pages/admin/enquiries&leads/AllEnquiries";
 import UploadGallery from "../pages/admin/adminGallery/UploadGallery";
 import UpdateVendor from "../pages/admin/vendor/UpdateVendor";
@@ -34,6 +32,7 @@ import AddBlog from "../pages/admin/blog/AddBlog";
 import AllBlog from "../pages/admin/blog/AllBlog";
 import UpdateBlog from "../pages/admin/blog/UpdateBlog";
 import ChangePassword from "../pages/admin/forgotpassword/ChangePasword";
+import ExtendPackageHistory from "../pages/admin/vendor/ExtendPackageHistory";
 
 
 const AdminRoutes = (
@@ -83,6 +82,7 @@ const AdminRoutes = (
     <Route path="blog/allblogs" element={<AllBlog/>}/>
     <Route path="updatepackage/:blogId" element={<UpdateBlog/>}/>
     <Route path="forgotpassword/changepassword" element={<ChangePassword/>}/>
+    <Route path="extendpackagehistory" element={<ExtendPackageHistory/>}/>
   </Route>
 );
 

@@ -15,11 +15,9 @@ import MyProfile from "../pages/vendor/MyProfile";
 import UpdateProfile from "../pages/vendor/UpdateProfile";
 import AllLeads from "../pages/vendor/vendorleads/AllLeads";
 
-import VendorPackages from "../pages/vendor/packages/AvailablePackages"
-import Viewallnotification from "../components/admincomponents/Viewallnotification"
+import VendorPackages from "../pages/vendor/packages/AvailablePackages";
+import Viewallnotification from "../components/admincomponents/Viewallnotification";
 import MyPackages from "../pages/vendor/packages/MyPackages";
-
-
 
 // for vendor routing
 
@@ -30,17 +28,15 @@ const AdminRoutes = (
     <Route path="users/adduser" element={<Adduser />} />
     <Route path="users/blocked" element={<BlockedUser />} />
     <Route path="users/feedback" element={<FeedbackandReview />} />
-    <Route path="gallery" element={<ViewGallery/>}/>
-    <Route path="gallery/upload" element={<UploadGallery/>}/>
-    <Route path="myprofile" element={<MyProfile/>}/>
-    <Route path="updateprofile" element={<UpdateProfile/>}/>
-    <Route path="leads/all" element={<AllLeads/>}/>
-    <Route path="allpackages" element={<VendorPackages/>}/>
+    <Route path="gallery" element={<ViewGallery />} />
+    <Route path="gallery/upload" element={<UploadGallery />} />
+    <Route path="myprofile" element={<MyProfile />} />
+    <Route path="updateprofile" element={<UpdateProfile />} />
+    <Route path="leads/all" element={<AllLeads />} />
+    <Route path="allpackages" element={<VendorPackages />} />
     {/* <Route path="clients" element={<Clients />} /> */}
-    <Route path="Viewallnotification" element={<Viewallnotification/>}/>
-  <Route path="mypackages" element={<MyPackages/>}/> 
-
-
+    <Route path="Viewallnotification" element={<Viewallnotification />} />
+    <Route path="mypackages" element={<MyPackages />} />
   </Route>
 );
 

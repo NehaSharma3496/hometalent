@@ -161,16 +161,22 @@ export async function GetVendorDetails(token, id) {
 }
 
 export async function SubmitProfileUpdateRequest(data) {
-  try {
-    const response = await axios.post(
-      `${Config.base_url}vendor/profile-update-request`,
-      data
-    );
-    return response;
-  } catch (error) {
-    throw error?.response?.data || error;
-  }
+  const token = localStorage.getItem("token");
+
+  const response = await axios.post(
+    `${Config.base_url}vendor/profile-update-request`,
+    data,
+    {
+      headers: {
+        Authorization: `${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return response.data; 
 }
+
 
 export async function GetAllVendorLeads(token, id, page = 1, limit = 10) {
   try {
@@ -330,6 +336,23 @@ export const getVendorPackageHistory = async (
   }
 };
 
-// GET ALL package VENDOR
 
-// Suscribe plan vendor
+export const GetDashBoardCount = async (vendor_id, token) => {
+  try {
+    const res = await axios.post(
+      `${Config.base_url}vendor/dashboard-counts`,
+      vendor_id,
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return res?.data;
+  } catch (err) {
+    console.error("Error in getting vendor dashboard", err);
+    return err;
+  }
+};

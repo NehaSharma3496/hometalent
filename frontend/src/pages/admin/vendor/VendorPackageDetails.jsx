@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getVendorPackageHistory } from "../../../Services/vendor/Vendor";
 import DataTable from "react-data-table-component";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ExtendPackage } from "../../../Services/admin/Admin";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
@@ -16,7 +16,7 @@ export default function VendorPackageDetails() {
   const vendorId = location.state?.vendorId;
   const [extendDays, setExtendDays] = useState("");
   const [latestPackageId, setLatestPackageId] = useState(null);
-
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
   const formatDate = (dateStr) => {
@@ -268,26 +268,42 @@ export default function VendorPackageDetails() {
           <i className="fas fa-box-open me-2"></i>Current Running Packages
         </h5>
 
-        <div
-          className="d-flex align-items-center border rounded px-2 mb-3"
-          style={{ maxWidth: "300px" }}
-        >
-          <i className="ri-search-line me-2 mx-2 text-muted" />
-          <input
-            type="text"
-            className="form-control border-0 shadow-none"
-            placeholder="Search by package name..."
-            value={searchCurrent}
-            onChange={(e) => setSearchCurrent(e.target.value)}
-          />
-          {searchCurrent && (
+        <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+          <div
+            className="d-flex align-items-center border rounded px-2"
+            style={{ maxWidth: "300px" }}
+          >
+            <i className="ri-search-line me-2 mx-2 text-muted" />
+            <input
+              type="text"
+              className="form-control border-0 shadow-none"
+              placeholder="Search by package name..."
+              value={searchCurrent}
+              onChange={(e) => setSearchCurrent(e.target.value)}
+            />
+            {searchCurrent && (
+              <button
+                className="btn btn-sm btn-light border-0"
+                onClick={() => setSearchCurrent("")}
+              >
+                <i className="ri-close-line" />
+              </button>
+            )}
+          </div>
+
+          <div className="mt-2 mt-md-0">
             <button
-              className="btn btn-sm btn-light border-0"
-              onClick={() => setSearchCurrent("")}
+              className="btn btn-outline-primary btn-sm"
+              onClick={() =>
+                navigate("/admin/extendpackagehistory", {
+                  state: { vendor_id: vendorId },
+                })
+              }
             >
-              <i className="ri-close-line" />
+              <i className="fas fa-history me-2" />
+              View Extend History
             </button>
-          )}
+          </div>
         </div>
 
         <DataTable
@@ -297,7 +313,6 @@ export default function VendorPackageDetails() {
         />
       </div>
 
-      {/* Expired Packages */}
       <div>
         <h5 className="mb-3 text-danger">
           <i className="fas fa-times-circle me-2"></i>Expired Packages

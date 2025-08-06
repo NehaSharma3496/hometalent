@@ -527,7 +527,6 @@ export async function GetRejectedVendor(token) {
 }
 
 export async function AddAdminBlog(token, data) {
-  console.log("Data from frontend", data);
   try {
     const response = await axios.post(`${Config.base_url}blogs`, data, {
       headers: {
@@ -593,6 +592,22 @@ export async function DeleteAdminBlog(token, blogId) {
     });
     return response?.data;
   } catch (error) {
+    return error;
+  }
+}
+
+export async function GetExtendPackageHistory(token, vendor_id) {
+  
+  try {
+    const response = await axios.post(`${Config.base_url}admin/packageextendhistory`, vendor_id, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+
+    return response?.data;
+  } catch (error) {
+    console.error("Error getting package history", error);
     return error;
   }
 }
