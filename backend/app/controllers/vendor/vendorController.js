@@ -55,10 +55,10 @@ exports.requestProfileUpdate = async (req, res) => {
   try {
     const vendor_id = req.body.vendor_id; // Get from authenticated user
     const updateData = req.body;
-
+   
     const existingUser = await User.findOne({
       where: {
-        [Op.or]: [{ email }, { phone }],
+        [Op.or]: [{email: req.body.email }, { phone:req.body.phone }],
         id: { [Op.notIn]: vendor_id ? [vendor_id] : [] },
       },
     });
