@@ -184,13 +184,21 @@ exports.listSponsoredVendors = async (req, res) => {
     // Get all sponsored vendor IDs
     const sponsoredVendorIds = sponsoredRows.map((r) => r.vendor_id);
 
-    // Get remaining active vendors (not sponsored, status=1)
     const activeVendors = await User.findAll({
       where: {
-        category_id : { [Op.like]: `%${category_id}%` },
-        role_id: 2,
-        status: 1,
-        id: { [require("sequelize").Op.notIn]: sponsoredVendorIds },
+        [Op.and]: [
+      {
+        [Op.or]: [
+          { category_id: category_id }, // Exact match
+          { category_id: { [Op.like]: `%,${category_id},%` } }, // Middle
+          { category_id: { [Op.like]: `${category_id},%` } },   // Start
+          { category_id: { [Op.like]: `%,${category_id}` } }    // End
+        ]
+      },
+      { role_id: 2 },
+      { status: 1 },
+      { id: { [Op.notIn]: sponsoredVendorIds } }
+    ],
       },
       attributes: [
         "id",
@@ -902,6 +910,14 @@ exports.extendVendorPackage = async (req, res) => {
     sub.end_date = endDate;
 
     await sub.save();
+    
+    await Log.create({
+        user_id: sub.vendor_id,
+        package_id: sub.package_id,
+        user_type: "admin",
+        action: "extend_package_validity",
+        details: extra_days
+      });
 
     res.json({
       status: true,
@@ -1213,3 +1229,33 @@ exports.getprofileRequestdata = async (req, res) => {
     return res.status(500).json({ status: false, msg: error.message });
   }
 };
+
+exports.packageextendhistory = async (req, res) => {
+  try {
+    const { vendor_id } = req.body;
+
+    if (!vendor_id) {
+      return res.status(400).json({ status: false, msg: "vendor_id is required" });
+    }
+
+    const history = await Log.findAll({
+      where: {
+        user_id: vendor_id,
+        action: "extend_package_validity",
+      },
+      include: [
+        { model: Package, as: "packagelog", attributes: ["id", "name"]
+        }  
+      ], 
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (history.length === 0) {
+      return res.json({ status: true, data: [], msg: "No history found" });
+    }
+
+    return res.json({ status: true, data: history });
+  } catch (error) {
+    return res.status(500).json({ status: false, msg: error.message });
+  }
+}

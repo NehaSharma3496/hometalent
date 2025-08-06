@@ -56,6 +56,20 @@ exports.requestProfileUpdate = async (req, res) => {
     const vendor_id = req.body.vendor_id; // Get from authenticated user
     const updateData = req.body;
 
+    const existingUser = await User.findOne({
+      where: {
+        [Op.or]: [{ email }, { phone }],
+        id: { [Op.notIn]: vendor_id ? [vendor_id] : [] },
+      },
+    });
+
+    if (existingUser) {
+      return res.json({
+        status: false,
+        msg: "Email or phone already registered",
+      });
+    }
+
     // Only allow certain fields to be updated
     const allowedFields = [
       "owner_name",
@@ -407,6 +421,72 @@ exports.getPackageHistory = async (req, res) => {
         limit,
         has_next: page < totalPages,
         has_prev: page > 1,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.getDashboardCounts = async (req, res) => {
+  try {
+    const { Op } = require("sequelize");
+    const now = new Date();
+    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfPrevMonth = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      0,
+      23,
+      59,
+      59,
+      999
+    );
+    const { vendor_id } = req.body; // Get from authenticated user
+    // Total leads
+    const totalLeads = await ClientLead.count({where:{ vendor_id }});
+
+    const leadsCurrentMonth = await ClientLead.count({
+      where: { vendor_id, createdAt: { [Op.gte]: startOfCurrentMonth } },
+    });
+
+    const leadsPrevMonth = await ClientLead.count({
+      where: {
+        vendor_id,
+        createdAt: {
+          [Op.gte]: startOfPrevMonth,
+          [Op.lt]: startOfCurrentMonth,
+        },
+      },
+    });
+    
+    const runningSub = await VendorPackageSubscription.count({
+      where: {
+        vendor_id,
+        payment_status: 'completed',
+        end_date: { [Op.gte]: now }
+      },
+      order: [['end_date', 'DESC']]
+    });
+    
+
+
+    // Percentage increase calculation helper
+    function getPercentageIncrease(current, prev) {
+      if (prev === 0) return current > 0 ? 100 : 0;
+      return ((current - prev) / prev) * 100;
+    }
+
+    res.json({
+      status: true,
+      data: {
+        total_leads: totalLeads,
+        running_package: runningSub,
+        leads_percentage_increase: getPercentageIncrease(
+          leadsCurrentMonth,
+          leadsPrevMonth
+        )
       },
     });
   } catch (error) {

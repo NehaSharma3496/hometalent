@@ -14,5 +14,5 @@ router.get('/package-history', vendorController.getPackageHistory);
 router.post('/profile-update-request', uploadMedia, vendorController.requestProfileUpdate);
 router.get('/profile-update-status', vendorController.getProfileUpdateStatus);
 router.post('/subscribe-package', vendorController.subscribePackage);
-
+router.post('/dashboard-counts', vendorController.getDashboardCounts);
 module.exports = router;
