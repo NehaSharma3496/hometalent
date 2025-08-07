@@ -12,6 +12,7 @@ const Log = require('./Log');
 const VendorCategoryRank = require('./VendorCategoryRank');
 const ContactUs = require('./ContactUs');
 const Blog = require('./Blog');
+const Review = require('./Review'); // Import the Review model
 const models = {
     User: User,
     Role: Role,
@@ -27,6 +28,7 @@ const models = {
     VendorCategoryRank: VendorCategoryRank,
     ContactUs: ContactUs,
     Blog: Blog,
+    Review:Review
 };
 
 Object.keys(models).forEach(modelName => {

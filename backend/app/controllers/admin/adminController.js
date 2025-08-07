@@ -8,6 +8,8 @@ const {
   ClientLead,
   VendorCategoryRank,
   ContactUs,
+  Blog,
+  Review
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 const { Op, Sequelize,literal } = require('sequelize');
@@ -264,23 +266,31 @@ exports.listBlockedVendors = async (req, res) => {
 
 exports.updateVendorStatus = async (req, res) => {
   try {
-    const { vendor_id, status } = req.body; // status = 1 (approve), 2 (block), 0 (unapprove)
+    const { vendor_id, blog_id, review_id, status } = req.body; // status = 1 (approve), 2 (block), 0 (unapprove)
 
     if (![0, 1, 2].includes(Number(status))) {
       return res
         .status(400)
         .json({ status: false, msg: "Invalid status value" });
     }
-
-    const vendor = await User.findOne({ where: { id: vendor_id, role_id: 2 } });
-    if (!vendor) {
-      return res.json({ status: false, msg: "Vendor not found" });
+    let data
+    if (vendor_id && vendor_id !== undefined) {
+      data = await User.findOne({ where: { id: vendor_id, role_id: 2 } });
+    }
+    if(blog_id && blog_id !== undefined ) {
+      data = await Blog.findOne({ where: { id: blog_id } });
+    }
+    if(review_id && review_id !== undefined ) {
+      data = await Review.findOne({ where: { id: review_id } });
+    }
+    if (!data) {
+      return res.json({ status: false, msg: "Record not found" });
     }
 
-    vendor.status = status;
-    await vendor.save();
+    data.status = status;
+    await data.save();
 
-    res.json({ status: true, msg: `Vendor status updated` });
+    res.json({ status: true, msg: `Status updated` });
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
