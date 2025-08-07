@@ -173,11 +173,17 @@ const fetchAllPendingVendors = async () => {
     }
   };
 
- const filteredPendingVendors = searchText
-  ? allPendingVendors.filter((vendor) =>
-      vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-    )
+const filteredPendingVendors = searchText
+  ? allPendingVendors.filter((vendor) => {
+      const lowerSearch = searchText.toLowerCase();
+      return (
+        vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
+        vendor.email?.toLowerCase().includes(lowerSearch) ||
+        vendor.phone?.toLowerCase().includes(lowerSearch)
+      );
+    })
   : pendingvendors;
+
 
 
   useEffect(() => {

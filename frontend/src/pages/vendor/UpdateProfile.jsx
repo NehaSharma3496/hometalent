@@ -21,8 +21,18 @@ export default function UpdateProfile() {
   const vendorId = localStorage.getItem("userId");
 
   const fields = [
-    { name: "owner_name", label: "Owner Name", type: "text", colClass: "col-md-4 mb-3" },
-    { name: "profile_name", label: "Profile Name", type: "text", colClass: "col-md-4 mb-3" },
+    {
+      name: "owner_name",
+      label: "Owner Name",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "profile_name",
+      label: "Profile Name",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
     { name: "phone", label: "Phone", type: "text", colClass: "col-md-4 mb-3" },
     { name: "email", label: "Email", type: "email", colClass: "col-md-4 mb-3" },
     {
@@ -40,8 +50,18 @@ export default function UpdateProfile() {
       options: cityData,
       colClass: "col-md-4 mb-3",
     },
-    { name: "pin_code", label: "Pin Code", type: "text", colClass: "col-md-4 mb-3" },
-    { name: "price_range", label: "Price Range", type: "text", colClass: "col-md-4 mb-3" },
+    {
+      name: "pin_code",
+      label: "Pin Code",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "price_range",
+      label: "Price Range",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
     {
       name: "category_id",
       label: "Category",
@@ -49,15 +69,60 @@ export default function UpdateProfile() {
       options: categoryData,
       colClass: "col-md-4 mb-3",
     },
-    { name: "experience_since", label: "Experience Since", type: "text", colClass: "col-md-4 mb-3" },
-    { name: "short_description", label: "Short Description", type: "text", colClass: "col-12 mb-3" },
-    { name: "long_description", label: "Long Description", type: "textarea", colClass: "col-12 mb-3" },
-    { name: "facebook_link", label: "Facebook Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "instagram_link", label: "Instagram Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "twitter_link", label: "Twitter Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "linkedin_link", label: "LinkedIn Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "youtube_link", label: "YouTube Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "website_link", label: "Website Link", type: "text", colClass: "col-md-6 mb-3" },
+    {
+      name: "experience_since",
+      label: "Experience Since",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "short_description",
+      label: "Short Description",
+      type: "text",
+      colClass: "col-12 mb-3",
+    },
+    {
+      name: "long_description",
+      label: "Long Description",
+      type: "textarea",
+      colClass: "col-12 mb-3",
+    },
+    {
+      name: "facebook_link",
+      label: "Facebook Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "instagram_link",
+      label: "Instagram Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "twitter_link",
+      label: "Twitter Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "linkedin_link",
+      label: "LinkedIn Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "youtube_link",
+      label: "YouTube Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "website_link",
+      label: "Website Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
     { name: "image", label: "Image", type: "file", colClass: "col-md-6 mb-3" },
   ];
 
@@ -71,9 +136,11 @@ export default function UpdateProfile() {
       const initVal = cleanInitial[key];
       const currVal = cleanCurrent[key];
       if (Array.isArray(initVal)) {
-        return Array.isArray(currVal) &&
+        return (
+          Array.isArray(currVal) &&
           initVal.length === currVal.length &&
-          initVal.every((v, i) => v === currVal[i]);
+          initVal.every((v, i) => v === currVal[i])
+        );
       }
       return initVal === currVal;
     });
@@ -104,7 +171,6 @@ export default function UpdateProfile() {
       } else {
         Swal.fire("Error", res?.msg || "Something went wrong", "error");
       }
-
     } catch (err) {
       console.error("Full error object:", err);
 
@@ -133,8 +199,12 @@ export default function UpdateProfile() {
 
         const vendor = vendorRes.data.user;
 
-        setCategoryData(cat.data.map((x) => ({ value: x.id.toString(), label: x.name })));
-        setStatesData(st.data.map((x) => ({ value: x.id.toString(), label: x.name })));
+        setCategoryData(
+          cat.data.map((x) => ({ value: x.id.toString(), label: x.name }))
+        );
+        setStatesData(
+          st.data.map((x) => ({ value: x.id.toString(), label: x.name }))
+        );
         setSelectedStateId(vendor.state_id?.toString());
 
         setInitialValues({
@@ -169,7 +239,9 @@ export default function UpdateProfile() {
     const fetchCities = async () => {
       try {
         const res = await GetCities(token, selectedStateId);
-        setCityData(res.data.map((x) => ({ value: x.id.toString(), label: x.name })));
+        setCityData(
+          res.data.map((x) => ({ value: x.id.toString(), label: x.name }))
+        );
       } catch (err) {
         console.log("City fetch error", err);
       }

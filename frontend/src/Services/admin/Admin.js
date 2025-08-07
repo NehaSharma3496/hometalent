@@ -597,17 +597,39 @@ export async function DeleteAdminBlog(token, blogId) {
 }
 
 export async function GetExtendPackageHistory(token, vendor_id) {
-  
   try {
-    const response = await axios.post(`${Config.base_url}admin/packageextendhistory`, vendor_id, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${Config.base_url}admin/packageextendhistory`,
+      vendor_id,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
 
     return response?.data;
   } catch (error) {
     console.error("Error getting package history", error);
+    return error;
+  }
+}
+
+export async function GetProfileUpdateRequestsBlogs(token, vendor_id) {
+  try {
+    const response = await axios.post(
+      `${Config.base_url}admin/getprofileRequestdata`,
+      vendor_id,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+
+    return response?.data;
+  } catch (error) {
+    console.error("Error getting update request blogs", error);
     return error;
   }
 }

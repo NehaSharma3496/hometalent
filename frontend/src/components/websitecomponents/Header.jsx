@@ -172,7 +172,7 @@ const Header = () => {
                                     to="/contact"
                                     className="text-secondary"
                                   >
-                                    Free sign up
+                                    Sign Up
                                   </Link>
                                 </div>
                               </div>
@@ -182,15 +182,15 @@ const Header = () => {
                       </nav>
                     </div>
                   </div>
-                  <div className="header-right-three pl-15 d-none d-lg-flex">
+                  <div className="gap-10  d-none d-lg-flex">
                     <div className="sign-btn">
                       <Link to="/login" className="btn-primary ">
                         Log In
                       </Link>
                     </div>
-                    <div className="freesign-btn">
-                      <Link to="/registration" className="text-secondary">
-                        Free sign up
+                    <div className="sign-btn">
+                      <Link to="/registration" className="btn-primary ">
+                        Sign Up
                       </Link>
                     </div>
                   </div>

@@ -68,7 +68,7 @@ const ViewGallery = () => {
 
     const confirm = await Swal.fire({
       title: "Are you sure?",
-      text: `You are about to delete ${idsToDelete.length} item(s).`,
+      text: `You are about to delete ${idsToDelete.length} Image(s).`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete",
@@ -78,7 +78,7 @@ const ViewGallery = () => {
       try {
         const res = await RemoveGalleryItem(token, idsToDelete);
         if (res?.status) {
-          Swal.fire("Deleted!", "Item(s) deleted successfully.", "success");
+          Swal.fire("Deleted!", "Image(s) deleted successfully.", "success");
           fetchGallery();
         } else {
           Swal.fire("Error", res?.message || "Failed to delete.", "error");
@@ -279,28 +279,28 @@ const ViewGallery = () => {
                   )}
 
                   <div className="card-body text-center py-3 mt-3">
-                  <div className="mb-2 d-flex  justify-content-center gap-15">
-  <span
-    className={`badge ${
-      item.status === "approved"
-        ? "bg-success"
-        : item.status === "pending"
-        ? "bg-warning text-dark"
-        : "bg-secondary"
-    } fs-6`}
-  >
-    {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-  </span>
+                    <div className="mb-2 d-flex  justify-content-center gap-15">
+                      <span
+                        className={`badge ${
+                          item.status === "approved"
+                            ? "bg-success"
+                            : item.status === "pending"
+                            ? "bg-warning text-dark"
+                            : "bg-secondary"
+                        } fs-6`}
+                      >
+                        {item.status.charAt(0).toUpperCase() +
+                          item.status.slice(1)}
+                      </span>
 
-  <button
-    className="btn btn-danger btn-sm shadow-sm"
-    onClick={() => handleDelete(item.id)}
-  >
-    <i className="ri-delete-bin-line me-1"></i>
-    Delete
-  </button>
-</div>
-
+                      <button
+                        className="btn btn-danger btn-sm shadow-sm"
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        <i className="ri-delete-bin-line me-1"></i>
+                        Delete
+                      </button>
+                    </div>
 
                     <p className="text-muted small mb-2">
                       {new Date(item.createdAt).toLocaleDateString("en-IN", {

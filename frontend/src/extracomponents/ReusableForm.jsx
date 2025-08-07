@@ -159,38 +159,67 @@ const ReusableForm = ({
 }) => {
   return (
     <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={onSubmit}
-    >
-      {() => (
-        <Form className="row main-form" encType="multipart/form-data">
-          {fields.map((field) => (
-            <div key={field.name} className={field.colClass || "col-12"}>
-              <div className="form-group">
-                {field.type !== "checkbox" && field.type !== "radio" && (
-                  <label htmlFor={field.name} className="contact-label mb-2">
-                    {field.label}
-                  </label>
-                )}
-                {renderField(field)}
-                <ErrorMessage
-                  name={field.name}
-                  component="div"
-                  className="text-danger small"
-                />
-              </div>
-            </div>
-          ))}
+  initialValues={initialValues}
+  validationSchema={validationSchema}
+  onSubmit={onSubmit}
+>
+  {({ handleSubmit, validateForm, setTouched }) => (
+    <Form
+      className="row main-form"
+      encType="multipart/form-data"
+      onSubmit={async (e) => {
+        e.preventDefault();
 
-          <div className="col-12">
-            <button type="submit" className="btn btn-primary mt-2">
-              {SubmitBtn ? SubmitBtn : "Submit"}
-            </button>
+        const errors = await validateForm();
+
+        if (Object.keys(errors).length > 0) {
+          const touchedFields = {};
+          Object.keys(errors).forEach((key) => {
+            touchedFields[key] = true;
+          });
+          setTouched(touchedFields);
+
+          // Scroll to the first invalid field
+          setTimeout(() => {
+            const errorElement = document.querySelector(".is-invalid, .text-danger");
+            if (errorElement) {
+              errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+          }, 100);
+
+          return;
+        }
+
+        handleSubmit(e);
+      }}
+    >
+      {fields.map((field) => (
+        <div key={field.name} className={field.colClass || "col-12"}>
+          <div className="form-group">
+            {field.type !== "checkbox" && field.type !== "radio" && (
+              <label htmlFor={field.name} className="contact-label mb-2">
+                {field.label}
+              </label>
+            )}
+            {renderField(field)}
+            <ErrorMessage
+              name={field.name}
+              component="div"
+              className="text-danger small"
+            />
           </div>
-        </Form>
-      )}
-    </Formik>
+        </div>
+      ))}
+
+      <div className="col-12">
+        <button type="submit" className="btn btn-primary mt-2">
+          {SubmitBtn ? SubmitBtn : "Submit"}
+        </button>
+      </div>
+    </Form>
+  )}
+</Formik>
+
   );
 };
 

@@ -121,7 +121,6 @@ export const MenuItems = {
       children: [
         { label: "Add Blog", link: "/admin/blog/addblog" },
         { label: "All Blogs", link: "/admin/blog/allblogs" },
-        
       ],
     },
     // {
@@ -165,6 +164,12 @@ export const MenuItems = {
     //     { label: "Feedback & Reviews", link: "/vendor/users/feedback" },
     //   ],
     // },
+
+    {
+      icon: "fa fa-edit ",
+      label: "Update Profile",
+      children: [{ label: "Update", link: "/vendor/updateprofile" }],
+    },
 
     {
       icon: "fa-solid fa-image",

@@ -100,9 +100,15 @@ export default function ApprovedVendors() {
     }
   };
 
- const filtered = allApprovedVendors.filter((vendor) =>
-  vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-);
+ const filtered = allApprovedVendors.filter((vendor) => {
+  const lowerSearch = searchText.toLowerCase();
+  return (
+    vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
+    vendor.email?.toLowerCase().includes(lowerSearch) ||
+    vendor.phone?.toLowerCase().includes(lowerSearch)
+  );
+});
+
 
 const filteredApprovedVendors = filtered.slice(
   (currentPage - 1) * perPage,

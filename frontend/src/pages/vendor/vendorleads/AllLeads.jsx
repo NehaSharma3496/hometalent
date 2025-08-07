@@ -123,12 +123,16 @@ export default function AllLeads() {
     setCurrentPage(1);
   };
 
-const filteredLeads = searchText
-  ? allLeads.filter((lead) =>
-      lead.name?.toLowerCase().includes(searchText.toLowerCase())
-    )
-  : leads;
-
+  const filteredLeads = searchText
+    ? allLeads.filter((lead) => {
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          lead.name?.toLowerCase().includes(lowerSearch) ||
+          lead.email?.toLowerCase().includes(lowerSearch) ||
+          lead.phone?.toLowerCase().includes(lowerSearch)
+        );
+      })
+    : leads;
 
   const columns = [
     {

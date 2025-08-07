@@ -37,10 +37,10 @@ const DeleteGalleryItem = () => {
       try {
         const res = await RemoveGalleryItem(token, id);
         if (res?.status) {
-          Swal.fire("Deleted!", res?.msg || "Item deleted.", "success");
+          Swal.fire("Deleted!", res?.msg || "Image(s) deleted.", "success");
           fetchGallery();
         } else {
-          Swal.fire("Failed", res?.msg || "Could not delete item", "error");
+          Swal.fire("Failed", res?.msg || "Could not delete image(s)", "error");
         }
       } catch (err) {
         Swal.fire("Error", err?.msg || "Server error", "error");

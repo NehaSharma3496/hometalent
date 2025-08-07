@@ -9,6 +9,7 @@ import {
   GetStates,
   GetCities,
 } from "../Services/vendor/Vendor";
+import {Link} from "react-router-dom";
 
 const Registration = () => {
   const [categoryData, setCategoryData] = useState([]);
@@ -27,7 +28,7 @@ const Registration = () => {
     email: "",
     priceRange: "",
     shortDesc: "",
-    category: [],
+    category: "",
     experience: "",
     longDesc: "",
     facebook_link: "",
@@ -50,7 +51,7 @@ const Registration = () => {
 
     phone: Yup.string()
       .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
-      .required("Phone is required"),
+      .required("Phone No is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
     category: Yup.string().required("Category is required"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
@@ -74,7 +75,7 @@ const Registration = () => {
     },
     {
       name: "state",
-      label: "State",
+      label: "State*",
       type: "select",
       options: statesData,
       onChange: (e) => setSelectedStateId(e.target.value),
@@ -82,14 +83,14 @@ const Registration = () => {
     },
     {
       name: "city",
-      label: "City",
+      label: "City*",
       type: "select",
       options: cityData,
       colClass: "col-md-4 mb-3",
     },
     {
       name: "pin",
-      label: "Pin Code",
+      label: "Pin Code*",
       type: "text",
       colClass: "col-md-4 mb-3",
       maxLength: 6,
@@ -97,14 +98,14 @@ const Registration = () => {
 
     {
       name: "phone",
-      label: "Phone (Hidden in profile)",
+      label: "Phone No*",
       type: "text",
       colClass: "col-md-4 mb-3",
     },
     { name: "email", label: "Email", type: "email", colClass: "col-md-4 mb-3" },
     {
       name: "priceRange",
-      label: "Estimated Price Range",
+      label: "Estimated Price Range*",
       type: "text",
       colClass: "col-md-4 mb-3",
     },
@@ -175,12 +176,17 @@ const Registration = () => {
       type: "file",
       colClass: "col-md-6 mb-3",
     },
-    {
-      name: "terms",
-      label: "I accept Terms & Privacy Policy",
-      type: "checkbox",
-      colClass: "col-md-12 mb-3",
-    },
+   {
+  name: "terms",
+  label: (
+    <>
+      I accept <Link to="/termscondition" target="_blank" rel="noopener noreferrer">Terms & Conditions</Link>*
+    </>
+  ),
+  type: "checkbox",
+  colClass: "col-md-12 mb-3",
+}
+
   ];
 
   const onSubmit = async (values) => {

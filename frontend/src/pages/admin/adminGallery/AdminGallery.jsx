@@ -64,8 +64,8 @@ const toggleSelect = (id) => {
     const confirm = await Swal.fire({
       title: `Are you sure you want to delete ${
         isBulk ? idsToDelete.length : 1
-      } item(s)?`,
-      text: "This will permanently delete the selected item(s).",
+      } image(s)?`,
+      text: "This will permanently delete the selected image(s)(s).",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete it!",
@@ -76,11 +76,11 @@ const toggleSelect = (id) => {
     try {
       const res = await RemoveGalleryItem(token, idsToDelete);
       if (res.status) {
-        Swal.fire("Deleted!", "Item(s) have been deleted.", "success");
+        Swal.fire("Deleted!", "image(s) have been deleted.", "success");
         setSelectedItems([]);
         fetchGallery();
       } else {
-        Swal.fire("Error", res.message || "Failed to delete item(s).", "error");
+        Swal.fire("Error", res.message || "Failed to delete image(s).", "error");
       }
     } catch (err) {
       Swal.fire("Error", "An error occurred while deleting.", "error");
@@ -89,12 +89,12 @@ const toggleSelect = (id) => {
 
   const handleBulkDelete = async () => {
     if (selectedItems.length === 0) {
-      Swal.fire("Info", "No items selected for deletion.", "info");
+      Swal.fire("Info", "No image(s) selected for deletion.", "info");
       return;
     }
 
     const confirm = await Swal.fire({
-      title: `Are you sure you want to delete ${selectedItems.length} item(s)?`,
+      title: `Are you sure you want to delete ${selectedItems.length} image(s)?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete",
@@ -105,7 +105,7 @@ const toggleSelect = (id) => {
     try {
       const res = await RemoveGalleryItem(token, selectedItems);
       if (res.status) {
-        Swal.fire("Deleted!", "Selected items deleted.", "success");
+        Swal.fire("Deleted!", "Selected image(s) deleted.", "success");
         setSelectedItems([]);
         fetchGallery();
       } else {
@@ -180,7 +180,7 @@ const toggleSelect = (id) => {
 
     {selectedItems.length > 0 && (
       <button className="btn btn-danger" onClick={handleBulkDelete}>
-        Delete Selected ({selectedItems.length})
+        Delete ({selectedItems.length})
       </button>
     )}
   </div>

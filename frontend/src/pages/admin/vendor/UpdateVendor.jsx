@@ -128,64 +128,72 @@ export default function UpdateVendor() {
   ];
 
   const onSubmit = async (values) => {
-    // Prepare comparable objects (excluding file input)
-    const cleanInitial = { ...initialValues };
-    const cleanCurrent = { ...values };
+  // Remove image fields for comparison
+  const cleanInitial = { ...initialValues };
+  const cleanCurrent = { ...values };
 
-    // Convert image field and category_id to normalized form for comparison
-    delete cleanInitial.image;
-    delete cleanCurrent.image;
+  delete cleanInitial.image;
+  delete cleanCurrent.image;
 
-    const isSame = Object.keys(cleanInitial).every((key) => {
-      const initVal = cleanInitial[key];
-      const currVal = cleanCurrent[key];
+  const isSame = Object.keys(cleanInitial).every((key) => {
+    const initVal = cleanInitial[key];
+    const currVal = cleanCurrent[key];
 
-      if (Array.isArray(initVal)) {
-        return (
-          Array.isArray(currVal) &&
-          initVal.length === currVal.length &&
-          initVal.every((v, i) => v === currVal[i])
-        );
-      }
-      return initVal === currVal;
-    });
-
-    if (isSame && (!values.image || values.image.length === 0)) {
-      Swal.fire("No Changes", "No changes were made to the profile.", "info");
-      return;
+    if (Array.isArray(initVal)) {
+      return (
+        Array.isArray(currVal) &&
+        initVal.length === currVal.length &&
+        initVal.every((v, i) => v === currVal[i])
+      );
     }
 
-    try {
-      const formData = new FormData();
-      formData.append("vendor_id", vendorId);
+    return initVal === currVal;
+  });
 
-      for (const key in values) {
-      if (key === "category_id") {
-  formData.append(key, values[key]);
+  if (isSame && (!values.image || values.image.length === 0)) {
+    Swal.fire("No Changes", "No changes were made to the profile.", "info");
+    return;
+  }
 
+  try {
+    const formData = new FormData();
+    formData.append("vendor_id", vendorId);
 
-        } else if (key === "image" && values[key] && values[key].length > 0) {
-          formData.append("image", values[key][0]);
-        } else {
-          formData.append(key, values[key]);
-        }
-      }
-
-      const res = await SubmitProfileUpdateRequest(formData);
-      if (res?.data?.status) {
-        Swal.fire(
-          "Success",
-          res.data.msg || "Profile update submitted!",
-          "success"
-        )
+    for (const key in values) {
+      if (key === "image" && values[key]?.length > 0) {
+        formData.append("image", values[key][0]);
       } else {
-        Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+        formData.append(key, values[key]);
       }
-    } catch (err) {
-      console.error("API ERROR:", err);
-      Swal.fire("Error", err?.msg, "error");
     }
-  };
+
+    const res = await SubmitProfileUpdateRequest(formData);
+
+    // ✅ Unified response parsing
+    const status = res?.status ?? res?.data?.status;
+    const message = res?.msg ?? res?.data?.msg ?? "Something went wrong";
+
+    if (status) {
+      Swal.fire("Success", message || "Profile update submitted!", "success");
+    } else {
+      Swal.fire("Error", message, "error");
+    }
+  } catch (err) {
+    console.error("API ERROR:", err);
+    let errorMessage = "Failed to submit";
+
+    if (err?.response?.data?.msg) {
+      errorMessage = err.response.data.msg;
+    } else if (err?.response?.data?.message) {
+      errorMessage = err.response.data.message;
+    } else if (err?.message) {
+      errorMessage = err.message;
+    }
+
+    Swal.fire("Error", errorMessage, "error");
+  }
+};
+
 
   useEffect(() => {
     const fetchInitial = async () => {

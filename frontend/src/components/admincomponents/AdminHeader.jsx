@@ -3,12 +3,15 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import MenuItems from "../admincomponents/MenuItems.jsx";
+import { GetVendorDetails } from "../../Services/vendor/Vendor.js";
 
 export default function AdminHeader() {
   const role = localStorage.getItem("role");
   const MenuData = MenuItems[role] || [];
   const navigate = useNavigate();
-
+  const vendorId = localStorage.getItem("userId");
+  const [profileImage, setProfileImage] = useState(null);
+  const token = localStorage.getItem("token");
   const [sidebarToggled, setSidebarToggled] = useState(false);
 
   const [showDropdown, setShowDropdown] = useState(false);
@@ -114,6 +117,30 @@ export default function AdminHeader() {
 
     navigate("/");
   };
+
+useEffect(() => {
+  const fetchVendorProfileImage = async () => {
+    try {
+      const result = await GetVendorDetails(token, vendorId);
+
+      const imageUrl = result?.data?.user?.image;
+
+      if (imageUrl) {
+        setProfileImage(imageUrl); 
+      } else {
+        console.log("Image not found in response", result);
+      }
+    } catch (error) {
+      console.error("Error fetching vendor profile image:", error);
+    }
+  };
+
+  if (role === "2") {
+    fetchVendorProfileImage();
+  }
+}, [role, token, vendorId]);
+
+
 
   const handleViewAll = () => {
     navigate("/vendor/Viewallnotification");
@@ -250,11 +277,11 @@ export default function AdminHeader() {
                   )} */}
                 </div>
 
-                <div>
+                {/* <div>
                   <Link to="#" className="setting-link">
                     <i className="fa-solid fa-gear text-primary "></i>
                   </Link>
-                </div>
+                </div> */}
 
                 <div>
                   <div className="dropdown profile-dropdown-div">
@@ -266,10 +293,18 @@ export default function AdminHeader() {
                       data-bs-toggle="dropdown"
                       aria-expanded="false"
                     >
-                      <img
-                        src="/assets/images/admin/user-img.png"
-                        className="user-img"
-                      />
+                     <img
+  src={
+    role === "2" && profileImage
+      ? profileImage 
+      : "/assets/images/admin/user-img.png"
+  }
+  className="user-img"
+  alt="Profile"
+/>
+
+
+
                       <i className="fa-solid fa-angle-down"></i>
                     </Link>
 
@@ -288,7 +323,10 @@ export default function AdminHeader() {
                         </li>
                       )}
                       <li>
-                        <Link className="dropdown-item" to="/admin/forgotpassword/changepassword">
+                        <Link
+                          className="dropdown-item"
+                          to="/admin/forgotpassword/changepassword"
+                        >
                           <i className="fa-light fa-user"></i> Change Password
                         </Link>
                       </li>

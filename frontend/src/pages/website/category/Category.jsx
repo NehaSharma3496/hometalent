@@ -252,7 +252,16 @@ const Category = () => {
                       ))
                     ) : (
                       <div className="text-center py-5">
-                        <h5 className="text-danger">No vendors found</h5>
+                        <img
+                          src="/assets/images/NoVendor.jpg"
+                          alt="No vendors"
+                          style={{ width: "180px", marginBottom: "20px" }}
+                        />
+                        <h4 className="text-muted">No vendors available</h4>
+                        <p className="text-secondary">
+                          We couldn’t find any vendors matching your search or
+                          selection.
+                        </p>
                       </div>
                     )}
                   </div>

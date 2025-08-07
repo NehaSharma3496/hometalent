@@ -399,58 +399,49 @@ const CategoryDetail = () => {
 
                     {/* social media icons  */}
 
-                    <div className="tour-details-content mt-10">
-                      <h4 className="title ">Social Media & Links</h4>
+                    {availableLinks.length > 0 && (
+                      <div className="tour-details-content mt-10">
+                        <h4 className="title">Social Media & Links</h4>
 
-                      <div className="d-flex flex-wrap">
-                        {socialLinks.map(({ key, icon, color }) => {
-                          const link = vendors?.[key];
-                          if (!link) return null;
+                        <div className="d-flex flex-wrap">
+                          {availableLinks.map(({ key, icon, color }) => {
+                            const link = vendors?.[key];
+                            const fullUrl = link.startsWith("http")
+                              ? link
+                              : `https://${link}`;
 
-                          const fullUrl = link.startsWith("http")
-                            ? link
-                            : `https://${link}`;
-
-                          return (
-                            <div key={key} className="me-3 mb-2">
-                              <a
-                                href={fullUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="btn btn-outline-secondary w-100 rounded-3 p-3 text-decoration-none d-flex align-items-center gap-3 hover-lift"
-                                style={{
-                                  borderColor: color + "30",
-                                  transition: "all 0.3s ease",
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.backgroundColor =
-                                    color + "10";
-                                  e.currentTarget.style.borderColor = color;
-                                  e.currentTarget.style.color = color;
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor = "";
-                                  e.currentTarget.style.borderColor =
-                                    color + "30";
-                                  e.currentTarget.style.color = "";
-                                }}
-                              >
-                                <i className={icon} style={{ color }}></i>
-                              </a>
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      {socialLinks.every(({ key }) => !vendors?.[key]) && (
-                        <div className="text-center py-4">
-                          <i className="fas fa-link text-muted mb-2 fs-4"></i>
-                          <p className="text-muted mb-0">
-                            No social links added yet
-                          </p>
+                            return (
+                              <div key={key} className="me-3 mb-2">
+                                <a
+                                  href={fullUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="btn btn-outline-secondary w-100 rounded-3 p-3 text-decoration-none d-flex align-items-center gap-3 hover-lift"
+                                  style={{
+                                    borderColor: color + "30",
+                                    transition: "all 0.3s ease",
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor =
+                                      color + "10";
+                                    e.currentTarget.style.borderColor = color;
+                                    e.currentTarget.style.color = color;
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = "";
+                                    e.currentTarget.style.borderColor =
+                                      color + "30";
+                                    e.currentTarget.style.color = "";
+                                  }}
+                                >
+                                  <i className={icon} style={{ color }}></i>
+                                </a>
+                              </div>
+                            );
+                          })}
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                   {/* Right content */}
 
@@ -538,10 +529,7 @@ const CategoryDetail = () => {
                         </button>
                       </div>
 
-                      <div className="footer bg-transparent">
-                        <h4 className="title">Free Cancellation</h4>
-                        <p className="pera">Up to 24 hours in advance</p>
-                      </div>
+                    
                     </div>
                   </div>
                 </div>

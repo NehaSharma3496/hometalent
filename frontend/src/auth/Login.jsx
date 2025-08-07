@@ -65,17 +65,20 @@ const Login = () => {
           title: "Login Success",
           text: "You have been logged in",
           icon: "success",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            if (roleId === 1) {
-              navigate("/admin/dashboard");
-            } else if (roleId === 2) {
-              navigate("/vendor/dashboard");
-            } else {
-              navigate("/login");
-            }
-          }
+          timer: 1500,
+          showConfirmButton: false,
+          timerProgressBar: true,
         });
+
+        setTimeout(() => {
+          if (roleId === 1) {
+            navigate("/admin/dashboard");
+          } else if (roleId === 2) {
+            navigate("/vendor/dashboard");
+          } else {
+            navigate("/login");
+          }
+        }, 1500);
       } else {
         Swal.fire({
           title: "Error",

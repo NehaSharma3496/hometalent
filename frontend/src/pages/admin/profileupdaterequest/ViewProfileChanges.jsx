@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import Datatable from "../../../extracomponents/Datatable";
-import { ProcessProfileUpdateRequest } from "../../../Services/admin/Admin";
+import {
+  ProcessProfileUpdateRequest,
+  GetProfileUpdateRequestsBlogs,
+} from "../../../Services/admin/Admin";
 import {
   GetVendorDetails,
   GetCategories,
@@ -14,6 +17,7 @@ export default function ViewProfileChanges() {
   const { state } = useLocation();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+
   const [oldData, setOldData] = useState({});
   const [newData, setNewData] = useState({});
   const [categories, setCategories] = useState([]);
@@ -22,18 +26,20 @@ export default function ViewProfileChanges() {
   const [newCities, setNewCities] = useState([]);
   const [comparisonRows, setComparisonRows] = useState([]);
 
+  const readonly = state?.readonly || false;
+  const requestData = state?.requestData || {};
+  const vendor_id = requestData?.vendor_id;
+  const request_data = requestData?.request_data;
+
+  // 🟡 Fetch Old Vendor Data, New Changes, States, Categories
   useEffect(() => {
-    if (!state?.requestData) return;
+    if (!vendor_id) return;
 
-    const { vendor_id, request_data } = state.requestData;
-
-    if (vendor_id) {
-      GetVendorDetails(token, vendor_id).then((res) => {
-        if (res?.status && res.data?.user) {
-          setOldData(res.data.user);
-        }
-      });
-    }
+    GetVendorDetails(token, vendor_id).then((res) => {
+      if (res?.status && res.data?.user) {
+        setOldData(res.data.user);
+      }
+    });
 
     if (request_data) {
       try {
@@ -42,34 +48,45 @@ export default function ViewProfileChanges() {
       } catch (err) {
         console.error("Invalid JSON in request_data", err);
       }
+    } else {
+      // 🔁 Fallback API for approved/rejected requests
+      GetProfileUpdateRequestsBlogs(token, { vendor_id }).then((res) => {
+        if (res?.status && res?.data?.request_data) {
+          try {
+            const parsed = JSON.parse(res.data.request_data);
+            setNewData(parsed);
+          } catch (err) {
+            console.error("Invalid JSON from fallback API", err);
+          }
+        }
+      });
     }
 
     GetStates(token).then((res) => res?.status && setStates(res.data || []));
     GetCategories(token).then(
       (res) => res?.status && setCategories(res.data || [])
     );
-  }, [state, token]);
+  }, [vendor_id, token]);
 
+  // Fetch new cities (if newData.state_id exists)
   useEffect(() => {
     if (newData?.state_id) {
       GetCities(token, newData.state_id).then((res) => {
-        if (res?.status) {
-          setNewCities(res.data || []);
-        }
+        if (res?.status) setNewCities(res.data || []);
       });
     }
   }, [newData?.state_id, token]);
 
+  // Fetch old cities (if oldData.state_id exists)
   useEffect(() => {
     if (oldData?.state_id) {
       GetCities(token, oldData.state_id).then((res) => {
-        if (res?.status) {
-          setOldCities(res.data || []);
-        }
+        if (res?.status) setOldCities(res.data || []);
       });
     }
   }, [oldData?.state_id, token]);
 
+  // 🟢 Create Comparison Table
   useEffect(() => {
     const rows = Object.keys(newData || {})
       .map((key) => {
@@ -82,12 +99,10 @@ export default function ViewProfileChanges() {
           switch (key) {
             case "state_id":
               return states.find((s) => s.id === +value)?.name || value;
-
             case "city_id":
             case "city":
               const cityList = type === "old" ? oldCities : newCities;
               return cityList.find((c) => c.id === +value)?.name || value;
-
             case "category_id":
               const ids = Array.isArray(value)
                 ? value
@@ -98,7 +113,6 @@ export default function ViewProfileChanges() {
                   .filter(Boolean)
                   .join(", ") || value
               );
-
             default:
               return value;
           }
@@ -107,7 +121,6 @@ export default function ViewProfileChanges() {
         const oldVal = resolveField(key, oldValRaw, "old");
         const newVal = resolveField(key, newValRaw, "new");
         const hasChanged = `${oldVal}` !== `${newVal}`;
-
         if (!hasChanged) return null;
 
         return {
@@ -119,16 +132,17 @@ export default function ViewProfileChanges() {
               : key === "category_id" || key === "category"
               ? "Category"
               : key.replace(/_/g, " "),
-
           oldVal: oldVal || "-",
           newVal: newVal || "-",
         };
       })
-      .filter(Boolean);
+      .filter(Boolean)
+      .sort((a, b) => a.field.localeCompare(b.field));
 
     setComparisonRows(rows);
   }, [oldData, newData, states, oldCities, newCities, categories]);
 
+  // 🟧 Approve/Reject Actions
   const handleAction = async (actionType) => {
     const confirm = await Swal.fire({
       title: `${actionType === "approve" ? "Approve" : "Reject"} Request?`,
@@ -141,7 +155,7 @@ export default function ViewProfileChanges() {
     if (!confirm.isConfirmed) return;
 
     const result = await ProcessProfileUpdateRequest(
-      state.requestData.id,
+      requestData.id,
       actionType,
       "",
       state.adminId,
@@ -150,7 +164,7 @@ export default function ViewProfileChanges() {
 
     if (result?.status) {
       Swal.fire("Success", "Request processed successfully", "success");
-      navigate("/admin/profileupdaterequest")
+      navigate("/admin/profileupdaterequest");
     } else {
       Swal.fire("Error", result?.message || "Something went wrong", "error");
     }
@@ -181,8 +195,23 @@ export default function ViewProfileChanges() {
             <button className="btn btn-link" onClick={() => navigate(-1)}>
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
-            <h2 className="add-page-heading">Vendor Profile Update</h2>
+            <h2 className="add-page-heading mb-0">Vendor Profile Update</h2>
           </div>
+        </div>
+        <div className="col-md-6 text-end">
+          {requestData?.status && (
+            <span
+              className={`badge fs-6 ${
+                requestData.status === "approved"
+                  ? "bg-success"
+                  : requestData.status === "rejected"
+                  ? "bg-danger"
+                  : "bg-warning text-dark"
+              }`}
+            >
+              Status: {requestData.status.toUpperCase()}
+            </span>
+          )}
         </div>
       </div>
 
@@ -190,25 +219,33 @@ export default function ViewProfileChanges() {
         <Datatable
           columns={columns}
           data={comparisonRows}
-          noDataComponent="No differences found in profile update request."
+          noDataComponent={
+            <div className="text-muted py-3">
+              {readonly
+                ? "No changes found or data unavailable for this request."
+                : "No differences found in profile update request."}
+            </div>
+          }
           highlightOnHover
           striped
         />
 
-        <div className="d-flex gap-3 mt-3">
-          <button
-            className="btn btn-success"
-            onClick={() => handleAction("approve")}
-          >
-            Approve
-          </button>
-          <button
-            className="btn btn-danger"
-            onClick={() => handleAction("reject")}
-          >
-            Reject
-          </button>
-        </div>
+        {!readonly && (
+          <div className="d-flex gap-3 mt-3">
+            <button
+              className="btn btn-success"
+              onClick={() => handleAction("approve")}
+            >
+              Approve
+            </button>
+            <button
+              className="btn btn-danger"
+              onClick={() => handleAction("reject")}
+            >
+              Reject
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

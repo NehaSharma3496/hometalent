@@ -101,35 +101,40 @@ export default function AllLeads() {
     }
   };
 
-
   const fetchGlobalLeads = async () => {
-  const token = localStorage.getItem("token");
-  let completeList = [];
-  let page = 1;
-  const limit = 100;
-  let totalPages = 1;
+    const token = localStorage.getItem("token");
+    let completeList = [];
+    let page = 1;
+    const limit = 100;
+    let totalPages = 1;
 
-  while (page <= totalPages) {
-    const res = await GetAllLeads(token, page, limit);
-    if (res?.data && res?.pagination?.total_records) {
-      completeList = [...completeList, ...res.data];
-      totalPages = Math.ceil(res.pagination.total_records / limit);
-    } else {
-      break;
+    while (page <= totalPages) {
+      const res = await GetAllLeads(token, page, limit);
+      if (res?.data && res?.pagination?.total_records) {
+        completeList = [...completeList, ...res.data];
+        totalPages = Math.ceil(res.pagination.total_records / limit);
+      } else {
+        break;
+      }
+      page++;
     }
-    page++;
-  }
 
-  setAllLeads(completeList);
-};
+    setAllLeads(completeList);
+  };
 
-
-const filteredLeads = searchText
-  ? allLeads.filter((lead) =>
-      lead.vendor?.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-    )
-  : leads;
-
+  const filteredLeads = searchText
+    ? allLeads.filter((lead) =>{
+        const lowerSearch = searchText.toLowerCase();
+return(
+  lead.owner_name?.toLowerCase().includes(lowerSearch) ||
+  lead.vendor?.phone?.toLowerCase().includes(lowerSearch) ||
+  lead.name?.toLowerCase().includes(lowerSearch) ||
+          lead.email?.toLowerCase().includes(lowerSearch) ||
+          lead.phone?.toLowerCase().includes(lowerSearch)
+)
+    }
+      )
+    : leads;
 
   const columns = [
     {
@@ -161,6 +166,7 @@ const filteredLeads = searchText
       name: "Client Email",
       selector: (row) => row?.email,
       sortable: true,
+      width: "200px",
     },
     {
       name: "Client Query",

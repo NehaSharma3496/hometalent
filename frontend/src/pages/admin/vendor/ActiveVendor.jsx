@@ -135,10 +135,16 @@ export default function ActiveVendor() {
   };
 
   const filteredActiveVendors = searchText
-    ? allActiveVendors.filter((v) =>
-        v.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-      )
-    : activevendors;
+  ? allActiveVendors.filter((v) => {
+      const lowerSearch = searchText.toLowerCase();
+      return (
+        v.owner_name?.toLowerCase().includes(lowerSearch) ||
+        v.email?.toLowerCase().includes(lowerSearch) ||
+        v.phone?.toLowerCase().includes(lowerSearch) 
+      );
+    })
+  : activevendors;
+
 
   const fetchCategories = async () => {
     try {

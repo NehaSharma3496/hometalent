@@ -48,31 +48,29 @@ const VendorPackages = () => {
     }
   };
 
-
   const fetchAllPackages = async () => {
-  try {
-    let fullList = [];
-    let page = 1;
-    const limit = 100;
-    let totalPages = 1;
+    try {
+      let fullList = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
 
-    while (page <= totalPages) {
-      const res = await getVendorPackages(token, page, limit);
-      if (res?.data && res?.pagination?.total_records) {
-        fullList = [...fullList, ...res.data];
-        totalPages = Math.ceil(res.pagination.total_records / limit);
-      } else {
-        break;
+      while (page <= totalPages) {
+        const res = await getVendorPackages(token, page, limit);
+        if (res?.data && res?.pagination?.total_records) {
+          fullList = [...fullList, ...res.data];
+          totalPages = Math.ceil(res.pagination.total_records / limit);
+        } else {
+          break;
+        }
+        page++;
       }
-      page++;
+
+      setAllPackages(fullList);
+    } catch (error) {
+      console.error("Error fetching full package list:", error);
     }
-
-    setAllPackages(fullList);
-  } catch (error) {
-    console.error("Error fetching full package list:", error);
-  }
-};
-
+  };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -95,11 +93,16 @@ const VendorPackages = () => {
     }
   };
 
- const filteredPackages = searchText
-  ? allPackages.filter((pkg) =>
-      pkg.name.toLowerCase().includes(searchText.toLowerCase())
-    )
-  : packages;
+  const filteredPackages = searchText
+    ? allPackages.filter((pkg) => {
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          pkg.name?.toLowerCase().includes(lowerSearch) ||
+          pkg.price?.toString().toLowerCase().includes(lowerSearch) ||
+          pkg.validity_in_months?.toString().toLowerCase().includes(lowerSearch)
+        );
+      })
+    : packages;
 
   const exportToExcel = async () => {
     try {
@@ -209,6 +212,20 @@ const VendorPackages = () => {
     }
   };
 
+  const handleView = (pkg) => {
+    Swal.fire({
+      title: pkg.name,
+      html: `
+      <p><b>Description:</b> ${pkg.description}</p>
+      <p><b>Price:</b> ₹${pkg.price}</p>
+      <p><b>Validity:</b> ${pkg.validity_in_months} month(s)</p>
+      <p><b>Features:</b><br/>${pkg.features.replace(/\r?\n/g, "<br/>")}</p>
+    `,
+      icon: "info",
+      confirmButtonText: "Close",
+    });
+  };
+
   const columns = [
     {
       name: "S.No",
@@ -219,26 +236,36 @@ const VendorPackages = () => {
       name: "Package Name",
       selector: (row) => row.name,
       sortable: true,
-    },
-    {
-      name: "Description",
-      cell: (row) => <div>{row.description}</div>,
-      sortable: false,
+      width: "200px",
     },
     {
       name: "Price (₹)",
       selector: (row) => row.price,
       sortable: true,
+      width: "100px",
     },
     {
       name: "Validity (Months)",
       selector: (row) => row.validity_in_months,
       sortable: true,
+      width: "150px",
     },
     {
-      name: "Features",
-      selector: (row) => row.features,
-      sortable: false,
+      name: "View",
+      cell: (row) => (
+        <button
+          className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
+          style={{ width: "35px", height: "35px" }}
+          onClick={() => handleView(row)}
+          title="View"
+        >
+          <i className="fa-regular fa-eye"></i>
+        </button>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      width: "150px",
     },
     {
       name: "Subscribe",
@@ -258,7 +285,7 @@ const VendorPackages = () => {
         );
       },
       sortable: false,
-      width: "140px",
+      width: "150px",
     },
     {
       name: "Status",

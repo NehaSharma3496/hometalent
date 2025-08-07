@@ -12,7 +12,7 @@ export default function VendorGallery() {
   const [activeTab, setActiveTab] = useState("images");
   const [selectedItems, setSelectedItems] = useState([]);
   const token = localStorage.getItem("token");
-const [selectAll, setSelectAll] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
 
   const fetchGallery = async () => {
     try {
@@ -33,37 +33,39 @@ const [selectAll, setSelectAll] = useState(false);
     }
   };
 
- const toggleSelect = (id) => {
-  setSelectedItems((prev) => {
-    const updated = prev.includes(id)
-      ? prev.filter((item) => item !== id)
-      : [...prev, id];
+  const toggleSelect = (id) => {
+    setSelectedItems((prev) => {
+      const updated = prev.includes(id)
+        ? prev.filter((item) => item !== id)
+        : [...prev, id];
 
-    const pendingIds = filteredGallery.filter((item) => item.status === "pending").map((item) => item.id);
+      const pendingIds = filteredGallery
+        .filter((item) => item.status === "pending")
+        .map((item) => item.id);
 
-    if (updated.length !== pendingIds.length) {
-      setSelectAll(false);
-    } else {
-      setSelectAll(true);
-    }
+      if (updated.length !== pendingIds.length) {
+        setSelectAll(false);
+      } else {
+        setSelectAll(true);
+      }
 
-    return updated;
-  });
-};
-
+      return updated;
+    });
+  };
 
   const handleSelectAll = () => {
-  const pendingItems = filteredGallery.filter((item) => item.status === "pending").map((item) => item.id);
+    const pendingItems = filteredGallery
+      .filter((item) => item.status === "pending")
+      .map((item) => item.id);
 
-  if (selectAll) {
-    setSelectedItems([]);
-  } else {
-    setSelectedItems(pendingItems);
-  }
+    if (selectAll) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(pendingItems);
+    }
 
-  setSelectAll(!selectAll);
-};
-
+    setSelectAll(!selectAll);
+  };
 
   const handleSingleAction = async (action, id) => {
     let idsToProcess = [];
@@ -81,12 +83,12 @@ const [selectAll, setSelectAll] = useState(false);
     }
 
     if (idsToProcess.length === 0) {
-      Swal.fire("Info", `No valid items to ${action}.`, "info");
+      Swal.fire("Info", `No  image(s) to ${action}.`, "info");
       return;
     }
 
     const confirm = await Swal.fire({
-      title: `Are you sure you want to ${action} ${idsToProcess.length} item(s)?`,
+      title: `Are you sure you want to ${action} ${idsToProcess.length} image(s)?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: `Yes, ${action}`,
@@ -103,7 +105,7 @@ const [selectAll, setSelectAll] = useState(false);
     );
 
     if (res?.status) {
-      Swal.fire("Success", `Item(s) ${action}d successfully.`, "success");
+      Swal.fire("Success", `Image(s) ${action}d successfully.`, "success");
       setSelectedItems([]);
       fetchGallery();
     } else {
@@ -122,7 +124,7 @@ const [selectAll, setSelectAll] = useState(false);
     }
 
     const confirm = await Swal.fire({
-      title: `Are you sure you want to ${action} selected items?`,
+      title: `Are you sure you want to ${action} selected image(s)?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: `Yes, ${action}`,
@@ -139,7 +141,7 @@ const [selectAll, setSelectAll] = useState(false);
     );
 
     if (res?.status) {
-      Swal.fire("Success", `Items ${action}d successfully.`, "success");
+      Swal.fire("Success", `Image(s) ${action}d successfully.`, "success");
       setSelectedItems([]);
       fetchGallery();
     } else {
@@ -194,18 +196,17 @@ const [selectAll, setSelectAll] = useState(false);
       </div>
 
       <div className="form-check mb-3">
-  <input
-    type="checkbox"
-    id="selectAll"
-    className="form-check-input"
-    checked={selectAll}
-    onChange={handleSelectAll}
-  />
-  <label htmlFor="selectAll" className="form-check-label">
-    Select All Pending
-  </label>
-</div>
-
+        <input
+          type="checkbox"
+          id="selectAll"
+          className="form-check-input"
+          checked={selectAll}
+          onChange={handleSelectAll}
+        />
+        <label htmlFor="selectAll" className="form-check-label">
+          Select All Pending
+        </label>
+      </div>
 
       {selectedItems.length > 0 && (
         <div className="mb-3 d-flex gap-2">

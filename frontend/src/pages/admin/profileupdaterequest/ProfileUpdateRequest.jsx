@@ -10,7 +10,7 @@ export default function ProfileUpdateRequests() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchText, setSearchText] = useState("");
   const navigate = useNavigate();
-const [allRequests, setAllRequests] = useState([]);
+  const [allRequests, setAllRequests] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -48,81 +48,100 @@ const [allRequests, setAllRequests] = useState([]);
   };
 
   const exportToExcel = async () => {
-  try {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    let allRequests = [];
+      let allRequests = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
+
+      // Fetch all paginated profile update requests
+      while (page <= totalPages) {
+        const res = await GetProfileUpdateRequests(
+          token,
+          statusFilter,
+          page,
+          limit
+        );
+
+        if (res?.data?.requests && typeof res.data.total === "number") {
+          allRequests = [...allRequests, ...res.data.requests];
+          totalPages = Math.ceil(res.data.total / limit);
+        } else {
+          throw new Error("Invalid response format");
+        }
+
+        page++;
+      }
+
+      if (!allRequests.length) {
+        return Swal.fire(
+          "No Data",
+          "No profile update requests found to export",
+          "info"
+        );
+      }
+
+      const exportData = allRequests.map((row, index) => ({
+        "S.No": index + 1,
+        "Vendor Name": row.vendor?.owner_name || "N/A",
+        Email: row.vendor?.email || "N/A",
+        Phone: row.vendor?.phone || "N/A",
+        Status:
+          row.status?.charAt(0).toUpperCase() + row.status?.slice(1) || "N/A",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Profile Update Requests"
+      );
+
+      XLSX.writeFile(workbook, "Profile_Update_Requests.xlsx");
+
+      Swal.fire(
+        "Success",
+        "Profile update requests downloaded successfully",
+        "success"
+      );
+    } catch (error) {
+      console.error("Export error:", error);
+      Swal.fire("Error", "Failed to export profile update requests", "error");
+    }
+  };
+
+  const fetchAllRequests = async () => {
+    const token = localStorage.getItem("token");
+    const filter = statusFilter === "all" ? "" : statusFilter;
+
+    let full = [];
     let page = 1;
     const limit = 100;
     let totalPages = 1;
 
-    // Fetch all paginated profile update requests
     while (page <= totalPages) {
-      const res = await GetProfileUpdateRequests(token, statusFilter, page, limit);
-
-      if (res?.data?.requests && typeof res.data.total === "number") {
-        allRequests = [...allRequests, ...res.data.requests];
-        totalPages = Math.ceil(res.data.total / limit);
-      } else {
-        throw new Error("Invalid response format");
-      }
-
+      const res = await GetProfileUpdateRequests(token, filter, page, limit);
+      full = [...full, ...res.data.requests];
+      totalPages = Math.ceil(res.data.total / limit);
       page++;
     }
 
-    if (!allRequests.length) {
-      return Swal.fire("No Data", "No profile update requests found to export", "info");
-    }
-
-    const exportData = allRequests.map((row, index) => ({
-      "S.No": index + 1,
-      "Vendor Name": row.vendor?.owner_name || "N/A",
-      Email: row.vendor?.email || "N/A",
-      Phone: row.vendor?.phone || "N/A",
-      Status:
-        row.status?.charAt(0).toUpperCase() + row.status?.slice(1) || "N/A",
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Profile Update Requests");
-
-    XLSX.writeFile(workbook, "Profile_Update_Requests.xlsx");
-
-    Swal.fire("Success", "Profile update requests downloaded successfully", "success");
-  } catch (error) {
-    console.error("Export error:", error);
-    Swal.fire("Error", "Failed to export profile update requests", "error");
-  }
-};
-
-const fetchAllRequests = async () => {
-  const token = localStorage.getItem("token");
-  const filter = statusFilter === "all" ? "" : statusFilter;
-
-  let full = [];
-  let page = 1;
-  const limit = 100;
-  let totalPages = 1;
-
-  while (page <= totalPages) {
-    const res = await GetProfileUpdateRequests(token, filter, page, limit);
-    full = [...full, ...res.data.requests];
-    totalPages = Math.ceil(res.data.total / limit);
-    page++;
-  }
-
-  setAllRequests(full);
-};
-
-
+    setAllRequests(full);
+  };
 
   const filteredRequests = searchText
-  ? allRequests.filter(r =>
-      r.vendor?.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-    )
-  : requests;
-
+    ? allRequests.filter((r) => {
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          r.vendor?.owner_name?.toLowerCase().includes(lowerSearch) ||
+          r.vendor?.email?.toLowerCase().includes(lowerSearch) ||
+          r.vendor?.phone?.toLowerCase().includes(lowerSearch)
+        );
+      })
+    : requests;
 
   useEffect(() => {
     fetchRequests(currentPage, perPage);
@@ -153,10 +172,12 @@ const fetchAllRequests = async () => {
     {
       name: "Email",
       selector: (row) => row.vendor?.email || "N/A",
+      width: "250px",
     },
     {
       name: "Phone",
       selector: (row) => row.vendor?.phone || "N/A",
+      width: "150px",
     },
     {
       name: "Status",
@@ -180,39 +201,37 @@ const fetchAllRequests = async () => {
         );
       },
       sortable: true,
+      width: "120px",
     },
 
     {
       name: "View",
       cell: (row) => {
-        if (row.status === "pending") {
-          return (
-            <div className="d-flex align-items-center gap-9">
-              <button
-                className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
-                style={{ width: "35px", height: "35px" }}
-                onClick={() =>
-                  navigate(`/admin/profileupdaterequest/viewprofilechanges`, {
-                    state: {
-                      requestData: row,
-                      adminId: localStorage.getItem("userId"),
-                    },
-                  })
-                }
-                title="View"
-              >
-                <i className="fa-regular fa-eye"></i>
-              </button>
-            </div>
-          );
-        } else {
-          return (
-            <span className="text-muted fw-semibold">
-              {row.status === "approved" ? "Approved" : "Rejected"}
-            </span>
-          );
-        }
+        return (
+          <button
+            className="btn btn-warning btn-sm"
+            title="View"
+            onClick={() =>
+              navigate(`/admin/profileupdaterequest/viewprofilechanges`, {
+                state: {
+                  requestData: row,
+                  adminId: localStorage.getItem("userId"),
+                  readonly: row.status !== "pending", 
+                },
+              })
+            }
+          >
+            <i className="fa-regular fa-eye"></i>
+          </button>
+        );
       },
+      width: "100px",
+    },
+
+    {
+      name: "Date",
+      selector: (row) => new Date(row.createdAt).toLocaleDateString(),
+      width: "100px",
     },
   ];
 

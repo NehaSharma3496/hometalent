@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import {
   GetRejectedVendor,
   GetCategories,
+  GetApproveVendor,
 } from "../../../Services/admin/Admin";
 import Datatable from "../../../extracomponents/Datatable";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
-
 
 export default function RejectedVendors() {
   const [rejectedvendors, setRejectedVendors] = React.useState([]);
@@ -18,13 +18,13 @@ export default function RejectedVendors() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
-const [allRejectedVendors, setAllRejectedVendors] = useState([]);
+  const [allRejectedVendors, setAllRejectedVendors] = useState([]);
 
   const fetchRejectedVendors = async (page, limit) => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await GetRejectedVendor(token,page, limit);
+      const res = await GetRejectedVendor(token, page, limit);
       if (res?.data && res?.pagination) {
         setRejectedVendors(res.data);
         setTotalRows(res.pagination.total_records);
@@ -56,107 +56,147 @@ const [allRejectedVendors, setAllRejectedVendors] = useState([]);
   };
 
   const fetchAllRejectedVendors = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    let fullList = [];
-    let page = 1;
-    const limit = 100;
-    let totalPages = 1;
+    try {
+      const token = localStorage.getItem("token");
+      let fullList = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
 
-    while (page <= totalPages) {
-      const res = await GetRejectedVendor(token, page, limit);
-      if (res?.data && res?.pagination) {
-        fullList = [...fullList, ...res.data];
-        totalPages = Math.ceil(res.pagination.total_records / limit);
-      } else {
-        break;
+      while (page <= totalPages) {
+        const res = await GetRejectedVendor(token, page, limit);
+        if (res?.data && res?.pagination) {
+          fullList = [...fullList, ...res.data];
+          totalPages = Math.ceil(res.pagination.total_records / limit);
+        } else {
+          break;
+        }
+        page++;
       }
-      page++;
+
+      setAllRejectedVendors(fullList);
+    } catch (err) {
+      console.error("Error fetching all rejected vendors:", err);
     }
+  };
 
-    setAllRejectedVendors(fullList);
-  } catch (err) {
-    console.error("Error fetching all rejected vendors:", err);
-  }
-};
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
+      let allVendors = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
 
-const exportToExcel = async () => {
-  try {
-    const token = localStorage.getItem("token");
-
-    let allVendors = [];
-    let page = 1;
-    const limit = 100;
-    let totalPages = 1;
-
-    // Fetch all paginated rejected vendors
-    while (page <= totalPages) {
-      const res = await GetRejectedVendor(token, page, limit);
-      if (res?.data && res?.pagination) {
-        allVendors = [...allVendors, ...res.data];
-        totalPages = Math.ceil(res.pagination.total_records / limit);
-      } else {
-        throw new Error("Invalid response format");
+      // Fetch all paginated rejected vendors
+      while (page <= totalPages) {
+        const res = await GetRejectedVendor(token, page, limit);
+        if (res?.data && res?.pagination) {
+          allVendors = [...allVendors, ...res.data];
+          totalPages = Math.ceil(res.pagination.total_records / limit);
+        } else {
+          throw new Error("Invalid response format");
+        }
+        page++;
       }
-      page++;
+
+      if (!allVendors.length) {
+        return Swal.fire(
+          "No Data",
+          "No rejected vendors found to export",
+          "info"
+        );
+      }
+
+      const exportData = allVendors.map((row, index) => {
+        const categoryNames = row.category_id
+          ? row.category_id
+              .split(",")
+              .map((id) => categoryMap[id.trim()] || `ID-${id.trim()}`)
+              .join(", ")
+          : "—";
+
+        return {
+          "S.No": index + 1,
+          "Owner Name": row.owner_name || "",
+          Email: row.email || "",
+          "Category Names": categoryNames,
+          "Profile Name": row.profile_name || "",
+          "Phone Number": row.phone || "",
+          "Price Range": row.price_range || "",
+          "Short Description": row.short_description || "",
+          Image: row.image ? "Available" : "N/A",
+          "Pin Code": row.pin_code || "",
+          "Experience Since": row.experience_since || "",
+        };
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Rejected Vendors");
+      XLSX.writeFile(workbook, "Rejected_Vendor_List.xlsx");
+
+      Swal.fire(
+        "Success",
+        "Rejected vendor list downloaded successfully",
+        "success"
+      );
+    } catch (error) {
+      console.error("Export error:", error);
+      Swal.fire("Error", "Failed to export rejected vendors", "error");
     }
+  };
 
-    if (!allVendors.length) {
-      return Swal.fire("No Data", "No rejected vendors found to export", "info");
-    }
-
-    const exportData = allVendors.map((row, index) => {
-      const categoryNames = row.category_id
-        ? row.category_id
-            .split(",")
-            .map((id) => categoryMap[id.trim()] || `ID-${id.trim()}`)
-            .join(", ")
-        : "—";
-
-      return {
-        "S.No": index + 1,
-        "Owner Name": row.owner_name || "",
-        Email: row.email || "",
-        "Category Names": categoryNames,
-        "Profile Name": row.profile_name || "",
-        "Phone Number": row.phone || "",
-        "Price Range": row.price_range || "",
-        "Short Description": row.short_description || "",
-        Image: row.image ? "Available" : "N/A",
-        "Pin Code": row.pin_code || "",
-        "Experience Since": row.experience_since || "",
-      };
+  const handleApproveVendor = async (vendorId, status) => {
+  try {
+    const confirm = await Swal.fire({
+      title: "Approve Vendor?",
+      text: "Are you sure you want to approve this vendor?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Yes, approve!",
     });
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Rejected Vendors");
-    XLSX.writeFile(workbook, "Rejected_Vendor_List.xlsx");
+    if (!confirm.isConfirmed) return;
 
-    Swal.fire("Success", "Rejected vendor list downloaded successfully", "success");
-  } catch (error) {
-    console.error("Export error:", error);
-    Swal.fire("Error", "Failed to export rejected vendors", "error");
+    const token = localStorage.getItem("token");
+    const response = await GetApproveVendor(vendorId, status, token);
+
+    if (response.status === true || response.status === "true") {
+      await Swal.fire("Success", response.message, "success");
+      fetchRejectedVendors(currentPage, perPage);
+      fetchAllRejectedVendors();
+    } else {
+      throw new Error(response.message || "Failed to update approval");
+    }
+  } catch (err) {
+    console.error(err);
+    await Swal.fire("Error!", "Something went wrong.", "error");
   }
 };
 
 
-
- const filteredRejectedVendors = searchText
-  ? allRejectedVendors.filter((vendor) =>
-      vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-    )
-  : rejectedvendors;
-
+  const filteredRejectedVendors = searchText
+    ? allRejectedVendors.filter((vendor) => {
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
+          vendor.email?.toLowerCase().includes(lowerSearch) ||
+          vendor.phone?.toLowerCase().includes(lowerSearch)
+        );
+      })
+    : rejectedvendors;
 
   useEffect(() => {
     fetchRejectedVendors(currentPage, perPage);
-     fetchAllRejectedVendors();
+    fetchAllRejectedVendors();
     fetchCategories();
   }, [currentPage, perPage]);
 
-   const handlePageChange = (page) => {
+  const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
@@ -166,7 +206,7 @@ const exportToExcel = async () => {
   };
 
   const columns = [
-   {
+    {
       name: "S.No",
       selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "70px",
@@ -212,7 +252,7 @@ const exportToExcel = async () => {
       selector: (row) => row.short_description,
       sortable: true,
     },
-     {
+    {
       name: "Image",
       cell: (row) =>
         row.image ? (
@@ -235,6 +275,20 @@ const exportToExcel = async () => {
       selector: (row) => row.experience_since,
       sortable: true,
     },
+    {
+  name: "Action",
+  cell: (row) => (
+    <button
+      className="btn btn-success btn-sm"
+      onClick={() => handleApproveVendor(row.id, 1)}
+      title="Approve Vendor"
+    >
+    Approve
+    </button>
+  ),
+  width: "120px",
+}
+
   ];
 
   return (
@@ -281,13 +335,13 @@ const exportToExcel = async () => {
             <Datatable
               columns={columns}
               data={filteredRejectedVendors}
-           progressPending={loading}
-            pagination
-            paginationServer
-            paginationTotalRows={totalRows}
-            paginationPerPage={perPage}
-            onChangeRowsPerPage={handlePerRowsChange}
-            onChangePage={handlePageChange}
+              progressPending={loading}
+              pagination
+              paginationServer
+              paginationTotalRows={totalRows}
+              paginationPerPage={perPage}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
             />
           </div>
         </div>

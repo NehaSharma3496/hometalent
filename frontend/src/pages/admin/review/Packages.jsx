@@ -10,7 +10,7 @@ export default function Packages() {
   const [packages, setPackages] = useState([]);
   const [searchText, setSearchText] = useState("");
   const navigate = useNavigate();
-const [allPackages, setAllPackages] = useState([]);
+  const [allPackages, setAllPackages] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,26 +37,25 @@ const [allPackages, setAllPackages] = useState([]);
   };
 
   const fetchAllPackages = async () => {
-  const token = localStorage.getItem("token");
-  let fullList = [];
-  let page = 1;
-  const limit = 100;
-  let totalPages = 1;
+    const token = localStorage.getItem("token");
+    let fullList = [];
+    let page = 1;
+    const limit = 100;
+    let totalPages = 1;
 
-  while (page <= totalPages) {
-    const res = await showPackage(token, page, limit);
-    if (res?.data && res?.pagination?.total_records) {
-      fullList = [...fullList, ...res.data];
-      totalPages = Math.ceil(res.pagination.total_records / limit);
-    } else {
-      break;
+    while (page <= totalPages) {
+      const res = await showPackage(token, page, limit);
+      if (res?.data && res?.pagination?.total_records) {
+        fullList = [...fullList, ...res.data];
+        totalPages = Math.ceil(res.pagination.total_records / limit);
+      } else {
+        break;
+      }
+      page++;
     }
-    page++;
-  }
 
-  setAllPackages(fullList);
-};
-
+    setAllPackages(fullList);
+  };
 
   const exportToExcel = async () => {
     try {
@@ -113,7 +112,7 @@ const [allPackages, setAllPackages] = useState([]);
 
   useEffect(() => {
     fetchPackages(currentPage, perPage);
-     fetchAllPackages();
+    fetchAllPackages();
   }, [currentPage, perPage]);
 
   const handlePageChange = (page) => {
@@ -173,11 +172,16 @@ const [allPackages, setAllPackages] = useState([]);
     }
   };
 
-const filteredPackages = searchText
-  ? allPackages.filter((p) =>
-      p.name?.toLowerCase().includes(searchText.toLowerCase())
-    )
-  : packages;
+  const filteredPackages = searchText
+    ? allPackages.filter((p) => {
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          p.name?.toLowerCase().includes(lowerSearch) ||
+          p.price?.toString().toLowerCase().includes(lowerSearch) ||
+          p.validity_in_months?.toString().toLowerCase().includes(lowerSearch)
+        );
+      })
+    : packages;
 
   const columns = [
     {
@@ -279,12 +283,11 @@ const filteredPackages = searchText
         </div>
 
         <div className="col-md-6 text-end">
-         
-            <button className="btn btn-success me-2" onClick={exportToExcel}>
-              <i className="fa-solid fa-file-excel me-1"></i>
-              Download Excel
-            </button>
-        
+          <button className="btn btn-success me-2" onClick={exportToExcel}>
+            <i className="fa-solid fa-file-excel me-1"></i>
+            Download Excel
+          </button>
+
           <Link to="/admin/addpackage" className="btn btn-primary">
             + Add Package
           </Link>

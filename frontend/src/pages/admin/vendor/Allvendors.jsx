@@ -81,9 +81,17 @@ export default function Allvendors() {
   };
 
   const filteredVendors = searchText
-    ? allVendors.filter((v) =>
-        v.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-      )
+    ? allVendors.filter((v) => {
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          v.owner_name?.toLowerCase().includes(lowerSearch) ||
+          v.email?.toLowerCase().includes(lowerSearch) ||
+          v.phone?.toLowerCase().includes(lowerSearch) ||
+          (Array.isArray(v.category_names)
+            ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
+            : v.category_names?.toLowerCase().includes(lowerSearch))
+        );
+      })
     : vendors;
 
   const exportToExcel = async () => {
@@ -207,10 +215,20 @@ export default function Allvendors() {
     {
       name: "S.No",
       selector: (row, index) => (currentPage - 1) * perPage + index + 1,
-      width: "70px",
+      width: "50px",
     },
-    { name: "Owner Name", selector: (row) => row.owner_name, sortable: true },
-    { name: "Email", selector: (row) => row.email, sortable: true },
+    {
+      name: "Owner Name",
+      selector: (row) => row.owner_name,
+      sortable: true,
+      width: "180px",
+    },
+    {
+      name: "Email",
+      selector: (row) => row.email,
+      sortable: true,
+      width: "250px",
+    },
     {
       name: "Category Names",
       selector: (row) =>
@@ -218,27 +236,11 @@ export default function Allvendors() {
           ? row.category_names.join(", ")
           : row.category_names,
       sortable: true,
+      width: "170px",
     },
     { name: "Phone", selector: (row) => row.phone },
     { name: "Price Range", selector: (row) => row.price_range },
-    {
-      name: "Short Description",
-      selector: (row) => row.short_description,
-      wrap: true,
-    },
-    {
-      name: "Image",
-      cell: (row) =>
-        row.image ? (
-          <img
-            src={row.image}
-            alt={row.profile_name}
-            style={{ width: "70px", height: "70px", objectFit: "cover" }}
-          />
-        ) : (
-          "N/A"
-        ),
-    },
+
     {
       name: "Experience Since",
       selector: (row) => row.experience_since,
@@ -290,30 +292,37 @@ export default function Allvendors() {
           >
             <i className="fa-regular fa-eye"></i>
           </button>
-          <button
-            className="btn btn-info btn-sm d-flex align-items-center justify-content-center"
-            style={{ width: "35px", height: "35px" }}
-            onClick={() =>
-              navigate(`/admin/galleryUpdates/vendorgallery/${row.id}`)
-            }
-            title="View Gallery"
-          >
-            <i className="fa-solid fa-images"></i>
-          </button>
-          <button
-            className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
-            style={{ width: "35px", height: "35px" }}
-            onClick={() =>
-              navigate("/admin/vendor/updatevendor", {
-                state: { vendorId: row.id },
-              })
-            }
-            title="Update"
-          >
-            <i className="fa fa-edit"></i>
-          </button>
+
+          {/* Only show Gallery and Update buttons if not rejected */}
+          {row.approval_status !== 2 && (
+            <>
+              <button
+                className="btn btn-info btn-sm d-flex align-items-center justify-content-center"
+                style={{ width: "35px", height: "35px" }}
+                onClick={() =>
+                  navigate(`/admin/galleryUpdates/vendorgallery/${row.id}`)
+                }
+                title="View Gallery"
+              >
+                <i className="fa-solid fa-images"></i>
+              </button>
+              <button
+                className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
+                style={{ width: "35px", height: "35px" }}
+                onClick={() =>
+                  navigate("/admin/vendor/updatevendor", {
+                    state: { vendorId: row.id },
+                  })
+                }
+                title="Update"
+              >
+                <i className="fa fa-edit"></i>
+              </button>
+            </>
+          )}
         </div>
       ),
+
       width: "125px",
     },
     {
@@ -329,7 +338,7 @@ export default function Allvendors() {
 
         const getButtonClass = () => {
           if (status === 1) return "bg-success";
-          if (status === 2) return "bg-warning";
+          if (status === 2) return "bg-danger";
           return "bg-warning dropdown-toggle fs-6";
         };
 
@@ -383,7 +392,11 @@ export default function Allvendors() {
         );
       },
       sortable: false,
-      width: "180px",
+      width: "120px",
+    },
+    {
+      name: "Date",
+      selector: (row) => new Date(row.createdAt).toLocaleDateString(),
     },
   ];
 
@@ -403,7 +416,7 @@ export default function Allvendors() {
             <i className="fa-solid fa-file-excel me-1"></i>Download Excel
           </button>
           <Link to="/admin/vendor/addvendors" className="btn btn-primary">
-            + Add User
+            + Add Vendor
           </Link>
         </div>
       </div>

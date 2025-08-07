@@ -118,9 +118,14 @@ export default function AllEnquiries() {
   };
 
   const filteredContacts = searchText
-    ? allContacts.filter((entry) =>
-        entry.name?.toLowerCase().includes(searchText.toLowerCase())
-      )
+    ? allContacts.filter((entry) => {
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          entry.name?.toLowerCase().includes(lowerSearch) ||
+          entry.email?.toLowerCase().includes(lowerSearch) ||
+          entry.phone?.toLowerCase().includes(lowerSearch)
+        );
+      })
     : contacts;
 
   useEffect(() => {
@@ -147,11 +152,15 @@ export default function AllEnquiries() {
       name: "Name",
       selector: (row) => row?.name,
       sortable: true,
+      width: "150px",
+
     },
     {
       name: "Email",
       selector: (row) => row?.email,
       sortable: true,
+      width: "300px",
+
     },
     {
       name: "Phone",

@@ -91,7 +91,7 @@ export default function ExtendPackageHistory() {
       <div className="row align-items-center mb-4">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/admin/vendor-packages" className="me-2">
+            <Link to="/admin/dashboard" className="me-2">
               <i className="fa fa-arrow-left"></i>
             </Link>
             <h5 className="add-page-heading mb-0">Extend Package History</h5>

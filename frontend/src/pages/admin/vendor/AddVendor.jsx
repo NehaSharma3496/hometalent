@@ -27,7 +27,7 @@ export default function AddVendor() {
     email: "",
     priceRange: "",
     shortDesc: "",
-    category: [],
+    category: "",
     experience: "",
     longDesc: "",
     facebook_link: "",
@@ -46,8 +46,12 @@ export default function AddVendor() {
     ownerName: Yup.string().required("Owner Name is required"),
     state: Yup.string().required("State is required"),
     city: Yup.string().required("City is required"),
-    pin: Yup.string().matches(/^\d{6}$/, "Pin code must be exactly 6 digits").required("Pin Code is required"),
-    phone: Yup.string().matches(/^\d{10}$/, "Phone number must be exactly 10 digits").required("Phone is required"),
+    pin: Yup.string()
+      .matches(/^\d{6}$/, "Pin code must be exactly 6 digits")
+      .required("Pin Code is required"),
+    phone: Yup.string()
+      .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
+      .required("Phone No is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
     category: Yup.string().required("Category is required"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
@@ -88,7 +92,12 @@ export default function AddVendor() {
       type: "text",
       colClass: "col-md-4 mb-3",
     },
-    { name: "phone", label: "Phone*", type: "text", colClass: "col-md-4 mb-3" },
+    {
+      name: "phone",
+      label: "Phone No*",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
     {
       name: "email",
       label: "Email*",
@@ -97,7 +106,7 @@ export default function AddVendor() {
     },
     {
       name: "priceRange",
-      label: "Price Range",
+      label: "Price Range*",
       type: "text",
       colClass: "col-md-4 mb-3",
     },
@@ -168,65 +177,68 @@ export default function AddVendor() {
       type: "file",
       colClass: "col-md-6 mb-3",
     },
-    // {
-    //   name: "password",
-    //   label: "Password*",
-    //   type: "password",
-    //   colClass: "col-md-6 mb-3",
-    // },
     {
       name: "terms",
-      label: "I confirm vendor details",
+      label: (
+        <>
+          I accept{" "}
+          <Link to="/termscondition" target="_blank" rel="noopener noreferrer">
+            Terms & Conditions
+          </Link>
+          *
+        </>
+      ),
       type: "checkbox",
       colClass: "col-md-12 mb-3",
     },
   ];
 
   const onSubmit = async (values) => {
-  try {
-    const formData = new FormData();
-    formData.append("owner_name", values.ownerName);
-    formData.append("profile_name", values.profileName);
-    formData.append("state_id", values.state);
-    formData.append("city_id", values.city);
-    formData.append("pin_code", values.pin);
-    formData.append("phone", values.phone);
-    formData.append("email", values.email);
-    formData.append("price_range", values.priceRange);
-    formData.append("short_description", values.shortDesc);
-    formData.append("experience_since", values.experience);
-    formData.append("category_id", values.category); 
-    formData.append("long_description", values.longDesc);
-    formData.append("role_id", 2);
-    formData.append("facebook_link", values.facebook_link || "");
-    formData.append("instagram_link", values.instagram_link || "");
-    formData.append("twitter_link", values.twitter_link || "");
-    formData.append("linkedin_link", values.linkedin_link || "");
-    formData.append("youtube_link", values.youtube_link || "");
-    formData.append("website_link", values.website_link || "");
+    try {
+      const formData = new FormData();
+      formData.append("owner_name", values.ownerName);
+      formData.append("profile_name", values.profileName);
+      formData.append("state_id", values.state);
+      formData.append("city_id", values.city);
+      formData.append("pin_code", values.pin);
+      formData.append("phone", values.phone);
+      formData.append("email", values.email);
+      formData.append("price_range", values.priceRange);
+      formData.append("short_description", values.shortDesc);
+      formData.append("experience_since", values.experience);
+      formData.append("category_id", values.category);
+      formData.append("long_description", values.longDesc);
+      formData.append("role_id", 2);
+      formData.append("facebook_link", values.facebook_link || "");
+      formData.append("instagram_link", values.instagram_link || "");
+      formData.append("twitter_link", values.twitter_link || "");
+      formData.append("linkedin_link", values.linkedin_link || "");
+      formData.append("youtube_link", values.youtube_link || "");
+      formData.append("website_link", values.website_link || "");
 
-    for (let i = 0; i < values.images.length; i++) {
-      formData.append("image", values.images[i]);
+      for (let i = 0; i < values.images.length; i++) {
+        formData.append("image", values.images[i]);
+      }
+
+      const res = await VendorRegister(formData);
+      if (res?.data?.status) {
+        Swal.fire("Success", res?.data?.msg || "Vendor added!", "success").then(
+          () => {
+            window.location.reload();
+          }
+        );
+      } else {
+        Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+      }
+    } catch (err) {
+      console.error("API ERROR:", err);
+      Swal.fire(
+        "Error",
+        err?.response?.data?.msg || "Something went wrong",
+        "error"
+      );
     }
-
-    const res = await VendorRegister(formData);
-    if (res?.data?.status) {
-      Swal.fire("Success", res?.data?.msg || "Vendor added!", "success").then(() => {
-        window.location.reload(); 
-      });
-    } else {
-      Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
-    }
-  } catch (err) {
-    console.error("API ERROR:", err);
-    Swal.fire(
-      "Error",
-      err?.response?.data?.msg || "Something went wrong",
-      "error"
-    );
-  }
-};
-
+  };
 
   const fetchCategories = async () => {
     try {
