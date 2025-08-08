@@ -67,27 +67,10 @@ export async function SubmitContactData(data) {
   }
 }
 
-// export async function GetVendorsByCategoryHeader(token, categoryId) {
-//   try {
-//     const res = await axios.get(
-//       `${Config.base_url}front/vendors-by-category/${categoryId}`,
-//       {
-//         headers: {
-//           Authorization: `${token}`,
-//         },
-//       }
-//     );
-//     return res?.data;
-//   } catch (err) {
-//     return err;
-//   }
-// }
-
 export async function GetVendorsByCategory(token, categoryId, cityId) {
   try {
     let url = `${Config.base_url}front/vendors-by-category/${categoryId}`;
 
-   
     if (cityId && cityId !== "undefined") {
       url += `?city_id=${cityId}`;
     }
@@ -100,5 +83,30 @@ export async function GetVendorsByCategory(token, categoryId, cityId) {
     return res?.data;
   } catch (err) {
     return err;
+  }
+}
+
+export async function SubmitReview(data) {
+  try {
+    const response = await axios.post(`${Config.base_url}review`, data);
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function GetAllApprovedReview(token) {
+  try {
+    const response = await axios.get(
+      `${Config.base_url}reviews/active-approved`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error;
   }
 }

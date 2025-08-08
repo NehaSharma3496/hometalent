@@ -179,15 +179,28 @@ export default function BlockedVendors() {
   };
 
   const filteredBlockedVendors = searchText
-    ? allBlockedVendors.filter((vendor) => {
-        const lowerSearch = searchText.toLowerCase();
-        return (
-          vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
-          vendor.email?.toLowerCase().includes(lowerSearch) ||
-          vendor.phone?.toLowerCase().includes(lowerSearch)
-        );
-      })
-    : blockedvendors;
+  ? allBlockedVendors.filter((vendor) => {
+      const lowerSearch = searchText.toLowerCase();
+
+      const categoryNames = vendor.category_id
+        ? vendor.category_id
+            .split(",")
+            .map((id) => categoryMap[id.trim()]?.toLowerCase() || "")
+            .join(", ")
+        : "";
+
+      return (
+        vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
+        vendor.email?.toLowerCase().includes(lowerSearch) ||
+        vendor.phone?.toLowerCase().includes(lowerSearch) ||
+        vendor.price_range?.toLowerCase().includes(lowerSearch) ||
+        vendor.pin_code?.toLowerCase().includes(lowerSearch) ||
+        vendor.experience_since?.toLowerCase().includes(lowerSearch) ||
+        categoryNames.includes(lowerSearch)
+      );
+    })
+  : blockedvendors;
+
 
   useEffect(() => {
     fetchBlockedVendors(currentPage, perPage);
@@ -214,11 +227,13 @@ export default function BlockedVendors() {
       name: "Owner Name",
       selector: (row) => row.owner_name,
       sortable: true,
+      width: "130px",
     },
     {
       name: "Email",
       selector: (row) => row.email,
       sortable: true,
+      width: "180px",
     },
     {
       name: "Category Names",
@@ -229,12 +244,7 @@ export default function BlockedVendors() {
         return names.join(", ");
       },
       sortable: true,
-    },
-
-    {
-      name: "Profile Name",
-      selector: (row) => row.profile_name,
-      sortable: true,
+      width: "120px",
     },
     {
       name: "Phone Number",
@@ -245,24 +255,6 @@ export default function BlockedVendors() {
       name: "Price Range",
       selector: (row) => row.price_range,
       sortable: true,
-    },
-    {
-      name: "Short Description",
-      selector: (row) => row.short_description,
-      sortable: true,
-    },
-    {
-      name: "Image",
-      cell: (row) =>
-        row.image ? (
-          <img
-            src={row.image}
-            alt={row.profile_name}
-            style={{ width: "70px", height: "70px", objectFit: "cover" }}
-          />
-        ) : (
-          "N/A"
-        ),
     },
     {
       name: "Pin Code",

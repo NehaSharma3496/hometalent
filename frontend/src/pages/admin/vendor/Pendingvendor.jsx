@@ -16,7 +16,7 @@ export default function PendingVendor() {
   const [categoryList, setCategoryList] = useState([]);
   const [categoryMap, setCategoryMap] = useState({});
   const navigate = useNavigate();
-const [allPendingVendors, setAllPendingVendors] = useState([]);
+  const [allPendingVendors, setAllPendingVendors] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -84,31 +84,30 @@ const [allPendingVendors, setAllPendingVendors] = useState([]);
     }
   };
 
-const fetchAllPendingVendors = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    let fullList = [];
-    let page = 1;
-    const limit = 100;
-    let totalPages = 1;
+  const fetchAllPendingVendors = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      let fullList = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
 
-    while (page <= totalPages) {
-      const res = await GetPendingVendoreList(token, page, limit);
-      if (res?.data && res?.pagination) {
-        fullList = [...fullList, ...res.data];
-        totalPages = Math.ceil(res.pagination.total_records / limit);
-      } else {
-        throw new Error("Invalid response format");
+      while (page <= totalPages) {
+        const res = await GetPendingVendoreList(token, page, limit);
+        if (res?.data && res?.pagination) {
+          fullList = [...fullList, ...res.data];
+          totalPages = Math.ceil(res.pagination.total_records / limit);
+        } else {
+          throw new Error("Invalid response format");
+        }
+        page++;
       }
-      page++;
+
+      setAllPendingVendors(fullList);
+    } catch (err) {
+      console.error("Error fetching all pending vendors:", err);
     }
-
-    setAllPendingVendors(fullList);
-  } catch (err) {
-    console.error("Error fetching all pending vendors:", err);
-  }
-};
-
+  };
 
   const exportToExcel = async () => {
     try {
@@ -173,22 +172,33 @@ const fetchAllPendingVendors = async () => {
     }
   };
 
-const filteredPendingVendors = searchText
+  const filteredPendingVendors = searchText
   ? allPendingVendors.filter((vendor) => {
       const lowerSearch = searchText.toLowerCase();
+
+      const categoryNames = vendor.category_id
+        ? vendor.category_id
+            .split(",")
+            .map((id) => categoryMap[id.trim()]?.toLowerCase() || "")
+            .join(", ")
+        : "";
+
       return (
         vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
         vendor.email?.toLowerCase().includes(lowerSearch) ||
-        vendor.phone?.toLowerCase().includes(lowerSearch)
+        vendor.phone?.toLowerCase().includes(lowerSearch) ||
+        vendor.price_range?.toLowerCase().includes(lowerSearch) ||
+        vendor.pin_code?.toLowerCase().includes(lowerSearch) ||
+        vendor.experience_since?.toLowerCase().includes(lowerSearch) ||
+        categoryNames.includes(lowerSearch)
       );
     })
   : pendingvendors;
 
 
-
   useEffect(() => {
     fetchPendingVendors(currentPage, perPage);
-     fetchAllPendingVendors();
+    fetchAllPendingVendors();
     fetchCategories();
   }, [currentPage, perPage]);
 
@@ -222,17 +232,19 @@ const filteredPendingVendors = searchText
     {
       name: "S.No",
       selector: (row, index) => (currentPage - 1) * perPage + index + 1,
-      width: "70px",
+      width: "50px",
     },
     {
       name: "Owner Name",
       selector: (row) => row.owner_name,
       sortable: true,
+      width: "100px",
     },
     {
       name: "Email",
       selector: (row) => row.email,
       sortable: true,
+      width: "180px",
     },
     {
       name: "Category Names",
@@ -243,12 +255,7 @@ const filteredPendingVendors = searchText
         return names.join(", ");
       },
       sortable: true,
-    },
-
-    {
-      name: "Profile Name",
-      selector: (row) => row.profile_name,
-      sortable: true,
+      width: "150px",
     },
     {
       name: "Phone Number",
@@ -261,35 +268,15 @@ const filteredPendingVendors = searchText
       sortable: true,
     },
     {
-      name: "Short Description",
-      selector: (row) => row.short_description,
-      sortable: true,
-    },
-    {
-      name: "Image",
-      cell: (row) =>
-        row.image ? (
-          <img
-            src={row.image}
-            alt={row.profile_name}
-            style={{ width: "70px", height: "70px", objectFit: "cover" }}
-          />
-        ) : (
-          "N/A"
-        ),
-    },
-    {
       name: "Pin Code",
       selector: (row) => row.pin_code,
       sortable: true,
     },
-
     {
       name: "Experience Since",
       selector: (row) => row.experience_since,
       sortable: true,
     },
-
     {
       name: "Status",
       cell: (row) => {

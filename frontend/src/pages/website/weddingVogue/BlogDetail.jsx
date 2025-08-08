@@ -28,13 +28,14 @@ const BlogDetail = () => {
   const fetchOtherBlogs = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await GetAllAdminBlog(token, 1, 2); // get 2 blogs
+      const res = await GetAllAdminBlog(token, 1, 2);
       if (res?.data?.length > 0) {
-        // Exclude current blog from right-side suggestions
-        const filtered = res.data.filter(
-          (b) => b.id.toString() !== blogId.toString()
-        );
-        setOtherBlogs(filtered.slice(0, 2)); // only show 2
+        const filtered = res.data
+          .filter(
+            (b) => b.status === 1 && b.id.toString() !== blogId.toString()
+          )
+          .slice(0, 2);
+        setOtherBlogs(filtered);
       }
     } catch (err) {
       console.error("Error fetching other blogs:", err);

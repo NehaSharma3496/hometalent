@@ -86,6 +86,8 @@ export default function Allvendors() {
         return (
           v.owner_name?.toLowerCase().includes(lowerSearch) ||
           v.email?.toLowerCase().includes(lowerSearch) ||
+          v.price_range.toLowerCase().includes(lowerSearch) ||
+          v.experience_since.toLowerCase().includes(lowerSearch)||
           v.phone?.toLowerCase().includes(lowerSearch) ||
           (Array.isArray(v.category_names)
             ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)

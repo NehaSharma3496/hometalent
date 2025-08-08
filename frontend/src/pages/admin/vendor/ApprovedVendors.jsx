@@ -100,21 +100,24 @@ export default function ApprovedVendors() {
     }
   };
 
- const filtered = allApprovedVendors.filter((vendor) => {
-  const lowerSearch = searchText.toLowerCase();
-  return (
-    vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
-    vendor.email?.toLowerCase().includes(lowerSearch) ||
-    vendor.phone?.toLowerCase().includes(lowerSearch)
+  const filtered = allApprovedVendors.filter((vendor) => {
+    const lowerSearch = searchText.toLowerCase();
+    return (
+      vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
+      vendor.email?.toLowerCase().includes(lowerSearch) ||
+      vendor.phone?.toLowerCase().includes(lowerSearch)||
+      vendor.price_range?.toLowerCase().includes(lowerSearch) ||
+      vendor.experience_since?.toLowerCase().includes(lowerSearch) ||
+       (Array.isArray(vendor.category_names)
+            ? vendor.category_names.join(", ").toLowerCase().includes(lowerSearch)
+            : vendor.category_names?.toLowerCase().includes(lowerSearch))
+    );
+  });
+
+  const filteredApprovedVendors = filtered.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
   );
-});
-
-
-const filteredApprovedVendors = filtered.slice(
-  (currentPage - 1) * perPage,
-  currentPage * perPage
-);
-
 
   const fetchAllApprovedVendors = async () => {
     try {
@@ -153,10 +156,20 @@ const filteredApprovedVendors = filtered.slice(
     {
       name: "S.No",
       selector: (row, index) => (currentPage - 1) * perPage + index + 1,
-      width: "70px",
+      width: "50px",
     },
-    { name: "Owner Name", selector: (row) => row.owner_name, sortable: true },
-    { name: "Email", selector: (row) => row.email, sortable: true },
+    {
+      name: "Owner Name",
+      selector: (row) => row.owner_name,
+      sortable: true,
+      width: "150px",
+    },
+    {
+      name: "Email",
+      selector: (row) => row.email,
+      sortable: true,
+      width: "230px",
+    },
     {
       name: "Categories",
       selector: (row) => row.category_names.join(", "),
@@ -168,20 +181,6 @@ const filteredApprovedVendors = filtered.slice(
       name: "Experience",
       selector: (row) => row.experience_since,
       sortable: true,
-    },
-    {
-      name: "Image",
-      selector: (row) => row.image,
-      cell: (row) =>
-        row.image ? (
-          <img
-            src={row.image}
-            alt={row.profile_name}
-            style={{ width: "50px", height: "50px", objectFit: "cover" }}
-          />
-        ) : (
-          "N/A"
-        ),
     },
   ];
 

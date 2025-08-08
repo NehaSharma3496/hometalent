@@ -149,43 +149,54 @@ export default function RejectedVendors() {
   };
 
   const handleApproveVendor = async (vendorId, status) => {
-  try {
-    const confirm = await Swal.fire({
-      title: "Approve Vendor?",
-      text: "Are you sure you want to approve this vendor?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#6c757d",
-      confirmButtonText: "Yes, approve!",
-    });
+    try {
+      const confirm = await Swal.fire({
+        title: "Approve Vendor?",
+        text: "Are you sure you want to approve this vendor?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Yes, approve!",
+      });
 
-    if (!confirm.isConfirmed) return;
+      if (!confirm.isConfirmed) return;
 
-    const token = localStorage.getItem("token");
-    const response = await GetApproveVendor(vendorId, status, token);
+      const token = localStorage.getItem("token");
+      const response = await GetApproveVendor(vendorId, status, token);
 
-    if (response.status === true || response.status === "true") {
-      await Swal.fire("Success", response.message, "success");
-      fetchRejectedVendors(currentPage, perPage);
-      fetchAllRejectedVendors();
-    } else {
-      throw new Error(response.message || "Failed to update approval");
+      if (response.status === true || response.status === "true") {
+        await Swal.fire("Success", response.message, "success");
+        fetchRejectedVendors(currentPage, perPage);
+        fetchAllRejectedVendors();
+      } else {
+        throw new Error(response.message || "Failed to update approval");
+      }
+    } catch (err) {
+      console.error(err);
+      await Swal.fire("Error!", "Something went wrong.", "error");
     }
-  } catch (err) {
-    console.error(err);
-    await Swal.fire("Error!", "Something went wrong.", "error");
-  }
-};
-
+  };
 
   const filteredRejectedVendors = searchText
     ? allRejectedVendors.filter((vendor) => {
         const lowerSearch = searchText.toLowerCase();
+
+        const categoryNames = vendor.category_id
+          ? vendor.category_id
+              .split(",")
+              .map((id) => categoryMap[id.trim()]?.toLowerCase() || "")
+              .join(", ")
+          : "";
+
         return (
           vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
           vendor.email?.toLowerCase().includes(lowerSearch) ||
-          vendor.phone?.toLowerCase().includes(lowerSearch)
+          vendor.phone?.toLowerCase().includes(lowerSearch) ||
+          vendor.price_range?.toLowerCase().includes(lowerSearch) ||
+          vendor.pin_code?.toLowerCase().includes(lowerSearch) ||
+          vendor.experience_since?.toLowerCase().includes(lowerSearch) ||
+          categoryNames.includes(lowerSearch)
         );
       })
     : rejectedvendors;
@@ -209,17 +220,19 @@ export default function RejectedVendors() {
     {
       name: "S.No",
       selector: (row, index) => (currentPage - 1) * perPage + index + 1,
-      width: "70px",
+      width: "50px",
     },
     {
       name: "Owner Name",
       selector: (row) => row.owner_name,
       sortable: true,
+      width: "150px",
     },
     {
       name: "Email",
       selector: (row) => row.email,
       sortable: true,
+      width: "200px",
     },
     {
       name: "Category Names",
@@ -229,12 +242,6 @@ export default function RejectedVendors() {
         const names = ids.map((id) => categoryMap[id] || `ID-${id}`);
         return names.join(", ");
       },
-      sortable: true,
-    },
-
-    {
-      name: "Profile Name",
-      selector: (row) => row.profile_name,
       sortable: true,
     },
     {
@@ -248,24 +255,6 @@ export default function RejectedVendors() {
       sortable: true,
     },
     {
-      name: "Short Description",
-      selector: (row) => row.short_description,
-      sortable: true,
-    },
-    {
-      name: "Image",
-      cell: (row) =>
-        row.image ? (
-          <img
-            src={row.image}
-            alt={row.profile_name}
-            style={{ width: "70px", height: "70px", objectFit: "cover" }}
-          />
-        ) : (
-          "N/A"
-        ),
-    },
-    {
       name: "Pin Code",
       selector: (row) => row.pin_code,
       sortable: true,
@@ -276,19 +265,18 @@ export default function RejectedVendors() {
       sortable: true,
     },
     {
-  name: "Action",
-  cell: (row) => (
-    <button
-      className="btn btn-success btn-sm"
-      onClick={() => handleApproveVendor(row.id, 1)}
-      title="Approve Vendor"
-    >
-    Approve
-    </button>
-  ),
-  width: "120px",
-}
-
+      name: "Action",
+      cell: (row) => (
+        <button
+          className="btn btn-success btn-sm"
+          onClick={() => handleApproveVendor(row.id, 1)}
+          title="Approve Vendor"
+        >
+          Approve
+        </button>
+      ),
+      width: "120px",
+    },
   ];
 
   return (

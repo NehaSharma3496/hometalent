@@ -5,7 +5,7 @@ import Dashboard from "../pages/admin/dashboard/Dashboard";
 import Allvendors from "../pages/admin/vendor/Allvendors";
 import BlockedVendors from "../pages/admin/vendor/BlockedVendors";
 import SponsoredVendors from "../pages/admin/vendor/SponsoredVendors";
-import Packages from "../pages/admin/review/Packages";
+import Packages from "../pages/admin/packages/Packages";
 import Allusers from "../pages/vendor/users/Allusers";
 import Adduser from "../pages/admin/vendor/Adduser";
 import BlockedUser from "../pages/vendor/users/BlockedUser";
@@ -19,8 +19,8 @@ import AddVendor from "../pages/admin/vendor/AddVendor";
 import AdminGallery from "../pages/admin/adminGallery/AdminGallery";
 import VendorGallery from "../pages/admin/galleryUpdateRequest/VendorGallery";
 import AllLeads from "../pages/admin/enquiries&leads/AllLeads";
-import AddPackage from "../pages/admin/review/AddPackage";
-import UpdatePackages from "../pages/admin/review/updatePackages";
+import AddPackage from "../pages/admin/packages/AddPackage";
+import UpdatePackages from "../pages/admin/packages/updatePackages";
 import AllEnquiries from "../pages/admin/enquiries&leads/AllEnquiries";
 import UploadGallery from "../pages/admin/adminGallery/UploadGallery";
 import UpdateVendor from "../pages/admin/vendor/UpdateVendor";
@@ -33,7 +33,7 @@ import AllBlog from "../pages/admin/blog/AllBlog";
 import UpdateBlog from "../pages/admin/blog/UpdateBlog";
 import ChangePassword from "../pages/admin/forgotpassword/ChangePasword";
 import ExtendPackageHistory from "../pages/admin/vendor/ExtendPackageHistory";
-
+import AllReview from "../pages/admin/review/AllReview";
 
 const AdminRoutes = (
   <Route path="/admin" element={<AdminLayout />}>
@@ -79,10 +79,11 @@ const AdminRoutes = (
     />
     <Route path="vendor/rejectedvendors" element={<RejectedVendors />} />
     <Route path="blog/addblog" element={<AddBlog />} />
-    <Route path="blog/allblogs" element={<AllBlog/>}/>
-    <Route path="updatepackage/:blogId" element={<UpdateBlog/>}/>
-    <Route path="forgotpassword/changepassword" element={<ChangePassword/>}/>
-    <Route path="extendpackagehistory" element={<ExtendPackageHistory/>}/>
+    <Route path="blog/allblogs" element={<AllBlog />} />
+    <Route path="updatepackage/:blogId" element={<UpdateBlog />} />
+    <Route path="forgotpassword/changepassword" element={<ChangePassword />} />
+    <Route path="extendpackagehistory" element={<ExtendPackageHistory />} />
+    <Route path="review/allreview" element={<AllReview />} />
   </Route>
 );
 

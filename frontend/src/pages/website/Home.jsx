@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GetStateCity } from "../../Services/webService/Web";
+import {
+  GetAllApprovedReview,
+  GetStateCity,
+} from "../../Services/webService/Web";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -19,6 +22,7 @@ const Home = () => {
   const [categoryData, setCategoryData] = useState([]);
   const categorySectionRef = useRef(null);
   const blogSectionRef = useRef(null);
+  const [review, setReview] = useState([]);
 
   // State for storing selected IDs
   const [selectedCityId, setSelectedCityId] = useState("");
@@ -84,6 +88,15 @@ const Home = () => {
 
   const token = localStorage.getItem("token");
 
+  const fetchReview = async () => {
+    try {
+      const response = await GetAllApprovedReview(token);
+      setReview(response?.data);
+    } catch (error) {
+      console.log("Error fetching review");
+    }
+  };
+
   const fetchstatecity = async () => {
     try {
       const response = await GetStateCity();
@@ -106,8 +119,9 @@ const Home = () => {
   const fetchblog = async () => {
     try {
       const res = await GetAllAdminBlog(token);
-      setBlog(res?.data);
-      setBlogData(res?.data);
+      const activeBlogs = res?.data?.filter((blog) => blog.status === 1);
+      setBlog(activeBlogs);
+      setBlogData(activeBlogs);
     } catch (error) {
       console.log("Error in fetching blogs", error);
     }
@@ -165,67 +179,40 @@ const Home = () => {
     fetchstatecity();
     fetchcategories();
     fetchblog();
+    fetchReview();
   }, []);
-
-  const testimonials = [
-    {
-      name: "Jacob Jones",
-      title: "CEO, Traveller",
-      quote:
-        "Lorem ipsum dolor sit amet amet early ameeny consectetur adipiscing elit. Ipsum dolor consectetur.",
-      image: "https://randomuser.me/api/portraits/men/32.jpg",
-      rating: 5,
-    },
-    {
-      name: "Sarah Lee",
-      title: "Manager, Explorer",
-      quote:
-        "Lorem ipsum dolor sit amet amet early ameeny consectetur adipiscing elit. Ipsum dolor consectetur.",
-      image: "https://randomuser.me/api/portraits/women/44.jpg",
-      rating: 4,
-    },
-    {
-      name: "Michael Smith",
-      title: "CTO, TravelX",
-      quote:
-        "Lorem ipsum dolor sit amet amet early ameeny consectetur adipiscing elit. Ipsum dolor consectetur.",
-      image: "https://randomuser.me/api/portraits/men/46.jpg",
-      rating: 5,
-    },
-  ];
 
   const settings = {
     dots: true,
     infinite: true,
-    speed: 500,
+    speed: 800,
     slidesToShow: 3,
     slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    pauseOnHover: true,
+    arrows: true,
+    swipeToSlide: true,
+    cssEase: "linear",
     responsive: [
       {
-        breakpoint: 1200,
-        settings: {
-          slidesToShow: 4,
-        },
-      },
-      {
         breakpoint: 992,
-        settings: {
-          slidesToShow: 3,
-        },
-      },
-      {
-        breakpoint: 768,
         settings: {
           slidesToShow: 2,
         },
       },
       {
-        breakpoint: 480,
+        breakpoint: 576,
         settings: {
           slidesToShow: 1,
         },
       },
     ],
+    appendDots: (dots) => (
+      <ul style={{ display: "flex", justifyContent: "center", gap: "5px" }}>
+        {dots.slice(0, 3)} {/* only show first 3 dots */}
+      </ul>
+    ),
   };
 
   return (
@@ -492,31 +479,79 @@ const Home = () => {
             </div>
           </div>
           <Slider {...settings}>
-            {testimonials.map((item, index) => (
-              <div className="testimonial-card" key={index}>
-                <div className="quote-icon">
+            {review.map((item, index) => (
+              <div key={index} className="p-3">
+                <div
+                  className="testimonial-card"
+                  style={{
+                    background: "#f9f9f9",
+                    borderRadius: "16px",
+                    padding: "30px 25px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+                    transition: "all 0.3s ease",
+                    position: "relative",
+                    minHeight: "200px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  {/* Floating Quote Icon */}
                   <img
-                    src="../assets/images//testimonial/iconoir_quote.png"
+                    src="/assets/images/testimonial/iconoir_quote.png"
                     alt="quote"
+                    style={{
+                      width: "40px",
+                      opacity: 0.08,
+                      position: "absolute",
+                      top: "25px",
+                      right: "25px",
+                    }}
                   />
-                </div>
-                <div className="user-info">
-                  <img src={item.image} alt={item.name} />
-                  <div>
-                    <h4>{item.name}</h4>
-                    <p className="title">{item.title}</p>
+
+                  {/* User Info */}
+                  <div className="d-flex align-items-center mb-3">
+                    <div
+                      className="d-flex align-items-center justify-content-center text-white"
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        borderRadius: "50%",
+                        background: "linear-gradient(135deg, #007BFF, #00C6FF)",
+                        fontSize: "26px",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <i className="ri-user-line"></i>
+                    </div>
+                    <div className="ms-3">
+                      <h5
+                        className="mb-0"
+                        style={{
+                          fontWeight: 600,
+                          fontSize: "1.1rem",
+                          color: "#333",
+                        }}
+                      >
+                        {item.name}
+                      </h5>
+                    </div>
                   </div>
-                </div>
-                <p className="message pt-2">{item.quote}</p>
-                <div className="rating pt-3">
-                  {[...Array(5)].map((_, i) => (
-                    <i
-                      key={i}
-                      className={`ri-star-fill ${
-                        i < item.rating ? "active" : ""
-                      }`}
-                    />
-                  ))}
+
+                  {/* Message */}
+                  <p
+                    className="text-muted"
+                    style={{
+                      fontSize: "0.95rem",
+                      lineHeight: "1.6",
+                      color: "#555",
+                      marginBottom: 0,
+                    }}
+                  >
+                    {item.message?.length > 200
+                      ? `${item.message.slice(0, 200)}...`
+                      : item.message}
+                  </p>
                 </div>
               </div>
             ))}

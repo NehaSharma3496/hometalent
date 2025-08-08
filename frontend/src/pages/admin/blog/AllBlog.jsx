@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   GetAllAdminBlog,
   DeleteAdminBlog,
+  UpdateBlogStatus,
 } from "../../../Services/admin/Admin";
 import { Link, useNavigate } from "react-router-dom";
 import DataTable from "react-data-table-component";
@@ -128,6 +129,57 @@ export default function AllBlog() {
       allowOverflow: true,
       button: true,
       width: "250px",
+    },
+    {
+      name: "Active Status",
+      cell: (row) => (
+        <div className="form-check form-switch m-0 d-flex align-items-center">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            role="switch"
+            id={`toggle-blog-${row.id}`}
+            checked={row.status === 1}
+            onChange={async (e) => {
+              const newStatus = e.target.checked ? 1 : 0;
+
+              const confirm = await Swal.fire({
+                title: newStatus ? "Enable Blog?" : "Disable Blog?",
+                text: `Are you sure you want to ${
+                  newStatus ? "enable" : "disable"
+                } this blog?`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: newStatus ? "Yes, enable" : "Yes, disable",
+                cancelButtonText: "Cancel",
+              });
+
+              if (!confirm.isConfirmed) return;
+
+              try {
+                const res = await UpdateBlogStatus(row.id, newStatus, token);
+                if (res?.status) {
+                  Swal.fire("Success", "Blog status updated.", "success");
+                  fetchBlogs();
+                } else {
+                  throw new Error(
+                    res?.message || "Failed to update blog status."
+                  );
+                }
+              } catch (err) {
+                console.error(err);
+                Swal.fire("Error", "Failed to update blog status.", "error");
+              }
+            }}
+            style={{
+              width: "3.5rem",
+              height: "1.5rem",
+              marginTop: "2px",
+            }}
+          />
+        </div>
+      ),
+      width: "150px",
     },
   ];
 

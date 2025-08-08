@@ -163,7 +163,7 @@ const ViewGallery = () => {
             <Link to="/admin/dashboard" className="me-2">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
-            <h5 className="add-page-heading mb-0">Gallery</h5>
+            <h5 className="add-page-heading mb-0"> My Gallery</h5>
           </div>
         </div>
 

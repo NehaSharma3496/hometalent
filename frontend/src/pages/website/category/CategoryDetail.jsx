@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Breadcrumbs from "../../../components/websitecomponents/Breadcrumbs";
 import { useLocation } from "react-router-dom";
-import { SubmitLead, GetStateCity } from "../../../Services/webService/Web";
+import {
+  SubmitLead,
+  GetStateCity,
+  SubmitReview,
+} from "../../../Services/webService/Web";
 import { GetGallery } from "../../../Services/vendor/Vendor";
 import Swal from "sweetalert2";
 import Lightbox from "yet-another-react-lightbox";
@@ -48,9 +52,64 @@ const CategoryDetail = () => {
     query: "",
   });
 
+  const [reviewData, setReviewData] = useState({
+    name: "",
+    message: "",
+  });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLeadData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleReviewChange = (e) => {
+    const { name, value } = e.target;
+    setReviewData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmitReview = async () => {
+    if (!reviewData.name || !reviewData.message) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing Fields",
+        text: "Please fill in all required fields.",
+      });
+      return;
+    }
+
+    const payload = {
+      ...reviewData,
+      vendor_id: vendors?.id || "",
+    };
+
+    try {
+      const res = await SubmitReview(payload);
+      console.log("SubmitReview Response:", res);
+
+      if (res?.status === true) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: res?.message || "Review submitted!",
+        });
+        setReviewData({ name: "", message: "" });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: res?.message || "Failed to submit review.",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text:
+          error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong. Please try again.",
+      });
+    }
   };
 
   const handleSubmit = async () => {
@@ -187,15 +246,10 @@ const CategoryDetail = () => {
       <Breadcrumbs title={vendors?.category_names} links={breadcrumbLinks} />
       <section className="tour-details-section section-padding">
         <div className="tour-details-area">
-          {/* Details Banner Slider */}
-          {/* / Slider*/}
           <div className="tour-details-container">
             <div className="container">
-              {/* Details Heading */}
-
               <div className="mt-30">
                 <div className="row g-4">
-                  {/* Left content */}
                   <div className="col-xl-8 col-lg-7">
                     <div className="details-heading">
                       <div className="d-flex flex-column">
@@ -237,16 +291,6 @@ const CategoryDetail = () => {
                           </div>
 
                           <div className="divider" />
-                          {/* <div className="d-flex align-items-center flex-wrap gap-20">
-                            <div className="count">
-                              <i className="ri-time-line" />
-                              <p className="pera">3 Days 2 Night</p>
-                            </div>
-                            <div className="count">
-                              <i className="ri-user-line" />
-                              <p className="pera">2 Person</p>
-                            </div>
-                          </div> */}
                         </div>
                         <div>
                           <h4 className="title text-capitalize mt-2">
@@ -256,12 +300,10 @@ const CategoryDetail = () => {
                       </div>
                     </div>
 
-                    {/* One line description */}
                     <div class="tour-details-content mt-15">
                       <p class="pera ">{vendors?.short_description}</p>
                     </div>
 
-                    {/* price range */}
                     <div className="price-review ">
                       <div className="d-flex  align-items-end">
                         <h3 className="title">Estimated Price Range -</h3>
@@ -273,46 +315,11 @@ const CategoryDetail = () => {
                       </div>
                     </div>
 
-                    {/* Large description */}
                     <div className="tour-details-content mt-10">
                       <h4 className="title">About</h4>
 
                       <p class="pera ">{vendors?.long_description}</p>
-
-                      {/* <p className="pera">
-                        {vendor?.long_description}
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                        sed do eiusmod tempor incididunt ut labore et dolore
-                        magna aliqua. Ut enim ad minim veniam, quis nostrud
-                        exercitation ullamco laboris nisi ut aliquip ex ea
-                        commodo consequat. Duis aute irure dolor in
-                        reprehenderit in voluptate velit esse cillum dolore eu
-                        fugiat nulla pariatur. Excepteur sint occaecat cupidatat
-                        non proident, sunt in culpa qui officia deserunt mollit
-                        anim id est laborum."
-                      </p>
-                      <p className="pera">
-                        Sed ut perspiciatis unde omnis iste natus error sit
-                        voluptatem accusantium doloremque laudantium, totam rem
-                        aperiam, eaque ipsa quae ab illo inventore veritatis et
-                        quasi architecto beatae vitae dicta sunt explicabo. Nemo
-                        enim ipsam voluptatem quia voluptas sit aspernatur aut
-                        odit aut fugit, sed quia consequuntur magni dolores eos
-                        qui ratione voluptatem sequi nesciunt. Neque porro
-                        quisquam est, qui dolorem ipsum quia dolor sit amet,
-                        consectetur, adipisci velit, sed quia non numquam eius
-                        modi tempora incidunt ut labore et dolore magnam aliquam
-                        quaerat voluptatem. Ut enim ad minima veniam, quis
-                        nostrum exercitationem ullam corporis suscipit
-                        laboriosam, nisi ut aliquid ex ea commodi consequatur?
-                        Quis autem vel eum iure reprehenderit qui in ea
-                        voluptate velit esse quam nihil molestiae consequatur,
-                        vel illum qui dolorem eum fugiat quo voluptas nulla
-                        pariatur?"
-                      </p> */}
                     </div>
-
-                    {/* images and video  */}
 
                     <div className="row g-4" ref={imageSectionRef}>
                       {visibleItems.map((item, i) => (
@@ -397,8 +404,6 @@ const CategoryDetail = () => {
                       />
                     )}
 
-                    {/* social media icons  */}
-
                     {availableLinks.length > 0 && (
                       <div className="tour-details-content mt-10">
                         <h4 className="title">Social Media & Links</h4>
@@ -443,20 +448,9 @@ const CategoryDetail = () => {
                       </div>
                     )}
                   </div>
-                  {/* Right content */}
 
                   <div className="col-xl-4 col-lg-5">
-                    <div className="date-travel-card position-sticky top-0">
-                      <div className="price-review">
-                        <div className="d-flex gap-10 align-items-end">
-                          <p className="light-pera">From</p>
-                          {/* <p className="pera">${vendor.price_range}</p> */}
-                        </div>
-                        <div className="rating">
-                          {/* <p className="pera">Price varies by group size</p> */}
-                        </div>
-                      </div>
-
+                    <div className="date-travel-card ">
                       <h4 className="heading-card">Get In Touch</h4>
 
                       <div className="date-time-dropdown d-flex align-items-center gap-2">
@@ -528,8 +522,49 @@ const CategoryDetail = () => {
                           Check Availability
                         </button>
                       </div>
+                    </div>
 
-                    
+                    <div className="date-travel-card mt-5">
+                      <h4 className="heading-card">Your Review</h4>
+
+                      <div className="date-time-dropdown d-flex align-items-center gap-2">
+                        <i className="ri-user-line fs-8" />
+                        <input
+                          type="text"
+                          name="name"
+                          value={reviewData.name}
+                          placeholder="Enter your name"
+                          className="form-control form-control-m border-0 shadow-none"
+                          onChange={(e) =>
+                            setReviewData((prev) => ({
+                              ...prev,
+                              [e.target.name]: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+
+                      <div className="date-time-dropdown d-flex align-items-start gap-2 mt-2">
+                        <i className="ri-chat-3-line fs-8 mt-1" />
+                        <textarea
+                          name="message"
+                          value={reviewData.message}
+                          onChange={handleReviewChange}
+                          placeholder="Enter your review"
+                          className="form-control form-control-m border-0 shadow-none"
+                          rows="3"
+                        />
+                      </div>
+
+                      <div className="mt-30">
+                        <button
+                          type="button"
+                          className="send-btn w-100"
+                          onClick={handleSubmitReview}
+                        >
+                          Submit Review
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

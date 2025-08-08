@@ -135,16 +135,25 @@ export default function ActiveVendor() {
   };
 
   const filteredActiveVendors = searchText
-  ? allActiveVendors.filter((v) => {
-      const lowerSearch = searchText.toLowerCase();
-      return (
-        v.owner_name?.toLowerCase().includes(lowerSearch) ||
-        v.email?.toLowerCase().includes(lowerSearch) ||
-        v.phone?.toLowerCase().includes(lowerSearch) 
-      );
-    })
-  : activevendors;
+    ? allActiveVendors.filter((v) => {
+        const lowerSearch = searchText.toLowerCase();
+        const categoryNames = v.category_id
+          ? v.category_id
+              .split(",")
+              .map((id) => categoryMap[id.trim()]?.toLowerCase() || "")
+              .join(", ")
+          : "";
 
+        return (
+          v.owner_name?.toLowerCase().includes(lowerSearch) ||
+          v.email?.toLowerCase().includes(lowerSearch) ||
+          v.phone?.toLowerCase().includes(lowerSearch) ||
+          v.price_range?.toLowerCase().includes(lowerSearch) ||
+          v.experience_since?.toLowerCase().includes(lowerSearch) ||
+          categoryNames.includes(lowerSearch)
+        );
+      })
+    : activevendors;
 
   const fetchCategories = async () => {
     try {
@@ -189,12 +198,6 @@ export default function ActiveVendor() {
       },
       sortable: true,
     },
-
-    {
-      name: "Profile Name",
-      selector: (row) => row.profile_name,
-      sortable: true,
-    },
     {
       name: "Phone Number",
       selector: (row) => row.phone,
@@ -203,30 +206,6 @@ export default function ActiveVendor() {
     {
       name: "Price Range",
       selector: (row) => row.price_range,
-      sortable: true,
-    },
-    {
-      name: "Short Description",
-      selector: (row) => row.short_description,
-      sortable: true,
-    },
-
-    {
-      name: "Image",
-      cell: (row) =>
-        row.image ? (
-          <img
-            src={row.image}
-            alt={row.profile_name}
-            style={{ width: "70px", height: "70px", objectFit: "cover" }}
-          />
-        ) : (
-          "N/A"
-        ),
-    },
-    {
-      name: "Pin Code",
-      selector: (row) => row.pin_code,
       sortable: true,
     },
     {

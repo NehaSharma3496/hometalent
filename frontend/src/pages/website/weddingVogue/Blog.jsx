@@ -7,14 +7,16 @@ const Blog = () => {
   const [blog, setBlog] = useState([]);
 
 
-  const fetchBlog = async () => {
-    try {
-      const res = await GetAllAdminBlog();
-      setBlog(res?.data || []);
-    } catch (error) {
-      console.log("Error in fetching blogs", error);
-    }
-  };
+ const fetchBlog = async () => {
+  try {
+    const res = await GetAllAdminBlog();
+    const activeBlogs = res?.data?.filter((blog) => blog.status === 1);
+    setBlog(activeBlogs);
+  } catch (error) {
+    console.log("Error in fetching blogs", error);
+  }
+};
+
 
   useEffect(() => {
     fetchBlog();

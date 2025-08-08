@@ -123,6 +123,13 @@ export const MenuItems = {
         { label: "All Blogs", link: "/admin/blog/allblogs" },
       ],
     },
+     {
+      icon: "fa-solid fa-star",
+      label: "Review",
+      children: [
+        { label: "All Review", link: "/admin/review/allreview" },
+      ],
+    },
     // {
     //   icon: 'fa-solid fa-gear',
     //   label: 'Settings',
@@ -204,7 +211,7 @@ export const MenuItems = {
       icon: "fa-solid fa-upload",
       label: "Packages",
       children: [
-        { label: "All Packages", link: "/vendor/allpackages" },
+        { label: "Available Packages", link: "/vendor/allpackages" },
         { label: "My Subscription", link: "/vendor/mypackages" },
         // { label: "Manage Portfolio", link: "/vendor/profile/manage" },
         // { label: "Edit Profile", link: "/vendor/profile/edit" },

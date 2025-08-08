@@ -633,3 +633,66 @@ export async function GetProfileUpdateRequestsBlogs(token, vendor_id) {
     return error;
   }
 }
+
+export async function UpdateBlogStatus(blogId, blogStatus, token) {
+  try {
+    const res = await axios.post(
+      `${Config.base_url}admin/vendors/update-status`,
+      { blog_id: blogId, status: blogStatus },
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
+export async function UpdateReviewStatus(reviewId, reviewStatus, token) {
+  try {
+    const res = await axios.post(
+      `${Config.base_url}admin/vendors/update-status`,
+      { review_id: reviewId, status: reviewStatus },
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
+export async function GetAllReview(token, page = 1, limit = 10) {
+  try {
+    const response = await axios.get(`${Config.base_url}reviews?page=${page}&limit=${limit}`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function ApproveReview(reviewId, status) {
+  try {
+    const response = await axios.put(
+      `${Config.base_url}review/${reviewId}/approve`,
+      status
+    );
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
