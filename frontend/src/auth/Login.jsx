@@ -1,39 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import Swal from "sweetalert2";
 import * as Yup from "yup";
+import Swal from "sweetalert2";
 import { LoginApi } from "../Services/auth/Login";
-import ReusableForm from "../extracomponents/ReusableForm";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+
   const initialValues = {
     identifier: "",
     password: "",
   };
 
-  //  Validation schema
   const validationSchema = Yup.object({
     identifier: Yup.string().required("Email or phone is required"),
     password: Yup.string().required("Password is required"),
   });
-
-  //  Field definitions
-  const fields = [
-    {
-      name: "identifier",
-      label: "Email/phone",
-      type: "text",
-      placeholder: "Enter your email",
-    },
-    {
-      name: "password",
-      label: "Password",
-      type: "password",
-      placeholder: "Enter your password",
-    },
-  ];
 
   const handleSubmit = async (values) => {
     const payload = {
@@ -44,8 +28,6 @@ const Login = () => {
     try {
       const response = await LoginApi(payload);
 
-      console.log("Login API response:", response);
-
       if (response.status === true) {
         const user = response.user;
         const roleId = user.role_id;
@@ -54,12 +36,6 @@ const Login = () => {
         localStorage.setItem("role", roleId.toString());
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("userId", user.id);
-
-        if (user?.id) {
-          localStorage.setItem("userId", user.id.toString());
-        } else {
-          console.log("User ID not found in response:", user);
-        }
 
         Swal.fire({
           title: "Login Success",
@@ -87,8 +63,6 @@ const Login = () => {
         });
       }
     } catch (error) {
-      console.log("Login error:", error.response?.data || error);
-
       Swal.fire({
         title: "Error",
         text:
@@ -112,26 +86,76 @@ const Login = () => {
                 />
               </div>
 
-              <ReusableForm
+              <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
                 onSubmit={handleSubmit}
-                fields={fields}
-              />
+              >
+                <Form>
+                  {/* Identifier Field */}
+                  <div className="form-group mb-3">
+                    <label>Email/Phone</label>
+                    <Field
+                      name="identifier"
+                      type="text"
+                      className="form-control"
+                      placeholder="Enter your email or phone"
+                    />
+                    <ErrorMessage
+                      name="identifier"
+                      component="div"
+                      className="text-danger"
+                    />
+                  </div>
+
+                  {/* Password Field with Toggle */}
+                  <div className="form-group mb-3">
+                    <label>Password</label>
+                    <div className="input-group">
+                      <Field
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        className="form-control"
+                        placeholder="Enter your password"
+                      />
+                      <span
+                        className="input-group-text"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => setShowPassword((prev) => !prev)}
+                      >
+                        <i
+                          className={`bi ${
+                            showPassword ? "bi-eye-slash" : "bi-eye"
+                          }`}
+                        ></i>
+                      </span>
+                    </div>
+                    <ErrorMessage
+                      name="password"
+                      component="div"
+                      className="text-danger"
+                    />
+                  </div>
+
+                  <button type="submit" className="btn btn-primary w-100">
+                    Login
+                  </button>
+                </Form>
+              </Formik>
+
               <div className="create-account mt-3">
-                {" "}
-                <a href="/forgotpassword" className="text-primary ">
+                <Link to="/forgotpassword" className="text-primary">
                   Forgot Password
-                </a>
+                </Link>
               </div>
 
               <div className="login-footer d-flex">
                 <div className="create-account text-center mt-3">
                   <p>
                     Don’t have an account?{" "}
-                    <a href="/registration" className="text-primary">
+                    <Link to="/registration" className="text-primary">
                       Register
-                    </a>
+                    </Link>
                   </p>
                 </div>
               </div>

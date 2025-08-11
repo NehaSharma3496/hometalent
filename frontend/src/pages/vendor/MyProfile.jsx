@@ -106,7 +106,7 @@ export default function MyProfile() {
             <Link to="/vendor/dashboard" className="me-2">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
-            <h5 className="add-page-heading mb-0">My Pofile</h5>
+            <h5 className="add-page-heading mb-0">My Profile</h5>
           </div>
         </div>
 

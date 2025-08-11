@@ -147,7 +147,7 @@ const CategoryDetail = () => {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Lead submitted successfully! Vendor details sent to your email",
+          text: "Your Enquiry submitted successfully! ",
         });
         console.log("Lead Data:", res);
         setLeadData({ name: "", phone: "", email: "", query: "" });
