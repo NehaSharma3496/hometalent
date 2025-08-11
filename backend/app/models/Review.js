@@ -21,9 +21,9 @@ const sequelize = require('../config/db.config');
     approve_status: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 0, 
+        defaultValue: 2, 
         validate: {
-            isIn: [[0, 1]], // Validates that the value is either 0 or 1
+            isIn: [[0, 1, 2]], // Validates that the value is either 0 or 1
         },
         comment: '1 = approve, 0 = reject',
     },
