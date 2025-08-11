@@ -13,6 +13,7 @@ const ViewGallery = () => {
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [orderChanged, setOrderChanged] = useState(false); // ✅ New state
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -123,6 +124,8 @@ const ViewGallery = () => {
 
     setGallery(updatedGallery);
     setDraggedIndex(null);
+
+    setOrderChanged(true); // ✅ Show update button after drag-drop
   };
 
   const getSortedItems = () =>
@@ -144,6 +147,7 @@ const ViewGallery = () => {
       const res = await UpdateGalleryOrder(token, sorted);
       if (res.status) {
         Swal.fire("Updated", "Gallery order updated", "success");
+        setOrderChanged(false); // ✅ Hide button after update
       } else {
         Swal.fire("Error", "Failed to update order", "error");
       }
@@ -174,12 +178,15 @@ const ViewGallery = () => {
           >
             <i className="ri-upload-cloud-line me-1"></i> Upload
           </Link>
-          <button
-            className="btn btn-success me-2 shadow-sm"
-            onClick={handleUpdateSortOrder}
-          >
-            <i className="ri-check-double-line me-1"></i> Update Order
-          </button>
+
+          {orderChanged && ( // ✅ Show only if order changed
+            <button
+              className="btn btn-success me-2 shadow-sm"
+              onClick={handleUpdateSortOrder}
+            >
+              <i className="ri-check-double-line me-1"></i> Update Order
+            </button>
+          )}
         </div>
       </div>
 
