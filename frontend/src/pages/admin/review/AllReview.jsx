@@ -101,11 +101,11 @@ export default function AllReviews() {
       name: "Approval",
       cell: (row) => {
         if (row.approve_status === 1) {
-          return <span className="badge bg-success">Approved</span>;
+          return <span className="badge bg-success fs-6">Approved</span>;
         }
 
         if (row.approve_status === 0) {
-          return <span className="badge bg-danger">Rejected</span>;
+          return <span className="badge bg-danger fs-6">Rejected</span>;
         }
 
         // approve_status === 2 (pending)
