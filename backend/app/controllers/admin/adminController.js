@@ -613,18 +613,20 @@ exports.processProfileUpdateRequest = async (req, res) => {
 
       // Send email notification to vendor
       const subject = 'Profile Update Request Approved';
+
+        //       <p><strong>Updated Fields:</strong></p>
+        // <ul>
+        //   ${Object.keys(updateData).map(key => {
+        //     if (key === 'image' || key === 'video') {
+        //       return `<li>${key}: File uploaded successfully</li>`;
+        //     }
+        //     return `<li>${key}: ${updateData[key]}</li>`;
+        //   }).join('')}
+        // </ul>
+
       const message = `
         <p>Hi ${request.vendor.owner_name || request.vendor.profile_name || 'Vendor'},</p>
         <p>Your profile update request has been approved by admin.</p>
-        <p><strong>Updated Fields:</strong></p>
-        <ul>
-          ${Object.keys(updateData).map(key => {
-            if (key === 'image' || key === 'video') {
-              return `<li>${key}: File uploaded successfully</li>`;
-            }
-            return `<li>${key}: ${updateData[key]}</li>`;
-          }).join('')}
-        </ul>
         ${remarks ? `<p><strong>Admin Remarks:</strong> ${remarks}</p>` : ''}
         <p>Thank you,<br/>Team HomeTalent</p>
       `;

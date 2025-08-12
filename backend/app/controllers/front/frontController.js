@@ -56,7 +56,9 @@ exports.getVendorsByCategoryId = async (req, res) => {
       role_id: 2,
       status: 1
     };
-    if (category_id) {
+   
+    
+    if (category_id && category_id != undefined && category_id != '') {
         whereClause[Op.or] = [
     { category_id: category_id }, // Exact match
     { category_id: { [Op.like]: `%,${category_id},%` } }, // Middle
@@ -91,7 +93,7 @@ exports.getVendorsByCategoryId = async (req, res) => {
       required: true,
       attributes: ['sponsor_rank']
     };
-    if (category_id) sponsorRankInclude.where.category_id = category_id;
+    if (category_id && category_id != undefined && category_id != '') sponsorRankInclude.where.category_id = category_id;
 
     const sponsoredVendors = await User.findAll({
       where: sponsoredWhere,
@@ -99,17 +101,18 @@ exports.getVendorsByCategoryId = async (req, res) => {
       order: [[{ model: VendorCategoryRank, as: 'categoryRanks' }, 'sponsor_rank', 'ASC']],
       distinct: true
     });
+    
   //  return res.json({ status: true, data: sponsoredVendors });
    
     // Get non-sponsored vendors for this filter
     let nonSponsorRankInclude = {
       model: VendorCategoryRank,
       as: 'categoryRanks',
-      where: { is_sponsored: 0, category_id:category_id },
+      where: { is_sponsored: 0},
       required: false
     };
 
-    if (category_id) nonSponsorRankInclude.where.category_id = category_id;
+    if (category_id && category_id != undefined && category_id != '') nonSponsorRankInclude.where.category_id = category_id;
 
     const sponsoredIds = sponsoredVendors.map(v => v.id);
         const nonSponsoredVendors = await User.findAll({

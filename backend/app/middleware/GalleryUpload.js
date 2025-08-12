@@ -45,7 +45,7 @@ const galleryUploadHandler = (req, res, next) => {
   const multerUpload = multer({
     storage,
     fileFilter: mediaFilter,
-    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
+    limits: { fileSize: 5 * 1024 * 1024 }, // 50MB max
   }).any(); // Accept any field name
 
   multerUpload(req, res, function (err) {
@@ -61,7 +61,7 @@ const galleryUploadHandler = (req, res, next) => {
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).json({
           status: false,
-          msg: 'File too large. Maximum allowed size is 50MB.'
+          msg: 'File too large. Maximum allowed size is 5MB.'
         });
       }
       
