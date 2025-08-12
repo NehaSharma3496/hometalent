@@ -12,6 +12,7 @@ const {
   Review
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
+const socketManager = require('../../socket/socketManager');
 const { Op, Sequelize,literal } = require('sequelize');
 
 exports.listAllVendors = async (req, res) => {
@@ -377,42 +378,37 @@ exports.updateSponsorRanks = async (req, res) => {
     const { vendors } = req.body;
 
     if (!Array.isArray(vendors) || vendors.length === 0) {
-      return res
-        .status(400)
-        .json({ status: false, msg: "vendors array is required" });
+      return res.status(400).json({ status: false, msg: "vendors array is required" });
     }
 
     // Validate all entries
     for (const v of vendors) {
-      if (
-        !v.vendor_id ||
-        !v.category_id ||
-        typeof v.sponsor_rank !== "number"
-      ) {
-        return res
-          .status(400)
-          .json({
-            status: false,
-            msg: "Each item must include vendor_id, category_id, and sponsor_rank",
-          });
+      if (!v.vendor_id || !v.category_id || typeof v.sponsor_rank !== 'number') {
+        return res.status(400).json({ status: false, msg: "Each item must include vendor_id, category_id, and sponsor_rank" });
       }
     }
 
     // Update vendor category ranks one by one
     for (const v of vendors) {
       // Use upsert to create or update the rank
-      await VendorCategoryRank.upsert({
+      const rankData = await VendorCategoryRank.upsert({
         vendor_id: v.vendor_id,
         category_id: v.category_id,
         sponsor_rank: v.sponsor_rank,
-        is_sponsored: v.sponsor_rank > 0 ? 1 : 0,
+        is_sponsored: v.sponsor_rank > 0 ? 1 : 0
+      });
+
+      // Send socket notification for each rank update
+      socketManager.sponsorRankUpdated({
+        vendor_id: v.vendor_id,
+        category_id: v.category_id,
+        sponsor_rank: v.sponsor_rank,
+        is_sponsored: v.sponsor_rank > 0 ? 1 : 0
       });
     }
 
-    res.json({
-      status: true,
-      msg: "Category-specific sponsor ranks updated successfully",
-    });
+    res.json({ status: true, msg: "Category-specific sponsor ranks updated successfully" });
+
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
@@ -535,157 +531,163 @@ exports.getProfileUpdateRequestDetails = async (req, res) => {
 exports.processProfileUpdateRequest = async (req, res) => {
   try {
     const { request_id, action, remarks, admin_id } = req.body; // action: 'approve' or 'reject'
-
+    
     if (!admin_id) {
-      return res.json({
-        status: false,
-        msg: "admin_id is required",
+      return res.json({ 
+        status: false, 
+        msg: 'admin_id is required' 
       });
     }
 
-    if (!["approve", "reject"].includes(action)) {
-      return res.json({
-        status: false,
-        msg: 'Action must be either "approve" or "reject"',
+    if (!['approve', 'reject'].includes(action)) {
+      return res.json({ 
+        status: false, 
+        msg: 'Action must be either "approve" or "reject"' 
       });
     }
 
     const request = await ProfileUpdateRequest.findOne({
-      where: { id: request_id, status: "pending" },
+      where: { id: request_id, status: 'pending' },
       include: [
         {
           model: User,
-          as: "vendor",
-          attributes: ["id", "email", "owner_name", "profile_name"],
-        },
-      ],
+          as: 'vendor',
+          attributes: ['id', 'email', 'owner_name', 'profile_name']
+        }
+      ]
     });
 
     if (!request) {
-      return res.json({
-        status: false,
-        msg: "Profile update request not found or already processed",
+      return res.json({ 
+        status: false, 
+        msg: 'Profile update request not found or already processed' 
       });
     }
 
     // Update request status
-    request.status = action === "approve" ? "approved" : "rejected";
+    request.status = action === 'approve' ? 'approved' : 'rejected';
     request.admin_id = admin_id;
-    request.admin_remarks = remarks || "";
+    request.admin_remarks = remarks || '';
     request.processed_at = new Date();
     await request.save();
 
-    if (action === "approve") {
+    if (action === 'approve') {
       // Parse request_data if it's a string
       let updateData = request.request_data;
-      if (typeof updateData === "string") {
+      if (typeof updateData === 'string') {
         try {
           updateData = JSON.parse(updateData);
         } catch (error) {
-          // console.error('Error parsing request_data:', error);
-          return res.json({
-            status: false,
-            msg: "Invalid request data format",
+          return res.json({ 
+            status: false, 
+            msg: 'Invalid request data format' 
           });
         }
       }
 
-      // Debug: Log the update data
-      // console.log('Updating user with data:', updateData);
-      // console.log('Vendor ID:', request.vendor_id);
-
       // Get user data before update
       const userBefore = await User.findByPk(request.vendor_id);
-      // console.log('User data before update:', userBefore ? userBefore.toJSON() : 'User not found');
 
       // Apply the changes to vendor profile
-      const updateResult = await User.update(updateData, {
-        where: { id: request.vendor_id },
-      });
-
-      // console.log('Update result:', updateResult);
+      const updateResult = await User.update(
+        updateData,
+        { where: { id: request.vendor_id } }
+      );
 
       // Get user data after update
       const userAfter = await User.findByPk(request.vendor_id);
-      // console.log('User data after update:', userAfter ? userAfter.toJSON() : 'User not found');
-
-      // Send email notification to vendor
-      const subject = "Profile Update Approved";
-      const message = `
-        <p>Hi ${
-          request.vendor.owner_name || request.vendor.profile_name || "Vendor"
-        },</p>
-        <p>Your profile update request has been approved by admin.</p>
-        <p><strong>Updated Fields:</strong></p>
-        <ul>
-          ${Object.keys(updateData)
-            .map((key) => {
-              if (key === "image" || key === "video") {
-                return `<li>${key}: File uploaded successfully</li>`;
-              }
-              return `<li>${key}: ${updateData[key]}</li>`;
-            })
-            .join("")}
-        </ul>
-        ${remarks ? `<p><strong>Admin Remarks:</strong> ${remarks}</p>` : ""}
-        <p>Thank you,<br/>Team HomeTalent</p>
-      `;
-
-      await commonEmail(request.vendor.email, subject, message);
 
       // Log the approval and approved data
       await Log.create({
-        request_id,
         user_id: admin_id,
-        user_type: "admin",
-        action: "profile_update_approve",
+        user_type: 'admin',
+        action: 'profile_update_approve',
         details: JSON.stringify({
           request_id,
           approved_data: updateData,
           vendor_id: request.vendor_id,
           user_before: userBefore,
-          user_after: userAfter,
-        }),
+          user_after: userAfter
+        })
       });
-    } else {
-      // Send rejection email to vendor
-      const subject = "Profile Update Request Rejected";
+
+      // Send email notification to vendor
+      const subject = 'Profile Update Request Approved';
       const message = `
-        <p>Hi ${
-          request.vendor.owner_name || request.vendor.profile_name || "Vendor"
-        },</p>
+        <p>Hi ${request.vendor.owner_name || request.vendor.profile_name || 'Vendor'},</p>
+        <p>Your profile update request has been approved by admin.</p>
+        <p><strong>Updated Fields:</strong></p>
+        <ul>
+          ${Object.keys(updateData).map(key => {
+            if (key === 'image' || key === 'video') {
+              return `<li>${key}: File uploaded successfully</li>`;
+            }
+            return `<li>${key}: ${updateData[key]}</li>`;
+          }).join('')}
+        </ul>
+        ${remarks ? `<p><strong>Admin Remarks:</strong> ${remarks}</p>` : ''}
+        <p>Thank you,<br/>Team HomeTalent</p>
+      `;
+
+      await commonEmail(request.vendor.email, subject, message);
+
+      // Send socket notification
+      socketManager.profileUpdateProcessed({
+        id: request.id,
+        vendor_id: request.vendor_id,
+        request_data: request.request_data,
+        status: request.status,
+        admin_remarks: request.admin_remarks,
+        processed_at: request.processed_at
+      }, request.vendor_id, action);
+
+    } else {
+      // Log the rejection and request data
+      await Log.create({
+        user_id: admin_id,
+        user_type: 'admin',
+        action: 'profile_update_reject',
+        details: JSON.stringify({
+          request_id,
+          request_data: request.request_data,
+          vendor_id: request.vendor_id,
+          remarks
+        })
+      });
+
+      // Send rejection email to vendor
+      const subject = 'Profile Update Request Rejected';
+      const message = `
+        <p>Hi ${request.vendor.owner_name || request.vendor.profile_name || 'Vendor'},</p>
         <p>Your profile update request has been rejected by admin.</p>
-        ${remarks ? `<p><strong>Reason:</strong> ${remarks}</p>` : ""}
+        ${remarks ? `<p><strong>Reason:</strong> ${remarks}</p>` : ''}
         <p>Please review your request and submit again if needed.</p>
         <p>Thank you,<br/>Team HomeTalent</p>
       `;
 
       await commonEmail(request.vendor.email, subject, message);
 
-      // Log the rejection and request data
-      await Log.create({
-        request_id,
-        user_id: admin_id,
-        user_type: "admin",
-        action: "profile_update_reject",
-        details: JSON.stringify({
-          request_id,
-          request_data: request.request_data,
-          vendor_id: request.vendor_id,
-          remarks,
-        }),
-      });
+      // Send socket notification
+      socketManager.profileUpdateProcessed({
+        id: request.id,
+        vendor_id: request.vendor_id,
+        request_data: request.request_data,
+        status: request.status,
+        admin_remarks: request.admin_remarks,
+        processed_at: request.processed_at
+      }, request.vendor_id, action);
     }
 
-    res.json({
-      status: true,
+    res.json({ 
+      status: true, 
       msg: `Profile update request ${action}d successfully`,
       data: {
         request_id: request.id,
         status: request.status,
-        processed_at: request.processed_at,
-      },
+        processed_at: request.processed_at
+      }
     });
+
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
@@ -738,16 +740,20 @@ exports.getAllProfileUpdateRequests = async (req, res) => {
 // Package Master CRUD APIs
 exports.createPackage = async (req, res) => {
   try {
-    const { name, description, price, validity_in_months, features, status } =
-      req.body;
-    const pkg = await Package.create({
-      name,
-      description,
-      price,
-      validity_in_months,
-      features,
-      status,
+    const { name, description, price, validity_in_months, features, status } = req.body;
+    const pkg = await Package.create({ name, description, price, validity_in_months, features, status });
+    
+    // Send socket notification
+    socketManager.packageCreated({
+      id: pkg.id,
+      name: pkg.name,
+      description: pkg.description,
+      price: pkg.price,
+      validity_in_months: pkg.validity_in_months,
+      features: pkg.features,
+      status: pkg.status
     });
+    
     res.json({ status: true, data: pkg });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });

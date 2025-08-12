@@ -1,5 +1,6 @@
 const { ContactUs, ClientLead, User } = require('../../models');
 const { commonEmail } = require('../../helper/commonEmail');
+const socketManager = require('../../socket/socketManager');
 
 exports.submitContactUs = async (req, res) => {
   try {
@@ -8,6 +9,17 @@ exports.submitContactUs = async (req, res) => {
       return res.status(400).json({ status: false, msg: 'name, email, subject, and message are required' });
     }
     const contact = await ContactUs.create({ name, email, phone, subject, message });
+    
+    // Send socket notification
+    socketManager.contactUsSubmitted({
+      id: contact.id,
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone,
+      subject: contact.subject,
+      message: contact.message
+    });
+    
     res.json({ status: true, msg: 'Contact request submitted successfully', data: contact });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
@@ -20,7 +32,7 @@ exports.submitLead = async (req, res) => {
     if (!vendor_id || !name || !phone || !email) {
       return res.status(400).json({ status: false, msg: 'vendor_id, name, phone, and email are required' });
     }
-    // Store the lead 
+    // Store the lead
     const lead = await ClientLead.create({ vendor_id, name, phone, email, query });
     // Get vendor details
     const vendor = await User.findByPk(vendor_id, { attributes: ['owner_name', 'profile_name', 'email', 'phone'] });
@@ -30,6 +42,17 @@ exports.submitLead = async (req, res) => {
       const text = `Thank you for your query. Here are the vendor details you selected:\n\nName: ${vendor.owner_name} (${vendor.profile_name})\nEmail: ${vendor.email}\nContact: ${vendor.phone}`;
       await commonEmail(email, subject, text);
     }
+
+    // Send socket notification
+    socketManager.leadSubmitted({
+      id: lead.id,
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      query: lead.query,
+      vendor_id: lead.vendor_id
+    }, vendor_id);
+
     res.json({ status: true, msg: 'Lead submitted and vendor details sent to your email.' });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });

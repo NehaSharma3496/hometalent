@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { commonEmail } = require("../../helper/commonEmail");
 const { Op, Sequelize } = require("sequelize");
+const socketManager = require('../../socket/socketManager');
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
@@ -91,6 +92,17 @@ exports.createUser = async (req, res) => {
       password: hashedPassword,
       show_password: password,
     });
+
+    // Send socket notification for vendor registration
+    if (user.role_id === 2) { // If vendor
+      socketManager.vendorRegistered({
+        id: user.id,
+        owner_name: user.owner_name,
+        profile_name: user.profile_name,
+        email: user.email,
+        phone: user.phone
+      });
+    }
 
     res.json({
       status: true,

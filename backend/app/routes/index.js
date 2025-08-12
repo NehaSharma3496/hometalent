@@ -20,4 +20,13 @@ router.use('/client', clientRoutes);
 router.use('/', blogRoutes);
 router.use('/', reviewRoutes);
 
+// Test socket connection
+router.get('/socket-test', (req, res) => {
+  res.json({ 
+    status: true, 
+    msg: 'Socket server is running. Connect to this server using Socket.IO client.',
+    socket_url: `http://localhost:${process.env.PORT || 9999}`
+  });
+});
+
 module.exports = router;
