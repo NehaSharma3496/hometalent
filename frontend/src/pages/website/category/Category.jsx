@@ -21,6 +21,7 @@ const Category = () => {
   const categoryId = location?.state?.categoryId;
   const cityId = location?.state?.cityId;
   const categoryName = categories.find((cat) => cat.id === categoryId)?.name;
+  const cityName = city.find((c) => c.type === "city" && c.id === cityId)?.name || "";
 
   console.log("Category Id", categoryId);
   console.log("City Id ", cityId);
@@ -93,9 +94,12 @@ const Category = () => {
   };
 
   const breadcrumbLinks = [
-    { label: "Home", to: "/" },
-    { label: categoryName, to: "#" },
-  ];
+  { label: "Home", to: "/" },
+  ...(cityName
+    ? [{ label: cityName, to: `/vendors-by-category?city_id=${cityId}` }]
+    : []),
+  { label: categoryName || "Category", to: `/vendors-by-category?category_id=${categoryId}${cityId ? `&city_id=${cityId}` : ""}` },
+];
 
   return (
     <div>

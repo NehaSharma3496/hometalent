@@ -10,7 +10,7 @@ const AdminGallery = () => {
   const [gallery, setGallery] = useState([]);
   const [activeTab, setActiveTab] = useState("images");
   const [selectedItems, setSelectedItems] = useState([]);
-const [selectAll, setSelectAll] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
 
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
@@ -30,32 +30,30 @@ const [selectAll, setSelectAll] = useState(false);
   }, [userId]);
 
   const handleSelectAll = () => {
-  if (selectAll) {
-    setSelectedItems([]);
-  } else {
-    const ids = filteredGallery.map((item) => item.id);
-    setSelectedItems(ids);
-  }
-  setSelectAll(!selectAll);
-};
-
-const toggleSelect = (id) => {
-  setSelectedItems((prev) => {
-    const updated = prev.includes(id)
-      ? prev.filter((item) => item !== id)
-      : [...prev, id];
-
-    if (updated.length !== filteredGallery.length) {
-      setSelectAll(false);
+    if (selectAll) {
+      setSelectedItems([]);
     } else {
-      setSelectAll(true);
+      const ids = filteredGallery.map((item) => item.id);
+      setSelectedItems(ids);
     }
+    setSelectAll(!selectAll);
+  };
 
-    return updated;
-  });
-};
+  const toggleSelect = (id) => {
+    setSelectedItems((prev) => {
+      const updated = prev.includes(id)
+        ? prev.filter((item) => item !== id)
+        : [...prev, id];
 
+      if (updated.length !== filteredGallery.length) {
+        setSelectAll(false);
+      } else {
+        setSelectAll(true);
+      }
 
+      return updated;
+    });
+  };
 
   const handleSingleDelete = async (id) => {
     const isBulk = selectedItems.includes(id);
@@ -80,7 +78,11 @@ const toggleSelect = (id) => {
         setSelectedItems([]);
         fetchGallery();
       } else {
-        Swal.fire("Error", res.message || "Failed to delete image(s).", "error");
+        Swal.fire(
+          "Error",
+          res.message || "Failed to delete image(s).",
+          "error"
+        );
       }
     } catch (err) {
       Swal.fire("Error", "An error occurred while deleting.", "error");
@@ -137,7 +139,7 @@ const toggleSelect = (id) => {
         <div className="col-md-6 text-end mb-4">
           <Link to="/admin/uploadgallery" className="btn btn-primary shadow-sm">
             <i className="ri-upload-cloud-line me-1"></i>
-            Upload
+            Add Image / Video
           </Link>
         </div>
       </div>
@@ -164,28 +166,27 @@ const toggleSelect = (id) => {
       </div>
 
       {filteredGallery.length > 0 && (
-  <div className="mb-3 d-flex justify-content-between align-items-center">
-    <div className="form-check">
-      <input
-        type="checkbox"
-        id="selectAll"
-        className="form-check-input"
-        checked={selectAll}
-        onChange={handleSelectAll}
-      />
-      <label htmlFor="selectAll" className="form-check-label">
-        Select All
-      </label>
-    </div>
+        <div className="mb-3 d-flex justify-content-between align-items-center">
+          <div className="form-check">
+            <input
+              type="checkbox"
+              id="selectAll"
+              className="form-check-input"
+              checked={selectAll}
+              onChange={handleSelectAll}
+            />
+            <label htmlFor="selectAll" className="form-check-label">
+              Select All
+            </label>
+          </div>
 
-    {selectedItems.length > 0 && (
-      <button className="btn btn-danger" onClick={handleBulkDelete}>
-        Delete ({selectedItems.length})
-      </button>
-    )}
-  </div>
-)}
-
+          {selectedItems.length > 0 && (
+            <button className="btn btn-danger" onClick={handleBulkDelete}>
+              Delete ({selectedItems.length})
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="card shadow-sm p-3 border-0 bg-light">
         {filteredGallery.length === 0 ? (

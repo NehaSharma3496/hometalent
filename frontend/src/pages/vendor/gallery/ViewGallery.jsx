@@ -176,7 +176,7 @@ const ViewGallery = () => {
             to="/vendor/gallery/upload"
             className="btn btn-primary me-2 shadow-sm"
           >
-            <i className="ri-upload-cloud-line me-1"></i> Upload
+            <i className="ri-upload-cloud-line me-1"></i> Add Image / Video
           </Link>
 
           {orderChanged && ( // ✅ Show only if order changed

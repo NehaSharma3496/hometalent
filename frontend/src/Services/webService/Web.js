@@ -67,13 +67,11 @@ export async function SubmitContactData(data) {
   }
 }
 
-
 export async function GetVendorsByCategory(token, categoryId, cityId) {
   try {
-    // agar categoryId na ho to empty string ya 0 daal do (backend me categoryId param mandatory hai)
-    const catId = categoryId || '0'; 
+ 
+    const catId = categoryId || ''; 
 
-    // city_id query param only agar mile to daalo
     const cityQuery = cityId ? `?city_id=${cityId}` : '';
 
     const res = await axios.get(
