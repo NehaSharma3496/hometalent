@@ -7,13 +7,11 @@ import {
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import {
-  GetCategories,
-  GetVendorsByCategory,
-} from "../../Services/webService/Web";
+import { GetCategories } from "../../Services/webService/Web";
 import { GetAllAdminBlog } from "../../Services/admin/Admin";
 
 const Home = () => {
+  const token = localStorage.getItem("token");
   const [statecity, setStateCity] = useState([]);
   const [categories, setCategories] = useState([]);
   const [showAllCategories, setShowAllCategories] = useState(false);
@@ -23,84 +21,15 @@ const Home = () => {
   const categorySectionRef = useRef(null);
   const blogSectionRef = useRef(null);
   const [review, setReview] = useState([]);
-
-  // State for storing selected IDs
-  const [selectedCityId, setSelectedCityId] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [blog, setBlog] = useState([]);
   const [showAllBlog, setShowAllBlog] = useState(false);
   const [blogdata, setBlogData] = useState([]);
-
-  const navigate = useNavigate();
-
-  const handleCitySelect = (cityName, cityId) => {
-    setSearch(cityName);
-    setSelectedCityId(cityId);
-    setShowDropdown(false);
-  };
-
-  const handleCategorySelect = (categoryValue) => {
-    // Find the actual category object to get the correct ID
-    const selectedCategory = categories.find(
-      (cat) =>
-        cat._id === categoryValue ||
-        cat.id === categoryValue ||
-        cat.name === categoryValue
-    );
-
-    // Try to get the actual ID from the category object
-    let actualCategoryId = categoryValue;
-
-    if (selectedCategory) {
-      // Try different possible ID fields
-      actualCategoryId =
-        selectedCategory.id ||
-        selectedCategory._id ||
-        selectedCategory.categoryId ||
-        categoryValue;
-    }
-
-    setSelectedCategoryId(actualCategoryId);
-  };
-
-  const handleFindNow = () => {
-    // Validate that we have at least one selection
-    if (!selectedCategoryId && !selectedCityId) {
-      alert("Please select at least a city or category");
-      return;
-    }
-
-    // Navigate to category page with appropriate parameters
-    const queryParams = new URLSearchParams();
-
-    if (selectedCategoryId) {
-      queryParams.append("categoryId", selectedCategoryId);
-    }
-
-    if (selectedCityId) {
-      queryParams.append("cityId", selectedCityId);
-    }
-
-    const url = `/category?${queryParams.toString()}`;
-
-    navigate(url);
-  };
-
-  const token = localStorage.getItem("token");
-
-  const fetchReview = async () => {
-    try {
-      const response = await GetAllApprovedReview(token);
-      setReview(response?.data);
-    } catch (error) {
-      console.log("Error fetching review");
-    }
-  };
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const fetchstatecity = async () => {
     try {
       const response = await GetStateCity();
-      setStateCity(response.data);
+      setStateCity(response?.data);
     } catch (error) {
       console.log("Error fetching cities", error);
     }
@@ -109,10 +38,43 @@ const Home = () => {
   const fetchcategories = async () => {
     try {
       const response = await GetCategories(token);
-      setCategories(response.data);
-      setCategoryData(response.data);
+      setCategories(response?.data);
+      setCategoryData(response?.data);
     } catch (error) {
       console.log("Error fetching services", error);
+    }
+  };
+
+  const navigate = useNavigate();
+
+  const handleFindNow = () => {
+    const selectedCityObj = statecity.find(
+      (item) =>
+        item.type === "city" &&
+        item.name.toLowerCase() === search.trim().toLowerCase()
+    );
+
+    const cityId = selectedCityObj ? selectedCityObj.id : null;
+
+    if (!selectedCategory && !cityId) {
+      alert("Please select at least a category or a city");
+      return;
+    }
+
+    navigate("/category", {
+      state: {
+        categoryId: selectedCategory ? Number(selectedCategory) : null,
+        cityId: cityId,
+      },
+    });
+  };
+
+  const fetchReview = async () => {
+    try {
+      const response = await GetAllApprovedReview(token);
+      setReview(response?.data);
+    } catch (error) {
+      console.log("Error fetching review");
     }
   };
 
@@ -130,7 +92,7 @@ const Home = () => {
   const scrollToSection = (ref) => {
     if (ref.current) {
       window.scrollTo({
-        top: ref.current.offsetTop - 100, // Adjust the offset as needed
+        top: ref.current.offsetTop - 100,
         behavior: "smooth",
       });
     }
@@ -210,7 +172,7 @@ const Home = () => {
     ],
     appendDots: (dots) => (
       <ul style={{ display: "flex", justifyContent: "center", gap: "5px" }}>
-        {dots.slice(0, 3)} {/* only show first 3 dots */}
+        {dots.slice(0, 3)}
       </ul>
     ),
   };
@@ -250,9 +212,6 @@ const Home = () => {
                           value={search}
                           onChange={(e) => setSearch(e.target.value)}
                           onFocus={() => setShowDropdown(true)}
-                          onBlur={() =>
-                            setTimeout(() => setShowDropdown(false), 200)
-                          }
                         />
 
                         {showDropdown && (
@@ -274,7 +233,7 @@ const Home = () => {
                                 (group) => (
                                   <li key={`group-${group.state.id}`}>
                                     <h6 className="text-danger mb-1 mt-2">
-                                      {group.state.name}{" "}
+                                      {group.state.name}
                                     </h6>
                                     <ul className="list-unstyled ms-3 ps-0">
                                       {group.cities.map((city) => (
@@ -282,12 +241,10 @@ const Home = () => {
                                           <button
                                             type="button"
                                             className="dropdown-item py-1 text-nowrap"
-                                            onClick={() =>
-                                              handleCitySelect(
-                                                city.name,
-                                                city.id
-                                              )
-                                            }
+                                            onMouseDown={() => {
+                                              setSearch(city.name);
+                                              setShowDropdown(false);
+                                            }}
                                           >
                                             * {city.name}
                                           </button>
@@ -306,28 +263,18 @@ const Home = () => {
                         <div className="destination-flex">
                           <select
                             className="form-select"
-                            value={selectedCategoryId}
+                            value={selectedCategory}
                             onChange={(e) =>
-                              handleCategorySelect(e.target.value)
+                              setSelectedCategory(e.target.value)
                             }
                           >
                             <option value="">Select Category</option>
                             {Array.isArray(categories) &&
-                              categories.map((cat) => {
+                              categories?.map((cat) => {
                                 const categoryId =
                                   cat.id || cat._id || cat.categoryId;
-                                console.log(
-                                  "Rendering option - ID:",
-                                  categoryId,
-                                  "Name:",
-                                  cat.name
-                                );
-
                                 return (
-                                  <option
-                                    key={cat._id || cat.id}
-                                    value={categoryId}
-                                  >
+                                  <option key={categoryId} value={categoryId}>
                                     {cat.name}
                                   </option>
                                 );
@@ -338,10 +285,9 @@ const Home = () => {
                       <div className="col-xl-2 col-lg-3">
                         <div className="sign-btn text-right">
                           <button
+                            className="btn-primary w-100 text-center d-block"
                             style={{ height: "54px", lineHeight: "30px" }}
                             onClick={handleFindNow}
-                            className="btn-primary w-100 text-center"
-                            type="button"
                           >
                             Find Now
                           </button>
@@ -378,7 +324,10 @@ const Home = () => {
                   .toLowerCase()}.png`;
 
                 return (
-                  <div className="grid-item" key={category._id}>
+                  <div
+                    className="grid-item"
+                    key={category._id || category.id || category.name}
+                  >
                     <Link
                       to="/category"
                       state={{ categoryId: category._id || category.id }}
@@ -480,7 +429,10 @@ const Home = () => {
           </div>
           <Slider {...settings}>
             {review.map((item, index) => (
-              <div key={index} className="p-3">
+              <div
+                key={item.id || item._id || `${item.name}-${index}`}
+                className="p-3"
+              >
                 <div
                   className="testimonial-card"
                   style={{
@@ -577,10 +529,13 @@ const Home = () => {
           <div className="row g-4">
             {(showAllBlog ? blogdata : blogdata.slice(0, 3)).map(
               (item, index) => (
-                <div className="col-xl-4 col-lg-4 col-sm-6" key={item.id}>
+                <div
+                  className="col-xl-4 col-lg-4 col-sm-6"
+                  key={item.id || item._id || index}
+                >
                   <article className="news-card-two">
                     <figure className="news-banner-two imgEffect">
-                      <Link to={`/blog`}>
+                      <Link to={`/blogdetail/${item.id}`}>
                         <img
                           src={item.image}
                           alt={item.title}
@@ -612,7 +567,10 @@ const Home = () => {
                         </div>
                       </div>
                       <h4 className="title mb-2">
-                        <Link to={`/blog`} className="clamp-title">
+                        <Link
+                          to={`/blogdetail/${item.id}`}
+                          className="clamp-title"
+                        >
                           {item.title}
                         </Link>
                       </h4>
@@ -623,7 +581,7 @@ const Home = () => {
                       </div>
                       <div className="">
                         <Link
-                          to={`/blog`}
+                          to={`/blogdetail/${item.id}`}
                           className=" btn-primary-sm btn-primary"
                         >
                           Read More

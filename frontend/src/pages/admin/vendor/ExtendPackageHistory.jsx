@@ -62,7 +62,7 @@ export default function ExtendPackageHistory() {
     },
     {
       name: "Extended Days",
-      selector: (row) => `${row.details} Day(s)`,
+      selector: (row) => `${row.details}`,
     },
   ];
 

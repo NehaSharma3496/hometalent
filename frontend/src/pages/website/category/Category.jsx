@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import axios from "axios";
 import Breadcrumbs from "../../../components/websitecomponents/Breadcrumbs";
 import {
   GetStateCity,
@@ -20,22 +19,25 @@ const Category = () => {
   const [sortOption, setSortOption] = useState("");
 
   const categoryId = location?.state?.categoryId;
-
+  const cityId = location?.state?.cityId;
   const categoryName = categories.find((cat) => cat.id === categoryId)?.name;
+
+  console.log("Category Id", categoryId);
+  console.log("City Id ", cityId);
 
   useEffect(() => {
     fetchCategories();
     fetchStateCity();
     fetchVendors();
-  }, [categoryId]);
+  }, [categoryId, cityId]);
 
   useEffect(() => {
-    let filtered = vendor.filter((v) => {
+    let filtered = vendor?.filter((v) => {
       const cityName =
-        city.find((c) => c.type === "city" && c.id === v.city_id)?.name || "";
+        city?.find((c) => c.type === "city" && c.id === v.city_id)?.name || "";
       return (
         v.owner_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        cityName.toLowerCase().includes(searchQuery.toLowerCase())
+        cityName?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     });
 
@@ -81,10 +83,10 @@ const Category = () => {
   const fetchVendors = async () => {
     setLoading(true);
     try {
-      const res = await GetVendorsByCategory(token, categoryId, null);
+      const res = await GetVendorsByCategory(token, categoryId, cityId);
       setVendor(res?.data);
     } catch (err) {
-      console.log("Error in fetching vendorsby categories", err);
+      console.log("Error in fetching vendors by categories", err);
     } finally {
       setLoading(false);
     }
@@ -174,8 +176,8 @@ const Category = () => {
                         </div>
                         <p className="mt-2">Loading vendors...</p>
                       </div>
-                    ) : filteredVendors.length > 0 ? (
-                      filteredVendors.map((item, index) => (
+                    ) : filteredVendors?.length > 0 ? (
+                      filteredVendors?.map((item, index) => (
                         <div className="col-xl-4 col-lg-4 col-sm-6" key={index}>
                           <div className="hotel-card">
                             <div className="hotel-img imgEffect4">

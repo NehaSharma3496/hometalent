@@ -67,19 +67,23 @@ export async function SubmitContactData(data) {
   }
 }
 
+
 export async function GetVendorsByCategory(token, categoryId, cityId) {
   try {
-    let url = `${Config.base_url}front/vendors-by-category/${categoryId}`;
+    // agar categoryId na ho to empty string ya 0 daal do (backend me categoryId param mandatory hai)
+    const catId = categoryId || '0'; 
 
-    if (cityId && cityId !== "undefined") {
-      url += `?city_id=${cityId}`;
-    }
+    // city_id query param only agar mile to daalo
+    const cityQuery = cityId ? `?city_id=${cityId}` : '';
 
-    const res = await axios.get(url, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
+    const res = await axios.get(
+      `${Config.base_url}front/vendors-by-category/${catId}${cityQuery}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
     return res?.data;
   } catch (err) {
     return err;

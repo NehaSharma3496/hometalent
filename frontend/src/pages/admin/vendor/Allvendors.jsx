@@ -87,7 +87,7 @@ export default function Allvendors() {
           v.owner_name?.toLowerCase().includes(lowerSearch) ||
           v.email?.toLowerCase().includes(lowerSearch) ||
           v.price_range.toLowerCase().includes(lowerSearch) ||
-          v.experience_since.toLowerCase().includes(lowerSearch)||
+          v.experience_since.toLowerCase().includes(lowerSearch) ||
           v.phone?.toLowerCase().includes(lowerSearch) ||
           (Array.isArray(v.category_names)
             ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
@@ -295,12 +295,16 @@ export default function Allvendors() {
             <i className="fa-regular fa-eye"></i>
           </button>
 
-          {/* Only show Gallery and Update buttons if not rejected */}
           {row.approval_status !== 2 && (
             <>
               <button
-                className="btn btn-info btn-sm d-flex align-items-center justify-content-center"
-                style={{ width: "35px", height: "35px" }}
+                className="btn btn-sm d-flex align-items-center justify-content-center"
+                style={{
+                  width: "35px",
+                  height: "35px",
+                  backgroundColor: "#a3d2f2",
+                  borderColor: "#a3d2f2",
+                }}
                 onClick={() =>
                   navigate(`/admin/galleryUpdates/vendorgallery/${row.id}`)
                 }
@@ -308,6 +312,7 @@ export default function Allvendors() {
               >
                 <i className="fa-solid fa-images"></i>
               </button>
+
               <button
                 className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
                 style={{ width: "35px", height: "35px" }}

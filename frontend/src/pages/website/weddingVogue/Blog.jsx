@@ -6,17 +6,15 @@ import { GetAllAdminBlog } from "../../../Services/admin/Admin";
 const Blog = () => {
   const [blog, setBlog] = useState([]);
 
-
- const fetchBlog = async () => {
-  try {
-    const res = await GetAllAdminBlog();
-    const activeBlogs = res?.data?.filter((blog) => blog.status === 1);
-    setBlog(activeBlogs);
-  } catch (error) {
-    console.log("Error in fetching blogs", error);
-  }
-};
-
+  const fetchBlog = async () => {
+    try {
+      const res = await GetAllAdminBlog();
+      const activeBlogs = res?.data?.filter((blog) => blog.status === 1);
+      setBlog(activeBlogs);
+    } catch (error) {
+      console.log("Error in fetching blogs", error);
+    }
+  };
 
   useEffect(() => {
     fetchBlog();
@@ -49,7 +47,15 @@ const Blog = () => {
                       <h4 className="title line-clamp-2">
                         <Link to={`/blogdetail/${item.id}`}>{item?.title}</Link>
                       </h4>
+                        <Link
+                        to={`/blogdetail/${item.id}`}
+                        className=" btn-primary-sm btn-primary "
+                         style={{ width: "120px" }}
+                      >
+                        Read More
+                      </Link>
                     </div>
+                  
                   </article>
                 </div>
               ))
