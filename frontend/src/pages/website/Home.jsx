@@ -156,12 +156,12 @@ const Home = () => {
 
     if (search.trim()) {
       return groups
-        .map((group) => {
+        ?.map((group) => {
           const stateMatch = group.state.name
             .toLowerCase()
             .includes(searchLower);
-          const matchedCities = group.cities.filter((city) =>
-            city.name.toLowerCase().includes(searchLower)
+          const matchedCities = group.cities?.filter((city) =>
+            city?.name.toLowerCase().includes(searchLower)
           );
 
           if (stateMatch) return group;
@@ -169,7 +169,7 @@ const Home = () => {
             return { state: group.state, cities: matchedCities };
           return null;
         })
-        .filter(Boolean);
+        ?.filter(Boolean);
     }
 
     return groups;

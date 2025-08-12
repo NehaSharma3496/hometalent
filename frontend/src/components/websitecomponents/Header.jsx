@@ -92,14 +92,14 @@ const Header = () => {
                                   <div className="col-lg-6" key={colIndex}>
                                     <ul>
                                       {category
-                                        .filter((_, idx) =>
+                                        ?.filter((_, idx) =>
                                           colIndex === 0
                                             ? idx <
                                               Math.ceil(category.length / 2)
                                             : idx >=
                                               Math.ceil(category.length / 2)
                                         )
-                                        .map((cat) => (
+                                        ?.map((cat) => (
                                           <li
                                             key={cat._id || cat.id}
                                             className="mb-2"
