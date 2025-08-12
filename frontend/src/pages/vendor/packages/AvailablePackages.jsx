@@ -8,7 +8,7 @@ import {
 import Datatable from "react-data-table-component";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
-import { loadScript } from "../../../Utils/razorpayLoader";
+import { loadScript } from "../../../Utils/cashfreeLoader";
 
 const VendorPackages = () => {
   const [packages, setPackages] = useState([]);
@@ -126,8 +126,6 @@ const VendorPackages = () => {
 
         page++;
       }
-
-      // Get subscribed packages once
       const subRes = await getVendorPackageHistory(token, vendorId);
       const subscribedIds = subRes?.data?.map((pkg) => pkg.package_id) || [];
 
@@ -157,8 +155,8 @@ const VendorPackages = () => {
       const amount = pkg.price;
       const getkey = "rzp_test_22mEHcDzJbcUmz";
 
-      if (!window.Razorpay) {
-        await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+      if (!window.Cashfree) {
+        await loadScript("https://sdk.cashfree.com/js/v3/cashfree.js");
       }
 
       const confirm = await Swal.fire({
