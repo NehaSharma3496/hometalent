@@ -10,6 +10,7 @@ const {
   ClientLead,
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
+const socketManager = require('../../socket/socketManager');
 const { Op } = require("sequelize");
 
 exports.listCategories = async (req, res) => {
@@ -55,46 +56,17 @@ exports.requestProfileUpdate = async (req, res) => {
   try {
     const vendor_id = req.body.vendor_id; // Get from authenticated user
     const updateData = req.body;
-   
-    const existingUser = await User.findOne({
-      where: {
-        [Op.or]: [{email: req.body.email }, { phone:req.body.phone }],
-        id: { [Op.notIn]: vendor_id ? [vendor_id] : [] },
-      },
-    });
-
-    if (existingUser) {
-      return res.json({
-        status: false,
-        msg: "Email or phone already registered",
-      });
-    }
 
     // Only allow certain fields to be updated
     const allowedFields = [
-      "owner_name",
-      "profile_name",
-      "state_id",
-      "city_id",
-      "pin_code",
-      "phone",
-      "email",
-      "price_range",
-      "short_description",
-      "category_id",
-      "experience_since",
-      "long_description",
-      "facebook_link",
-      "instagram_link",
-      "twitter_link",
-      "linkedin_link",
-      "youtube_link",
-      "website_link",
-      "image",
+      'owner_name', 'profile_name', 'state_id', 'city_id', 'pin_code',
+      'phone', 'email', 'price_range', 'short_description', 'category_id',
+      'experience_since', 'long_description', 'facebook_link', 'instagram_link',
+      'twitter_link', 'linkedin_link', 'youtube_link', 'website_link', 'image'
     ];
 
     const filteredData = {};
-    Object.keys(updateData).forEach((key) => {
+    Object.keys(updateData).forEach(key => {
       if (allowedFields.includes(key)) {
         filteredData[key] = updateData[key];
       }
@@ -103,30 +75,29 @@ exports.requestProfileUpdate = async (req, res) => {
     // Handle uploaded files
     if (req.files) {
       if (req.files.image && req.files.image[0]) {
-        const baseUrl = `${req.protocol}://${req.get('host')}`;
-        filteredData.image = req.files.image[0].filename ? `${baseUrl}/media/${req.files.image[0].filename}` : null;
+        filteredData.image = req.files.image[0].filename;
       }
     }
 
     if (Object.keys(filteredData).length === 0) {
-      return res.status(400).json({
-        status: false,
-        msg: "No valid fields provided for update",
+      return res.status(400).json({ 
+        status: false, 
+        msg: 'No valid fields provided for update' 
       });
     }
 
     // Check if vendor already has a pending request
     const existingRequest = await ProfileUpdateRequest.findOne({
-      where: {
-        vendor_id,
-        status: "pending",
-      },
+      where: { 
+        vendor_id, 
+        status: 'pending' 
+      }
     });
 
     if (existingRequest) {
-      return res.status(400).json({
-        status: false,
-        msg: "You already have a pending profile update request. Please wait for admin approval.",
+      return res.status(400).json({ 
+        status: false, 
+        msg: 'You already have a pending profile update request. Please wait for admin approval.' 
       });
     }
 
@@ -134,26 +105,32 @@ exports.requestProfileUpdate = async (req, res) => {
     const profileUpdateRequest = await ProfileUpdateRequest.create({
       vendor_id,
       request_data: filteredData,
-      status: "pending",
+      status: 'pending'
     });
 
     // Log the request
     await Log.create({
-      request_id: profileUpdateRequest.id,
       user_id: vendor_id,
-      user_type: "vendor",
-      action: "profile_update_request",
-      details: JSON.stringify(filteredData),
+      user_type: 'vendor',
+      action: 'profile_update_request',
+      details: JSON.stringify(filteredData)
     });
 
-    return res.json({
-      status: true,
-      msg: "Profile update request submitted successfully. Waiting for admin approval.",
-      data: {
-        requested_changes: filteredData,
-      },
+    // Send socket notification
+    socketManager.profileUpdateRequested({
+      id: profileUpdateRequest.id,
+      vendor_id: profileUpdateRequest.vendor_id,
+      request_data: filteredData,
+      status: profileUpdateRequest.status
     });
-     
+
+    res.json({ 
+      status: true, 
+      msg: 'Profile update request submitted successfully. Waiting for admin approval.',
+      data: {
+        requested_changes: filteredData
+      }
+    });
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
@@ -272,72 +249,37 @@ exports.getAvailablePackages = async (req, res) => {
 
 exports.subscribePackage = async (req, res) => {
   try {
-    const { vendor_id, status, amount, package_id, payment_reference } = req.body;
-
+    const { vendor_id, package_id, payment_reference } = req.body;
     if (!vendor_id || !package_id || !payment_reference) {
-      return res
-        .status(400)
-        .json({
-          status: false,
-          msg: "vendor_id, package_id, and payment_reference are required",
-        });
+      return res.status(400).json({ status: false, msg: 'vendor_id, package_id, and payment_reference are required' });
     }
-
     const pkg = await Package.findByPk(package_id);
-
-    if (!pkg)
-      return res.status(404).json({ status: false, msg: "Package not found" });
-
-    // ✅ Find latest subscription (past or future)
-
-    const latestSub = await VendorPackageSubscription.findOne({
-      where: {
-        vendor_id,
-
-        payment_status: "completed",
-      },
-
-      order: [["end_date", "DESC"]],
-    });
-
-    const now = new Date();
-
-    let startDate;
-
-    const validityDays = pkg.validity_in_months * 30;
-
-    if (latestSub) {
-      const latestEndDate = new Date(latestSub.end_date);
-
-      // if latest subscription ends in future, start from next day
-
-      startDate = new Date(latestEndDate.setDate(latestEndDate.getDate() + 1));
-    } else {
-      startDate = now;
-    }
-
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + validityDays - 1);
-
+    if (!pkg) return res.status(404).json({ status: false, msg: 'Package not found' });
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + pkg.validity_in_months);
     const subscription = await VendorPackageSubscription.create({
       vendor_id,
-
       package_id,
-
-      amount,
-
       start_date: startDate,
-
       end_date: endDate,
+      payment_status: 'completed',
+      payment_reference
+    });
 
-      payment_status: status,
-
-      payment_reference,
+    // Send socket notification
+    socketManager.vendorSubscribed({
+      id: subscription.id,
+      vendor_id: subscription.vendor_id,
+      package_id: subscription.package_id,
+      start_date: subscription.start_date,
+      end_date: subscription.end_date,
+      payment_status: subscription.payment_status,
+      payment_reference: subscription.payment_reference
     });
 
     res.json({ status: true, data: subscription });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ status: false, msg: error.message });
   }
 };
