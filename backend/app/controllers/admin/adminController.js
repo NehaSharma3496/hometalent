@@ -599,6 +599,7 @@ exports.processProfileUpdateRequest = async (req, res) => {
 
       // Log the approval and approved data
       await Log.create({
+        request_id,
         user_id: admin_id,
         user_type: 'admin',
         action: 'profile_update_approve',
