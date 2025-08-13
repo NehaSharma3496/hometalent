@@ -146,9 +146,9 @@ const Home = () => {
 
   const settings = {
     dots: true,
-    infinite: true,
+    infinite: review.length > 3,
     speed: 800,
-    slidesToShow: 3,
+    slidesToShow:Math.min(3, review.length),
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 3000,
@@ -317,7 +317,7 @@ const Home = () => {
           </div>
 
           <div className="grid5-container">
-            {(showAllCategories ? categoryData : categoryData.slice(0, 10)).map(
+            {(showAllCategories ? categoryData : categoryData?.slice(0, 10)).map(
               (category) => {
                 const imageSrc = `/assets/images/category/${category.name
                   .replace(/\s+/g, "-")
@@ -595,7 +595,7 @@ const Home = () => {
           </div>
 
           {blogdata.length > 3 && (
-            <div className="text-center mt-3">
+            <div className="text-center">
               <button
                 onClick={() => {
                   setShowAllBlog((prev) => {
@@ -604,7 +604,7 @@ const Home = () => {
                     return newState;
                   });
                 }}
-                className="btn btn-primary"
+                className="btn btn-primary test12"
               >
                 {showAllBlog ? "View Less" : "View All Blogs"}
               </button>
