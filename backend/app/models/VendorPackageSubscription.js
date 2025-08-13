@@ -15,10 +15,10 @@ const VendorPackageSubscription = sequelize.define('VendorPackageSubscription', 
         type: DataTypes.INTEGER,
         allowNull: false,
     },
-
     amount: {
-        type: DataTypes.TEXT,
-        allowNull: true,
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        comment: 'Package subscription amount in INR',
     },
     start_date: {
         type: DataTypes.DATE,
@@ -29,17 +29,55 @@ const VendorPackageSubscription = sequelize.define('VendorPackageSubscription', 
         allowNull: false,
     },
     payment_status: {
-        type: DataTypes.STRING,
+        type: DataTypes.ENUM('pending', 'completed', 'failed', 'refunded'),
         allowNull: false,
-        defaultValue: 'pending', // pending, completed, failed
+        defaultValue: 'pending',
+        comment: 'Payment status of the subscription',
     },
     payment_reference: {
         type: DataTypes.STRING,
         allowNull: true,
+        comment: 'Cashfree order ID or payment reference',
+    },
+    transaction_id: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: 'Cashfree transaction ID after successful payment',
+    },
+    payment_method: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: 'Payment method used (UPI, Card, Net Banking, etc.)',
+    },
+    refund_amount: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true,
+        comment: 'Amount refunded if applicable',
+    },
+    refund_reference: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: 'Cashfree refund ID',
+    },
+    refund_note: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Reason for refund',
     },
 }, {
     tableName: 'vendor_package_subscriptions',
     timestamps: true,
+    indexes: [
+        {
+            fields: ['vendor_id', 'payment_status']
+        },
+        {
+            fields: ['payment_reference']
+        },
+        {
+            fields: ['end_date']
+        }
+    ]
 });
 
 VendorPackageSubscription.associate = (models) => {

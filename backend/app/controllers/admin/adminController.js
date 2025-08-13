@@ -1229,10 +1229,22 @@ exports.getprofileRequestdata = async (req, res) => {
       return res.status(400).json({ status: false, msg: 'request_id is required' });
     }
 
-    const lastLog = await Log.findOne({
+    let lastLog = await Log.findOne({
       where: { request_id },
       order: [['id', 'DESC']], // Or use ['id', 'DESC'] if `created_at` doesn't exist
     });
+
+    let details = lastLog?.details;
+
+    if (typeof details === 'string') {
+      try {
+        details = JSON.parse(details);
+      } catch (err) {
+        console.error('Error parsing details JSON:', err);
+      }
+    }
+
+    lastLog.details = details;
 
     if (!lastLog) {
       return res.status(404).json({ status: false, msg: 'No data found for this request_id' });

@@ -249,36 +249,70 @@ exports.getAvailablePackages = async (req, res) => {
 
 exports.subscribePackage = async (req, res) => {
   try {
-    const { vendor_id, package_id, payment_reference } = req.body;
-    if (!vendor_id || !package_id || !payment_reference) {
-      return res.status(400).json({ status: false, msg: 'vendor_id, package_id, and payment_reference are required' });
+    const { vendor_id, package_id } = req.body;
+    
+    if (!vendor_id || !package_id) {
+      return res.status(400).json({ 
+        status: false, 
+        msg: 'vendor_id and package_id are required' 
+      });
     }
-    const pkg = await Package.findByPk(package_id);
-    if (!pkg) return res.status(404).json({ status: false, msg: 'Package not found' });
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + pkg.validity_in_months);
-    const subscription = await VendorPackageSubscription.create({
-      vendor_id,
-      package_id,
-      start_date: startDate,
-      end_date: endDate,
-      payment_status: 'completed',
-      payment_reference
+
+    // Validate vendor and package
+    const vendor = await User.findOne({
+      where: { id: vendor_id, role_id: 2 }
     });
 
-    // Send socket notification
-    socketManager.vendorSubscribed({
-      id: subscription.id,
-      vendor_id: subscription.vendor_id,
-      package_id: subscription.package_id,
-      start_date: subscription.start_date,
-      end_date: subscription.end_date,
-      payment_status: subscription.payment_status,
-      payment_reference: subscription.payment_reference
+    if (!vendor) {
+      return res.status(404).json({ 
+        status: false, 
+        msg: 'Vendor not found' 
+      });
+    }
+
+    const pkg = await Package.findOne({
+      where: { id: package_id, status: 1 }
     });
 
-    res.json({ status: true, data: subscription });
+    if (!pkg) {
+      return res.status(404).json({ 
+        status: false, 
+        msg: 'Package not found or inactive' 
+      });
+    }
+
+    // Check if vendor already has an active subscription
+    const now = new Date();
+    const activeSubscription = await VendorPackageSubscription.findOne({
+      where: {
+        vendor_id,
+        payment_status: 'completed',
+        end_date: { [Op.gte]: now }
+      }
+    });
+
+    if (activeSubscription) {
+      return res.status(400).json({
+        status: false,
+        msg: 'Vendor already has an active subscription'
+      });
+    }
+
+    // Redirect to payment creation
+    // The actual payment will be handled by the payment controller
+    res.json({
+      status: true,
+      msg: 'Please proceed to payment to complete subscription',
+      data: {
+        vendor_id,
+        package_id,
+        package_name: pkg.name,
+        amount: pkg.price,
+        validity_months: pkg.validity_in_months,
+        next_step: 'Call /api/payment/create-order with vendor_id and package_id'
+      }
+    });
+
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
   }
