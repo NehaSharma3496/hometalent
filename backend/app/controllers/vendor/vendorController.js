@@ -110,6 +110,7 @@ exports.requestProfileUpdate = async (req, res) => {
 
     // Log the request
     await Log.create({
+      request_id: profileUpdateRequest.id,
       user_id: vendor_id,
       user_type: 'vendor',
       action: 'profile_update_request',
