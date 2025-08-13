@@ -615,11 +615,11 @@ export async function GetExtendPackageHistory(token, vendor_id) {
   }
 }
 
-export async function GetProfileUpdateRequestsBlogs(token, vendor_id) {
+export async function GetProfileUpdateRequestsBlogs(token, request_id) {
   try {
     const response = await axios.post(
       `${Config.base_url}admin/getprofileRequestdata`,
-      vendor_id,
+      request_id,
       {
         headers: {
           Authorization: `${token}`,
@@ -629,7 +629,7 @@ export async function GetProfileUpdateRequestsBlogs(token, vendor_id) {
 
     return response?.data;
   } catch (error) {
-    console.error("Error getting update request blogs", error);
+    console.error("Error getting update request logs", error);
     return error;
   }
 }

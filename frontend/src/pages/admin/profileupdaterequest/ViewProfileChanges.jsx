@@ -30,43 +30,50 @@ export default function ViewProfileChanges() {
   const requestData = state?.requestData || {};
   const vendor_id = requestData?.vendor_id;
   const request_data = requestData?.request_data;
+  const status = requestData?.status;
+  const request_id=state?.requestId;
 
   // 🟡 Fetch Old Vendor Data, New Changes, States, Categories
   useEffect(() => {
     if (!vendor_id) return;
 
+    // Fetch current vendor data
     GetVendorDetails(token, vendor_id).then((res) => {
       if (res?.status && res.data?.user) {
         setOldData(res.data.user);
       }
     });
 
-    if (request_data) {
+    // ✅ If status is approved → always fetch from Blogs API
+   // ✅ If status is approved → always fetch from Blogs API with request_id
+if (status === "approved" && request_id) {
+  GetProfileUpdateRequestsBlogs(token, { request_id }).then((res) => {
+    if (res?.status && res?.data?.request_data) {
+      try {
+        const parsed = JSON.parse(res.data.request_data);
+        setNewData(parsed);
+      } catch (err) {
+        console.error("Invalid JSON from approved API", err);
+      }
+    }
+  });
+}
+
+    // 🟠 For pending/rejected → use request_data from state
+    else if (request_data) {
       try {
         const parsed = JSON.parse(request_data);
         setNewData(parsed);
       } catch (err) {
         console.error("Invalid JSON in request_data", err);
       }
-    } else {
-      // 🔁 Fallback API for approved/rejected requests
-      GetProfileUpdateRequestsBlogs(token, { vendor_id }).then((res) => {
-        if (res?.status && res?.data?.request_data) {
-          try {
-            const parsed = JSON.parse(res.data.request_data);
-            setNewData(parsed);
-          } catch (err) {
-            console.error("Invalid JSON from fallback API", err);
-          }
-        }
-      });
     }
 
     GetStates(token).then((res) => res?.status && setStates(res.data || []));
     GetCategories(token).then(
       (res) => res?.status && setCategories(res.data || [])
     );
-  }, [vendor_id, token]);
+  }, [vendor_id, token, request_data, status]);
 
   // Fetch new cities (if newData.state_id exists)
   useEffect(() => {
@@ -199,17 +206,17 @@ export default function ViewProfileChanges() {
           </div>
         </div>
         <div className="col-md-6 text-end">
-          {requestData?.status && (
+          {status && (
             <span
               className={`badge fs-6 ${
-                requestData.status === "approved"
+                status === "approved"
                   ? "bg-success"
-                  : requestData.status === "rejected"
+                  : status === "rejected"
                   ? "bg-danger"
                   : "bg-warning text-dark"
               }`}
             >
-              Status: {requestData.status.toUpperCase()}
+              Status: {status.toUpperCase()}
             </span>
           )}
         </div>

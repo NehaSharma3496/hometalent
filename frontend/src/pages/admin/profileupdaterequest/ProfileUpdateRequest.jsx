@@ -206,17 +206,20 @@ export default function ProfileUpdateRequests() {
 
     {
       name: "View",
+      
       cell: (row) => {
         return (
           <button
             className="btn btn-warning btn-sm"
             title="View"
+            
             onClick={() =>
               navigate(`/admin/profileupdaterequest/viewprofilechanges`, {
                 state: {
+                  requestId: row.id,
                   requestData: row,
                   adminId: localStorage.getItem("userId"),
-                  readonly: row.status !== "pending", 
+                  readonly: row.status !== "pending",
                 },
               })
             }
