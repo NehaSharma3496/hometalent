@@ -18,6 +18,8 @@ import AllLeads from "../pages/vendor/vendorleads/AllLeads";
 import VendorPackages from "../pages/vendor/packages/AvailablePackages";
 import Viewallnotification from "../components/admincomponents/Viewallnotification";
 import MyPackages from "../pages/vendor/packages/MyPackages";
+import Payment from "../components/Payment";
+import PaymentSuccess from "../components/PaymentSuccess";
 
 // for vendor routing
 
@@ -37,6 +39,8 @@ const AdminRoutes = (
     {/* <Route path="clients" element={<Clients />} /> */}
     <Route path="Viewallnotification" element={<Viewallnotification />} />
     <Route path="mypackages" element={<MyPackages />} />
+    <Route path="payment" element={<Payment />} />
+    <Route path="payment-success" element={<PaymentSuccess />} />
   </Route>
 );
 

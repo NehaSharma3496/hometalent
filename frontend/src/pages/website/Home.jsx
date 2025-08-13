@@ -146,9 +146,9 @@ const Home = () => {
 
   const settings = {
     dots: true,
-    infinite: review.length > 3,
+    infinite: review?.length > 3,
     speed: 800,
-    slidesToShow:Math.min(3, review.length),
+    slidesToShow:Math.min(3, review?.length),
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 3000,
@@ -428,7 +428,7 @@ const Home = () => {
             </div>
           </div>
           <Slider {...settings}>
-            {review.map((item, index) => (
+            {review?.map((item, index) => (
               <div
                 key={item.id || item._id || `${item.name}-${index}`}
                 className="p-3"
@@ -527,7 +527,7 @@ const Home = () => {
           </div>
 
           <div className="row g-4">
-            {(showAllBlog ? blogdata : blogdata.slice(0, 3)).map(
+            {(showAllBlog ? blogdata : blogdata?.slice(0, 3))?.map(
               (item, index) => (
                 <div
                   className="col-xl-4 col-lg-4 col-sm-6"
@@ -594,7 +594,7 @@ const Home = () => {
             )}
           </div>
 
-          {blogdata.length > 3 && (
+          {blogdata?.length > 3 && (
             <div className="text-center">
               <button
                 onClick={() => {

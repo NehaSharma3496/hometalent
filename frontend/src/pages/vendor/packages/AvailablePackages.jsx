@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import {
   getVendorPackages,
   subscribeToPackage,
@@ -9,6 +9,8 @@ import Datatable from "react-data-table-component";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import { loadScript } from "../../../Utils/cashfreeLoader";
+import { paymentService } from "../../../Services/vendor/paymentService";
+
 
 const VendorPackages = () => {
   const [packages, setPackages] = useState([]);
@@ -23,6 +25,7 @@ const VendorPackages = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
+const navigate = useNavigate();
 
   useEffect(() => {
     fetchPackages(currentPage, perPage);
@@ -150,65 +153,37 @@ const VendorPackages = () => {
     }
   };
 
-  const AddSubscribeplan = async (pkg) => {
-    try {
-      const amount = pkg.price;
-      const getkey = "rzp_test_22mEHcDzJbcUmz";
+ const AddSubscribeplan = async (pkg) => {
+  try {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: `Subscribe to ${pkg.name} for ₹${pkg.price}?`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, proceed",
+    });
 
-      if (!window.Cashfree) {
-        await loadScript("https://sdk.cashfree.com/js/v3/cashfree.js");
-      }
+    if (!confirm.isConfirmed) return;
 
-      const confirm = await Swal.fire({
-        title: "Are you sure?",
-        text: "Do you want to subscribe to this package?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Yes, subscribe",
+    // 1. Backend se order create karo
+    const response = await paymentService.createPaymentOrder(vendorId, pkg.id);
+
+    if (response.status && response.data?.payment_url) {
+      // 2. Order data ko store karke Payment page pe navigate karo
+      navigate("/payment", {
+        state: { 
+          orderData: response.data, 
+          package: pkg 
+        },
       });
-
-      if (!confirm.isConfirmed) return;
-
-      const finalAmount = Math.round(amount * 100);
-
-      const options = {
-        key: getkey,
-        amount: finalAmount,
-        name: "Hometalent4u",
-        currency: "INR",
-        description: pkg.name || "Subscription Plan",
-        handler: async function (response) {
-          const data = {
-            vendor_id: vendorId,
-            package_id: pkg.id,
-            amount: pkg.price,
-            status: "completed",
-            payment_reference: response.razorpay_payment_id,
-          };
-
-          const result = await subscribeToPackage(data, token);
-          if (result?.status) {
-            Swal.fire("Subscribed!", "Your package is now active.", "success");
-            fetchSubscribedPackages();
-          }
-        },
-        prefill: {
-          email: user?.email,
-          contact: user?.phone,
-          name: user?.name,
-        },
-        theme: {
-          color: "#F37254",
-        },
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch (error) {
-      console.error("Subscription error:", error);
-      Swal.fire("Error", "Something went wrong during subscription.", "error");
+    } else {
+      Swal.fire("Error", "Unable to create payment order", "error");
     }
-  };
+  } catch (error) {
+    console.error("Subscription error:", error);
+    Swal.fire("Error", "Something went wrong during subscription.", "error");
+  }
+};
 
   const handleView = (pkg) => {
     Swal.fire({
