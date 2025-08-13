@@ -107,7 +107,9 @@ exports.requestProfileUpdate = async (req, res) => {
       request_data: filteredData,
       status: 'pending'
     });
-
+    
+    console.log('Profile update request created:', profileUpdateRequest);
+    
     // Log the request
     await Log.create({
       request_id: profileUpdateRequest.id,

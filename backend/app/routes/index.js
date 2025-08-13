@@ -6,6 +6,9 @@ const frontRoutes = require('./frontRoutes');
 const adminRoutes = require('./adminRoutes');
 const galleryRoutes = require('./galleryRoutes');
 const paymentRoutes = require('./paymentRoutes');
+const blogRoutes = require('./blogRoutes');
+const reviewRoutes = require('./reviewRoutes');
+
 
 const router = express.Router();
 
@@ -17,5 +20,7 @@ router.use('/admin', adminRoutes);
 router.use('/gallery', galleryRoutes);
 router.use('/client', require('./clientRoutes'));
 router.use('/payment', paymentRoutes);
+router.use('/', blogRoutes);
+router.use('/', reviewRoutes);
 
 module.exports = router;
