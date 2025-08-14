@@ -92,8 +92,8 @@ exports.createPaymentOrder = async (req, res) => {
         customer_phone: vendor.phone
       },
       order_meta: {
-        return_url: `${req.protocol}://${req.get('host')}/api/payment/return?order_id=${orderId}`,
-        notify_url: `${req.protocol}://${req.get('host')}/api/payment/webhook`
+        return_url: `${req.protocol}://${req.get('host')}/payment/return?order_id=${orderId}`,
+        notify_url: `${req.protocol}://${req.get('host')}/payment/webhook`
       }
     };
 

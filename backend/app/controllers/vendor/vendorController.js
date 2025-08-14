@@ -312,7 +312,7 @@ exports.subscribePackage = async (req, res) => {
         package_name: pkg.name,
         amount: pkg.price,
         validity_months: pkg.validity_in_months,
-        next_step: 'Call /api/payment/create-order with vendor_id and package_id'
+        next_step: 'Call /payment/create-order with vendor_id and package_id'
       }
     });
 
