@@ -63,7 +63,43 @@
       "response": []
     },
     {
-      "name": "Vendor - Subscribe Package",
+      "name": "Admin - List Sponsored Vendors (Updated)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/admin/vendors/sponsored?category_id=1&page=1&limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["admin", "vendors", "sponsored"],
+          "query": [
+            { "key": "category_id", "value": "1", "description": "Category ID (optional)" },
+            { "key": "page", "value": "1", "description": "Page number" },
+            { "key": "limit", "value": "10", "description": "Items per page" }
+          ]
+        },
+        "description": "Get sponsored vendors with remaining active vendors. Returns sponsored array and remaining_active array."
+      },
+      "response": []
+    },
+    {
+      "name": "Front - Get Vendors By Category (Updated)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/front/vendors/category/1?city_id=5",
+          "host": ["{{base_url}}"],
+          "path": ["front", "vendors", "category", "1"],
+          "query": [
+            { "key": "city_id", "value": "5", "description": "City ID (optional)" }
+          ]
+        },
+        "description": "Get vendors by category with subscription filter (only shows vendors with active subscription). Returns sponsored and non-sponsored vendors."
+      },
+      "response": []
+    },
+    {
+      "name": "Vendor - Subscribe Package (Updated)",
       "request": {
         "method": "POST",
         "header": [
@@ -79,7 +115,7 @@
           "host": ["{{base_url}}"],
           "path": ["vendor", "subscribe-package"]
         },
-        "description": "Subscribe a vendor to a package. Handles validity and stacking logic."
+        "description": "Subscribe a vendor to a package. Now handles validity (30 days per month) and stacking logic (starts after existing subscription ends)."
       },
       "response": []
     },
