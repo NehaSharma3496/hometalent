@@ -75,7 +75,8 @@ exports.requestProfileUpdate = async (req, res) => {
     // Handle uploaded files
     if (req.files) {
       if (req.files.image && req.files.image[0]) {
-        filteredData.image = req.files.image[0].filename;
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        filteredData.image = `${baseUrl}/media/${req.files.image[0].filename}`;
       }
     }
 
@@ -381,13 +382,13 @@ exports.getPackageHistory = async (req, res) => {
       include: [
         {
           model: Package,
-          as: "Package",
-          required: true,
-        },
+          as: 'Package', // Use the alias as defined in the association
+          required: true
+        }
       ],
-      order: [["start_date", "DESC"]],
+      order: [['start_date', 'DESC']],
       limit,
-      offset,
+      offset
     });
     const totalPages = Math.ceil(count / limit);
     res.json({
