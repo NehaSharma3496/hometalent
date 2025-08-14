@@ -3,11 +3,10 @@ const { Op } = require('sequelize');
 const crypto = require('crypto');
 
 // Cashfree configuration
-const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID || 'TEST12345678901234567890';
-const CASHFREE_SECRET_KEY = process.env.CASHFREE_SECRET_KEY || 'TEST1234567890123456789012345678901234567890';
-const CASHFREE_API_ENDPOINT = process.env.NODE_ENV === 'production' 
-  ? 'https://api.cashfree.com/pg' 
-  : 'https://sandbox.cashfree.com/pg';
+const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID || 'TEST107476494fe2ec32e4d43ac8a01694674701';
+const CASHFREE_SECRET_KEY = process.env.CASHFREE_SECRET_KEY || 'cfsk_ma_test_62d31f1b655120620456557e2e820219_a9ae8f20';
+const CASHFREE_API_ENDPOINT = 'https://sandbox.cashfree.com/pg';
+// https://api.cashfree.com/pg
 
 // Generate unique order ID
 function generateOrderId() {
@@ -108,7 +107,7 @@ exports.createPaymentOrder = async (req, res) => {
       },
       body: JSON.stringify(paymentData)
     });
-
+console.log("Response",cashfreeResponse)
     if (!cashfreeResponse.ok) {
       // Delete the subscription record if payment creation fails
       await subscription.destroy();
