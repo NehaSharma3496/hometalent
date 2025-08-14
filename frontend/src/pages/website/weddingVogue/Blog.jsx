@@ -31,7 +31,7 @@ const Blog = () => {
       <section className="news-area top-bottom-padding2">
         <div className="container ">
           <div className="row g-4">
-            {blog.length > 0 ? (
+            {blog?.length > 0 ? (
               blog.map((item, index) => (
                 <div className="col-xl-4 col-lg-4 col-sm-6">
                   <article className="news-card-two">

@@ -1,26 +1,35 @@
-import axios from 'axios';
+import axios from "axios";
+import * as Config from "../../Utils/config";
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8888/api';
+const API_BASE_URL = Config.base_url;
 
 const paymentAPI = axios.create({
   baseURL: API_BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { "Content-Type": "application/json" },
 });
 
 paymentAPI.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = token;
   }
   return config;
 });
 
 export const paymentService = {
   createPaymentOrder: async (vendorId, packageId) => {
-    const res = await paymentAPI.post('/payment/create-order', {
-      vendor_id: vendorId,
-      package_id: packageId,
-    });
+    const token = localStorage.getItem("token");
+    const res = await paymentAPI.post(
+      "/payment/create-order",
+      { vendor_id: vendorId, package_id: packageId },
+      {
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
     return res.data;
   },
   getPaymentStatus: async (orderId) => {

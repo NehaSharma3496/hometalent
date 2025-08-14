@@ -104,7 +104,7 @@ const Home = () => {
 
     let currentGroup = null;
 
-    data.forEach((item) => {
+    data?.forEach((item) => {
       if (item.type === "state") {
         currentGroup = {
           state: item,
@@ -236,7 +236,7 @@ const Home = () => {
                                       {group.state.name}
                                     </h6>
                                     <ul className="list-unstyled ms-3 ps-0">
-                                      {group.cities.map((city) => (
+                                      {group.cities?.map((city) => (
                                         <li key={`city-${city.id}`}>
                                           <button
                                             type="button"
@@ -317,7 +317,7 @@ const Home = () => {
           </div>
 
           <div className="grid5-container">
-            {(showAllCategories ? categoryData : categoryData?.slice(0, 10)).map(
+            {(showAllCategories ? categoryData : categoryData?.slice(0, 10))?.map(
               (category) => {
                 const imageSrc = `/assets/images/category/${category.name
                   .replace(/\s+/g, "-")
@@ -369,7 +369,7 @@ const Home = () => {
             )}
           </div>
 
-          {categoryData.length > 10 && (
+          {categoryData?.length > 10 && (
             <div className="text-center mt-3">
               <button
                 onClick={() => {

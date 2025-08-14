@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   getVendorPackages,
   subscribeToPackage,
@@ -10,7 +10,6 @@ import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import { loadScript } from "../../../Utils/cashfreeLoader";
 import { paymentService } from "../../../Services/vendor/paymentService";
-
 
 const VendorPackages = () => {
   const [packages, setPackages] = useState([]);
@@ -25,7 +24,7 @@ const VendorPackages = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchPackages(currentPage, perPage);
@@ -153,37 +152,40 @@ const navigate = useNavigate();
     }
   };
 
- const AddSubscribeplan = async (pkg) => {
-  try {
-    const confirm = await Swal.fire({
-      title: "Are you sure?",
-      text: `Subscribe to ${pkg.name} for ₹${pkg.price}?`,
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, proceed",
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    // 1. Backend se order create karo
-    const response = await paymentService.createPaymentOrder(vendorId, pkg.id);
-
-    if (response.status && response.data?.payment_url) {
-      // 2. Order data ko store karke Payment page pe navigate karo
-      navigate("/payment", {
-        state: { 
-          orderData: response.data, 
-          package: pkg 
-        },
+  const AddSubscribeplan = async (pkg) => {
+    try {
+      const confirm = await Swal.fire({
+        title: "Are you sure?",
+        text: `Subscribe to ${pkg.name} for ₹${pkg.price}?`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes, proceed",
       });
-    } else {
-      Swal.fire("Error", "Unable to create payment order", "error");
+
+      if (!confirm.isConfirmed) return;
+
+      // 1. Backend se order create karo
+      const response = await paymentService.createPaymentOrder(
+        vendorId,
+        pkg.id
+      );
+
+      if (response.status && response.data?.payment_url) {
+        // 2. Order data ko store karke Payment page pe navigate karo
+        navigate("/payment", {
+          state: {
+            orderData: response.data,
+            package: pkg,
+          },
+        });
+      } else {
+        Swal.fire("Error", "Unable to create payment order", "error");
+      }
+    } catch (error) {
+      console.error("Subscription error:", error);
+      Swal.fire("Error", "Something went wrong during subscription.", "error");
     }
-  } catch (error) {
-    console.error("Subscription error:", error);
-    Swal.fire("Error", "Something went wrong during subscription.", "error");
-  }
-};
+  };
 
   const handleView = (pkg) => {
     Swal.fire({

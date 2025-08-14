@@ -28,7 +28,7 @@ const Gallery = () => {
       const response = await GetAdminGallery(token, userId);
       console.log("Gallery API response:", response.data);
 
-      const formatted = response.data.map((item, i) => ({
+      const formatted = response.data?.map((item, i) => ({
         src: item.file_path, // ✅ use correct field
         title: `Image ${i + 1}`, // dummy title
         description: "Beautiful gallery image", // dummy description
@@ -57,12 +57,12 @@ const Gallery = () => {
       <section className="destination-section-two section-padding package-area">
         <div className="container">
           <div className="row g-4">
-            {gallery.length === 0 ? (
+            {gallery?.length === 0 ? (
               <div className="col-12 text-center">
                 <p className="text-danger fs-5">No records found</p>
               </div>
             ) : (
-              gallery.map((slide, i) => (
+              gallery?.map((slide, i) => (
                 <div key={i} className="col-xl-3 col-lg-4 col-sm-6">
                   <div className="package-card h-calc">
                     <div
