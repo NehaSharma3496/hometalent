@@ -4,8 +4,10 @@ const crypto = require('crypto');
 const { request } = require('http');
 
 // Cashfree configuration
-const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID || 'TEST107476494fe2ec32e4d43ac8a01694674701';
-const CASHFREE_SECRET_KEY = process.env.CASHFREE_SECRET_KEY || 'cfsk_ma_test_62d31f1b655120620456557e2e820219_a9ae8f20';
+// const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID || 'TEST107476494fe2ec32e4d43ac8a01694674701';
+const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID ;
+// const CASHFREE_SECRET_KEY = process.env.CASHFREE_SECRET_KEY || 'cfsk_ma_test_62d31f1b655120620456557e2e820219_a9ae8f20';
+const CASHFREE_SECRET_KEY = process.env.CASHFREE_SECRET_KEY;
 const CASHFREE_API_ENDPOINT = 'https://sandbox.cashfree.com/pg';
 
 // Generate unique order ID
