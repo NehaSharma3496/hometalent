@@ -164,7 +164,7 @@ const ViewGallery = () => {
       <div className="row align-items-center mb-3">
         <div className="col-md-6 mb-4">
           <div className="add-page-heading-div">
-            <Link to="/admin/dashboard" className="me-2">
+            <Link to="/vendor/dashboard" className="me-2">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
             <h5 className="add-page-heading mb-0"> My Gallery</h5>
