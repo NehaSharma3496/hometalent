@@ -9,7 +9,6 @@ const Payment = () => {
   
   const [orderData, setOrderData] = useState(location.state?.orderData);
   const [packageInfo, setPackageInfo] = useState(location.state?.package);
-  const [paymentStatus, setPaymentStatus] = useState('pending');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -18,24 +17,6 @@ const Payment = () => {
       return;
     }
 
-    const checkStatus = async () => {
-      try {
-        const response = await paymentService.getPaymentStatus(orderData.order_id);
-        if (response.data.order_status === 'PAID') {
-          setPaymentStatus('completed');
-          setTimeout(() => {
-            navigate('/payment-success', { 
-              state: { orderData, packageInfo } 
-            });
-          }, 3000);
-        }
-      } catch (error) {
-        console.error('Error checking payment status:', error);
-      }
-    };
-
-    const interval = setInterval(checkStatus, 5000);
-    return () => clearInterval(interval);
   }, [orderData, packageInfo, navigate]);
 
   const handlePaymentClick = () => {
@@ -54,7 +35,6 @@ const Payment = () => {
       <button onClick={handlePaymentClick} disabled={loading}>
         {loading ? 'Processing...' : 'Proceed to Payment'}
       </button>
-      <h4>Status: {paymentStatus}</h4>
     </div>
   );
 };

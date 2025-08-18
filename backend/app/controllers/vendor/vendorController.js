@@ -110,7 +110,7 @@ exports.requestProfileUpdate = async (req, res) => {
     });
     
     console.log('Profile update request created:', profileUpdateRequest);
-    
+
     // Log the request
     await Log.create({
       request_id: profileUpdateRequest.id,
@@ -144,10 +144,10 @@ exports.requestProfileUpdate = async (req, res) => {
 exports.getProfileUpdateStatus = async (req, res) => {
   try {
     const { vendor_id } = req.query;
-
+    
     if (!vendor_id) {
-      return res.status(400).json({
-        status: false,
+      return res.status(400).json({ 
+        status: false, 
         msg: "vendor_id is required",
       });
     }
@@ -164,8 +164,8 @@ exports.getProfileUpdateStatus = async (req, res) => {
       ],
     });
 
-    res.json({
-      status: true,
+    res.json({ 
+      status: true, 
       data: requests,
     });
   } catch (error) {
@@ -178,18 +178,18 @@ exports.getAvailablePackages = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-
+    
     const { count, rows: packages } = await Package.findAndCountAll({
       where: { status: 1 },
       order: [["id", "DESC"]],
       limit,
       offset,
     });
-
+    
     const totalPages = Math.ceil(count / limit);
-
-    res.json({
-      status: true,
+    
+    res.json({ 
+      status: true, 
       data: packages,
       pagination: {
         current_page: page,
@@ -308,8 +308,8 @@ exports.subscribePackage = async (req, res) => {
       status: true,
       msg: 'Please proceed to payment to complete subscription',
       data: {
-        vendor_id,
-        package_id,
+      vendor_id,
+      package_id,
         package_name: pkg.name,
         amount: pkg.price,
         validity_months: pkg.validity_in_months,
@@ -331,22 +331,22 @@ exports.getMyLeads = async (req, res) => {
         .status(400)
         .json({ status: false, msg: "vendor_id is required" });
     }
-
+    
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-
+    
     const { count, rows: leads } = await ClientLead.findAndCountAll({
       where: { vendor_id },
       order: [["createdAt", "DESC"]],
       limit,
       offset,
     });
-
+    
     const totalPages = Math.ceil(count / limit);
-
-    res.json({
-      status: true,
+    
+    res.json({ 
+      status: true, 
       data: leads,
       pagination: {
         current_page: page,

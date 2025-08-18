@@ -169,10 +169,10 @@ const VendorPackages = () => {
         vendorId,
         pkg.id
       );
-
+      console.log("Order creation response:", response);
       if (response.status && response.data?.payment_url) {
         // 2. Order data ko store karke Payment page pe navigate karo
-        navigate("/payment", {
+        navigate("/vendor/payment", {
           state: {
             orderData: response.data,
             package: pkg,

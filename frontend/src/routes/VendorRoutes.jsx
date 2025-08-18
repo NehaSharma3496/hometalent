@@ -20,6 +20,8 @@ import Viewallnotification from "../components/admincomponents/Viewallnotificati
 import MyPackages from "../pages/vendor/packages/MyPackages";
 import Payment from "../components/Payment";
 import PaymentSuccess from "../components/PaymentSuccess";
+import PaymentCallback from "../components/PaymentCallback";
+import PaymentFailed from "../components/PaymentFailed";
 
 // for vendor routing
 
@@ -41,6 +43,8 @@ const AdminRoutes = (
     <Route path="mypackages" element={<MyPackages />} />
     <Route path="payment" element={<Payment />} />
     <Route path="payment-success" element={<PaymentSuccess />} />
+    <Route path="payment-callback" element={<PaymentCallback />} />
+    <Route path="payment-failed" element={<PaymentFailed />} />
   </Route>
 );
 
