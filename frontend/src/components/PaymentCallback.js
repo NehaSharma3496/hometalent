@@ -7,14 +7,14 @@ const PaymentCallback = () => {
   const navigate = useNavigate();
   const query = new URLSearchParams(useLocation().search);
   const orderId = query.get("order_id");
-  let orderData; 
+  let orderData;
   useEffect(() => {
     const verifyPayment = async () => {
       try {
-        const res = await paymentService.getPaymentStatus(orderId,userid);
+        const res = await paymentService.getPaymentStatus(orderId, userid);
         orderData = res?.data[0];
         console.log("Payment verification response:", orderData);
-        
+
         if (res?.data[0]?.order_status === "PAID") {
           navigate("/vendor/payment-success", { state: { orderData } });
         } else {

@@ -8,7 +8,7 @@ import {
 import Datatable from "react-data-table-component";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
-import { loadScript } from "../../../Utils/cashfreeLoader";
+
 import { paymentService } from "../../../Services/vendor/paymentService";
 
 const VendorPackages = () => {
@@ -67,7 +67,6 @@ const VendorPackages = () => {
         }
         page++;
       }
-
       setAllPackages(fullList);
     } catch (error) {
       console.error("Error fetching full package list:", error);
@@ -168,43 +167,26 @@ const VendorPackages = () => {
         vendorId,
         pkg.id
       );
-      console.log("Order ", response);
+      console.log("Order creation response:", response);
 
       if (response.status && response.data?.payment_url) {
-        Swal.fire("Success", response.msg, "success");
-        console.log("Response", response);
-        navigate("/payment", {
+        Swal.fire("Success", response.msg || "Success", "success");
+        navigate("/vendor/payment", {
           state: {
             orderData: response.data,
             package: pkg,
           },
         });
-
-        if (!confirm.isConfirmed) return;
-        const response = await paymentService.createPaymentOrder(
-          vendorId,
-          pkg.id
-        );
-        console.log("Order creation response:", response);
-        if (response.status && response.data?.payment_url) {
-          navigate("/vendor/payment", {
-            state: {
-              orderData: response.data,
-              package: pkg,
-            },
-          });
-        } else {
-          Swal.fire("Error", "Unable to create payment order", "error");
-        }
+      } else {
+        Swal.fire("Error", response.msg || "Something went wrong.", "error");
       }
     } catch (error) {
       console.error("Subscription error:", error);
       Swal.fire(
         "Error",
-        error?.response?.data?.msg ||
-          "Something went wrong during subscription.",
+        error?.response?.data?.msg || error?.message || "Something went wrong.",
         "error"
-      ); 
+      );
     }
   };
 
