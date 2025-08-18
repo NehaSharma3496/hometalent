@@ -24,7 +24,7 @@ const Payment = () => {
         if (response.data.order_status === 'PAID') {
           setPaymentStatus('completed');
           setTimeout(() => {
-            navigate('/payment-success', { 
+            navigate('/vendor/payment-success', { 
               state: { orderData, packageInfo } 
             });
           }, 3000);

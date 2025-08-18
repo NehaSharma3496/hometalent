@@ -1,102 +1,138 @@
 import React, { useEffect, useState } from "react";
 import { getVendorPackageHistory } from "../../../Services/vendor/Vendor";
-import DataTable from "react-data-table-component";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ExtendPackage } from "../../../Services/admin/Admin";
-import Swal from "sweetalert2";
+import { GetExtendPackageHistory, ExtendPackage } from "../../../Services/admin/Admin";
+import Datatable from "react-data-table-component";
+import { Link, useLocation } from "react-router-dom";
 import * as XLSX from "xlsx";
+import Swal from "sweetalert2";
 
 export default function VendorPackageDetails() {
-  const [currentPackages, setCurrentPackages] = useState([]);
-  const [expiredPackages, setExpiredPackages] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchCurrent, setSearchCurrent] = useState("");
-  const [searchExpired, setSearchExpired] = useState("");
-  const location = useLocation();
-  const vendorId = location.state?.vendorId;
+  const [paginatedPackages, setPaginatedPackages] = useState([]);
+  const [allPackagesForSearch, setAllPackagesForSearch] = useState([]);
+  const [extensionMap, setExtensionMap] = useState({});
+  const [searchText, setSearchText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
   const [extendDays, setExtendDays] = useState("");
   const [latestPackageId, setLatestPackageId] = useState(null);
-  const navigate = useNavigate();
-  const token = localStorage.getItem("token");
 
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-IN", {
+  const token = localStorage.getItem("token");
+  const location = useLocation();
+  const vendorId = location.state?.vendorId;
+
+  const formatDate = (dateStr) =>
+    new Date(dateStr).toLocaleDateString("en-IN", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
-  };
 
-  const isExpired = (endDateStr) => {
-    const today = new Date();
-    const endDate = new Date(endDateStr);
-    return endDate < today;
-  };
+  const isExpired = (endDateStr) => new Date(endDateStr) < new Date();
 
-  const fetchPackages = async () => {
+  // 📌 Fetch paginated packages
+  const fetchPaginatedPackages = async (page, limit) => {
+    setLoading(true);
     try {
-      const res = await getVendorPackageHistory(token, vendorId);
-      const packages = res?.data || [];
+      const res = await getVendorPackageHistory(token, vendorId, page, limit);
+      if (res?.data && res?.pagination) {
+        const enriched = res.data.map((pkg) => ({
+          ...pkg,
+          status: isExpired(pkg.end_date) ? "Expired" : "Active",
+        }));
+        setPaginatedPackages(enriched);
+        setTotalRows(res.pagination.total_records);
 
-      const current = [];
-      const expired = [];
-
-      packages.forEach((pkg) => {
-        if (isExpired(pkg.end_date)) {
-          expired.push(pkg);
-        } else {
-          current.push(pkg);
-        }
-      });
-
-      setCurrentPackages(current);
-      setExpiredPackages(expired);
-
-      const sorted = [...current].sort(
-        (a, b) => new Date(b.end_date) - new Date(a.end_date)
-      );
-      setLatestPackageId(sorted[0]?.id || null);
-    } catch (error) {
-      console.error("Failed to load packages", error);
+        // track latest package id
+        const active = enriched.filter((p) => p.status === "Active");
+        const sorted = [...active].sort(
+          (a, b) => new Date(b.end_date) - new Date(a.end_date)
+        );
+        setLatestPackageId(sorted[0]?.id || null);
+      }
+    } catch (err) {
+      console.error("Fetch error", err);
+      Swal.fire("Error", "Failed to load packages", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (token && vendorId) fetchPackages();
-  }, [token, vendorId]);
+  // 📌 Fetch all data for search + export
+  const fetchAllPackagesForSearch = async () => {
+    try {
+      let all = [];
+      const limit = 100;
+      let page = 1;
 
-  const handleExtendPackage = async (currentEndDateStr) => {
+      const res = await getVendorPackageHistory(token, vendorId, page, limit);
+      if (!res?.data?.length) return;
+
+      all = [...res.data];
+      const totalPages = Math.ceil(res.pagination.total_records / limit);
+
+      for (page = 2; page <= totalPages; page++) {
+        const more = await getVendorPackageHistory(token, vendorId, page, limit);
+        if (more?.data?.length) {
+          all = [...all, ...more.data];
+        }
+      }
+
+      const today = new Date();
+      const mapped = all.map((pkg) => ({
+        ...pkg,
+        status: new Date(pkg.end_date) >= today ? "Active" : "Expired",
+      }));
+
+      setAllPackagesForSearch(mapped);
+    } catch (err) {
+      console.error("Fetch all packages failed", err);
+    }
+  };
+
+  // 📌 Fetch extension history
+  const fetchExtensionMap = async () => {
+    try {
+      const res = await GetExtendPackageHistory(token, { vendor_id: vendorId });
+      if (res?.status) {
+        const map = {};
+        res.data.forEach((item) => {
+          const pkgName = item.packagelog?.name;
+          const days = item.details;
+          if (pkgName) {
+            map[pkgName] = (map[pkgName] || 0) + parseInt(days);
+          }
+        });
+        setExtensionMap(map);
+      }
+    } catch (err) {
+      console.error("Extension fetch error:", err);
+    }
+  };
+
+  // 📌 Extend package
+  const handleExtendPackage = async (row) => {
     if (!extendDays) {
       return Swal.fire("Invalid", "Please select a date.", "warning");
     }
 
-    const currentEndDate = new Date(currentEndDateStr);
+    const currentEndDate = new Date(row.end_date);
     const selectedDate = new Date(extendDays);
-    const extraDays = Math.ceil(
-      (selectedDate - currentEndDate) / (1000 * 60 * 60 * 24)
-    );
+    const extraDays = Math.ceil((selectedDate - currentEndDate) / (1000 * 60 * 60 * 24));
 
     if (isNaN(extraDays) || extraDays <= 0) {
-      return Swal.fire(
-        "Invalid",
-        "Select a date after current end date.",
-        "warning"
-      );
+      return Swal.fire("Invalid", "Select a date after current end date.", "warning");
     }
 
-    // 🔔 Confirmation popup before proceeding
     const confirm = await Swal.fire({
       title: "Are you sure?",
-      html: `You are about to extend the package by <strong>${extraDays} day(s)</strong> until <strong>${selectedDate.toLocaleDateString(
+      html: `Extend <b>${row?.Package?.name}</b> by <strong>${extraDays} day(s)</strong> until <strong>${selectedDate.toLocaleDateString(
         "en-IN"
-      )}</strong>.`,
+      )}</strong>?`,
       icon: "question",
       showCancelButton: true,
       confirmButtonText: "Yes, extend it",
-      cancelButtonText: "Cancel",
     });
 
     if (!confirm.isConfirmed) return;
@@ -110,7 +146,8 @@ export default function VendorPackageDetails() {
       if (response?.status === true || response?.status === "true") {
         Swal.fire("Extended!", "Package extended successfully.", "success");
         setExtendDays("");
-        fetchPackages();
+        fetchPaginatedPackages(currentPage, perPage);
+        fetchAllPackagesForSearch();
       } else {
         Swal.fire("Failed", response?.message || "Extension failed.", "error");
       }
@@ -120,232 +157,153 @@ export default function VendorPackageDetails() {
     }
   };
 
-  const exportToExcel = (data, type) => {
-    const exportData = data.map((pkg, index) => ({
-      "S.No": index + 1,
-      "Package Name": pkg?.Package?.name || "N/A",
-      "Start Date": formatDate(pkg.start_date),
-      "End Date": formatDate(pkg.end_date),
-      Amount: pkg?.Package?.price ? `₹${pkg.Package.price}` : "N/A",
-      "Payment Status": pkg.payment_status || "N/A",
-    }));
+  // 📌 Excel export (all data, with search applied)
+  const exportToExcel = () => {
+    const dataToExport = (searchText ? allPackagesForSearch : allPackagesForSearch).map(
+      (pkg, index) => ({
+        "S.No": index + 1,
+        "Package Name": pkg?.Package?.name || "N/A",
+        Price: pkg?.Package?.price || "",
+        "Start Date": formatDate(pkg.start_date),
+        "End Date": formatDate(pkg.end_date),
+        Status: pkg.status,
+        "Payment Status": pkg.payment_status || "N/A",
+        "Payment Date": pkg?.createdAt ? formatDate(pkg.createdAt) : "N/A",
+        "Extended Days": extensionMap[pkg?.Package?.name] || "—",
+      })
+    );
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, `${type} Packages`);
-    XLSX.writeFile(workbook, `${type}_Packages.xlsx`);
+    const ws = XLSX.utils.json_to_sheet(dataToExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Vendor Packages");
+    XLSX.writeFile(wb, "vendor-packages.xlsx");
   };
 
-  const commonColumns = () => [
+  // 📌 Columns
+  const columns = [
     {
       name: "S.No",
-      cell: (row, index) => index + 1,
-      width: "80px",
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
+      width: "70px",
     },
     {
       name: "Package Name",
-      selector: (row) => row?.Package.name || "N/A",
+      selector: (row) => row?.Package?.name || "N/A",
       sortable: true,
     },
+    { name: "Start Date", selector: (row) => formatDate(row.start_date) },
+    { name: "End Date", selector: (row) => formatDate(row.end_date) },
+    { name: "Amount", selector: (row) => `₹${row?.Package?.price || "0"}` },
+    { name: "Payment Status", selector: (row) => row?.payment_status || "N/A" },
     {
-      name: "Start Date",
-      selector: (row) => formatDate(row.start_date),
+      name: "Status",
+      cell: (row) => (
+        <span
+          className={`badge bg-${row.status === "Active" ? "success" : "danger"}`}
+        >
+          {row.status}
+        </span>
+      ),
     },
     {
-      name: "End Date",
-      selector: (row) => formatDate(row.end_date),
-    },
-    {
-      name: "Amount",
-      selector: (row) => `₹${row?.Package.price}`,
-    },
-    {
-      name: "Payment Status",
-      selector: (row) => row.payment_status,
+      name: "Extended Days",
+      selector: (row) => extensionMap[row?.Package?.name] || "—",
     },
     {
       name: "Actions",
-      minWidth: "240px",
-      cell: (row) => {
-        if (row.id !== latestPackageId)
-          return <span className="text-muted">—</span>;
-
-        return (
-          <div className="d-flex flex-column flex-md-row align-items-start gap-2">
+      minWidth: "250px",
+      cell: (row) =>
+        row.id === latestPackageId ? (
+          <div className="d-flex flex-column flex-md-row gap-2">
             <input
               type="date"
               className="form-control form-control-sm"
-              style={{ width: "180px" }}
+              style={{ width: "160px" }}
               min={row.end_date?.split("T")[0]}
               value={extendDays}
               onChange={(e) => setExtendDays(e.target.value)}
             />
             <button
               className="btn btn-success btn-sm"
-              onClick={() => handleExtendPackage(row.end_date)}
+              onClick={() => handleExtendPackage(row)}
             >
               Extend
             </button>
           </div>
-        );
-      },
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-      width: "280px",
+        ) : (
+          <span className="text-muted">—</span>
+        ),
     },
   ];
 
-  const filterData = (data, query) => {
-    if (!query.trim()) return data;
-    return data.filter((item) =>
-      item?.Package?.name?.toLowerCase().includes(query.toLowerCase())
-    );
-  };
+  const filteredData = searchText
+    ? allPackagesForSearch.filter((pkg) =>
+        pkg?.Package?.name?.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : paginatedPackages;
 
-  if (loading) {
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ minHeight: "60vh" }}
-      >
-        <div className="text-center">
-          <div className="spinner-border text-primary mb-3" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <h5 className="text-muted">Loading Your Packages...</h5>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (token && vendorId) {
+      fetchPaginatedPackages(currentPage, perPage);
+      fetchAllPackagesForSearch();
+      fetchExtensionMap();
+    }
+  }, [token, vendorId, currentPage, perPage]);
 
   return (
     <div className="page-content">
       <div className="row align-items-center mb-4">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/vendor/dashboard" className="me-2">
+            <Link to="/admin/dashboard" className="me-2">
               <i className="fa fa-arrow-left"></i>
             </Link>
-            <h5 className="add-page-heading mb-0">My Packages</h5>
+            <h5 className="add-page-heading mb-0">Vendor Packages</h5>
           </div>
         </div>
         <div className="col-md-6 text-end">
-          <div className="text-end mb-2">
-            <button
-              className="btn btn-success btn-sm"
-              onClick={() =>
-                exportToExcel(
-                  filterData(currentPackages, searchCurrent),
-                  "Current"
-                )
-              }
-            >
-              <i className="fa fa-file-excel me-1"></i> Download Current
-              Packages
-            </button>
-          </div>
-          <div className="text-end mb-2">
-            <button
-              className="btn btn-danger btn-sm"
-              onClick={() =>
-                exportToExcel(
-                  filterData(expiredPackages, searchExpired),
-                  "Expired"
-                )
-              }
-            >
-              <i className="fa fa-file-excel me-1"></i> Download Expired
-              Packages
-            </button>
-          </div>
+          <button className="btn btn-primary btn-sm" onClick={exportToExcel}>
+            <i className="fa fa-file-excel me-1"></i> Download Packages
+          </button>
         </div>
       </div>
 
-      {/* Current Packages */}
-      <div className="mb-5">
-        <h5 className="mb-3 text-success">
-          <i className="fas fa-box-open me-2"></i>Current Running Packages
-        </h5>
-
-        <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-          <div
-            className="d-flex align-items-center border rounded px-2"
-            style={{ maxWidth: "300px" }}
+      <div
+        className="d-flex align-items-center border rounded px-2 mb-3"
+        style={{ maxWidth: "300px" }}
+      >
+        <i className="ri-search-line me-2 mx-2 text-muted" />
+        <input
+          type="text"
+          className="form-control border-0 shadow-none"
+          placeholder="Search by package name..."
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+        />
+        {searchText && (
+          <button
+            className="btn btn-sm btn-light border-0"
+            onClick={() => setSearchText("")}
           >
-            <i className="ri-search-line me-2 mx-2 text-muted" />
-            <input
-              type="text"
-              className="form-control border-0 shadow-none"
-              placeholder="Search by package name..."
-              value={searchCurrent}
-              onChange={(e) => setSearchCurrent(e.target.value)}
-            />
-            {searchCurrent && (
-              <button
-                className="btn btn-sm btn-light border-0"
-                onClick={() => setSearchCurrent("")}
-              >
-                <i className="ri-close-line" />
-              </button>
-            )}
-          </div>
-
-          <div className="mt-2 mt-md-0">
-            <button
-              className="btn btn-outline-primary btn-sm"
-              onClick={() =>
-                navigate("/admin/extendpackagehistory", {
-                  state: { vendor_id: vendorId },
-                })
-              }
-            >
-              <i className="fas fa-history me-2" />
-              View Extend History
-            </button>
-          </div>
-        </div>
-
-        <DataTable
-          columns={commonColumns()}
-          data={filterData(currentPackages, searchCurrent)}
-          pagination
-        />
+            <i className="ri-close-line" />
+          </button>
+        )}
       </div>
 
-      <div>
-        <h5 className="mb-3 text-danger">
-          <i className="fas fa-times-circle me-2"></i>Expired Packages
-        </h5>
-
-        <div
-          className="d-flex align-items-center border rounded px-2 mb-3"
-          style={{ maxWidth: "300px" }}
-        >
-          <i className="ri-search-line me-2 mx-2 text-muted" />
-          <input
-            type="text"
-            className="form-control border-0 shadow-none"
-            placeholder="Search by package name..."
-            value={searchExpired}
-            onChange={(e) => setSearchExpired(e.target.value)}
-          />
-          {searchExpired && (
-            <button
-              className="btn btn-sm btn-light border-0"
-              onClick={() => setSearchExpired("")}
-            >
-              <i className="ri-close-line" />
-            </button>
-          )}
-        </div>
-
-        <DataTable
-          columns={commonColumns()}
-          data={filterData(expiredPackages, searchExpired)}
-          pagination
-        />
-      </div>
+      <Datatable
+        columns={columns}
+        data={filteredData}
+        progressPending={loading}
+        pagination
+        paginationServer={!searchText}
+        paginationTotalRows={searchText ? filteredData.length : totalRows}
+        paginationPerPage={perPage}
+        onChangeRowsPerPage={(newPerPage) => {
+          setPerPage(newPerPage);
+          setCurrentPage(1);
+        }}
+        onChangePage={(page) => setCurrentPage(page)}
+      />
     </div>
   );
 }

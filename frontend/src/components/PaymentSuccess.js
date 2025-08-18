@@ -8,7 +8,7 @@ const PaymentSuccess = () => {
   const { orderData, packageInfo } = location.state || {};
 
   if (!orderData || !packageInfo) {
-    navigate('/vendor/packages');
+    navigate('/vendor/mypackages');
     return null;
   }
 

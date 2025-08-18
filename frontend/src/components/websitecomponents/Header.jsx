@@ -7,6 +7,7 @@ const Header = () => {
   const [category, setCategory] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
+   const [open, setOpen] = useState(false);
   const token = localStorage.getItem("token");
 
   const fetchcategories = async () => {
@@ -74,52 +75,47 @@ const Header = () => {
                                 About
                               </Link>
                             </li>
-                            <li className="single-list">
-                              <Link
-                                to="/category"
-                                className={`single ${
-                                  location.pathname.startsWith("/category")
-                                    ? "link-active"
-                                    : ""
-                                }`}
-                              >
-                                Category
-                                <i className="ri-arrow-down-s-line" />{" "}
-                              </Link>
+                          <li className={`single-list ${open ? "submenu-open" : ""}`}>
+  <Link
+    to="#"
+    className={`single ${
+      location.pathname.startsWith("/category") ? "link-active" : ""
+    }`}
+    onClick={(e) => {
+      e.preventDefault(); // link default disable
+      setOpen(!open);     // click par toggle
+    }}
+  >
+    Category
+    <i className="ri-arrow-down-s-line" />
+  </Link>
 
-                              <ul className="row submenu">
-                                {Array.from({ length: 2 }, (_, colIndex) => (
-                                  <div className="col-lg-6" key={colIndex}>
-                                    <ul>
-                                      {category
-                                        ?.filter((_, idx) =>
-                                          colIndex === 0
-                                            ? idx <
-                                              Math.ceil(category.length / 2)
-                                            : idx >=
-                                              Math.ceil(category.length / 2)
-                                        )
-                                        ?.map((cat) => (
-                                          <li
-                                            key={cat._id || cat.id}
-                                            className="mb-2"
-                                          >
-                                            <Link
-                                              to="/category"
-                                              state={{
-                                                categoryId: cat.id,
-                                              }}
-                                              className="single"
-                                            >
-                                              {cat.name}
-                                            </Link>
-                                          </li>
-                                        ))}
-                                    </ul>
-                                  </div>
-                                ))}
-                              </ul>
-                            </li>
+  <ul className="row submenu">
+    {Array.from({ length: 2 }, (_, colIndex) => (
+      <div className="col-lg-6" key={colIndex}>
+        <ul>
+          {category
+            ?.filter((_, idx) =>
+              colIndex === 0
+                ? idx < Math.ceil(category.length / 2)
+                : idx >= Math.ceil(category.length / 2)
+            )
+            ?.map((cat) => (
+              <li key={cat._id || cat.id} className="mb-2">
+                <Link
+                  to="/category"
+                  state={{ categoryId: cat.id }}
+                  className="single"
+                >
+                  {cat.name}
+                </Link>
+              </li>
+            ))}
+        </ul>
+      </div>
+    ))}
+  </ul>
+</li>
                             <li className="single-list">
                               <Link
                                 to="/blog"

@@ -172,7 +172,7 @@ export default function AllLeads() {
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/admin/dashboard">
+            <Link to="/vendor/dashboard">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
             <h2 className="add-page-heading">All Leads</h2>
