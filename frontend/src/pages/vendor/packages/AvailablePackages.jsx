@@ -152,60 +152,61 @@ const VendorPackages = () => {
     }
   };
 
- const AddSubscribeplan = async (pkg) => {
-  try {
-    const confirm = await Swal.fire({
-      title: "Are you sure?",
-      text: `Subscribe to ${pkg.name} for ₹${pkg.price}?`,
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, proceed",
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    const response = await paymentService.createPaymentOrder(vendorId, pkg.id);
-    console.log("Order ", response);
-
-    if (response.status && response.data?.payment_url) {
-      Swal.fire("Success", response.msg, "success");  
-      console.log("Response",response)
-      navigate("/payment", {
-        state: {
-          orderData: response.data,
-          package: pkg,
-        },
+  const AddSubscribeplan = async (pkg) => {
+    try {
+      const confirm = await Swal.fire({
+        title: "Are you sure?",
+        text: `Subscribe to ${pkg.name} for ₹${pkg.price}?`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes, proceed",
       });
 
       if (!confirm.isConfirmed) return;
 
-      // 1. Backend se order create karo
       const response = await paymentService.createPaymentOrder(
         vendorId,
         pkg.id
       );
-      console.log("Order creation response:", response);
+      console.log("Order ", response);
+
       if (response.status && response.data?.payment_url) {
-        // 2. Order data ko store karke Payment page pe navigate karo
-        navigate("/vendor/payment", {
+        Swal.fire("Success", response.msg, "success");
+        console.log("Response", response);
+        navigate("/payment", {
           state: {
             orderData: response.data,
             package: pkg,
           },
         });
-      } else {
-        Swal.fire("Error", "Unable to create payment order", "error");
+
+        if (!confirm.isConfirmed) return;
+        const response = await paymentService.createPaymentOrder(
+          vendorId,
+          pkg.id
+        );
+        console.log("Order creation response:", response);
+        if (response.status && response.data?.payment_url) {
+          navigate("/vendor/payment", {
+            state: {
+              orderData: response.data,
+              package: pkg,
+            },
+          });
+        } else {
+          Swal.fire("Error", "Unable to create payment order", "error");
+        }
       }
     } catch (error) {
       console.error("Subscription error:", error);
-      Swal.fire("Error", "Something went wrong during subscription.", "error");
+      Swal.fire(
+        "Error",
+        error?.response?.data?.msg ||
+          "Something went wrong during subscription.",
+        "error"
+      ); 
     }
-  } catch (error) {
-    console.error("Subscription error:", error);
-    Swal.fire("Error", error?.response?.data?.msg || "Something went wrong during subscription.", "error"); // ✅ backend error bhi handle
-  }
-};
-
+  };
 
   const handleView = (pkg) => {
     Swal.fire({
