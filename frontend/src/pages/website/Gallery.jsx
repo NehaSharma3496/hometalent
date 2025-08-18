@@ -59,7 +59,16 @@ const Gallery = () => {
           <div className="row g-4">
             {gallery?.length === 0 ? (
               <div className="col-12 text-center">
-                <p className="text-danger fs-5">No records found</p>
+                <img
+                  src="/assets/images/NoGallery.jpg"
+                  alt="No Gallery"
+                  style={{
+                    width: "250px",
+                    height: "auto",
+                    marginBottom: "15px",
+                  }}
+                />
+                <p className="text-danger fs-5">No images found</p>
               </div>
             ) : (
               gallery?.map((slide, i) => (
@@ -97,14 +106,7 @@ const Gallery = () => {
           close={() => setOpen(false)}
           index={index}
           slides={gallery}
-          plugins={[
-            Fullscreen,
-            Slideshow,
-            Thumbnails,
-            Video,
-            Zoom,
-            Share,
-          ]}
+          plugins={[Fullscreen, Slideshow, Thumbnails, Video, Zoom, Share]}
           captions={{
             descriptionTextAlign: "center",
             descriptionMaxLines: 2,

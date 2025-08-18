@@ -135,7 +135,7 @@ exports.createPaymentOrder = async (req, res) => {
       },
       body: JSON.stringify(paymentData)
     });
-
+console.log("Response",cashfreeResponse)
     if (!cashfreeResponse.ok) {
       const errorText = await cashfreeResponse.text();
       console.error('Cashfree API error:', errorText);
