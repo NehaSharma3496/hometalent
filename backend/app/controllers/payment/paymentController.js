@@ -8,7 +8,7 @@ const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID ;
 const CASHFREE_SECRET_KEY = process.env.CASHFREE_SECRET_KEY;
 const CASHFREE_API_ENDPOINT = 'https://sandbox.cashfree.com/pg';
 
-// Generate unique order ID
+// Generate unique order ID 
 function generateOrderId() {
   return 'HT_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
