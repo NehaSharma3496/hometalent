@@ -176,9 +176,29 @@ const VendorPackages = () => {
           package: pkg,
         },
       });
-    } else {
-      Swal.fire("Error", response.msg || "Unable to create payment order", "error");  
-      console.log("Response", response)
+
+      if (!confirm.isConfirmed) return;
+
+      // 1. Backend se order create karo
+      const response = await paymentService.createPaymentOrder(
+        vendorId,
+        pkg.id
+      );
+      console.log("Order creation response:", response);
+      if (response.status && response.data?.payment_url) {
+        // 2. Order data ko store karke Payment page pe navigate karo
+        navigate("/vendor/payment", {
+          state: {
+            orderData: response.data,
+            package: pkg,
+          },
+        });
+      } else {
+        Swal.fire("Error", "Unable to create payment order", "error");
+      }
+    } catch (error) {
+      console.error("Subscription error:", error);
+      Swal.fire("Error", "Something went wrong during subscription.", "error");
     }
   } catch (error) {
     console.error("Subscription error:", error);

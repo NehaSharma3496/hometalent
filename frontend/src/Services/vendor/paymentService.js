@@ -32,8 +32,8 @@ export const paymentService = {
 
     return res.data;
   },
-  getPaymentStatus: async (orderId) => {
-    const res = await paymentAPI.get(`/payment/status?order_id=${orderId}`);
+  getPaymentStatus: async (orderId,userid) => {
+    const res = await paymentAPI.get(`/payment/status?order_id=${orderId}&user_id=${userid}`);
     return res.data;
   },
 };
