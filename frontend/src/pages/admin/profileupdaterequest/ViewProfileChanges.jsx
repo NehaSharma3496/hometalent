@@ -31,41 +31,32 @@ export default function ViewProfileChanges() {
   const vendor_id = requestData?.vendor_id;
   const request_data = requestData?.request_data;
   const status = requestData?.status;
-  const request_id=state?.requestId;
+  const request_id = state?.requestId;
 
-  // 🟡 Fetch Old Vendor Data, New Changes, States, Categories
   useEffect(() => {
     if (!vendor_id) return;
 
-    // Fetch current vendor data
-    GetVendorDetails(token, vendor_id).then((res) => {
-      if (res?.status && res.data?.user) {
-        setOldData(res.data.user);
-      }
-    });
+    if (status === "approved" && request_id) {
+      GetProfileUpdateRequestsBlogs(token, { request_id }).then((res) => {
+        if (res?.status && res?.data?.details) {
+          setOldData(res.data.details.user_before || {});
+          setNewData(res.data.details.user_after || {});
+        }
+      });
+    } else {
+      GetVendorDetails(token, vendor_id).then((res) => {
+        if (res?.status && res.data?.user) {
+          setOldData(res.data.user);
+        }
+      });
 
-    // ✅ If status is approved → always fetch from Blogs API
-   // ✅ If status is approved → always fetch from Blogs API with request_id
-if (status === "approved" && request_id) {
-  GetProfileUpdateRequestsBlogs(token, { request_id }).then((res) => {
-    if (res?.status && res?.data?.request_data) {
-      try {
-        const parsed = JSON.parse(res.data.request_data);
-        setNewData(parsed);
-      } catch (err) {
-        console.error("Invalid JSON from approved API", err);
-      }
-    }
-  });
-}
-
-    // 🟠 For pending/rejected → use request_data from state
-    else if (request_data) {
-      try {
-        const parsed = JSON.parse(request_data);
-        setNewData(parsed);
-      } catch (err) {
-        console.error("Invalid JSON in request_data", err);
+      if (request_data) {
+        try {
+          const parsed = JSON.parse(request_data);
+          setNewData(parsed);
+        } catch (err) {
+          console.error("Invalid JSON in request_data", err);
+        }
       }
     }
 
@@ -73,9 +64,8 @@ if (status === "approved" && request_id) {
     GetCategories(token).then(
       (res) => res?.status && setCategories(res.data || [])
     );
-  }, [vendor_id, token, request_data, status]);
+  }, [vendor_id, token, request_data, status, request_id]);
 
-  // Fetch new cities (if newData.state_id exists)
   useEffect(() => {
     if (newData?.state_id) {
       GetCities(token, newData.state_id).then((res) => {
@@ -84,7 +74,6 @@ if (status === "approved" && request_id) {
     }
   }, [newData?.state_id, token]);
 
-  // Fetch old cities (if oldData.state_id exists)
   useEffect(() => {
     if (oldData?.state_id) {
       GetCities(token, oldData.state_id).then((res) => {
@@ -93,63 +82,70 @@ if (status === "approved" && request_id) {
     }
   }, [oldData?.state_id, token]);
 
-  // 🟢 Create Comparison Table
   useEffect(() => {
-    const rows = Object.keys(newData || {})
+    if (!oldData || !newData) return;
+
+    let allKeys = [];
+    if (status === "approved") {
+      allKeys = [
+        ...new Set([
+          ...Object.keys(oldData || {}),
+          ...Object.keys(newData || {}),
+        ]),
+      ];
+    } else {
+      allKeys = Object.keys(newData || {});
+    }
+
+    const rows = allKeys
+      .filter(
+        (key) =>
+          ![
+            "id",
+            "approval_status",
+            "createdAt",
+            "updatedAt",
+            "deleted_at",
+            "sort_order",
+            "admin_id",
+          ].includes(key)
+      )
       .map((key) => {
         const oldValRaw = oldData?.[key];
         const newValRaw = newData?.[key];
 
-        const resolveField = (key, value, type = "new") => {
+        const resolveField = (value) => {
           if (!value && value !== 0) return "-";
-
-          switch (key) {
-            case "state_id":
-              return states.find((s) => s.id === +value)?.name || value;
-            case "city_id":
-            case "city":
-              const cityList = type === "old" ? oldCities : newCities;
-              return cityList.find((c) => c.id === +value)?.name || value;
-            case "category_id":
-              const ids = Array.isArray(value)
-                ? value
-                : value?.toString().split(",") || [];
-              return (
-                ids
-                  .map((id) => categories.find((cat) => +cat.id === +id)?.name)
-                  .filter(Boolean)
-                  .join(", ") || value
-              );
-            default:
-              return value;
+          if (typeof value === "object") {
+            if (Array.isArray(value)) {
+              return value
+                .map((v) => (v?.file_name ? v.file_name : JSON.stringify(v)))
+                .join(", ");
+            }
+            return (
+              value?.file_name || value?.file_path || JSON.stringify(value)
+            );
           }
+          return value.toString().trim();
         };
 
-        const oldVal = resolveField(key, oldValRaw, "old");
-        const newVal = resolveField(key, newValRaw, "new");
-        const hasChanged = `${oldVal}` !== `${newVal}`;
-        if (!hasChanged) return null;
+        const oldVal = resolveField(oldValRaw);
+        const newVal = resolveField(newValRaw);
+
+        if (oldVal === newVal) return null;
 
         return {
-          field:
-            key === "state_id" || key === "state"
-              ? "State"
-              : key === "city_id" || key === "city"
-              ? "City"
-              : key === "category_id" || key === "category"
-              ? "Category"
-              : key.replace(/_/g, " "),
-          oldVal: oldVal || "-",
-          newVal: newVal || "-",
+          field: key.replace(/_/g, " "),
+          oldVal,
+          newVal,
         };
       })
       .filter(Boolean)
       .sort((a, b) => a.field.localeCompare(b.field));
 
     setComparisonRows(rows);
-  }, [oldData, newData, states, oldCities, newCities, categories]);
+  }, [oldData, newData, status]);
 
-  // 🟧 Approve/Reject Actions
   const handleAction = async (actionType) => {
     const confirm = await Swal.fire({
       title: `${actionType === "approve" ? "Approve" : "Reject"} Request?`,

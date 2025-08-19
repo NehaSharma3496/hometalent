@@ -1,81 +1,35 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import MenuItems from "../admincomponents/MenuItems.jsx";
 import { GetVendorDetails } from "../../Services/vendor/Vendor.js";
 
 export default function AdminHeader() {
-  const role = localStorage.getItem("role");
+  const role = localStorage.getItem("role"); // 1 = Admin, 2 = Vendor
   const MenuData = MenuItems[role] || [];
   const navigate = useNavigate();
   const vendorId = localStorage.getItem("userId");
-  const [profileImage, setProfileImage] = useState(null);
   const token = localStorage.getItem("token");
+
+  const [profileImage, setProfileImage] = useState(null);
   const [sidebarToggled, setSidebarToggled] = useState(false);
-
-  const [showDropdown, setShowDropdown] = useState(false);
-
   const [isOpen, setIsOpen] = useState(false);
 
-  // const notifications = [
-  //   {
-  //     id: 1,
-  //     title: "New booking request",
-  //     message: "John Doe requested Canvas Painting service",
-  //     time: "2 minutes ago",
-  //     type: "booking",
-  //     isRead: false,
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Payment received",
-  //     message: "Payment of ₹2500 received for Mehandi Art",
-  //     time: "1 hour ago",
-  //     type: "payment",
-  //     isRead: true,
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "New review",
-  //     message: "You received a 5-star review for Fabric Painting",
-  //     time: "3 hours ago",
-  //     type: "review",
-  //     isRead: true,
-  //   },
-  //   {
-  //     id: 4,
-  //     title: "Service reminder",
-  //     message: "You have a Catering booking tomorrow at 3 PM",
-  //     time: "1 day ago",
-  //     type: "reminder",
-  //     isRead: true,
-  //   },
-  //   {
-  //     id: 5,
-  //     title: "Profile update",
-  //     message: "Your profile has been successfully updated",
-  //     time: "2 days ago",
-  //     type: "profile",
-  //     isRead: true,
-  //   },
-  //   {
-  //     id: 6,
-  //     title: "Profile update",
-  //     message: "Your profile has been successfully updated",
-  //     time: "3 days ago",
-  //     type: "profile",
-  //     isRead: false,
-  //   },
-  //   {
-  //     id: 7,
-  //     title: "Payment received",
-  //     message: "Payment of ₹5500 received for Mehandi Art",
-  //     time: "4 days ago",
-  //     type: "payment",
-  //     isRead: false,
-  //   },
-  // ];
+  // ✅ Role-based config inside this file
+  const RoleConfig = {
+    1: {
+      profileLink: "/admin/myprofile",
+      changePassword: "/admin/forgotpassword/changepassword",
+      defaultImage: "/assets/images/admin/user-img.png",
+    },
+    2: {
+      profileLink: "/vendor/myprofile",
+      changePassword: "/vendor/forgotpassword/changepassword",
+      defaultImage: "/assets/images/admin/user-img.png", // vendor default
+    },
+  };
+
+  const currentRole = RoleConfig[role] || RoleConfig[1];
 
   useEffect(() => {
     if (window.innerWidth < 1200) {
@@ -118,29 +72,59 @@ export default function AdminHeader() {
     navigate("/");
   };
 
-useEffect(() => {
-  const fetchVendorProfileImage = async () => {
-    try {
-      const result = await GetVendorDetails(token, vendorId);
+  useEffect(() => {
+    const fetchVendorProfileImage = async () => {
+      try {
+        const result = await GetVendorDetails(token, vendorId);
+        const imageUrl = result?.data?.user?.image;
 
-      const imageUrl = result?.data?.user?.image;
-
-      if (imageUrl) {
-        setProfileImage(imageUrl); 
-      } else {
-        console.log("Image not found in response", result);
+        if (imageUrl) {
+          setProfileImage(imageUrl);
+        }
+      } catch (error) {
+        console.error("Error fetching vendor profile image:", error);
       }
-    } catch (error) {
-      console.error("Error fetching vendor profile image:", error);
+    };
+
+    if (role === "2") {
+      fetchVendorProfileImage();
     }
-  };
+  }, [role, token, vendorId]);
 
-  if (role === "2") {
-    fetchVendorProfileImage();
-  }
-}, [role, token, vendorId]);
-
-
+  const notifications = [
+    {
+      id: 1,
+      title: "New booking request",
+      message: "John Doe requested Canvas Painting service",
+      time: "2 minutes ago",
+      type: "booking",
+      isRead: false,
+    },
+    {
+      id: 2,
+      title: "Payment received",
+      message: "Payment of ₹2500 received for Mehandi Art",
+      time: "1 hour ago",
+      type: "payment",
+      isRead: true,
+    },
+    {
+      id: 3,
+      title: "New review",
+      message: "You received a 5-star review for Fabric Painting",
+      time: "3 hours ago",
+      type: "review",
+      isRead: true,
+    },
+    {
+      id: 4,
+      title: "Service reminder",
+      message: "You have a Catering booking tomorrow at 3 PM",
+      time: "1 day ago",
+      type: "reminder",
+      isRead: true,
+    },
+  ];
 
   const handleViewAll = () => {
     navigate("/vendor/Viewallnotification");
@@ -166,7 +150,6 @@ useEffect(() => {
                   onClick={handleToggle}
                 >
                   <i className="fa-solid fa-angle-left"></i>
-                  {/* <i class="fa-solid fa-bars"></i> */}
                 </span>
               </div>
             </div>
@@ -176,14 +159,14 @@ useEffect(() => {
                   <div>
                     <button
                       className="btn p-0 setting-link position-relative"
-                      // onClick={() => setIsOpen(!isOpen)}
+                      onClick={() => setIsOpen(!isOpen)}
                       style={{ background: "none", border: "none" }}
                     >
                       <i className="fa-solid fa-bell text-primary fs-5"></i>
                     </button>
                   </div>
 
-                  {/* {isOpen && (
+                  {isOpen && (
                     <>
                       <div
                         className="position-fixed top-0 start-0 w-100 h-100"
@@ -274,14 +257,8 @@ useEffect(() => {
                         </div>
                       </div>
                     </>
-                  )} */}
+                  )}
                 </div>
-
-                {/* <div>
-                  <Link to="#" className="setting-link">
-                    <i className="fa-solid fa-gear text-primary "></i>
-                  </Link>
-                </div> */}
 
                 <div>
                   <div className="dropdown profile-dropdown-div">
@@ -293,18 +270,15 @@ useEffect(() => {
                       data-bs-toggle="dropdown"
                       aria-expanded="false"
                     >
-                     <img
-  src={
-    role === "2" && profileImage
-      ? profileImage 
-      : "/assets/images/admin/user-img.png"
-  }
-  className="user-img"
-  alt="Profile"
-/>
-
-
-
+                      <img
+                        src={
+                          role === "2" && profileImage
+                            ? profileImage
+                            : currentRole.defaultImage
+                        }
+                        className="user-img"
+                        alt="Profile"
+                      />
                       <i className="fa-solid fa-angle-down"></i>
                     </Link>
 
@@ -316,7 +290,7 @@ useEffect(() => {
                         <li>
                           <Link
                             className="dropdown-item"
-                            to="/vendor/myprofile"
+                            to={currentRole.profileLink}
                           >
                             <i className="fa-light fa-user"></i> My Profile
                           </Link>
@@ -325,7 +299,7 @@ useEffect(() => {
                       <li>
                         <Link
                           className="dropdown-item"
-                          to="/admin/forgotpassword/changepassword"
+                          to={currentRole.changePassword}
                         >
                           <i className="fa-light fa-user"></i> Change Password
                         </Link>
@@ -347,7 +321,7 @@ useEffect(() => {
 
       <aside id="sidebar">
         <ul className="sidebar-nav">
-          {(MenuData || []).map((item, idx) => (
+          {MenuData.map((item, idx) => (
             <li
               key={idx}
               className={`nav-item ${item.children ? "menu-dropdown" : ""}`}
