@@ -3,9 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import MenuItems from "../admincomponents/MenuItems.jsx";
 import { GetVendorDetails } from "../../Services/vendor/Vendor.js";
+import io from "socket.io-client";
+import * as Config from "../../Utils/config.js";
+
 
 export default function AdminHeader() {
-  const role = localStorage.getItem("role"); // 1 = Admin, 2 = Vendor
+  const role = localStorage.getItem("role");
   const MenuData = MenuItems[role] || [];
   const navigate = useNavigate();
   const vendorId = localStorage.getItem("userId");
@@ -15,17 +18,41 @@ export default function AdminHeader() {
   const [sidebarToggled, setSidebarToggled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  // ✅ Role-based config inside this file
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    const role = localStorage.getItem("role") === "1" ? "admin" : "vendor";
+
+    const socket = io(`${Config.base_url}`, {
+      query: { userId, role },
+    });
+
+    socket.on("notification", (data) => {
+      setNotifications((prev) => [data, ...prev]);
+      setUnreadCount((prev) => prev + 1);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  const handleViewAll = () => {
+    setUnreadCount(0);
+    navigate("/vendor/Viewallnotification");
+  };
+
   const RoleConfig = {
     1: {
-      profileLink: "/admin/myprofile",
       changePassword: "/admin/forgotpassword/changepassword",
       defaultImage: "/assets/images/admin/user-img.png",
     },
     2: {
       profileLink: "/vendor/myprofile",
       changePassword: "/vendor/forgotpassword/changepassword",
-      defaultImage: "/assets/images/admin/user-img.png", // vendor default
+      defaultImage: "/assets/images/admin/user-img.png",
     },
   };
 
@@ -91,45 +118,6 @@ export default function AdminHeader() {
     }
   }, [role, token, vendorId]);
 
-  const notifications = [
-    {
-      id: 1,
-      title: "New booking request",
-      message: "John Doe requested Canvas Painting service",
-      time: "2 minutes ago",
-      type: "booking",
-      isRead: false,
-    },
-    {
-      id: 2,
-      title: "Payment received",
-      message: "Payment of ₹2500 received for Mehandi Art",
-      time: "1 hour ago",
-      type: "payment",
-      isRead: true,
-    },
-    {
-      id: 3,
-      title: "New review",
-      message: "You received a 5-star review for Fabric Painting",
-      time: "3 hours ago",
-      type: "review",
-      isRead: true,
-    },
-    {
-      id: 4,
-      title: "Service reminder",
-      message: "You have a Catering booking tomorrow at 3 PM",
-      time: "1 day ago",
-      type: "reminder",
-      isRead: true,
-    },
-  ];
-
-  const handleViewAll = () => {
-    navigate("/vendor/Viewallnotification");
-  };
-
   return (
     <>
       <header className="header">
@@ -163,6 +151,14 @@ export default function AdminHeader() {
                       style={{ background: "none", border: "none" }}
                     >
                       <i className="fa-solid fa-bell text-primary fs-5"></i>
+                      {unreadCount > 0 && (
+                        <span
+                          className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                          style={{ fontSize: "0.7rem" }}
+                        >
+                          {unreadCount}
+                        </span>
+                      )}
                     </button>
                   </div>
 
@@ -202,37 +198,45 @@ export default function AdminHeader() {
                           className="overflow-auto bg-light"
                           style={{ maxHeight: "400px" }}
                         >
-                          {notifications.map((notification) => (
-                            <div
-                              key={notification.id}
-                              className={`p-3 border-bottom rounded-2 mb-2 mx-2 shadow-sm notification-item hover-effect
-                                 ${
-                                   notification.isRead
-                                     ? "bg-white"
-                                     : "bg-primary-subtle border-start border-3 border-primary"
-                                 }`}
-                              style={{ cursor: "pointer", transition: "0.3s" }}
-                            >
-                              <h6
-                                className={`mb-1 fw-bold d-flex align-items-center ${
+                          {notifications.length === 0 ? (
+                            <p className="text-center text-muted p-3">
+                              No notifications
+                            </p>
+                          ) : (
+                            notifications.map((notification, idx) => (
+                              <div
+                                key={idx}
+                                className={`p-3 border-bottom rounded-2 mb-2 mx-2 shadow-sm notification-item hover-effect ${
                                   notification.isRead
-                                    ? "text-light"
-                                    : "text-primary"
+                                    ? "bg-white"
+                                    : "bg-primary-subtle border-start border-3 border-primary"
                                 }`}
+                                style={{
+                                  cursor: "pointer",
+                                  transition: "0.3s",
+                                }}
                               >
-                                <i className="bi bi-info-circle-fill me-2"></i>
-                                {notification.title}
-                              </h6>
-                              <p className="mb-1 text-muted small">
-                                {notification.message}
-                              </p>
-                              <div className="text-end">
-                                <small className="text-muted fst-italic">
-                                  {notification.time}
-                                </small>
+                                <h6
+                                  className={`mb-1 fw-bold d-flex align-items-center ${
+                                    notification.isRead
+                                      ? "text-light"
+                                      : "text-primary"
+                                  }`}
+                                >
+                                  <i className="bi bi-info-circle-fill me-2"></i>
+                                  {notification.title || "New Notification"}
+                                </h6>
+                                <p className="mb-1 text-muted small">
+                                  {notification.message || ""}
+                                </p>
+                                <div className="text-end">
+                                  <small className="text-muted fst-italic">
+                                    {notification.time || "Just now"}
+                                  </small>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            ))
+                          )}
                         </div>
 
                         <div className="p-3 bg-white text-left rounded-bottom shadow-sm border-top">
@@ -286,16 +290,15 @@ export default function AdminHeader() {
                       className="dropdown-menu"
                       aria-labelledby="profile-dropdown"
                     >
-                      {role === "2" && (
-                        <li>
-                          <Link
-                            className="dropdown-item"
-                            to={currentRole.profileLink}
-                          >
-                            <i className="fa-light fa-user"></i> My Profile
-                          </Link>
-                        </li>
-                      )}
+                      <li>
+                        <Link
+                          className="dropdown-item"
+                          to={currentRole.profileLink}
+                        >
+                          <i className="fa-light fa-user"></i> My Profile
+                        </Link>
+                      </li>
+
                       <li>
                         <Link
                           className="dropdown-item"
