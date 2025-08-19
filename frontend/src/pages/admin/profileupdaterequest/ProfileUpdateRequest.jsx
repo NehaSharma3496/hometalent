@@ -27,14 +27,8 @@ export default function ProfileUpdateRequests() {
         page,
         limit
       );
-      console.log("API Response:", res);
-
-      // ✅ FIXED condition
       if (res?.data?.requests && typeof res.data.total === "number") {
         setRequests(res.data.requests);
-        console.log("Fetched Requests:", res.data.requests);
-
-        // ✅ Use total from inside data
         setTotalRows(res.data.total);
       } else {
         throw new Error("Invalid response format");
@@ -56,7 +50,6 @@ export default function ProfileUpdateRequests() {
       const limit = 100;
       let totalPages = 1;
 
-      // Fetch all paginated profile update requests
       while (page <= totalPages) {
         const res = await GetProfileUpdateRequests(
           token,
@@ -206,13 +199,12 @@ export default function ProfileUpdateRequests() {
 
     {
       name: "View",
-      
+
       cell: (row) => {
         return (
           <button
             className="btn btn-warning btn-sm"
             title="View"
-            
             onClick={() =>
               navigate(`/admin/profileupdaterequest/viewprofilechanges`, {
                 state: {
