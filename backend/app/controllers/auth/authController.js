@@ -94,7 +94,7 @@ exports.createUser = async (req, res) => {
     });
 
     // Send socket notification for vendor registration
-    if (user.role_id === 2) { // If vendor
+    if (user.role_id == 2) { 
       socketManager.vendorRegistered({
         id: user.id,
         owner_name: user.owner_name,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import MenuItems from "../admincomponents/MenuItems.jsx";
@@ -20,24 +20,94 @@ export default function AdminHeader() {
 
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const socketRef = useRef(null);
 
-  useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    const role = localStorage.getItem("role") === "1" ? "admin" : "vendor";
+  const userId = localStorage.getItem("userId");
+  const userType = localStorage.getItem("role") === "1" ? "admin" : "vendor";
+  
+//   useEffect(() => {
+//     const userId = localStorage.getItem("userId");
+//     const userType = localStorage.getItem("role") === "1" ? "admin" : "vendor";
 
-    const socket = io(`${Config.base_url}`, {
-      query: { userId, role },
+//     const socket = io(`${Config.base_url}`, {
+//       query: { userId, userType },
+//     });
+// console.log("Connecting to Socket",socket);
+//     socket.on("notification", (data) => {
+//       console.log("Received notification123:", data);
+//       setNotifications((prev) => [data, ...prev]);
+//       setUnreadCount((prev) => prev + 1);
+//       console.log("Notifications:", notifications);
+// console.log("Unread Count:", unreadCount);
+//     });
+// console.log("Notifications:", notifications);
+// console.log("Unread Count:", unreadCount);
+
+//     return () => {
+//       socket.disconnect();
+//     };
+//   }, []);
+
+useEffect(() => {
+  if (socketRef.current) return; // already connected
+
+  const socket = io(`${Config.base_url}`, {
+    query: { userId, userType },
+  });
+  socketRef.current = socket;
+
+  socket.on("connect", () => {
+    console.log("AdminHeader socket connected:", socket.id);
+    if (userType == "admin") {
+      socket.emit("admin-connect", userId);
+    } else if (userType == "vendor") {
+      socket.emit("vendor-connect", userId);
+    } else {
+      socket.emit("client-connect", userId);
+    }
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log("AdminHeader socket disconnected:", reason);
+  });
+
+  const onNotification = (data) => {
+    console.log("AdminHeader received notification:", data);
+
+    setNotifications((prev) => {
+      const next = [data, ...prev];
+      return next;
     });
 
-    socket.on("notification", (data) => {
-      setNotifications((prev) => [data, ...prev]);
-      setUnreadCount((prev) => prev + 1);
-    });
+    setUnreadCount((prev) => prev + 1);
+  };
 
-    return () => {
+  socket.on("notification", onNotification);
+
+  return () => {
+    try {
+      socket.off("notification", onNotification);
+      socket.off("connect");
+      socket.off("disconnect");
       socket.disconnect();
-    };
-  }, []);
+    } catch (e) {}
+    socketRef.current = null;
+  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
+
+useEffect(() => {
+  console.log("Notifications (state):", notifications);
+}, [notifications]);
+
+useEffect(() => {
+  console.log("Unread Count (state):", unreadCount);
+}, [unreadCount]); // ensure socket is stable or keep it in a ref
+
+console.log("Notifications out:", notifications);
+console.log("Unread Count out:", unreadCount);
+
+
 
   const handleViewAll = () => {
     setUnreadCount(0);

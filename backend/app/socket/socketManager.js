@@ -17,7 +17,6 @@ class SocketManager {
     });
 
     this.io.on('connection', (socket) => {
-      console.log('New client connected:', socket.id);
 
       // Handle admin connection
       socket.on('admin-connect', (adminId) => {
@@ -28,9 +27,10 @@ class SocketManager {
 
       // Handle vendor connection
       socket.on('vendor-connect', (vendorId) => {
-        this.vendorSockets.set(vendorId, socket);
-        socket.vendorId = vendorId;
-        console.log('Vendor connected:', vendorId);
+        const vendorKey = String(vendorId);
+        this.vendorSockets.set(vendorKey, socket);
+        socket.vendorId = vendorKey;
+        console.log('Vendor connected:', vendorKey);
       });
 
       // Handle client connection
@@ -77,19 +77,23 @@ class SocketManager {
 
   // Send notification to specific vendor
   notifyVendor(vendorId, type, data) {
-    const socket = this.vendorSockets.get(vendorId);
-    if (socket) {
-      socket.emit('notification', {
+    const vendorKey = String(vendorId);
+    const vendorSocket = this.vendorSockets.get(vendorKey);
+    console.log('Sending notification to vendor:', vendorKey, 'Socket:', vendorSocket);
+    
+    if (vendorSocket && vendorSocket != undefined) {
+      vendorSocket.emit('notification', {
         type,
         data,
         timestamp: new Date().toISOString()
       });
+    } else {
+      console.log('No socket for vendor:', vendorKey, 'Available vendors:', Array.from(this.vendorSockets.keys()));
     }
   }
 
   // Send notification to all vendors
   notifyAllVendors(type, data) {
-    console.log("data", data);
     this.vendorSockets.forEach((socket, vendorId) => {
       socket.emit('notification', {
         type,
