@@ -3,7 +3,7 @@ const { Op } = require('sequelize');
 const crypto = require('crypto');
 const { request } = require('http');
 const fs = require("fs");
- 
+const socketManager = require('../../socket/socketManager'); 
 // Cashfree configuration
 const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID ;
 const CASHFREE_SECRET_KEY = process.env.CASHFREE_SECRET_KEY;
@@ -331,7 +331,7 @@ exports.paymentWebhook = async (req, res) => {
   const data = req.body;
   fs.appendFileSync("cashfree_webhook_logs.json", JSON.stringify(data) + "\n");
 
-  console.log("Webhook received:", data);
+  // console.log("Webhook received:", data);
 
   // Cashfree requires a 200 OK response
 
@@ -345,7 +345,7 @@ exports.paymentWebhook = async (req, res) => {
       .digest('hex');
 
     if (signature !== computedSignature) {
-      console.error('Invalid webhook signature');
+      // console.error('Invalid webhook signature');
       return res.status(400).send('Invalid signature');
     }
 
@@ -355,7 +355,7 @@ exports.paymentWebhook = async (req, res) => {
     });
 
     if (!subscription) {
-      console.error('Subscription not found for order:', order_id);
+      // console.error('Subscription not found for order:', order_id);
       return res.status(404).send('Subscription not found');
     }
 
@@ -388,10 +388,10 @@ exports.paymentWebhook = async (req, res) => {
 
     await subscription.save();
 
-    res.status(200).send("Webhook received");
+   return res.status(200).send("Webhook received");
 
   } catch (error) {
-    console.error('Error processing webhook:', error);
+    // console.error('Error processing webhook:', error);
     return res.status(500).send('Internal server error');
   }
 };
@@ -475,7 +475,7 @@ exports.getPaymentStatus = async (req, res) => {
     const paymentData = await cashfreeResponse.json();
     
     const packgeid = await VendorPackageSubscription.findOne({
-      attributes: ['package_id'],
+      // attributes: ['package_id'],
       where: { payment_reference: order_id }  
     });
 
@@ -495,6 +495,15 @@ exports.getPaymentStatus = async (req, res) => {
       action: 'payment_status_checked',
       details: `Payment status checked for order: ${order_id}, Status: ${paymentData[0]?.order_status}`
     });
+
+    if(paymentData[0]?.order_status == 'PAID'){
+      console.log('Notifying vendor about subscription:', packgeid.package_id, packgeid.vendor_id);
+      socketManager.vendorSubscribed({
+      packgeid: packgeid.package_id,
+      id: paymentData[0]?.order_id,
+      vendor_id: user_id
+    });
+    }
     
     // if (!paymentData || !paymentData.order_status) {
     //   return res.status(404).json({
