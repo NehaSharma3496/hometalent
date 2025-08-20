@@ -180,6 +180,7 @@ class SocketManager {
       action
     });
   }
+  
 
   // Contact us submission notification
   contactUsSubmitted(contactData) {
