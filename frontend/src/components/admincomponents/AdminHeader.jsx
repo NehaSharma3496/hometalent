@@ -71,50 +71,40 @@ export default function AdminHeader() {
     };
   }, []);
 
+  // --- Load from localStorage on first render ---
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("notifications")) || [];
+      console.log("📥 Loaded from localStorage:", saved);
+      setNotifications(saved);
+      setUnreadCount(saved.length);
+    } catch (e) {
+      console.error("Error reading notifications:", e);
+      localStorage.removeItem("notifications");
+    }
+  }, []);
 
-// --- Load from localStorage on first render ---
-useEffect(() => {
-  try {
-    const saved = JSON.parse(localStorage.getItem("notifications")) || [];
-    console.log("📥 Loaded from localStorage:", saved);
-    setNotifications(saved);
-    setUnreadCount(saved.length);
-  } catch (e) {
-    console.error("Error reading notifications:", e);
-    localStorage.removeItem("notifications");
-  }
-}, []);
+  const onNotification = (data) => {
+    const newNotification = {
+      id: Date.now(),
+      type: data.type || "",
+      message: data.data?.message || data.message || "Notification",
+      lead: data.data?.lead || {},
+      vendor_id: data.data?.vendor_id || null,
+      timestamp: data.timestamp || new Date().toISOString(),
+      isRead: false,
+    };
 
+    setNotifications((prev) => {
+      let next = [newNotification, ...prev];
+      if (next.length > 10) next = next.slice(0, 10);
 
-// --- On receiving new notification ---
-const onNotification = (data) => {
-  const cleanData = {
-    id: Date.now(),
-    type: data.type,
-    lead: data.data?.lead || {
-      name: data.data?.name || "",
-      email: data.data?.email || "",
-      phone: data.data?.phone || "",
-      query: data.data?.query || "",
-    },
-    vendor_id: data.data?.vendor_id || null,
-    timestamp: data.timestamp || new Date().toISOString(),
+      localStorage.setItem("notifications", JSON.stringify(next));
+      return next;
+    });
+
+    setUnreadCount((prev) => prev + 1);
   };
-
-  setNotifications((prev) => {
-    let next = [cleanData, ...prev];
-    if (next.length > 10) next = next.slice(0, 10);
-
-    localStorage.setItem("notifications", JSON.stringify(next));
-    return next;
-  });
-
-  setUnreadCount((prev) => prev + 1);
-};
-
-
-
-
 
   useEffect(() => {
     console.log("Notifications (state):", notifications);
@@ -286,65 +276,74 @@ const onNotification = (data) => {
                           className="overflow-auto bg-light"
                           style={{ maxHeight: "400px" }}
                         >
-         {notifications.length === 0 ? (
-  <p className="text-center text-muted p-3">No notifications</p>
-) : (
-  notifications.map((notification, idx) => {
-    const payload = notification.lead || notification.data || {};
+                          {notifications.length === 0 ? (
+                            <p className="text-center text-muted p-3">
+                              No notifications
+                            </p>
+                          ) : (
+                            notifications.map((notification, idx) => {
+                              const payload =
+                                notification.lead || notification.data || {};
 
-    // ✅ yeh keys skip karni hain
-    const excludeKeys = ["id", "vendor_id", "isRead"];
+                              const excludeKeys = ["id", "vendor_id", "isRead"];
 
-    return (
-      <div
-        key={notification.id || idx}
-        className={`p-3 border-bottom rounded-2 mb-2 mx-2 shadow-sm notification-item hover-effect ${
-          notification.isRead
-            ? "bg-white"
-            : "bg-primary-subtle border-start border-3 border-primary"
-        }`}
-        style={{ cursor: "pointer", transition: "0.3s" }}
-      >
-        {/* Title */}
-        <h6
-          className={`mb-1 fw-bold d-flex align-items-center ${
-            notification.isRead ? "text-light" : "text-primary"
-          }`}
-        >
-          <i className="bi bi-info-circle-fill me-2"></i>
-          {notification.type || "Notification"}
-        </h6>
+                              return (
+                                <div
+                                  key={notification.id || idx}
+                                  className={`p-3 border-bottom rounded-2 mb-2 mx-2 shadow-sm notification-item hover-effect ${
+                                    notification.isRead
+                                      ? "bg-white"
+                                      : "bg-primary-subtle border-start border-3 border-primary"
+                                  }`}
+                                  style={{
+                                    cursor: "pointer",
+                                    transition: "0.3s",
+                                  }}
+                                >
+                                  {/* Title */}
+                                  <h6
+                                    className={`mb-1 fw-bold d-flex align-items-center ${
+                                      notification.isRead
+                                        ? "text-light"
+                                        : "text-primary"
+                                    }`}
+                                  >
+                                    <i className="bi bi-info-circle-fill me-2"></i>
+                                    {notification.message || "Notification"}
+                                  </h6>
 
-        {/* Dynamic key-value renderer */}
-        <div className="mb-1 text-muted small">
-          {Object.keys(payload).length > 0 ? (
-            Object.entries(payload)
-              .filter(([key]) => !excludeKeys.includes(key)) // ❌ skip unwanted keys
-              .map(([key, value]) => (
-                <div key={key}>
-                  <strong>
-                    {key.charAt(0).toUpperCase() + key.slice(1)}:
-                  </strong>{" "}
-                  {String(value)}
-                </div>
-              ))
-          ) : (
-            <em>No details available</em>
-          )}
-        </div>
+                                  <div className="mb-1 text-muted small">
+                                    {Object.keys(payload).length > 0 ? (
+                                      Object.entries(payload)
+                                        .filter(
+                                          ([key]) => !excludeKeys.includes(key)
+                                        )
+                                        .map(([key, value]) => (
+                                          <div key={key}>
+                                            <strong>
+                                              {key.charAt(0).toUpperCase() +
+                                                key.slice(1)}
+                                              :
+                                            </strong>{" "}
+                                            {String(value)}
+                                          </div>
+                                        ))
+                                    ) : (
+                                      <em>No details available</em>
+                                    )}
+                                  </div>
 
-        {/* Timestamp */}
-        <div className="text-end">
-          <small className="text-muted fst-italic">
-            {new Date(notification.timestamp).toLocaleString()}
-          </small>
-        </div>
-      </div>
-    );
-  })
-)}
-
-
+                                  <div className="text-end">
+                                    <small className="text-muted fst-italic">
+                                      {new Date(
+                                        notification.timestamp
+                                      ).toLocaleString()}
+                                    </small>
+                                  </div>
+                                </div>
+                              );
+                            })
+                          )}
                         </div>
 
                         <div className="p-3 bg-white text-left rounded-bottom shadow-sm border-top">
