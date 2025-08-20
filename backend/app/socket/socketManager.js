@@ -37,12 +37,12 @@ class SocketManager {
       socket.on('client-connect', (clientId) => {
         this.clientSockets.set(clientId, socket);
         socket.clientId = clientId;
-        console.log('Client connected:', clientId);
+        // console.log('Client connected:', clientId);
       });
 
       // Handle disconnection
       socket.on('disconnect', () => {
-        console.log('Client disconnected:', socket.id);
+        // console.log('Client disconnected:', socket.id);
         
         // Remove from admin sockets
         if (this.adminSockets.has(socket)) {
@@ -67,6 +67,7 @@ class SocketManager {
   // Send notification to all admins
   notifyAdmins(type, data) {
     this.adminSockets.forEach(socket => {
+      console.log('Sending package subscription notification to admin:', data);
       socket.emit('notification', {
         type,
         data,
@@ -191,6 +192,8 @@ class SocketManager {
   // Vendor package subscription notification
   vendorSubscribed(subscriptionData) {
     // Notify the vendor
+    // console.log('Notifying vendor:', subscriptionData);
+    
     this.notifyVendor(subscriptionData.vendor_id, 'package_subscribed', {
       message: 'Package subscription successful',
       subscription: subscriptionData
