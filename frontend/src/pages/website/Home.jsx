@@ -9,6 +9,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { GetCategories } from "../../Services/webService/Web";
 import { GetAllAdminBlog } from "../../Services/admin/Admin";
+import Swal from "sweetalert2";
 
 const Home = () => {
   const token = localStorage.getItem("token");
