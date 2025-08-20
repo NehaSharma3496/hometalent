@@ -139,7 +139,7 @@ const onNotification = (data) => {
     },
     2: {
       profileLink: "/vendor/myprofile",
-      changePassword: "/vendor/forgotpassword/changepassword",
+      changePassword: "/admin/forgotpassword/changepassword",
       defaultImage: "/assets/images/admin/user-img.png",
     },
   };
