@@ -91,11 +91,11 @@ export const NotificationProvider = ({ children, userType, userId }) => {
 
       // Identify user type
 
-      if (userType === "admin") {
+      if (userType == "admin") {
         socket.emit("admin-connect", userId);
-      } else if (userType === "vendor") {
+      } else if (userType == "vendor") {
         socket.emit("vendor-connect", userId);
-      } else if (userType === "client") {
+      } else if (userType == "client") {
         socket.emit("client-connect", userId);
       }
     });

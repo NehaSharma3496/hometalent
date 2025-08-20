@@ -10,12 +10,12 @@ import ScrollToTop from "./components/ScrollToTop";
 import {NotificationProvider} from "./contexts/NotificationContext.js";
 
 function App() {
-  const roleId = localStorage.getItem("roleId");
+  const role = localStorage.getItem("role");
   const userId = localStorage.getItem("userId");
 
   let userType = null;
-  if (roleId === "1") userType = "admin";
-  else if (roleId === "2") userType = "vendor";
+  if (role == "1") userType = "admin";
+  else if (role == "2") userType = "vendor";
   else userType = "client";
   return (
     <>

@@ -2,6 +2,7 @@ const { User, Package, VendorPackageSubscription, Log } = require('../../models'
 const { Op } = require('sequelize');
 const crypto = require('crypto');
 const { request } = require('http');
+const fs = require("fs");
  
 // Cashfree configuration
 const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID ;
@@ -327,8 +328,13 @@ console.log("Response",cashfreeResponse)
 
 // Payment webhook handler
 exports.paymentWebhook = async (req, res) => {
-  console.log('Received payment webhook:', req.body);
-  
+  const data = req.body;
+  fs.appendFileSync("cashfree_webhook_logs.json", JSON.stringify(data) + "\n");
+
+  console.log("Webhook received:", data);
+
+  // Cashfree requires a 200 OK response
+
   try {
     const { order_id, order_amount, reference_id, tx_status, tx_time, tx_msg, signature } = req.body;
 
@@ -382,7 +388,7 @@ exports.paymentWebhook = async (req, res) => {
 
     await subscription.save();
 
-    return res.status(200).send('OK');
+    res.status(200).send("Webhook received");
 
   } catch (error) {
     console.error('Error processing webhook:', error);
