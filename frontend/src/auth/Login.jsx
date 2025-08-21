@@ -4,6 +4,7 @@ import * as Yup from "yup";
 import Swal from "sweetalert2";
 import { LoginApi } from "../Services/auth/Login";
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Config from "../Utils/config"
 
 const Login = () => {
   const navigate = useNavigate();
@@ -36,6 +37,12 @@ const Login = () => {
         localStorage.setItem("role", roleId.toString());
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("userId", user.id);
+
+     try {
+  await fetch(`${Config.base_url}admin/notify-expired-plans`);
+} catch (error) {
+  console.error("Error notifying expired plans:", error);
+}
 
         Swal.fire({
           title: "Login Success",
