@@ -400,12 +400,12 @@ exports.updateSponsorRanks = async (req, res) => {
       });
 
       // Send socket notification for each rank update
-      socketManager.sponsorRankUpdated({
-        vendor_id: v.vendor_id,
-        category_id: v.category_id,
-        sponsor_rank: v.sponsor_rank,
-        is_sponsored: v.sponsor_rank > 0 ? 1 : 0
-      });
+      // socketManager.sponsorRankUpdated({
+      //   vendor_id: v.vendor_id,
+      //   category_id: v.category_id,
+      //   sponsor_rank: v.sponsor_rank,
+      //   is_sponsored: v.sponsor_rank > 0 ? 1 : 0
+      // });
     }
 
     res.json({ status: true, msg: "Category-specific sponsor ranks updated successfully" });

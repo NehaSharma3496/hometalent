@@ -6,4 +6,4 @@ router.get('/notifications/admin', notificationController.listAdminNotifications
 router.get('/notifications/vendor/:vendor_id', notificationController.listVendorNotifications);
 router.patch('/notifications/:id/read', notificationController.markAsRead);
 
-module.exports = router; 
+module.exports = router;
