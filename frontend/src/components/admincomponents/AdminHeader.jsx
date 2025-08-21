@@ -276,74 +276,44 @@ export default function AdminHeader() {
                           className="overflow-auto bg-light"
                           style={{ maxHeight: "400px" }}
                         >
-                          {notifications.length === 0 ? (
-                            <p className="text-center text-muted p-3">
-                              No notifications
-                            </p>
-                          ) : (
-                            notifications.map((notification, idx) => {
-                              const payload =
-                                notification.lead || notification.data || {};
+{notifications.length === 0 ? (
+  <p className="text-center text-muted p-3">
+    No notifications
+  </p>
+) : (
+  notifications.map((notification, idx) => (
+    <div
+      key={notification.id || idx}
+      className={`p-3 border-bottom rounded-2 mb-2 mx-2 shadow-sm notification-item hover-effect ${
+        notification.isRead
+          ? "bg-white"
+          : "bg-primary-subtle border-start border-3 border-primary"
+      }`}
+      style={{
+        cursor: "pointer",
+        transition: "0.3s",
+      }}
+    >
+      {/* --- Title/Message --- */}
+      <h6
+        className={`mb-1 fw-bold d-flex align-items-center ${
+          notification.isRead ? "text-secondary" : "text-primary"
+        }`}
+      >
+        <i className="bi bi-info-circle-fill me-2"></i>
+        {notification.message || "Notification"}
+      </h6>
 
-                              const excludeKeys = ["id", "vendor_id", "isRead"];
+      {/* --- Date --- */}
+      <div className="text-end">
+        <small className="text-muted fst-italic">
+          {new Date(notification.timestamp).toLocaleString()}
+        </small>
+      </div>
+    </div>
+  ))
+)}
 
-                              return (
-                                <div
-                                  key={notification.id || idx}
-                                  className={`p-3 border-bottom rounded-2 mb-2 mx-2 shadow-sm notification-item hover-effect ${
-                                    notification.isRead
-                                      ? "bg-white"
-                                      : "bg-primary-subtle border-start border-3 border-primary"
-                                  }`}
-                                  style={{
-                                    cursor: "pointer",
-                                    transition: "0.3s",
-                                  }}
-                                >
-                                  {/* Title */}
-                                  <h6
-                                    className={`mb-1 fw-bold d-flex align-items-center ${
-                                      notification.isRead
-                                        ? "text-light"
-                                        : "text-primary"
-                                    }`}
-                                  >
-                                    <i className="bi bi-info-circle-fill me-2"></i>
-                                    {notification.message || "Notification"}
-                                  </h6>
-
-                                  <div className="mb-1 text-muted small">
-                                    {Object.keys(payload).length > 0 ? (
-                                      Object.entries(payload)
-                                        .filter(
-                                          ([key]) => !excludeKeys.includes(key)
-                                        )
-                                        .map(([key, value]) => (
-                                          <div key={key}>
-                                            <strong>
-                                              {key.charAt(0).toUpperCase() +
-                                                key.slice(1)}
-                                              :
-                                            </strong>{" "}
-                                            {String(value)}
-                                          </div>
-                                        ))
-                                    ) : (
-                                      <em>No details available</em>
-                                    )}
-                                  </div>
-
-                                  <div className="text-end">
-                                    <small className="text-muted fst-italic">
-                                      {new Date(
-                                        notification.timestamp
-                                      ).toLocaleString()}
-                                    </small>
-                                  </div>
-                                </div>
-                              );
-                            })
-                          )}
                         </div>
 
                         <div className="p-3 bg-white text-left rounded-bottom shadow-sm border-top">
