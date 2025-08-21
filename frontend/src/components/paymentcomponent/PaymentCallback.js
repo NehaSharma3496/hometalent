@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { paymentService } from "../Services/vendor/paymentService";
+import { paymentService } from "../../Services/vendor/paymentService";
 
 const PaymentCallback = () => {
   const userid = localStorage.getItem("userId");

@@ -73,14 +73,21 @@ const Header = () => {
                                 About
                               </Link>
                             </li>
-                            <li className={`single-list ${open ? "submenu-open" : ""}`}>
+                            <li
+                              className={`single-list ${
+                                open ? "submenu-open" : ""
+                              }`}
+                            >
                               <Link
                                 to="#"
-                                className={`single ${location.pathname.startsWith("/category") ? "link-active" : ""
-                                  }`}
+                                className={`single ${
+                                  location.pathname.startsWith("/category")
+                                    ? "link-active"
+                                    : ""
+                                }`}
                                 onClick={(e) => {
                                   e.preventDefault(); // link default disable
-                                  setOpen(!open);     // click par toggle
+                                  setOpen(!open); // click par toggle
                                 }}
                               >
                                 Category
@@ -94,11 +101,16 @@ const Header = () => {
                                       {category
                                         ?.filter((_, idx) =>
                                           colIndex === 0
-                                            ? idx < Math.ceil(category.length / 2)
-                                            : idx >= Math.ceil(category.length / 2)
+                                            ? idx <
+                                              Math.ceil(category.length / 2)
+                                            : idx >=
+                                              Math.ceil(category.length / 2)
                                         )
                                         ?.map((cat) => (
-                                          <li key={cat._id || cat.id} className="mb-2">
+                                          <li
+                                            key={cat._id || cat.id}
+                                            className="mb-2"
+                                          >
                                             <Link
                                               to="/category"
                                               state={{ categoryId: cat.id }}
