@@ -1,7 +1,8 @@
-const { User, Gallery } = require('../../models');
+const { User, Gallery, Notification } = require('../../models');
 const { commonEmail } = require("../../helper/commonEmail");
 const fs = require('fs');
 const path = require('path');
+const socketManager = require('../../socket/socketManager');
 
 // Upload gallery files (vendor)
 exports.uploadGalleryFiles = async (req, res) => {
@@ -61,23 +62,29 @@ exports.uploadGalleryFiles = async (req, res) => {
       }
     }
 
+    // Notify admins about gallery request
+    try {
+      const vendor = await User.findByPk(user_id, { attributes: ['owner_name','profile_name'] });
+      const vendorName = vendor?.owner_name || vendor?.profile_name || 'Vendor';
+      socketManager.galleryRequestSubmitted(user_id, vendorName, { count: uploadedFiles.length });
+      await Notification.create({
+        user_id: null,
+        user_type: 'admin',
+        type: 'gallery_request',
+        title: 'Gallery Request',
+        message: `Vendor(${vendorName}) gallery request recieved. Action required`,
+        metadata: { vendor_id: user_id, items: uploadedFiles.map(f => f.id) }
+      });
+    } catch (e) { console.error('Failed to emit/store gallery request notification:', e.message); }
+
     res.json({ 
       status: true, 
-      msg: `${uploadedFiles.length} files uploaded successfully. Waiting for admin approval.`,
-      data: {
-        uploaded_count: uploadedFiles.length,
-        files: uploadedFiles.map(file => ({
-          id: file.id,
-          file_name: file.file_name,
-          file_type: file.file_type,
-          status: file.status
-        }))
-      }
+      msg: `${uploadedFiles.length} files uploaded successfully. Pending admin approval.`,
+      data: uploadedFiles
     });
 
   } catch (error) {
-    console.error('Gallery upload error:', error);
-    res.json({ status: false, msg: error.message });
+    res.status(500).json({ status: false, msg: error.message });
   }
 };
 

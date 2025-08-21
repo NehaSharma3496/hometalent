@@ -118,8 +118,8 @@ class SocketManager {
 
   // Vendor registration notification
   vendorRegistered(vendorData) {
-    this.notifyAdmins('vendor_registered', {
-      message: 'New vendor registered',
+    this.notifyAdmins('vendor_registration_request', {
+      message: 'Vendor registration request recieved. Action required',
       vendor: vendorData
     });
   }
@@ -127,14 +127,14 @@ class SocketManager {
   // Lead submission notification
   leadSubmitted(leadData, vendorId) {
     // Notify the specific vendor
-    this.notifyVendor(vendorId, 'new_lead', {
-      message: 'New lead received',
+    this.notifyVendor(vendorId, 'lead_vendor', {
+      message: 'New Enquiry has been received.',
       lead: leadData
     });
 
     // Notify all admins
-    this.notifyAdmins('new_lead', {
-      message: 'New lead submitted',
+    this.notifyAdmins('lead_admin', {
+      message: 'New Product enquiry has been received.',
       lead: leadData,
       vendor_id: vendorId
     });
@@ -156,9 +156,9 @@ class SocketManager {
   }
 
   // Profile update request notification
-  profileUpdateRequested(requestData) {
+  profileUpdateRequested(requestData, vendorName) {
     this.notifyAdmins('profile_update_request', {
-      message: 'New profile update request',
+      message: `Vendor(${vendorName}) profile update request received. Action required`,
       request: requestData
     });
   }
@@ -167,14 +167,14 @@ class SocketManager {
   profileUpdateProcessed(requestData, vendorId, action) {
     // Notify the vendor about their request status
     this.notifyVendor(vendorId, 'profile_update_processed', {
-      message: `Profile update request ${action}`,
+      message: `Your profile update request has been ${action === 'approve' ? 'Approved' : 'Rejected'}.`,
       request: requestData,
       action
     });
 
     // Notify admins
     this.notifyAdmins('profile_update_processed', {
-      message: `Profile update request ${action}`,
+      message: `Vendor profile update request ${action}d`,
       request: requestData,
       vendor_id: vendorId,
       action
@@ -184,25 +184,23 @@ class SocketManager {
 
   // Contact us submission notification
   contactUsSubmitted(contactData) {
-    this.notifyAdmins('contact_us_submitted', {
-      message: 'New contact us submission',
+    this.notifyAdmins('contact_us', {
+      message: 'New Enquiry request has been received',
       contact: contactData
     });
   }
 
   // Vendor package subscription notification
-  vendorSubscribed(subscriptionData) {
+  vendorSubscribed(subscriptionData, planName, vendorName) {
     // Notify the vendor
-    // console.log('Notifying vendor:', subscriptionData);
-    
     this.notifyVendor(subscriptionData.vendor_id, 'package_subscribed', {
-      message: 'Package subscription successful',
+      message: 'Subscription successful',
       subscription: subscriptionData
     });
 
     // Notify admins
-    this.notifyAdmins('vendor_subscribed', {
-      message: 'Vendor subscribed to package',
+    this.notifyAdmins('plan_subscribed', {
+      message: `New Subscription:${planName} plan subscribed by Vendor${vendorName}.`,
       subscription: subscriptionData
     });
   }
@@ -219,6 +217,46 @@ class SocketManager {
     this.notifyAdmins('sponsor_rank_updated', {
       message: 'Sponsor rank updated',
       rank: rankData
+    });
+  }
+
+  // Gallery request submitted by vendor
+  galleryRequestSubmitted(vendorId, vendorName, payload) {
+    this.notifyAdmins('gallery_request', {
+      message: `Vendor(${vendorName}) gallery request recieved. Action required`,
+      data: payload,
+      vendor_id: vendorId
+    });
+  }
+
+  // Gallery request processed by admin
+  galleryRequestProcessed(vendorId, action, payload) {
+    this.notifyVendor(vendorId, 'gallery_request_processed', {
+      message: `Your Gallery update request has been ${action === 'approve' ? 'Approved' : 'Rejected'}.`,
+      data: payload,
+      action
+    });
+  }
+
+  // Review submitted
+  reviewSubmitted(reviewData) {
+    this.notifyAdmins('review_submitted', {
+      message: 'New review has been received.',
+      review: reviewData
+    });
+  }
+
+  // Plan expired notifications
+  planExpired(vendorId, vendorName, subscriptionData) {
+    // Notify vendor
+    this.notifyVendor(vendorId, 'plan_expired', {
+      message: 'Plan expired. Please renew to avoid interruption.',
+      subscription: subscriptionData
+    });
+    // Notify admins
+    this.notifyAdmins('plan_expired', {
+      message: `Vendor ${vendorName} subscription plan has expired.`,
+      subscription: subscriptionData
     });
   }
 }

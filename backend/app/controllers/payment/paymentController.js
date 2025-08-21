@@ -1,4 +1,4 @@
-const { User, Package, VendorPackageSubscription, Log } = require('../../models');
+const { User, Package, VendorPackageSubscription, Log, Notification } = require('../../models');
 const { Op } = require('sequelize');
 const crypto = require('crypto');
 const { request } = require('http');
@@ -498,11 +498,24 @@ exports.getPaymentStatus = async (req, res) => {
 
     if(paymentData[0]?.order_status == 'PAID'){
       console.log('Notifying vendor about subscription:', packgeid.package_id, packgeid.vendor_id);
+      const pkg = await Package.findByPk(packgeid.package_id);
+      const vendor = await User.findByPk(packgeid.vendor_id, { attributes: ['owner_name','profile_name'] });
+      const vendorName = vendor?.owner_name || vendor?.profile_name || '';
       socketManager.vendorSubscribed({
       packgeid: packgeid.package_id,
       id: paymentData[0]?.order_id,
       vendor_id: user_id
-    });
+    }, pkg?.name || '', vendorName);
+      try {
+        await Notification.create({
+          user_id: null,
+          user_type: 'admin',
+          type: 'plan_subscribed',
+          title: 'Plan Subscription',
+          message: `New Subscription:${pkg?.name || ''} plan subscribed by Vendor${vendorName}.`,
+          metadata: { vendor_id: user_id, package_id: packgeid.package_id }
+        });
+      } catch (e) { console.error('Failed to persist admin plan subscription notification:', e.message); }
     }
     
     // if (!paymentData || !paymentData.order_status) {

@@ -1,4 +1,5 @@
-const { Review }  = require('../../models');
+const { Review, Notification }  = require('../../models');
+const socketManager = require('../../socket/socketManager');
 
 // Create a review
 exports.createReview = async (req, res) => {
@@ -10,6 +11,20 @@ exports.createReview = async (req, res) => {
     }
 
     const review = await Review.create({ name, message });
+
+    // Emit and persist admin notification
+    try {
+      socketManager.reviewSubmitted({ id: review.id, name: review.name, message: review.message });
+      await Notification.create({
+        user_id: null,
+        user_type: 'admin',
+        type: 'review_submitted',
+        title: 'New Review',
+        message: 'New review has been received.',
+        metadata: { id: review.id }
+      });
+    } catch (e) { console.error('Failed to notify/persist review submission:', e.message); }
+
     return res.status(201).json({ status: true, message: 'Review submitted successfully', data: review });
   } catch (error) {
     return res.status(500).json({ status: false, message: 'Error submitting review', error: error.message });

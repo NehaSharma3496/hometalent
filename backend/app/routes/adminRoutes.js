@@ -64,6 +64,7 @@ router.post('/package/extend-vendor', adminController.extendVendorPackage);
 
 // Expired Vendors
 router.get('/expired-vendors', adminController.getExpiredVendors);
+router.post('/notify-expired-plans', adminController.notifyExpiredPlans);
 
 router.get('/leads', adminController.getAllLeads);
 router.get('/sponsored-vendors-with-categories', adminController.getAllSponsoredVendorsWithCategories);
@@ -73,7 +74,6 @@ router.get('/contact-us', adminController.getAllContactUs);
 router.get('/dashboard-counts', adminController.getDashboardCounts);
 router.post('/getprofileRequestdata', adminController.getprofileRequestdata)
 router.post('/packageextendhistory', adminController.packageextendhistory)
-
 
 
 

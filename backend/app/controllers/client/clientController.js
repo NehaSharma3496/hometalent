@@ -1,4 +1,4 @@
-const { ContactUs, ClientLead, User } = require('../../models');
+const { ContactUs, ClientLead, User, Notification } = require('../../models');
 const { commonEmail } = require('../../helper/commonEmail');
 const socketManager = require('../../socket/socketManager');
 
@@ -19,6 +19,18 @@ exports.submitContactUs = async (req, res) => {
       subject: contact.subject,
       message: contact.message
     });
+
+    // Persist admin notification
+    try {
+      await Notification.create({
+        user_id: null,
+        user_type: 'admin',
+        type: 'contact_us',
+        title: 'Contact Us',
+        message: 'New Enquiry request has been received',
+        metadata: { id: contact.id }
+      });
+    } catch (e) { console.error('Failed to persist admin contact notification:', e.message); }
     
     res.json({ status: true, msg: 'Contact request submitted successfully', data: contact });
   } catch (error) {
@@ -53,8 +65,28 @@ exports.submitLead = async (req, res) => {
       vendor_id: lead.vendor_id
     }, vendor_id);
 
+    // Persist vendor and admin notifications
+    try {
+      await Notification.create({
+        user_id: vendor_id,
+        user_type: 'vendor',
+        type: 'lead_vendor',
+        title: 'New Lead',
+        message: 'New Enquiry has been received.',
+        metadata: { id: lead.id }
+      });
+      await Notification.create({
+        user_id: null,
+        user_type: 'admin',
+        type: 'lead_admin',
+        title: 'New Lead',
+        message: 'New Product enquiry has been received.',
+        metadata: { id: lead.id, vendor_id }
+      });
+    } catch (e) { console.error('Failed to persist lead notifications:', e.message); }
+
     res.json({ status: true, msg: 'Lead submitted and vendor details sent to your email.' });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
   }
-}; 
+} 

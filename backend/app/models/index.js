@@ -13,6 +13,7 @@ const VendorCategoryRank = require('./VendorCategoryRank');
 const ContactUs = require('./ContactUs');
 const Blog = require('./Blog');
 const Review = require('./Review'); // Import the Review model
+const Notification = require('./Notification');
 const models = {
     User: User,
     Role: Role,
@@ -28,7 +29,8 @@ const models = {
     VendorCategoryRank: VendorCategoryRank,
     ContactUs: ContactUs,
     Blog: Blog,
-    Review:Review
+    Review:Review,
+    Notification: Notification
 };
 
 Object.keys(models).forEach(modelName => {
