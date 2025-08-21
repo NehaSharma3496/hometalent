@@ -295,7 +295,7 @@ export default function Allvendors() {
             <i className="fa-regular fa-eye"></i>
           </button>
 
-          {row.approval_status !== 2 && (
+          {row.approval_status !== 0 && (
             <>
               <button
                 className="btn btn-sm d-flex align-items-center justify-content-center"

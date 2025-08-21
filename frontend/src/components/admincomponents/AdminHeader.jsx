@@ -6,7 +6,6 @@ import { GetVendorDetails } from "../../Services/vendor/Vendor.js";
 import io from "socket.io-client";
 import * as Config from "../../Utils/config.js";
 
-
 export default function AdminHeader() {
   const role = localStorage.getItem("role");
   const MenuData = MenuItems[role] || [];
@@ -24,90 +23,99 @@ export default function AdminHeader() {
 
   const userId = localStorage.getItem("userId");
   const userType = localStorage.getItem("role") === "1" ? "admin" : "vendor";
-  
-//   useEffect(() => {
-//     const userId = localStorage.getItem("userId");
-//     const userType = localStorage.getItem("role") === "1" ? "admin" : "vendor";
 
-//     const socket = io(`${Config.base_url}`, {
-//       query: { userId, userType },
-//     });
-// console.log("Connecting to Socket",socket);
-//     socket.on("notification", (data) => {
-//       console.log("Received notification123:", data);
-//       setNotifications((prev) => [data, ...prev]);
-//       setUnreadCount((prev) => prev + 1);
-//       console.log("Notifications:", notifications);
-// console.log("Unread Count:", unreadCount);
-//     });
-// console.log("Notifications:", notifications);
-// console.log("Unread Count:", unreadCount);
+  useEffect(() => {
+    if (socketRef.current) return;
 
-//     return () => {
-//       socket.disconnect();
-//     };
-//   }, []);
+    const socket = io(`${Config.base_url}`, {
+      query: { userId, userType },
+    });
+    socketRef.current = socket;
 
-useEffect(() => {
-  if (socketRef.current) return; // already connected
+    socket.on("connect", () => {
+      console.log("AdminHeader socket connected:", socket.id);
+      if (userType == "admin") {
+        socket.emit("admin-connect", userId);
+      } else if (userType == "vendor") {
+        socket.emit("vendor-connect", userId);
+      } else {
+        socket.emit("client-connect", userId);
+      }
+    });
 
-  const socket = io(`${Config.base_url}`, {
-    query: { userId, userType },
-  });
-  socketRef.current = socket;
+    socket.on("disconnect", (reason) => {
+      console.log("AdminHeader socket disconnected:", reason);
+    });
 
-  socket.on("connect", () => {
-    console.log("AdminHeader socket connected:", socket.id);
-    if (userType == "admin") {
-      socket.emit("admin-connect", userId);
-    } else if (userType == "vendor") {
-      socket.emit("vendor-connect", userId);
-    } else {
-      socket.emit("client-connect", userId);
+    // const onNotification = (data) => {
+    //   console.log("AdminHeader received notification:", data);
+
+    //   setNotifications((prev) => {
+    //     const next = [data, ...prev];
+    //     return next;
+    //   });
+
+    //   setUnreadCount((prev) => prev + 1);
+    // };
+
+    socket.on("notification", onNotification);
+
+    return () => {
+      try {
+        socket.off("notification", onNotification);
+        socket.off("connect");
+        socket.off("disconnect");
+        socket.disconnect();
+      } catch (e) {}
+      socketRef.current = null;
+    };
+  }, []);
+
+  // --- Load from localStorage on first render ---
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("notifications")) || [];
+      console.log("📥 Loaded from localStorage:", saved);
+      setNotifications(saved);
+      setUnreadCount(saved.length);
+    } catch (e) {
+      console.error("Error reading notifications:", e);
+      localStorage.removeItem("notifications");
     }
-  });
-
-  socket.on("disconnect", (reason) => {
-    console.log("AdminHeader socket disconnected:", reason);
-  });
+  }, []);
 
   const onNotification = (data) => {
-    console.log("AdminHeader received notification:", data);
+    const newNotification = {
+      id: Date.now(),
+      type: data.type || "",
+      message: data.data?.message || data.message || "Notification",
+      lead: data.data?.lead || {},
+      vendor_id: data.data?.vendor_id || null,
+      timestamp: data.timestamp || new Date().toISOString(),
+      isRead: false,
+    };
 
     setNotifications((prev) => {
-      const next = [data, ...prev];
+      let next = [newNotification, ...prev];
+      if (next.length > 10) next = next.slice(0, 10);
+
+      localStorage.setItem("notifications", JSON.stringify(next));
       return next;
     });
 
     setUnreadCount((prev) => prev + 1);
   };
 
-  socket.on("notification", onNotification);
+  useEffect(() => {
+    console.log("Notifications (state):", notifications);
+  }, [notifications]);
 
-  return () => {
-    try {
-      socket.off("notification", onNotification);
-      socket.off("connect");
-      socket.off("disconnect");
-      socket.disconnect();
-    } catch (e) {}
-    socketRef.current = null;
-  };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+  useEffect(() => {
+    console.log("Unread Count (state):", unreadCount);
+  }, [unreadCount]);
 
-useEffect(() => {
-  console.log("Notifications (state):", notifications);
-}, [notifications]);
-
-useEffect(() => {
-  console.log("Unread Count (state):", unreadCount);
-}, [unreadCount]); // ensure socket is stable or keep it in a ref
-
-console.log("Notifications out:", notifications);
-console.log("Unread Count out:", unreadCount);
-
-
+  console.log("Notifications out:", notifications);
+  console.log("Unread Count out:", unreadCount);
 
   const handleViewAll = () => {
     setUnreadCount(0);
@@ -121,7 +129,7 @@ console.log("Unread Count out:", unreadCount);
     },
     2: {
       profileLink: "/vendor/myprofile",
-      changePassword: "/vendor/forgotpassword/changepassword",
+      changePassword: "/admin/forgotpassword/changepassword",
       defaultImage: "/assets/images/admin/user-img.png",
     },
   };
@@ -273,39 +281,68 @@ console.log("Unread Count out:", unreadCount);
                               No notifications
                             </p>
                           ) : (
-                            notifications.map((notification, idx) => (
-                              <div
-                                key={idx}
-                                className={`p-3 border-bottom rounded-2 mb-2 mx-2 shadow-sm notification-item hover-effect ${
-                                  notification.isRead
-                                    ? "bg-white"
-                                    : "bg-primary-subtle border-start border-3 border-primary"
-                                }`}
-                                style={{
-                                  cursor: "pointer",
-                                  transition: "0.3s",
-                                }}
-                              >
-                                <h6
-                                  className={`mb-1 fw-bold d-flex align-items-center ${
+                            notifications.map((notification, idx) => {
+                              const payload =
+                                notification.lead || notification.data || {};
+
+                              const excludeKeys = ["id", "vendor_id", "isRead"];
+
+                              return (
+                                <div
+                                  key={notification.id || idx}
+                                  className={`p-3 border-bottom rounded-2 mb-2 mx-2 shadow-sm notification-item hover-effect ${
                                     notification.isRead
-                                      ? "text-light"
-                                      : "text-primary"
+                                      ? "bg-white"
+                                      : "bg-primary-subtle border-start border-3 border-primary"
                                   }`}
+                                  style={{
+                                    cursor: "pointer",
+                                    transition: "0.3s",
+                                  }}
                                 >
-                                  <i className="bi bi-info-circle-fill me-2"></i>
-                                  {notification.title || "New Notification"}
-                                </h6>
-                                <p className="mb-1 text-muted small">
-                                  {notification.message || ""}
-                                </p>
-                                <div className="text-end">
-                                  <small className="text-muted fst-italic">
-                                    {notification.time || "Just now"}
-                                  </small>
+                                  {/* Title */}
+                                  <h6
+                                    className={`mb-1 fw-bold d-flex align-items-center ${
+                                      notification.isRead
+                                        ? "text-light"
+                                        : "text-primary"
+                                    }`}
+                                  >
+                                    <i className="bi bi-info-circle-fill me-2"></i>
+                                    {notification.message || "Notification"}
+                                  </h6>
+
+                                  <div className="mb-1 text-muted small">
+                                    {Object.keys(payload).length > 0 ? (
+                                      Object.entries(payload)
+                                        .filter(
+                                          ([key]) => !excludeKeys.includes(key)
+                                        )
+                                        .map(([key, value]) => (
+                                          <div key={key}>
+                                            <strong>
+                                              {key.charAt(0).toUpperCase() +
+                                                key.slice(1)}
+                                              :
+                                            </strong>{" "}
+                                            {String(value)}
+                                          </div>
+                                        ))
+                                    ) : (
+                                      <em>No details available</em>
+                                    )}
+                                  </div>
+
+                                  <div className="text-end">
+                                    <small className="text-muted fst-italic">
+                                      {new Date(
+                                        notification.timestamp
+                                      ).toLocaleString()}
+                                    </small>
+                                  </div>
                                 </div>
-                              </div>
-                            ))
+                              );
+                            })
                           )}
                         </div>
 
@@ -360,14 +397,16 @@ console.log("Unread Count out:", unreadCount);
                       className="dropdown-menu"
                       aria-labelledby="profile-dropdown"
                     >
-                      <li>
-                        <Link
-                          className="dropdown-item"
-                          to={currentRole.profileLink}
-                        >
-                          <i className="fa-light fa-user"></i> My Profile
-                        </Link>
-                      </li>
+                      {role == "2" && (
+                        <li>
+                          <Link
+                            className="dropdown-item"
+                            to={currentRole.profileLink}
+                          >
+                            <i className="fa-light fa-user"></i> My Profile
+                          </Link>
+                        </li>
+                      )}
 
                       <li>
                         <Link

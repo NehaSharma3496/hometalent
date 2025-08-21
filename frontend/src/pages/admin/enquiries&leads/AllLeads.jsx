@@ -123,17 +123,16 @@ export default function AllLeads() {
   };
 
   const filteredLeads = searchText
-    ? allLeads.filter((lead) =>{
+    ? allLeads.filter((lead) => {
         const lowerSearch = searchText.toLowerCase();
-return(
-  lead.owner_name?.toLowerCase().includes(lowerSearch) ||
-  lead.vendor?.phone?.toLowerCase().includes(lowerSearch) ||
-  lead.name?.toLowerCase().includes(lowerSearch) ||
+        return (
+          lead.owner_name?.toLowerCase().includes(lowerSearch) ||
+          lead.vendor?.phone?.toLowerCase().includes(lowerSearch) ||
+          lead.name?.toLowerCase().includes(lowerSearch) ||
           lead.email?.toLowerCase().includes(lowerSearch) ||
           lead.phone?.toLowerCase().includes(lowerSearch)
-)
-    }
-      )
+        );
+      })
     : leads;
 
   const columns = [

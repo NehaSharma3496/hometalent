@@ -9,6 +9,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { GetCategories } from "../../Services/webService/Web";
 import { GetAllAdminBlog } from "../../Services/admin/Admin";
+import Swal from "sweetalert2";
 
 const Home = () => {
   const token = localStorage.getItem("token");
@@ -56,10 +57,15 @@ const Home = () => {
 
     const cityId = selectedCityObj ? selectedCityObj.id : null;
 
-    if (!selectedCategory && !cityId) {
-      alert("Please select at least a category or a city");
-      return;
-    }
+   if (!selectedCategory && !cityId) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Oops!',
+        text: 'Please select at least a category or a city before proceeding!',
+        confirmButtonText: 'OK'
+    });
+    return;
+}
 
     navigate("/category", {
       state: {
@@ -148,7 +154,7 @@ const Home = () => {
     dots: true,
     infinite: review?.length > 3,
     speed: 800,
-    slidesToShow:Math.min(3, review?.length),
+    slidesToShow: Math.min(3, review?.length),
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 3000,
@@ -317,56 +323,57 @@ const Home = () => {
           </div>
 
           <div className="grid5-container">
-            {(showAllCategories ? categoryData : categoryData?.slice(0, 10))?.map(
-              (category) => {
-                const imageSrc = `/assets/images/category/${category.name
-                  .replace(/\s+/g, "-")
-                  .toLowerCase()}.png`;
+            {(showAllCategories
+              ? categoryData
+              : categoryData?.slice(0, 10)
+            )?.map((category) => {
+              const imageSrc = `/assets/images/category/${category.name
+                .replace(/\s+/g, "-")
+                .toLowerCase()}.png`;
 
-                return (
-                  <div
-                    className="grid-item"
-                    key={category._id || category.id || category.name}
+              return (
+                <div
+                  className="grid-item"
+                  key={category._id || category.id || category.name}
+                >
+                  <Link
+                    to="/category"
+                    state={{ categoryId: category._id || category.id }}
+                    className="category-banner"
                   >
-                    <Link
-                      to="/category"
-                      state={{ categoryId: category._id || category.id }}
-                      className="category-banner"
-                    >
-                      <img
-                        loading="lazy"
-                        src={`/assets/images/category/${category.name}.png`}
-                        alt={category.name}
-                        onError={(e1) => {
-                          const baseName = category.name;
+                    <img
+                      loading="lazy"
+                      src={`/assets/images/category/${category.name}.png`}
+                      alt={category.name}
+                      onError={(e1) => {
+                        const baseName = category.name;
 
-                          e1.target.onerror = (e2) => {
-                            e2.target.onerror = (e3) => {
-                              e3.target.onerror = (e4) => {
-                                e4.target.onerror = null;
-                                e4.target.src = `/assets/images/category/${baseName}.JPG`;
-                              };
-                              e3.target.src = `/assets/images/category/${baseName}.jpeg`;
+                        e1.target.onerror = (e2) => {
+                          e2.target.onerror = (e3) => {
+                            e3.target.onerror = (e4) => {
+                              e4.target.onerror = null;
+                              e4.target.src = `/assets/images/category/${baseName}.JPG`;
                             };
-                            e2.target.src = `/assets/images/category/${baseName}.jpg`;
+                            e3.target.src = `/assets/images/category/${baseName}.jpeg`;
                           };
-                          e1.target.src = `/assets/images/category/${baseName}.png`;
-                        }}
-                        className="your-class-name"
-                      />
+                          e2.target.src = `/assets/images/category/${baseName}.jpg`;
+                        };
+                        e1.target.src = `/assets/images/category/${baseName}.png`;
+                      }}
+                      className="your-class-name"
+                    />
 
-                      <div className="category-content">
-                        <div className="category-info p-15">
-                          <div className="category-name">
-                            <p className="pera mb-0">{category.name}</p>
-                          </div>
+                    <div className="category-content">
+                      <div className="category-info p-15">
+                        <div className="category-name">
+                          <p className="pera mb-0">{category.name}</p>
                         </div>
                       </div>
-                    </Link>
-                  </div>
-                );
-              }
-            )}
+                    </div>
+                  </Link>
+                </div>
+              );
+            })}
           </div>
 
           {categoryData?.length > 10 && (
