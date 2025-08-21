@@ -8,6 +8,7 @@ const {
   VendorPackageSubscription,
   Log,
   ClientLead,
+  Notification,
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 const socketManager = require('../../socket/socketManager');
@@ -126,7 +127,26 @@ exports.requestProfileUpdate = async (req, res) => {
       vendor_id: profileUpdateRequest.vendor_id,
       request_data: filteredData,
       status: profileUpdateRequest.status
-    });
+    }, (await User.findByPk(vendor_id))?.owner_name || (await User.findByPk(vendor_id))?.profile_name || 'Vendor');
+
+    // Persist admin notification
+    try {
+      const vendor = await User.findByPk(vendor_id, { attributes: ['id','owner_name','profile_name'] });
+      const vendorName = vendor?.owner_name || vendor?.profile_name || 'Vendor';
+      await Notification.create({
+        user_id: null,
+        user_type: 'admin',
+        type: 'profile_update_request',
+        title: 'Profile Update Request',
+        message: `Vendor(${vendorName}) profile update request received. Action required`,
+        metadata: {
+          request_id: profileUpdateRequest.id,
+          vendor_id,
+        }
+      });
+    } catch (e) {
+      console.error('Failed to persist admin notification for profile update request:', e.message);
+    }
 
     res.json({ 
       status: true, 

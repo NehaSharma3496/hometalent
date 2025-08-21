@@ -9,7 +9,8 @@ const {
   VendorCategoryRank,
   ContactUs,
   Blog,
-  Review
+  Review,
+  Notification
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 const socketManager = require('../../socket/socketManager');
@@ -399,12 +400,12 @@ exports.updateSponsorRanks = async (req, res) => {
       });
 
       // Send socket notification for each rank update
-      socketManager.sponsorRankUpdated({
-        vendor_id: v.vendor_id,
-        category_id: v.category_id,
-        sponsor_rank: v.sponsor_rank,
-        is_sponsored: v.sponsor_rank > 0 ? 1 : 0
-      });
+      // socketManager.sponsorRankUpdated({
+      //   vendor_id: v.vendor_id,
+      //   category_id: v.category_id,
+      //   sponsor_rank: v.sponsor_rank,
+      //   is_sponsored: v.sponsor_rank > 0 ? 1 : 0
+      // });
     }
 
     res.json({ status: true, msg: "Category-specific sponsor ranks updated successfully" });
@@ -615,16 +616,6 @@ exports.processProfileUpdateRequest = async (req, res) => {
       // Send email notification to vendor
       const subject = 'Profile Update Request Approved';
 
-        //       <p><strong>Updated Fields:</strong></p>
-        // <ul>
-        //   ${Object.keys(updateData).map(key => {
-        //     if (key === 'image' || key === 'video') {
-        //       return `<li>${key}: File uploaded successfully</li>`;
-        //     }
-        //     return `<li>${key}: ${updateData[key]}</li>`;
-        //   }).join('')}
-        // </ul>
-
       const message = `
         <p>Hi ${request.vendor.owner_name || request.vendor.profile_name || 'Vendor'},</p>
         <p>Your profile update request has been approved by admin.</p>
@@ -643,6 +634,30 @@ exports.processProfileUpdateRequest = async (req, res) => {
         admin_remarks: request.admin_remarks,
         processed_at: request.processed_at
       }, request.vendor_id, action);
+
+      // Persist admin notification
+      try {
+        await Notification.create({
+          user_id: null,
+          user_type: 'admin',
+          type: 'profile_update_processed',
+          title: 'Profile Update',
+          message: `Vendor profile update request approved`,
+          metadata: { request_id: request.id, vendor_id: request.vendor_id }
+        });
+      } catch (e) { console.error('Failed to persist admin profile processed notification:', e.message); }
+
+      // Persist vendor notification (approved)
+      try {
+        await Notification.create({
+          user_id: request.vendor_id,
+          user_type: 'vendor',
+          type: 'profile_update_processed',
+          title: 'Profile Update',
+          message: 'Your profile update request has been Approved.',
+          metadata: { request_id: request.id, action }
+        });
+      } catch (e) { console.error('Failed to persist vendor profile processed notification:', e.message); }
 
     } else {
       // Log the rejection and request data
@@ -679,6 +694,30 @@ exports.processProfileUpdateRequest = async (req, res) => {
         admin_remarks: request.admin_remarks,
         processed_at: request.processed_at
       }, request.vendor_id, action);
+
+      // Persist admin notification
+      try {
+        await Notification.create({
+          user_id: null,
+          user_type: 'admin',
+          type: 'profile_update_processed',
+          title: 'Profile Update',
+          message: `Vendor profile update request rejected`,
+          metadata: { request_id: request.id, vendor_id: request.vendor_id }
+        });
+      } catch (e) { console.error('Failed to persist admin profile processed notification:', e.message); }
+
+      // Persist vendor notification (rejected)
+      try {
+        await Notification.create({
+          user_id: request.vendor_id,
+          user_type: 'vendor',
+          type: 'profile_update_processed',
+          title: 'Profile Update',
+          message: 'Your profile update request has been Rejected.',
+          metadata: { request_id: request.id, action }
+        });
+      } catch (e) { console.error('Failed to persist vendor profile processed notification:', e.message); }
     }
 
     res.json({ 
@@ -1290,3 +1329,51 @@ exports.packageextendhistory = async (req, res) => {
     return res.status(500).json({ status: false, msg: error.message });
   }
 }
+
+exports.notifyExpiredPlans = async (req, res) => {
+  try {
+    const today = new Date();
+    const expiredSubs = await VendorPackageSubscription.findAll({
+      where: {
+        end_date: { [require('sequelize').Op.lt]: today },
+        payment_status: 'completed',
+      },
+      include: [
+        { model: User, as: 'vendor', attributes: ['id','owner_name','profile_name'] },
+        { model: Package, as: 'Package', attributes: ['id','name'] }
+      ]
+    });
+
+    for (const sub of expiredSubs) {
+      const vendorName = sub.vendor?.owner_name || sub.vendor?.profile_name || '';
+      // Emit sockets
+      socketManager.planExpired(sub.vendor_id, vendorName, { id: sub.id, end_date: sub.end_date, package_id: sub.package_id });
+      // Persist vendor notification
+      try {
+        await Notification.create({
+          user_id: sub.vendor_id,
+          user_type: 'vendor',
+          type: 'plan_expired',
+          title: 'Plan Expired',
+          message: 'Plan expired. Please renew to avoid interruption.',
+          metadata: { subscription_id: sub.id, end_date: sub.end_date }
+        });
+      } catch (e) { console.error('Failed to persist vendor plan expired notification:', e.message); }
+      // Persist admin notification
+      try {
+        await Notification.create({
+          user_id: null,
+          user_type: 'admin',
+          type: 'plan_expired',
+          title: 'Plan Expired',
+          message: `Vendor ${vendorName} subscription plan has expired.`,
+          metadata: { vendor_id: sub.vendor_id, subscription_id: sub.id }
+        });
+      } catch (e) { console.error('Failed to persist admin plan expired notification:', e.message); }
+    }
+
+    res.json({ status: true, msg: 'Expiry notifications processed', count: expiredSubs.length });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};

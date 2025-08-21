@@ -1,5 +1,5 @@
 // Login method
-const { User, Role } = require("../../models");
+const { User, Role, Notification } = require("../../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { commonEmail } = require("../../helper/commonEmail");
@@ -102,6 +102,18 @@ exports.createUser = async (req, res) => {
         email: user.email,
         phone: user.phone
       });
+      try {
+        await Notification.create({
+          user_id: null,
+          user_type: 'admin',
+          type: 'vendor_registration_request',
+          title: 'Vendor Registration',
+          message: 'Vendor registration request recieved. Action required',
+          metadata: { vendor_id: user.id }
+        });
+      } catch (e) {
+        console.error('Failed to persist admin notification for vendor registration:', e.message);
+      }
     }
 
     res.json({

@@ -1,6 +1,7 @@
-const { User, Gallery, VendorPackageSubscription, Package } = require('../../models');
+const { User, Gallery, VendorPackageSubscription, Package, Notification } = require('../../models');
 const fs = require('fs');
 const path = require('path');
+const socketManager = require('../../socket/socketManager');
 
 // Upload admin gallery files (no approval needed)
 exports.uploadAdminGalleryFiles = async (req, res) => {
@@ -346,6 +347,22 @@ exports.processGalleryRequest = async (req, res) => {
         })
       )
     );
+
+    // Notify vendor via socket and persist notification
+    try {
+      const vendorId = galleryItems[0].user_id;
+      const vendor = await User.findByPk(vendorId, { attributes: ['owner_name','profile_name'] });
+      const vendorName = vendor?.owner_name || vendor?.profile_name || 'Vendor';
+      socketManager.galleryRequestProcessed(vendorId, action, { items: gallery_ids });
+      await Notification.create({
+        user_id: vendorId,
+        user_type: 'vendor',
+        type: 'gallery_request_processed',
+        title: 'Gallery Request',
+        message: `Your Gallery update request has been ${action === 'approve' ? 'Approved' : 'Rejected'}.`,
+        metadata: { gallery_ids, remarks }
+      });
+    } catch (e) { console.error('Failed to notify/persist vendor notification for gallery process:', e.message); }
 
     res.json({
       status: true,
