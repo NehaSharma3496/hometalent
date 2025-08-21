@@ -1,98 +1,36 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GetStateCity } from "../../Services/webService/Web";
-import select from "react-select";
+import {
+  GetAllApprovedReview,
+  GetStateCity,
+} from "../../Services/webService/Web";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { GetCategories } from "../../Services/webService/Web";
+import { GetAllAdminBlog } from "../../Services/admin/Admin";
+import Swal from "sweetalert2";
 
 const Home = () => {
+  const token = localStorage.getItem("token");
   const [statecity, setStateCity] = useState([]);
   const [categories, setCategories] = useState([]);
- 
+  const [showAllCategories, setShowAllCategories] = useState(false);
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
-
-  // State for storing selected IDs
-  const [selectedCityId, setSelectedCityId] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState("");
-
-  const navigate = useNavigate();
-
-  const handleCitySelect = (cityName, cityId) => {
-    console.log("City selected:", cityName, "ID:", cityId);
-    setSearch(cityName);
-    setSelectedCityId(cityId);
-    setShowDropdown(false);
-  };
-
-  const handleCategorySelect = (categoryValue) => {
-    console.log("=== Category Selection Debug ===");
-    console.log("Category dropdown value:", categoryValue);
-
-    // Find the actual category object to get the correct ID
-    const selectedCategory = categories.find(
-      (cat) =>
-        cat._id === categoryValue ||
-        cat.id === categoryValue ||
-        cat.name === categoryValue
-    );
-
-    console.log("Found category object:", selectedCategory);
-
-    // Try to get the actual ID from the category object
-    let actualCategoryId = categoryValue;
-
-    if (selectedCategory) {
-      // Try different possible ID fields
-      actualCategoryId =
-        selectedCategory.id ||
-        selectedCategory._id ||
-        selectedCategory.categoryId ||
-        categoryValue;
-      console.log("Using category ID:", actualCategoryId);
-    }
-
-    setSelectedCategoryId(actualCategoryId);
-  };
-
-  const handleFindNow = () => {
-    console.log("=== Find Now Debug ===");
-    console.log("Selected Category ID:", selectedCategoryId);
-    console.log("Selected City ID:", selectedCityId);
-
-    // Validate that we have at least one selection
-    if (!selectedCategoryId && !selectedCityId) {
-      alert("Please select at least a city or category");
-      return;
-    }
-
-    // Navigate to category page with appropriate parameters
-    const queryParams = new URLSearchParams();
-
-    if (selectedCategoryId) {
-      console.log("Adding categoryId to URL:", selectedCategoryId);
-      queryParams.append("categoryId", selectedCategoryId);
-    }
-
-    if (selectedCityId) {
-      console.log("Adding cityId to URL:", selectedCityId);
-      queryParams.append("cityId", selectedCityId);
-    }
-
-    const url = `/category?${queryParams.toString()}`;
-    console.log("Final navigation URL:", url);
-    navigate(url);
-  };
-
-  const token = localStorage.getItem("token");
+  const [categoryData, setCategoryData] = useState([]);
+  const categorySectionRef = useRef(null);
+  const blogSectionRef = useRef(null);
+  const [review, setReview] = useState([]);
+  const [blog, setBlog] = useState([]);
+  const [showAllBlog, setShowAllBlog] = useState(false);
+  const [blogdata, setBlogData] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const fetchstatecity = async () => {
     try {
       const response = await GetStateCity();
-      setStateCity(response.data);
-      console.log("Cities loaded:", response.data?.length || 0);
+      setStateCity(response?.data);
     } catch (error) {
       console.log("Error fetching cities", error);
     }
@@ -101,41 +39,68 @@ const Home = () => {
   const fetchcategories = async () => {
     try {
       const response = await GetCategories(token);
-      setCategories(response.data);
-      console.log("=== Categories Debug ===");
-      console.log("Categories loaded:", response.data?.length || 0);
-      console.log("Sample category:", response.data?.[0]);
-
-      // Detailed analysis of category structure
-      if (response.data && response.data.length > 0) {
-        const sampleCat = response.data[0];
-        console.log("Category structure analysis:");
-        console.log(
-          "- _id:",
-          sampleCat._id,
-          "(type:",
-          typeof sampleCat._id,
-          ")"
-        );
-        console.log("- id:", sampleCat.id, "(type:", typeof sampleCat.id, ")");
-        console.log(
-          "- name:",
-          sampleCat.name,
-          "(type:",
-          typeof sampleCat.name,
-          ")"
-        );
-        console.log(
-          "- categoryId:",
-          sampleCat.categoryId,
-          "(type:",
-          typeof sampleCat.categoryId,
-          ")"
-        );
-        console.log("Full object keys:", Object.keys(sampleCat));
-      }
+      setCategories(response?.data);
+      setCategoryData(response?.data);
     } catch (error) {
       console.log("Error fetching services", error);
+    }
+  };
+
+  const navigate = useNavigate();
+
+  const handleFindNow = () => {
+    const selectedCityObj = statecity.find(
+      (item) =>
+        item.type === "city" &&
+        item.name.toLowerCase() === search.trim().toLowerCase()
+    );
+
+    const cityId = selectedCityObj ? selectedCityObj.id : null;
+
+   if (!selectedCategory && !cityId) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Oops!',
+        text: 'Please select at least a category or a city before proceeding!',
+        confirmButtonText: 'OK'
+    });
+    return;
+}
+
+    navigate("/category", {
+      state: {
+        categoryId: selectedCategory ? Number(selectedCategory) : null,
+        cityId: cityId,
+      },
+    });
+  };
+
+  const fetchReview = async () => {
+    try {
+      const response = await GetAllApprovedReview(token);
+      setReview(response?.data);
+    } catch (error) {
+      console.log("Error fetching review");
+    }
+  };
+
+  const fetchblog = async () => {
+    try {
+      const res = await GetAllAdminBlog(token);
+      const activeBlogs = res?.data?.filter((blog) => blog.status === 1);
+      setBlog(activeBlogs);
+      setBlogData(activeBlogs);
+    } catch (error) {
+      console.log("Error in fetching blogs", error);
+    }
+  };
+
+  const scrollToSection = (ref) => {
+    if (ref.current) {
+      window.scrollTo({
+        top: ref.current.offsetTop - 100,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -145,7 +110,7 @@ const Home = () => {
 
     let currentGroup = null;
 
-    data.forEach((item) => {
+    data?.forEach((item) => {
       if (item.type === "state") {
         currentGroup = {
           state: item,
@@ -159,12 +124,12 @@ const Home = () => {
 
     if (search.trim()) {
       return groups
-        .map((group) => {
+        ?.map((group) => {
           const stateMatch = group.state.name
             .toLowerCase()
             .includes(searchLower);
-          const matchedCities = group.cities.filter((city) =>
-            city.name.toLowerCase().includes(searchLower)
+          const matchedCities = group.cities?.filter((city) =>
+            city?.name.toLowerCase().includes(searchLower)
           );
 
           if (stateMatch) return group;
@@ -172,7 +137,7 @@ const Home = () => {
             return { state: group.state, cities: matchedCities };
           return null;
         })
-        .filter(Boolean);
+        ?.filter(Boolean);
     }
 
     return groups;
@@ -181,67 +146,41 @@ const Home = () => {
   useEffect(() => {
     fetchstatecity();
     fetchcategories();
+    fetchblog();
+    fetchReview();
   }, []);
-
-  const testimonials = [
-    {
-      name: "Jacob Jones",
-      title: "CEO, Traveller",
-      quote:
-        "Lorem ipsum dolor sit amet amet early ameeny consectetur adipiscing elit. Ipsum dolor consectetur.",
-      image: "https://randomuser.me/api/portraits/men/32.jpg",
-      rating: 5,
-    },
-    {
-      name: "Sarah Lee",
-      title: "Manager, Explorer",
-      quote:
-        "Lorem ipsum dolor sit amet amet early ameeny consectetur adipiscing elit. Ipsum dolor consectetur.",
-      image: "https://randomuser.me/api/portraits/women/44.jpg",
-      rating: 4,
-    },
-    {
-      name: "Michael Smith",
-      title: "CTO, TravelX",
-      quote:
-        "Lorem ipsum dolor sit amet amet early ameeny consectetur adipiscing elit. Ipsum dolor consectetur.",
-      image: "https://randomuser.me/api/portraits/men/46.jpg",
-      rating: 5,
-    },
-  ];
 
   const settings = {
     dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 3,
+    infinite: review?.length > 3,
+    speed: 800,
+    slidesToShow: Math.min(3, review?.length),
     slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    pauseOnHover: true,
+    arrows: true,
+    swipeToSlide: true,
+    cssEase: "linear",
     responsive: [
       {
-        breakpoint: 1200,
-        settings: {
-          slidesToShow: 4,
-        },
-      },
-      {
         breakpoint: 992,
-        settings: {
-          slidesToShow: 3,
-        },
-      },
-      {
-        breakpoint: 768,
         settings: {
           slidesToShow: 2,
         },
       },
       {
-        breakpoint: 480,
+        breakpoint: 576,
         settings: {
           slidesToShow: 1,
         },
       },
     ],
+    appendDots: (dots) => (
+      <ul style={{ display: "flex", justifyContent: "center", gap: "5px" }}>
+        {dots.slice(0, 3)}
+      </ul>
+    ),
   };
 
   return (
@@ -279,9 +218,6 @@ const Home = () => {
                           value={search}
                           onChange={(e) => setSearch(e.target.value)}
                           onFocus={() => setShowDropdown(true)}
-                          onBlur={() =>
-                            setTimeout(() => setShowDropdown(false), 200)
-                          }
                         />
 
                         {showDropdown && (
@@ -303,20 +239,18 @@ const Home = () => {
                                 (group) => (
                                   <li key={`group-${group.state.id}`}>
                                     <h6 className="text-danger mb-1 mt-2">
-                                      {group.state.name}{" "}
+                                      {group.state.name}
                                     </h6>
                                     <ul className="list-unstyled ms-3 ps-0">
-                                      {group.cities.map((city) => (
+                                      {group.cities?.map((city) => (
                                         <li key={`city-${city.id}`}>
                                           <button
                                             type="button"
                                             className="dropdown-item py-1 text-nowrap"
-                                            onClick={() =>
-                                              handleCitySelect(
-                                                city.name,
-                                                city.id
-                                              )
-                                            }
+                                            onMouseDown={() => {
+                                              setSearch(city.name);
+                                              setShowDropdown(false);
+                                            }}
                                           >
                                             * {city.name}
                                           </button>
@@ -335,29 +269,18 @@ const Home = () => {
                         <div className="destination-flex">
                           <select
                             className="form-select"
-                            value={selectedCategoryId}
+                            value={selectedCategory}
                             onChange={(e) =>
-                              handleCategorySelect(e.target.value)
+                              setSelectedCategory(e.target.value)
                             }
                           >
                             <option value="">Select Category</option>
                             {Array.isArray(categories) &&
-                              categories.map((cat) => {
-                                // Try to determine the correct ID field to use
+                              categories?.map((cat) => {
                                 const categoryId =
                                   cat.id || cat._id || cat.categoryId;
-                                console.log(
-                                  "Rendering option - ID:",
-                                  categoryId,
-                                  "Name:",
-                                  cat.name
-                                );
-
                                 return (
-                                  <option
-                                    key={cat._id || cat.id}
-                                    value={categoryId}
-                                  >
+                                  <option key={categoryId} value={categoryId}>
                                     {cat.name}
                                   </option>
                                 );
@@ -368,10 +291,9 @@ const Home = () => {
                       <div className="col-xl-2 col-lg-3">
                         <div className="sign-btn text-right">
                           <button
+                            className="btn-primary w-100 text-center d-block"
                             style={{ height: "54px", lineHeight: "30px" }}
                             onClick={handleFindNow}
-                            className="btn-primary w-100 text-center"
-                            type="button"
                           >
                             Find Now
                           </button>
@@ -386,7 +308,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="category-area ">
+      <section className="category-area " ref={categorySectionRef}>
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-7">
@@ -399,170 +321,80 @@ const Home = () => {
               </div>
             </div>
           </div>
-          <div className="grid5-container">
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15">
-                    <div className="category-name">
-                      <p className="pera">Fabric Painting</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-1.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15">
-                    <div className="category-name">
-                      <p className="pera">Canvas Painting</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-2.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15">
-                    <div className="category-name">
-                      <p className="pera">Mehandi Art</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-3.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15">
-                    <div className="category-name">
-                      <p className="pera">Catering</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-4.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15 py-3">
-                    <div className="category-name">
-                      <p className="pera">Cook/Chef on call</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
 
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-5.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15">
-                    <div className="category-name">
-                      <p className="pera">Bakery item</p>
+          <div className="grid5-container">
+            {(showAllCategories
+              ? categoryData
+              : categoryData?.slice(0, 10)
+            )?.map((category) => {
+              const imageSrc = `/assets/images/category/${category.name
+                .replace(/\s+/g, "-")
+                .toLowerCase()}.png`;
+
+              return (
+                <div
+                  className="grid-item"
+                  key={category._id || category.id || category.name}
+                >
+                  <Link
+                    to="/category"
+                    state={{ categoryId: category._id || category.id }}
+                    className="category-banner"
+                  >
+                    <img
+                      loading="lazy"
+                      src={`/assets/images/category/${category.name}.png`}
+                      alt={category.name}
+                      onError={(e1) => {
+                        const baseName = category.name;
+
+                        e1.target.onerror = (e2) => {
+                          e2.target.onerror = (e3) => {
+                            e3.target.onerror = (e4) => {
+                              e4.target.onerror = null;
+                              e4.target.src = `/assets/images/category/${baseName}.JPG`;
+                            };
+                            e3.target.src = `/assets/images/category/${baseName}.jpeg`;
+                          };
+                          e2.target.src = `/assets/images/category/${baseName}.jpg`;
+                        };
+                        e1.target.src = `/assets/images/category/${baseName}.png`;
+                      }}
+                      className="your-class-name"
+                    />
+
+                    <div className="category-content">
+                      <div className="category-info p-15">
+                        <div className="category-name">
+                          <p className="pera mb-0">{category.name}</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-6.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-6">
-                    <div className="category-name">
-                      <p className="pera mb-0">Food </p>
-                      <p
-                        className="small-text mt-0 text-black"
-                        style={{ fontSize: "11px" }}
-                      >
-                        (Namkeen,Sweets, snacks)
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-7.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15">
-                    <div className="category-name">
-                      <p className="pera">Gift & Packaging</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-8.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15">
-                    <div className="category-name">
-                      <p className="pera">Jewellery</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="grid-item ">
-              <Link to="/categorydetail" className="category-banner">
-                <img
-                  src="../assets/images//category/image-9.png"
-                  alt="travello"
-                />
-                <div className="category-content">
-                  <div className="category-info py-15 py-3">
-                    <div className="category-name">
-                      <p className="pera">Cosmetics</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
+              );
+            })}
           </div>
-          <button className="btn-primary mx-auto d-block mt-4">
-            View All Categories{" "}
-          </button>
+
+          {categoryData?.length > 10 && (
+            <div className="text-center mt-3">
+              <button
+                onClick={() => {
+                  setShowAllCategories((prev) => {
+                    const newState = !prev;
+                    if (!newState) scrollToSection(categorySectionRef);
+                    return newState;
+                  });
+                }}
+                className="btn btn-primary"
+              >
+                {showAllCategories ? "View Less" : "View All Categories"}
+              </button>
+            </div>
+          )}
         </div>
       </section>
+
       <section className="platform-area platform-area-bg">
         <div className="container">
           <div className="row align-items-end">
@@ -578,11 +410,10 @@ const Home = () => {
                     grow. For customers, we make it easy to discover and support
                     local makers and service providers.
                   </p>
-                  <Link to="">Read More...</Link>
+                  <Link to="/about">Read More...</Link>
                 </div>
               </div>
             </div>
-            <div className="col-lg-4"></div>
           </div>
         </div>
       </section>
@@ -604,31 +435,82 @@ const Home = () => {
             </div>
           </div>
           <Slider {...settings}>
-            {testimonials.map((item, index) => (
-              <div className="testimonial-card" key={index}>
-                <div className="quote-icon">
+            {review?.map((item, index) => (
+              <div
+                key={item.id || item._id || `${item.name}-${index}`}
+                className="p-3"
+              >
+                <div
+                  className="testimonial-card"
+                  style={{
+                    background: "#f9f9f9",
+                    borderRadius: "16px",
+                    padding: "30px 25px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+                    transition: "all 0.3s ease",
+                    position: "relative",
+                    minHeight: "200px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  {/* Floating Quote Icon */}
                   <img
-                    src="../assets/images//testimonial/iconoir_quote.png"
+                    src="/assets/images/testimonial/iconoir_quote.png"
                     alt="quote"
+                    style={{
+                      width: "40px",
+                      opacity: 0.08,
+                      position: "absolute",
+                      top: "25px",
+                      right: "25px",
+                    }}
                   />
-                </div>
-                <div className="user-info">
-                  <img src={item.image} alt={item.name} />
-                  <div>
-                    <h4>{item.name}</h4>
-                    <p className="title">{item.title}</p>
+
+                  {/* User Info */}
+                  <div className="d-flex align-items-center mb-3">
+                    <div
+                      className="d-flex align-items-center justify-content-center text-white"
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        borderRadius: "50%",
+                        background: "linear-gradient(135deg, #007BFF, #00C6FF)",
+                        fontSize: "26px",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <i className="ri-user-line"></i>
+                    </div>
+                    <div className="ms-3">
+                      <h5
+                        className="mb-0"
+                        style={{
+                          fontWeight: 600,
+                          fontSize: "1.1rem",
+                          color: "#333",
+                        }}
+                      >
+                        {item.name}
+                      </h5>
+                    </div>
                   </div>
-                </div>
-                <p className="message pt-2">{item.quote}</p>
-                <div className="rating pt-3">
-                  {[...Array(5)].map((_, i) => (
-                    <i
-                      key={i}
-                      className={`ri-star-fill ${
-                        i < item.rating ? "active" : ""
-                      }`}
-                    />
-                  ))}
+
+                  {/* Message */}
+                  <p
+                    className="text-muted"
+                    style={{
+                      fontSize: "0.95rem",
+                      lineHeight: "1.6",
+                      color: "#555",
+                      marginBottom: 0,
+                    }}
+                  >
+                    {item.message?.length > 200
+                      ? `${item.message.slice(0, 200)}...`
+                      : item.message}
+                  </p>
                 </div>
               </div>
             ))}
@@ -636,7 +518,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="news-area section-padding2">
+      <section className="news-area section-padding2" ref={blogSectionRef}>
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-7">
@@ -650,131 +532,91 @@ const Home = () => {
               </div>
             </div>
           </div>
+
           <div className="row g-4">
-            <div className="col-xl-4 col-lg-4 col-sm-6">
-              <article className="news-card-two">
-                <figure className="news-banner-two imgEffect">
-                  <Link to="news-details.html">
-                    <img
-                      src="../assets/images//news/image-1.png"
-                      alt="travello"
-                    />
-                  </Link>
-                </figure>
-                <div className="news-content">
-                  <div className="date d-lg-flex ">
-                    <div className="news-info">
-                      <p className="date-time">12 Jan 2023</p>
+            {(showAllBlog ? blogdata : blogdata?.slice(0, 3))?.map(
+              (item, index) => (
+                <div
+                  className="col-xl-4 col-lg-4 col-sm-6"
+                  key={item.id || item._id || index}
+                >
+                  <article className="news-card-two">
+                    <figure className="news-banner-two imgEffect">
+                      <Link to={`/blogdetail/${item.id}`}>
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          style={{
+                            width: "100%",
+                            height: "230px",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </Link>
+                    </figure>
+                    <div className="news-content">
+                      <div className="date d-lg-flex">
+                        <div className="news-info">
+                          <p className="date-time">
+                            {new Date(item.createdAt).toLocaleDateString(
+                              "en-IN",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              }
+                            )}
+                          </p>
+                        </div>
+                        <span className="px-15">|</span>
+                        <div className="category-name">
+                          <span className=" text-primary">Home Talent</span>
+                        </div>
+                      </div>
+                      <h4 className="title mb-2">
+                        <Link
+                          to={`/blogdetail/${item.id}`}
+                          className="clamp-title"
+                        >
+                          {item.title}
+                        </Link>
+                      </h4>
+                      <div className="news-description">
+                        <p className="pera clamp-description ">
+                          {item.short_description?.slice(0, 100)}...
+                        </p>
+                      </div>
+                      <div className="">
+                        <Link
+                          to={`/blogdetail/${item.id}`}
+                          className=" btn-primary-sm btn-primary"
+                        >
+                          Read More
+                        </Link>
+                      </div>
                     </div>
-                    <span className="px-15">|</span>
-                    <div className="category-name">
-                      <span className=" text-primary">Home Talent</span>
-                    </div>
-                  </div>
-                  <h4 className="title mb-2">
-                    <Link to="news-details.html">Wedding arrangements</Link>
-                  </h4>
-
-                  <div className="news-description">
-                    <p className="pera">
-                      It is a long established fact that a reader will be
-                      distracted by the readable content.
-                    </p>
-                  </div>
-                  <div className="">
-                    <Link
-                      to=""
-                      className=" btn-primary-sm btn-primary"
-                    >
-                      Read More
-                    </Link>
-                  </div>
+                  </article>
                 </div>
-              </article>
-            </div>
-            <div className="col-xl-4 col-lg-4 col-sm-6">
-              <article className="news-card-two">
-                <figure className="news-banner-two imgEffect">
-                  <Link to="news-details.html">
-                    <img
-                      src="../assets/images//news/image-2.png"
-                      alt="travello"
-                    />
-                  </Link>
-                </figure>
-                <div className="news-content">
-                  <div className="date d-lg-flex ">
-                    <div className="news-info">
-                      <p className="date-time">12 Jan 2023</p>
-                    </div>
-                    <span className="px-15">|</span>
-                    <div className="category-name">
-                      <span className=" text-primary">Home Talent</span>
-                    </div>
-                  </div>
-                  <h4 className="title mb-2">
-                    <Link to="news-details.html">Wedding arrangements</Link>
-                  </h4>
-
-                  <div className="news-description">
-                    <p className="pera">
-                      It is a long established fact that a reader will be
-                      distracted by the readable content.
-                    </p>
-                  </div>
-                  <div className="">
-                    <Link
-                      to=""
-                      className=" btn-primary-sm btn-primary"
-                    >
-                      Read More
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            </div>
-            <div className="col-xl-4 col-lg-4 col-sm-6">
-              <article className="news-card-two">
-                <figure className="news-banner-two imgEffect">
-                  <Link to="news-details.html">
-                    <img
-                      src="../assets/images//news/image-3.png"
-                      alt="travello"
-                    />
-                  </Link>
-                </figure>
-                <div className="news-content">
-                  <div className="date d-lg-flex ">
-                    <div className="news-info">
-                      <p className="date-time">12 Jan 2023</p>
-                    </div>
-                    <span className="px-15">|</span>
-                    <div className="category-name">
-                      <span className=" text-primary">Home Talent</span>
-                    </div>
-                  </div>
-                  <h4 className="title mb-2">
-                    <Link to="news-details.html">Wedding arrangements</Link>
-                  </h4>
-
-                  <div className="news-description">
-                    <p className="pera">
-                      It is a long established fact that a reader will be
-                      distracted by the readable content.
-                    </p>
-                  </div>
-                  <div className="">
-                    <Link
-                      to=""
-                      className=" btn-primary-sm btn-primary"
-                    >
-                      Read More
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            </div>
+              )
+            )}
           </div>
+
+          {blogdata?.length > 3 && (
+            <div className="text-center">
+              <button
+                onClick={() => {
+                  setShowAllBlog((prev) => {
+                    const newState = !prev;
+                    if (!newState) scrollToSection(blogSectionRef);
+                    return newState;
+                  });
+                }}
+                className="btn btn-primary test12"
+              >
+                {showAllBlog ? "View Less" : "View All Blogs"}
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </div>

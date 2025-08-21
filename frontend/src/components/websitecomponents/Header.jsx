@@ -1,58 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GetCategories } from "../../Services/webService/Web";
+import { useLocation } from "react-router-dom";
 
 const Header = () => {
   const [category, setCategory] = useState([]);
   const navigate = useNavigate();
-
+  const location = useLocation();
+   const [open, setOpen] = useState(false);
   const token = localStorage.getItem("token");
 
   const fetchcategories = async () => {
     try {
-      const response = await GetCategories(token);
-
-      if (Array.isArray(response.data)) {
-        setCategory(response.data);
-        console.log("Categories loaded in Header:", response.data);
-        // Debug: Check the structure of first category
-        if (response.data.length > 0) {
-          console.log("Sample category structure:", response.data[0]);
-          console.log("Available ID fields:", {
-            _id: response.data[0]._id,
-            id: response.data[0].id,
-            categoryId: response.data[0].categoryId
-          });
-        }
-      } else {
-        console.error("Expected array but got:", response.data);
-        setCategory([]); // fallback
-      }
-    } catch (error) {
-      console.log("Error fetching categories", error);
-      setCategory([]); // fallback on error
+      const res = await GetCategories(token);
+      setCategory(res?.data);
+    } catch (err) {
+      console.log("Error in fetchig categories");
     }
   };
 
   useEffect(() => {
     fetchcategories();
   }, []);
-
-  const handleHeaderCategorySelect = (cat) => {
-    console.log("Header category selected:", cat);
-    
-    // Try to get the correct ID field - check multiple possible fields
-    const categoryId = cat._id || cat.id || cat.categoryId;
-    
-    console.log("Using category ID:", categoryId);
-    
-    if (categoryId) {
-      // Navigate to the category page with the selected category ID as a query parameter
-      navigate(`/category?categoryId=${categoryId}`);
-    } else {
-      console.error("No valid category ID found in:", cat);
-    }
-  };
 
   return (
     <header className="header-area-three">
@@ -65,7 +34,7 @@ const Header = () => {
                 <div className="top-menu-wrapper d-flex align-items-center justify-content-between">
                   <div className="top-header-right">
                     <div className="logo">
-                      <a href="">
+                      <a href="/">
                         <img
                           src="../assets/images//logo/logo.png"
                           width="100"
@@ -85,75 +54,101 @@ const Header = () => {
                         <div className="d-flex justify-content-between align-items-center">
                           <ul className="listing" id="navigation">
                             <li className="single-list">
-                              <Link to="/" className="single link-active">
-                                Home{" "}
+                              <Link
+                                to="/"
+                                className={`single ${
+                                  location.pathname === "/" ? "link-active" : ""
+                                }`}
+                              >
+                                Home
                               </Link>
                             </li>
                             <li className="single-list">
-                              <Link to="/about" className="single">
+                              <Link
+                                to="/about"
+                                className={`single ${
+                                  location.pathname === "/about"
+                                    ? "link-active"
+                                    : ""
+                                }`}
+                              >
                                 About
                               </Link>
                             </li>
-                            <li className="single-list">
-                              <a href="#" className="single">
-                                Vendors
-                                <i className="ri-arrow-down-s-line" />
-                              </a>
+                          <li className={`single-list ${open ? "submenu-open" : ""}`}>
+  <Link
+    to="#"
+    className={`single ${
+      location.pathname.startsWith("/category") ? "link-active" : ""
+    }`}
+    onClick={(e) => {
+      e.preventDefault(); // link default disable
+      setOpen(!open);     // click par toggle
+    }}
+  >
+    Category
+    <i className="ri-arrow-down-s-line" />
+  </Link>
 
-                              <ul className="row submenu">
-                                {Array.from({ length: 2 }, (_, colIndex) => (
-                                  <div className="col-lg-6" key={colIndex}>
-                                    <ul className="single-list">
-                                      {category
-                                        .filter((_, idx) =>
-                                          colIndex === 0
-                                            ? idx <
-                                              Math.ceil(category.length / 2)
-                                            : idx >=
-                                              Math.ceil(category.length / 2)
-                                        )
-                                        .map((cat) => (
-                                          <li
-                                            className="single-list"
-                                            key={cat._id || cat.id}
-                                          >
-                                            <a
-                                              href="#"
-                                              onClick={(e) => {
-                                                e.preventDefault();
-                                                handleHeaderCategorySelect(cat);
-                                              }}
-                                              className="single"
-                                            >
-                                              {cat.name}
-                                            </a>
-                                          </li>
-                                        ))}
-                                    </ul>
-                                  </div>
-                                ))}
-                              </ul>
+  <ul className="row submenu">
+    {Array.from({ length: 2 }, (_, colIndex) => (
+      <div className="col-lg-6" key={colIndex}>
+        <ul>
+          {category
+            ?.filter((_, idx) =>
+              colIndex === 0
+                ? idx < Math.ceil(category.length / 2)
+                : idx >= Math.ceil(category.length / 2)
+            )
+            ?.map((cat) => (
+              <li key={cat._id || cat.id} className="mb-2">
+                <Link
+                  to="/category"
+                  state={{ categoryId: cat.id }}
+                  className="single"
+                >
+                  {cat.name}
+                </Link>
+              </li>
+            ))}
+        </ul>
+      </div>
+    ))}
+  </ul>
+</li>
+                            <li className="single-list">
+                              <Link
+                                to="/blog"
+                                className={`single ${
+                                  location.pathname.startsWith("/blog")
+                                    ? "link-active"
+                                    : ""
+                                }`}
+                              >
+                                Blog
+                              </Link>
                             </li>
                             <li className="single-list">
-                              <a href="#" className="single">
-                                Wedding Vogue
-                                <i className="ri-arrow-down-s-line" />
-                              </a>
-                              <ul className="submenu">
-                                <li className="single-list">
-                                  <Link to="/blog" className="single">
-                                    Blogs/Articles
-                                  </Link>
-                                </li>
-                              </ul>
-                            </li>
-                            <li className="single-list">
-                              <Link to="/gallery" className="single">
+                              <Link
+                                to="/gallery"
+                                className={`single ${
+                                  location.pathname === "/gallery"
+                                    ? "link-active"
+                                    : ""
+                                }`}
+                              >
                                 Gallery
                               </Link>
                             </li>
                             <li className="single-list">
-                              <Link to="/contact" className="single">
+                              <Link
+                                to="/contact"
+                                className={`single ${
+                                  location.pathname === "/contact"
+                                    ? "link-active"
+                                    : ""
+                                }`}
+                              >
                                 Contact us
                               </Link>
                             </li>
@@ -173,7 +168,7 @@ const Header = () => {
                                     to="/contact"
                                     className="text-secondary"
                                   >
-                                    Free sign up
+                                    Sign Up
                                   </Link>
                                 </div>
                               </div>
@@ -183,15 +178,15 @@ const Header = () => {
                       </nav>
                     </div>
                   </div>
-                  <div className="header-right-three pl-15 d-none d-lg-flex">
+                  <div className="gap-10  d-none d-lg-flex">
                     <div className="sign-btn">
                       <Link to="/login" className="btn-primary ">
                         Log In
                       </Link>
                     </div>
-                    <div className="freesign-btn">
-                      <Link to="/registration" className="text-secondary">
-                        Free sign up
+                    <div className="sign-btn">
+                      <Link to="/registration" className="btn-primary ">
+                        Sign Up
                       </Link>
                     </div>
                   </div>
@@ -247,4 +242,3 @@ const Header = () => {
 };
 
 export default Header;
-

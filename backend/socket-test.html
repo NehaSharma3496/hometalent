@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Test - HomeTalent</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .notification { background: #e3f2fd; padding: 10px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #2196f3; }
+        .error { background: #ffebee; border-left-color: #f44336; }
+        .success { background: #e8f5e8; border-left-color: #4caf50; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        .admin-btn { background: #2196f3; color: white; }
+        .vendor-btn { background: #4caf50; color: white; }
+        .client-btn { background: #ff9800; color: white; }
+        input, select { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Socket.IO Test - HomeTalent Notifications</h1>
+        
+        <div class="section">
+            <h3>Connection Status</h3>
+            <div id="status">Disconnected</div>
+            <button onclick="connect()">Connect</button>
+            <button onclick="disconnect()">Disconnect</button>
+        </div>
+
+        <div class="section">
+            <h3>Connect as User</h3>
+            <select id="userType">
+                <option value="admin">Admin</option>
+                <option value="vendor">Vendor</option>
+                <option value="client">Client</option>
+            </select>
+            <input type="number" id="userId" placeholder="User ID" value="1">
+            <button onclick="connectAsUser()">Connect as User</button>
+        </div>
+
+        <div class="section">
+            <h3>Test Notifications</h3>
+            <button class="admin-btn" onclick="testVendorRegistration()">Test Vendor Registration</button>
+            <button class="admin-btn" onclick="testPackageCreation()">Test Package Creation</button>
+            <button class="client-btn" onclick="testLeadSubmission()">Test Lead Submission</button>
+            <button class="client-btn" onclick="testContactUs()">Test Contact Us</button>
+            <button class="vendor-btn" onclick="testProfileUpdate()">Test Profile Update</button>
+            <button class="admin-btn" onclick="testSponsorRank()">Test Sponsor Rank Update</button>
+        </div>
+
+        <div class="section">
+            <h3>Received Notifications</h3>
+            <div id="notifications"></div>
+        </div>
+    </div>
+
+    <script>
+        let socket = null;
+        let connectedUserType = null;
+        let connectedUserId = null;
+
+        function connect() {
+            socket = io('http://localhost:9999');
+            
+            socket.on('connect', () => {
+                document.getElementById('status').innerHTML = 'Connected to Socket.IO server';
+                document.getElementById('status').className = 'notification success';
+            });
+
+            socket.on('disconnect', () => {
+                document.getElementById('status').innerHTML = 'Disconnected from Socket.IO server';
+                document.getElementById('status').className = 'notification error';
+            });
+
+            socket.on('notification', (data) => {
+                addNotification(data);
+            });
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+                connectedUserType = null;
+                connectedUserId = null;
+                document.getElementById('status').innerHTML = 'Disconnected';
+                document.getElementById('status').className = 'notification error';
+            }
+        }
+
+        function connectAsUser() {
+            if (!socket) {
+                alert('Please connect to Socket.IO server first');
+                return;
+            }
+
+            const userType = document.getElementById('userType').value;
+            const userId = document.getElementById('userId').value;
+
+            if (userType === 'admin') {
+                socket.emit('admin-connect', userId);
+                connectedUserType = 'admin';
+                connectedUserId = userId;
+            } else if (userType === 'vendor') {
+                socket.emit('vendor-connect', userId);
+                connectedUserType = 'vendor';
+                connectedUserId = userId;
+            } else if (userType === 'client') {
+                socket.emit('client-connect', userId);
+                connectedUserType = 'client';
+                connectedUserId = userId;
+            }
+
+            addNotification({
+                type: 'connection',
+                data: `Connected as ${userType} with ID: ${userId}`,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        function addNotification(data) {
+            const notificationsDiv = document.getElementById('notifications');
+            const notificationDiv = document.createElement('div');
+            notificationDiv.className = 'notification';
+            notificationDiv.innerHTML = `
+                <strong>${data.type || 'notification'}</strong><br>
+                <small>${new Date(data.timestamp).toLocaleString()}</small><br>
+                <pre>${JSON.stringify(data.data || data, null, 2)}</pre>
+            `;
+            notificationsDiv.insertBefore(notificationDiv, notificationsDiv.firstChild);
+        }
+
+        // Test functions - these would normally be called by your backend APIs
+        function testVendorRegistration() {
+            addNotification({
+                type: 'test',
+                data: 'Vendor registration notification test (this would be sent by backend)',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        function testPackageCreation() {
+            addNotification({
+                type: 'test',
+                data: 'Package creation notification test (this would be sent by backend)',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        function testLeadSubmission() {
+            addNotification({
+                type: 'test',
+                data: 'Lead submission notification test (this would be sent by backend)',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        function testContactUs() {
+            addNotification({
+                type: 'test',
+                data: 'Contact us notification test (this would be sent by backend)',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        function testProfileUpdate() {
+            addNotification({
+                type: 'test',
+                data: 'Profile update notification test (this would be sent by backend)',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        function testSponsorRank() {
+            addNotification({
+                type: 'test',
+                data: 'Sponsor rank update notification test (this would be sent by backend)',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Auto-connect when page loads
+        window.onload = function() {
+            connect();
+        };
+    </script>
+</body>
+</html> 

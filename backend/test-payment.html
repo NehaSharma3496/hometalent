@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeTalent - Package Subscription Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        .success {
+            border-left-color: #28a745;
+            background-color: #d4edda;
+        }
+        .step {
+            background: #e9ecef;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏠 HomeTalent - Package Subscription Test</h1>
+        <p>Test the Cashfree payment integration for vendor package subscriptions.</p>
+
+        <div class="step">
+            <h3>Step 1: Select Package and Create Payment Order</h3>
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label for="vendorId">Vendor ID:</label>
+                    <input type="number" id="vendorId" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="packageId">Package ID:</label>
+                    <input type="number" id="packageId" value="1" required>
+                </div>
+                <button type="submit">Create Payment Order</button>
+            </form>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Payment Status Check</h3>
+            <form id="statusForm">
+                <div class="form-group">
+                    <label for="orderId">Order ID:</label>
+                    <input type="text" id="orderId" placeholder="Enter order ID from step 1">
+                </div>
+                <button type="button" onclick="checkPaymentStatus()">Check Status</button>
+            </form>
+        </div>
+
+        <div class="step">
+            <h3>Step 3: Refund Payment (Admin Only)</h3>
+            <form id="refundForm">
+                <div class="form-group">
+                    <label for="refundOrderId">Order ID:</label>
+                    <input type="text" id="refundOrderId" placeholder="Enter order ID">
+                </div>
+                <div class="form-group">
+                    <label for="refundAmount">Refund Amount:</label>
+                    <input type="number" id="refundAmount" step="0.01" placeholder="Enter refund amount">
+                </div>
+                <div class="form-group">
+                    <label for="refundNote">Refund Note:</label>
+                    <input type="text" id="refundNote" placeholder="Reason for refund">
+                </div>
+                <button type="button" onclick="processRefund()">Process Refund</button>
+            </form>
+        </div>
+
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:9999/api';
+        
+        // Step 1: Create Payment Order
+        document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const vendorId = document.getElementById('vendorId').value;
+            const packageId = document.getElementById('packageId').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/payment/create-order`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer YOUR_JWT_TOKEN_HERE' // Replace with actual token
+                    },
+                    body: JSON.stringify({ vendor_id: parseInt(vendorId), package_id: parseInt(packageId) })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status) {
+                    showResult(`Payment order created successfully!<br><br>
+                        <strong>Order ID:</strong> ${result.data.order_id}<br>
+                        <strong>Subscription ID:</strong> ${result.data.subscription_id}<br>
+                        <strong>Amount:</strong> ₹${result.data.amount}<br>
+                        <strong>Package:</strong> ${result.data.package_name}<br>
+                        <strong>Validity:</strong> ${result.data.validity_months} months<br><br>
+                        <a href="${result.data.payment_url}" target="_blank" style="background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Proceed to Payment</a>`, 'success');
+                    
+                    // Auto-fill order ID for status check
+                    document.getElementById('orderId').value = result.data.order_id;
+                    document.getElementById('refundOrderId').value = result.data.order_id;
+                } else {
+                    showResult(`Error: ${result.msg}`, 'error');
+                }
+            } catch (error) {
+                showResult(`Error: ${error.message}`, 'error');
+            }
+        });
+
+        // Step 2: Check Payment Status
+        async function checkPaymentStatus() {
+            const orderId = document.getElementById('orderId').value;
+            
+            if (!orderId) {
+                showResult('Please enter an order ID', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/payment/status?order_id=${orderId}`, {
+                    headers: {
+                        'Authorization': 'Bearer YOUR_JWT_TOKEN_HERE' // Replace with actual token
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.status) {
+                    showResult(`Payment Status:<br><br>
+                        <strong>Order ID:</strong> ${orderId}<br>
+                        <strong>Status:</strong> ${result.data.order_status}<br>
+                        <strong>Amount:</strong> ₹${result.data.order_amount}<br>
+                        <strong>Currency:</strong> ${result.data.order_currency}`, 'success');
+                } else {
+                    showResult(`Error: ${result.msg}`, 'error');
+                }
+            } catch (error) {
+                showResult(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Step 3: Process Refund
+        async function processRefund() {
+            const orderId = document.getElementById('refundOrderId').value;
+            const refundAmount = document.getElementById('refundAmount').value;
+            const refundNote = document.getElementById('refundNote').value;
+            
+            if (!orderId || !refundAmount) {
+                showResult('Please enter order ID and refund amount', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/payment/refund`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer YOUR_JWT_TOKEN_HERE' // Replace with actual token
+                    },
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        refund_amount: parseFloat(refundAmount),
+                        refund_note: refundNote || 'Refund processed'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status) {
+                    showResult(`Refund processed successfully!<br><br>
+                        <strong>Refund ID:</strong> ${result.data.refund_id}<br>
+                        <strong>Amount:</strong> ₹${result.data.refund_amount}<br>
+                        <strong>Status:</strong> ${result.data.refund_status}`, 'success');
+                } else {
+                    showResult(`Error: ${result.msg}`, 'error');
+                }
+            } catch (error) {
+                showResult(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function showResult(message, type = '') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = message;
+            resultDiv.className = `result ${type}`;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html> 

@@ -27,10 +27,17 @@ export default function AddVendor() {
     email: "",
     priceRange: "",
     shortDesc: "",
-    category: [],
+    category: "",
     experience: "",
     longDesc: "",
+    facebook_link: "",
+    instagram_link: "",
+    twitter_link: "",
+    linkedin_link: "",
+    youtube_link: "",
+    website_link: "",
     images: [],
+
     terms: false,
     // password: "",
   };
@@ -39,10 +46,14 @@ export default function AddVendor() {
     ownerName: Yup.string().required("Owner Name is required"),
     state: Yup.string().required("State is required"),
     city: Yup.string().required("City is required"),
-    pin: Yup.string().required("Pin Code is required"),
-    phone: Yup.string().required("Phone is required"),
+    pin: Yup.string()
+      .matches(/^\d{6}$/, "Pin code must be exactly 6 digits")
+      .required("Pin Code is required"),
+    phone: Yup.string()
+      .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
+      .required("Phone No is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
-    category: Yup.array().min(1, "Select at least one category"),
+    category: Yup.string().required("Category is required"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
     // password: Yup.string().required("Password is required"),
   });
@@ -81,7 +92,12 @@ export default function AddVendor() {
       type: "text",
       colClass: "col-md-4 mb-3",
     },
-    { name: "phone", label: "Phone*", type: "text", colClass: "col-md-4 mb-3" },
+    {
+      name: "phone",
+      label: "Phone No*",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
     {
       name: "email",
       label: "Email*",
@@ -90,16 +106,22 @@ export default function AddVendor() {
     },
     {
       name: "priceRange",
-      label: "Price Range",
+      label: "Price Range*",
       type: "text",
       colClass: "col-md-4 mb-3",
     },
     {
       name: "category",
-      label: "Categories (max 2)*",
-      type: "multiSelect",
+      label: "Category*",
+      type: "select",
       options: categoryData,
       colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "experience",
+      label: "Experience Since",
+      type: "text",
+      colClass: "col-md-6 mb-3",
     },
     {
       name: "shortDesc",
@@ -114,26 +136,58 @@ export default function AddVendor() {
       colClass: "col-md-12 mb-3",
     },
     {
-      name: "experience",
-      label: "Experience Since",
+      name: "facebook_link",
+      label: "Facebook Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "instagram_link",
+      label: "Instagram Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "twitter_link",
+      label: "Twitter Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "linkedin_link",
+      label: "LinkedIn Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "youtube_link",
+      label: "YouTube Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "website_link",
+      label: "Website Link",
       type: "text",
       colClass: "col-md-6 mb-3",
     },
     {
       name: "images",
-      label: "Images (Max 30)",
+      label: "Image",
       type: "file",
       colClass: "col-md-6 mb-3",
     },
-    // {
-    //   name: "password",
-    //   label: "Password*",
-    //   type: "password",
-    //   colClass: "col-md-6 mb-3",
-    // },
     {
       name: "terms",
-      label: "I confirm vendor details",
+      label: (
+        <>
+          I accept{" "}
+          <Link to="/termscondition" target="_blank" rel="noopener noreferrer">
+            Terms & Conditions
+          </Link>
+          *
+        </>
+      ),
       type: "checkbox",
       colClass: "col-md-12 mb-3",
     },
@@ -151,12 +205,16 @@ export default function AddVendor() {
       formData.append("email", values.email);
       formData.append("price_range", values.priceRange);
       formData.append("short_description", values.shortDesc);
-      formData.append("category_id", values.category.join(","));
       formData.append("experience_since", values.experience);
+      formData.append("category_id", values.category);
       formData.append("long_description", values.longDesc);
       formData.append("role_id", 2);
-      // formData.append("password", values.password);
-      // formData.append("show_password", values.password);
+      formData.append("facebook_link", values.facebook_link || "");
+      formData.append("instagram_link", values.instagram_link || "");
+      formData.append("twitter_link", values.twitter_link || "");
+      formData.append("linkedin_link", values.linkedin_link || "");
+      formData.append("youtube_link", values.youtube_link || "");
+      formData.append("website_link", values.website_link || "");
 
       for (let i = 0; i < values.images.length; i++) {
         formData.append("image", values.images[i]);
@@ -164,7 +222,11 @@ export default function AddVendor() {
 
       const res = await VendorRegister(formData);
       if (res?.data?.status) {
-        Swal.fire("Success", res?.data?.msg || "Vendor added!", "success");
+        Swal.fire("Success", res?.data?.msg || "Vendor added!", "success").then(
+          () => {
+            window.location.reload();
+          }
+        );
       } else {
         Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
       }

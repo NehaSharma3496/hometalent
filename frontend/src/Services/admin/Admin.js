@@ -2,13 +2,16 @@ import axios from "axios";
 import * as Config from "../../Utils/config";
 const qs = require("qs");
 
-export async function GetVendoreList(token) {
+export async function GetVendoreList(token, page = 1, limit = 10) {
   try {
-    const res = await axios.get(`${Config.base_url}admin/vendors`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
+    const res = await axios.get(
+      `${Config.base_url}admin/vendors?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
 
     return res?.data;
   } catch (err) {
@@ -30,13 +33,16 @@ export async function GetSponsoredVendors(token) {
   }
 }
 
-export async function GetBlockedVendore(token) {
+export async function GetBlockedVendore(token, page = 1, limit = 10) {
   try {
-    const res = await axios.get(`${Config.base_url}admin/vendors/blocked`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
+    const res = await axios.get(
+      `${Config.base_url}admin/vendors/blocked?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
 
     return res?.data;
   } catch (err) {
@@ -44,11 +50,14 @@ export async function GetBlockedVendore(token) {
   }
 }
 
-export async function GetApproveVendor(vendorId, token) {
+export async function GetApproveVendor(vendorId, approval, token) {
   try {
     const res = await axios.post(
       `${Config.base_url}admin/vendors/approve`,
-      { vendor_id: vendorId },
+      {
+        vendor_id: vendorId,
+        approval: approval,
+      },
       {
         headers: {
           Authorization: `${token}`,
@@ -81,16 +90,14 @@ export async function GetProfileUpdateRequests(
   token,
   status = "all",
   page = 1,
-  limit = 100
+  limit = 10
 ) {
   try {
-    const endpoint = `${Config.base_url}admin/profile-update-requests`;
+    const endpoint = `${Config.base_url}admin/profile-update-requests?page=${page}&limit=${limit}`;
 
     const res = await axios.get(endpoint, {
       params: {
-        status: status === "all" ? undefined : status, // don't send 'status' if it's 'all'
-        page,
-        limit,
+        status: status === "all" ? undefined : status,
       },
       headers: {
         Authorization: token,
@@ -131,7 +138,7 @@ export async function GetGalleryUpdateRequests({
 }
 
 export async function ProcessGalleryUpdateRequests(
-  gallery_id,
+  gallery_ids,
   action,
   remarks,
   admin_id,
@@ -141,7 +148,7 @@ export async function ProcessGalleryUpdateRequests(
     const res = await axios.post(
       `${Config.base_url}admin/gallery-requests/process`,
       {
-        gallery_id,
+        gallery_ids,
         action,
         remarks,
         admin_id,
@@ -161,13 +168,16 @@ export async function ProcessGalleryUpdateRequests(
   }
 }
 
-export async function GetPendingVendoreList(token) {
+export async function GetPendingVendoreList(token, page = 1, limit = 10) {
   try {
-    const res = await axios.get(`${Config.base_url}admin/vendors/pending`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
+    const res = await axios.get(
+      `${Config.base_url}admin/vendors/pending?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
 
     return res?.data;
   } catch (err) {
@@ -194,13 +204,16 @@ export async function UpdateVendorStatus(vendorId, vendorStatus, token) {
   }
 }
 
-export async function GetActiveVendors(token) {
+export async function GetActiveVendors(token, page = 1, limit = 10) {
   try {
-    const res = await axios.get(`${Config.base_url}admin/active_vendors`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
+    const res = await axios.get(
+      `${Config.base_url}admin/active_vendors?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
     return res?.data;
   } catch (err) {
     return err;
@@ -268,10 +281,7 @@ export async function GetSponsoredVendorsByCategory(
     );
     return res?.data;
   } catch (err) {
-    console.error(
-      "Error in GetSponsoredVendorsByCategory:",
-      err?.response || err
-    );
+    console.error("Error in GetSponsoredVendorsByCategory:", err);
     return err;
   }
 }
@@ -295,10 +305,10 @@ export async function UpdateSponsoredRanks(vendors, token) {
   }
 }
 
-export async function GetAllLeads(token) {
+export async function GetAllLeads(token, page = 1, limit = 10) {
   try {
     const res = await axios.get(
-      `${Config.base_url}admin/leads?page=1&limit=10`,
+      `${Config.base_url}admin/leads?page=${page}&limit=${limit}`,
       {
         headers: {
           Authorization: `${token}`,
@@ -336,19 +346,18 @@ export async function RemoveGalleryItem(token, id) {
 
 // Admin package api
 
-export async function showPackage(token, id) {
+export async function showPackage(token, page = 1, limit = 10) {
   try {
-    const userId = localStorage.getItem("userId");
-    const response = await axios.get(`${Config.base_url}admin/package`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-      data: {
-        user_id: userId,
-      },
-    });
+    const response = await axios.get(
+      `${Config.base_url}admin/package?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
 
-    return response.data;
+    return response?.data;
   } catch (error) {
     throw error?.response?.data || error;
   }
@@ -369,7 +378,7 @@ export async function CreatePackage(packageData, token) {
       }
     );
 
-    return response.data;
+    return response?.data;
   } catch (error) {
     console.error("Error creating package:", error);
     return error;
@@ -411,7 +420,7 @@ export async function UpdatePackage(packageId, data, token) {
       }
     );
     console.log("Update API response:", res.data);
-    return res.data;
+    return res?.data;
   } catch (err) {
     console.error("Error updating package:", err.response?.data || err);
     throw err;
@@ -425,7 +434,7 @@ export const GetSinglePackage = async (id, token) => {
     const res = await axios.get(`${Config.base_url}admin/package/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    return res.data;
+    return res?.data;
   } catch (err) {
     console.error("GetSinglePackage error:", err);
     return { status: false };
@@ -433,10 +442,10 @@ export const GetSinglePackage = async (id, token) => {
 };
 
 // Get All Enquiries
-export async function GetAllContactUs(token) {
+export async function GetAllContactUs(token, page = 1, limit = 10) {
   try {
     const res = await axios.get(
-      `${Config.base_url}admin/contact-us?page=1&limit=10`,
+      `${Config.base_url}admin/contact-us?page=${page}&limit=${limit}`,
       {
         headers: {
           Authorization: `${token}`,
@@ -461,5 +470,229 @@ export async function GetDashboardCounts(token) {
     return res?.data;
   } catch (err) {
     return err;
+  }
+}
+
+export async function ExtendPackage(token, updateData) {
+  try {
+    const response = await axios.post(
+      `${Config.base_url}admin/package/extend-vendor`,
+      updateData,
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response?.data;
+  } catch (error) {
+    console.error("Error extend package:", error);
+    return error;
+  }
+}
+
+export async function UpdatePackageStatus(token, data) {
+  try {
+    const response = await axios.post(
+      `${Config.base_url}admin/package/update-status`,
+      data,
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response?.data;
+  } catch (error) {
+    console.error("Error update package:", error);
+    return error;
+  }
+}
+
+export async function GetRejectedVendor(token) {
+  try {
+    const res = await axios.get(`${Config.base_url}admin/vendors/rejected`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
+export async function AddAdminBlog(token, data) {
+  try {
+    const response = await axios.post(`${Config.base_url}blogs`, data, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+
+    return response?.data;
+  } catch (error) {
+    console.error("Error update package:", error);
+    return error;
+  }
+}
+
+export async function GetAllAdminBlog(token, page = 1, limit = 10) {
+  try {
+    const response = await axios.get(
+      `${Config.base_url}blogs?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function UpdateAdminBlog(token, blogId, data) {
+  try {
+    const res = await axios.put(`${Config.base_url}blogs/${blogId}`, data, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
+export async function GetSingleAdminBlog(token, blogId) {
+  try {
+    const response = await axios.get(`${Config.base_url}blogs/${blogId}`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function DeleteAdminBlog(token, blogId) {
+  try {
+    const response = await axios.delete(`${Config.base_url}blogs/${blogId}`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function GetExtendPackageHistory(token, vendor_id) {
+  try {
+    const response = await axios.post(
+      `${Config.base_url}admin/packageextendhistory`,
+      vendor_id,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+
+    return response?.data;
+  } catch (error) {
+    console.error("Error getting package history", error);
+    return error;
+  }
+}
+
+export async function GetProfileUpdateRequestsBlogs(token, request_id) {
+  try {
+    const response = await axios.post(
+      `${Config.base_url}admin/getprofileRequestdata`,
+      request_id,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+
+    return response?.data;
+  } catch (error) {
+    console.error("Error getting update request logs", error);
+    return error;
+  }
+}
+
+export async function UpdateBlogStatus(blogId, blogStatus, token) {
+  try {
+    const res = await axios.post(
+      `${Config.base_url}admin/vendors/update-status`,
+      { blog_id: blogId, status: blogStatus },
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
+export async function UpdateReviewStatus(reviewId, reviewStatus, token) {
+  try {
+    const res = await axios.post(
+      `${Config.base_url}admin/vendors/update-status`,
+      { review_id: reviewId, status: reviewStatus },
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
+export async function GetAllReview(token, page = 1, limit = 10) {
+  try {
+    const response = await axios.get(`${Config.base_url}reviews?page=${page}&limit=${limit}`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function ApproveReview(reviewId, status) {
+  try {
+    const response = await axios.put(
+      `${Config.base_url}review/${reviewId}/approve`,
+      status
+    );
+    return response?.data;
+  } catch (error) {
+    return error;
   }
 }

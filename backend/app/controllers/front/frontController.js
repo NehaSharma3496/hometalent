@@ -1,5 +1,5 @@
 
-const { State, City, User, Category, VendorCategoryRank, ContactUs } = require('../../models'); // adjust path to your models
+const { State, City, User, Category, VendorCategoryRank, ContactUs, VendorPackageSubscription } = require('../../models'); // adjust path to your models
 const { Op, Sequelize } = require('sequelize');
 const sequelize = require('../../config/db.config');
 exports.listStatesAndCities = async (req, res) => {
@@ -56,16 +56,36 @@ exports.getVendorsByCategoryId = async (req, res) => {
       role_id: 2,
       status: 1
     };
-    if (category_id) {
-      whereClause.category_id = { [Op.like]: `%${category_id}%` };
+   
+    
+    if (category_id && category_id != undefined && category_id != '') {
+        whereClause[Op.or] = [
+    { category_id: category_id }, // Exact match
+    { category_id: { [Op.like]: `%,${category_id},%` } }, // Middle
+    { category_id: { [Op.like]: `${category_id},%` } },   // Start
+    { category_id: { [Op.like]: `%,${category_id}` } }    // End
+  ];
     }
     if (city_id) {
       whereClause.city_id = city_id;
     }
 
+    // Subscription filter: only vendors with an active subscription
+    const now = new Date();
+    const subscriptionInclude = {
+      model: VendorPackageSubscription,
+      as: 'subscriptions',
+      where: {
+        payment_status: 'completed',
+        start_date: { [Op.lte]: now },
+        end_date: { [Op.gte]: now }
+      },
+      required: true
+    };
+    
+
     // Get sponsored vendors for this specific category/city (ordered by category-specific sponsor_rank)
     let sponsoredWhere = { ...whereClause };
-    // Only filter by category_id for sponsor rank join if present
     let sponsorRankInclude = {
       model: VendorCategoryRank,
       as: 'categoryRanks',
@@ -73,29 +93,37 @@ exports.getVendorsByCategoryId = async (req, res) => {
       required: true,
       attributes: ['sponsor_rank']
     };
-    if (category_id) sponsorRankInclude.where.category_id = category_id;
+    if (category_id && category_id != undefined && category_id != '') sponsorRankInclude.where.category_id = category_id;
 
     const sponsoredVendors = await User.findAll({
       where: sponsoredWhere,
-      include: [sponsorRankInclude],
-      order: [[{ model: VendorCategoryRank, as: 'categoryRanks' }, 'sponsor_rank', 'ASC']]
+      include: [sponsorRankInclude, subscriptionInclude],
+      order: [[{ model: VendorCategoryRank, as: 'categoryRanks' }, 'sponsor_rank', 'ASC']],
+      distinct: true
     });
-
+    
+  //  return res.json({ status: true, data: sponsoredVendors });
+   
     // Get non-sponsored vendors for this filter
     let nonSponsorRankInclude = {
       model: VendorCategoryRank,
       as: 'categoryRanks',
-      where: { is_sponsored: 0 },
+      where: { is_sponsored: 0},
       required: false
     };
-    if (category_id) nonSponsorRankInclude.where.category_id = category_id;
 
-    const nonSponsoredVendors = await User.findAll({
-      where: whereClause,
-      include: [nonSponsorRankInclude],
+    if (category_id && category_id != undefined && category_id != '') nonSponsorRankInclude.where.category_id = category_id;
+
+    const sponsoredIds = sponsoredVendors.map(v => v.id);
+        const nonSponsoredVendors = await User.findAll({
+            where: {
+        ...whereClause,
+        id: { [Op.notIn]: sponsoredIds } // EXCLUDE already fetched sponsored vendors
+      },
+      include: [nonSponsorRankInclude, subscriptionInclude],
       order: [['createdAt', 'DESC']]
     });
-
+    
     // Shuffle non-sponsored vendors
     const shuffledNonSponsored = nonSponsoredVendors.sort(() => Math.random() - 0.5);
 
@@ -112,9 +140,9 @@ exports.getVendorsByCategoryId = async (req, res) => {
       v.dataValues.category_names = categoryNames.map(c => c.name);
     }
 
-    res.json({ status: true, data: allVendors });
+    return res.json({ status: true, data: allVendors });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 

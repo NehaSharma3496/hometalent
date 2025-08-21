@@ -1,22 +1,21 @@
 const express = require("express");
-
 require("dotenv").config();
-
 const cors = require("cors");
-
 const cookieParser = require("cookie-parser");
-
 const bodyParser = require("body-parser");
-
 const sequelize = require("./app/config/db.config");
-
 const routes = require("./app/routes");
-
 const path = require("path");
+const http = require("http");
+const socketManager = require("./app/socket/socketManager");
 
 // const seedAll = require('./app/seeders');
 
 const app = express();
+const server = http.createServer(app);
+
+// Initialize Socket.IO
+socketManager.initialize(server);
 
 //test
 
@@ -29,7 +28,8 @@ const app = express();
 // };
 
 const corsOptions = {
-  origin: ["http://localhost:3000", "*"],
+  // origin: ["http://localhost:3000", "*"],
+  origin: "*",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],
@@ -58,8 +58,9 @@ sequelize
   .then(async () => {
     console.log("Database & tables created!");
     // await seedAll();
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
+      console.log(`Socket.IO server initialized on port ${PORT}`);
     });
   })
   .catch((error) => console.log(error));

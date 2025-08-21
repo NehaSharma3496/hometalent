@@ -1,0 +1,147 @@
+{
+  "info": {
+    "_postman_id": "recent-changed-apis-collection",
+    "name": "Recent Changed & New APIs",
+    "description": "Collection for all recently changed and new APIs (admin & vendor)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Admin - Update Package Status (Activate/Deactivate)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"package_id\": 1,\n  \"status\": 1\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/admin/package/update-status",
+          "host": ["{{base_url}}"],
+          "path": ["admin", "package", "update-status"]
+        },
+        "description": "Set status=1 to activate, status=0 to deactivate a package."
+      },
+      "response": []
+    },
+    {
+      "name": "Admin - Extend Vendor Package End Date",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"subscription_id\": 1,\n  \"extra_days\": 30\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/admin/package/extend-vendor",
+          "host": ["{{base_url}}"],
+          "path": ["admin", "package", "extend-vendor"]
+        },
+        "description": "Extend the end_date of a vendor's package subscription by extra_days."
+      },
+      "response": []
+    },
+    {
+      "name": "Admin - Get User Complete Profile (with Packages)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/admin/user-profile/1",
+          "host": ["{{base_url}}"],
+          "path": ["admin", "user-profile", "1"]
+        },
+        "description": "Get user profile, gallery, running and expired packages. Replace 1 with the actual user_id."
+      },
+      "response": []
+    },
+    {
+      "name": "Admin - List Sponsored Vendors (Updated)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/admin/vendors/sponsored?category_id=1&page=1&limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["admin", "vendors", "sponsored"],
+          "query": [
+            { "key": "category_id", "value": "1", "description": "Category ID (optional)" },
+            { "key": "page", "value": "1", "description": "Page number" },
+            { "key": "limit", "value": "10", "description": "Items per page" }
+          ]
+        },
+        "description": "Get sponsored vendors with remaining active vendors. Returns sponsored array and remaining_active array."
+      },
+      "response": []
+    },
+    {
+      "name": "Front - Get Vendors By Category (Updated)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/front/vendors/category/1?city_id=5",
+          "host": ["{{base_url}}"],
+          "path": ["front", "vendors", "category", "1"],
+          "query": [
+            { "key": "city_id", "value": "5", "description": "City ID (optional)" }
+          ]
+        },
+        "description": "Get vendors by category with subscription filter (only shows vendors with active subscription). Returns sponsored and non-sponsored vendors."
+      },
+      "response": []
+    },
+    {
+      "name": "Vendor - Subscribe Package (Updated)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"vendor_id\": 1,\n  \"package_id\": 2,\n  \"payment_reference\": \"TXN123456\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/vendor/subscribe-package",
+          "host": ["{{base_url}}"],
+          "path": ["vendor", "subscribe-package"]
+        },
+        "description": "Subscribe a vendor to a package. Now handles validity (30 days per month) and stacking logic (starts after existing subscription ends)."
+      },
+      "response": []
+    },
+    {
+      "name": "Vendor - Package History (Paginated & Filtered)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/vendor/package-history?vendor_id=1&page=1&limit=10&payment_status=completed&package_id=2",
+          "host": ["{{base_url}}"],
+          "path": ["vendor", "package-history"],
+          "query": [
+            { "key": "vendor_id", "value": "1", "description": "Vendor ID" },
+            { "key": "page", "value": "1", "description": "Page number" },
+            { "key": "limit", "value": "10", "description": "Items per page" },
+            { "key": "payment_status", "value": "completed", "description": "Filter by payment status (optional)", "disabled": true },
+            { "key": "package_id", "value": "2", "description": "Filter by package ID (optional)", "disabled": true }
+          ]
+        },
+        "description": "Get vendor's package history with pagination and optional filters."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000", "type": "string", "description": "Base URL for the API" }
+  ]
+} 

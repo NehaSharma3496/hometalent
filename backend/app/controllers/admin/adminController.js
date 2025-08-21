@@ -1,50 +1,69 @@
-const { User, Category, ProfileUpdateRequest, Package, VendorPackageSubscription, Log, ClientLead, VendorCategoryRank, ContactUs } = require('../../models'); // adjust path as needed
+const {
+  User,
+  Category,
+  ProfileUpdateRequest,
+  Package,
+  VendorPackageSubscription,
+  Log,
+  ClientLead,
+  VendorCategoryRank,
+  ContactUs,
+  Blog,
+  Review,
+  Notification
+} = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
+const socketManager = require('../../socket/socketManager');
+const { Op, Sequelize,literal } = require('sequelize');
 
 exports.listAllVendors = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-    
+
     const { count, rows: vendors } = await User.findAndCountAll({
       where: { role_id: 2 },
-      order: [['createdAt', 'DESC']],
+      order: [["createdAt", "DESC"]],
       raw: true,
       limit,
-      offset
+      offset,
     });
 
     // Get all unique category IDs
     const categoryIds = [
       ...new Set(
-        vendors.flatMap(v =>
-          v.category_id ? v.category_id.split(',').map(id => parseInt(id.trim())) : []
+        vendors.flatMap((v) =>
+          v.category_id
+            ? v.category_id.split(",").map((id) => parseInt(id.trim()))
+            : []
         )
-      )
+      ),
     ];
 
     // Fetch category names
     const categories = await Category.findAll({
       where: { id: categoryIds },
-      raw: true
+      raw: true,
     });
 
-    const categoryMap = Object.fromEntries(categories.map(c => [c.id, c.name]));
+    const categoryMap = Object.fromEntries(
+      categories.map((c) => [c.id, c.name])
+    );
 
     // Attach category names to each vendor
-    const enrichedVendors = vendors.map(v => ({
+    const enrichedVendors = vendors.map((v) => ({
       ...v,
-      category_names: (v.category_id || '')
-        .split(',')
-        .map(id => categoryMap[parseInt(id.trim())])
-        .filter(Boolean)
+      category_names: (v.category_id || "")
+        .split(",")
+        .map((id) => categoryMap[parseInt(id.trim())])
+        .filter(Boolean),
     }));
 
     const totalPages = Math.ceil(count / limit);
 
-    res.json({ 
-      status: true, 
+    res.json({
+      status: true,
       data: enrichedVendors,
       pagination: {
         current_page: page,
@@ -52,8 +71,8 @@ exports.listAllVendors = async (req, res) => {
         total_records: count,
         limit,
         has_next: page < totalPages,
-        has_prev: page > 1
-      }
+        has_prev: page > 1,
+      },
     });
   } catch (error) {
     res.json({ status: false, msg: error.message });
@@ -65,18 +84,18 @@ exports.listPendingVendors = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-    
+
     const { count, rows: vendors } = await User.findAndCountAll({
-      where: { role_id: 2, status: 0 },
-      order: [['createdAt', 'DESC']],
+      where: { role_id: 2, approval_status: 0 },
+      order: [["createdAt", "DESC"]],
       limit,
-      offset
+      offset,
     });
-    
+
     const totalPages = Math.ceil(count / limit);
-    
-    res.json({ 
-      status: true, 
+
+    res.json({
+      status: true,
       data: vendors,
       pagination: {
         current_page: page,
@@ -84,8 +103,40 @@ exports.listPendingVendors = async (req, res) => {
         total_records: count,
         limit,
         has_next: page < totalPages,
-        has_prev: page > 1
-      }
+        has_prev: page > 1,
+      },
+    });
+  } catch (error) {
+    res.json({ status: false, msg: error.message });
+  }
+};
+
+exports.listRejectedVendors = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const { count, rows: vendors } = await User.findAndCountAll({
+      where: { role_id: 2, approval_status: 2 },
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset,
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    res.json({
+      status: true,
+      data: vendors,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1,
+      },
     });
   } catch (error) {
     res.json({ status: false, msg: error.message });
@@ -102,30 +153,81 @@ exports.listSponsoredVendors = async (req, res) => {
     let whereCondition = { is_sponsored: 1 };
     if (category_id) whereCondition.category_id = category_id;
 
-    const { count, rows } = await VendorCategoryRank.findAndCountAll({
-      where: whereCondition,
-      include: [
-        { model: User, as: 'vendor', attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone'] },
-        { model: Category, as: 'category', attributes: ['id', 'name'] }
+    // Get sponsored vendors
+    const { count, rows: sponsoredRows } =
+      await VendorCategoryRank.findAndCountAll({
+  where: {
+    ...whereCondition,
+    [Op.and]: literal(`FIND_IN_SET(VendorCategoryRank.category_id, vendor.category_id)`)
+  },
+  include: [
+    {
+      model: User,
+      as: "vendor",
+      attributes: [
+        "id",
+        "owner_name",
+        "profile_name",
+        "email",
+        "phone",
+        "status",
+        "category_id" // make sure to include this to use in FIND_IN_SET
+      ]
+    },
+    {
+      model: Category,
+      as: "category",
+      attributes: ["id", "name"]
+    }
+  ],
+  order: [["sponsor_rank", "ASC"]],
+  limit,
+  offset,
+});
+
+    // Get all sponsored vendor IDs
+    const sponsoredVendorIds = sponsoredRows.map((r) => r.vendor_id);
+
+    const activeVendors = await User.findAll({
+      where: {
+        [Op.and]: [
+      {
+        [Op.or]: [
+          { category_id: category_id }, // Exact match
+          { category_id: { [Op.like]: `%,${category_id},%` } }, // Middle
+          { category_id: { [Op.like]: `${category_id},%` } },   // Start
+          { category_id: { [Op.like]: `%,${category_id}` } }    // End
+        ]
+      },
+      { role_id: 2 },
+      { status: 1 },
+      { id: { [Op.notIn]: sponsoredVendorIds } }
+    ],
+      },
+      attributes: [
+        "id",
+        "owner_name",
+        "profile_name",
+        "email",
+        "phone",
+        "status",
       ],
-      order: [['sponsor_rank', 'ASC']],
-      limit,
-      offset
     });
 
     const totalPages = Math.ceil(count / limit);
 
     res.json({
       status: true,
-      data: rows,
+      sponsored: sponsoredRows,
+      remaining_active: activeVendors,
       pagination: {
         current_page: page,
         total_pages: totalPages,
         total_records: count,
         limit,
         has_next: page < totalPages,
-        has_prev: page > 1
-      }
+        has_prev: page > 1,
+      },
     });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
@@ -137,18 +239,18 @@ exports.listBlockedVendors = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-    
+
     const { count, rows: vendors } = await User.findAndCountAll({
       where: { role_id: 2, status: 2 },
-      order: [['updatedAt', 'DESC']],
+      order: [["updatedAt", "DESC"]],
       limit,
-      offset
+      offset,
     });
-    
+
     const totalPages = Math.ceil(count / limit);
-    
-    res.json({ 
-      status: true, 
+
+    res.json({
+      status: true,
       data: vendors,
       pagination: {
         current_page: page,
@@ -156,8 +258,8 @@ exports.listBlockedVendors = async (req, res) => {
         total_records: count,
         limit,
         has_next: page < totalPages,
-        has_prev: page > 1
-      }
+        has_prev: page > 1,
+      },
     });
   } catch (error) {
     res.json({ status: false, msg: error.message });
@@ -166,21 +268,31 @@ exports.listBlockedVendors = async (req, res) => {
 
 exports.updateVendorStatus = async (req, res) => {
   try {
-    const { vendor_id, status } = req.body; // status = 1 (approve), 2 (block), 0 (unapprove)
+    const { vendor_id, blog_id, review_id, status } = req.body; // status = 1 (approve), 2 (block), 0 (unapprove)
 
-    if (![0, 1, 2].includes(Number(status))){
-      return res.status(400).json({ status: false, msg: 'Invalid status value' });
+    if (![0, 1, 2].includes(Number(status))) {
+      return res
+        .status(400)
+        .json({ status: false, msg: "Invalid status value" });
+    }
+    let data
+    if (vendor_id && vendor_id !== undefined) {
+      data = await User.findOne({ where: { id: vendor_id, role_id: 2 } });
+    }
+    if(blog_id && blog_id !== undefined ) {
+      data = await Blog.findOne({ where: { id: blog_id } });
+    }
+    if(review_id && review_id !== undefined ) {
+      data = await Review.findOne({ where: { id: review_id } });
+    }
+    if (!data) {
+      return res.json({ status: false, msg: "Record not found" });
     }
 
-    const vendor = await User.findOne({ where: { id: vendor_id, role_id: 2 } });
-    if (!vendor) {
-      return res.json({ status: false, msg: 'Vendor not found' });
-    }
+    data.status = status;
+    await data.save();
 
-    vendor.status = status;
-    await vendor.save();
-
-    res.json({ status: true, msg: `Vendor status updated` });
+    res.json({ status: true, msg: `Status updated` });
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
@@ -188,24 +300,26 @@ exports.updateVendorStatus = async (req, res) => {
 
 exports.approveVendor = async (req, res) => {
   try {
-    const { vendor_id } = req.body;
+    const { vendor_id, approval} = req.body;
     if (!vendor_id) {
-      return res.status(400).json({ status: false, msg: 'vendor_id is required' });
+      return res
+        .status(400)
+        .json({ status: false, msg: "vendor_id is required" });
     }
 
     const vendor = await User.findOne({ where: { id: vendor_id, role_id: 2 } });
     if (!vendor) {
-      return res.json({ status: false, msg: 'Vendor not found' });
+      return res.json({ status: false, msg: "Vendor not found" });
     }
 
     // Update status to approved
-    vendor.status = 1;
+    vendor.approval_status = approval;
     await vendor.save();
 
     // Send email with login credentials
-    const subject = 'Vendor Approved - Login Details';
+    const subject = "Vendor Approved - Login Details";
     const message = `
-      <p>Hi ${vendor.owner_name || vendor.profile_name || 'Vendor'},</p>
+      <p>Hi ${vendor.owner_name || vendor.profile_name || "Vendor"},</p>
       <p>Your profile has been approved by admin. You can now log in using either your <strong>email</strong> or <strong>mobile number</strong>.</p>
       <p><strong>Login Email:</strong> ${vendor.email}</p>
       <p><strong>Login Mobile:</strong> ${vendor.phone}</p>
@@ -216,7 +330,10 @@ exports.approveVendor = async (req, res) => {
 
     await commonEmail(vendor.email, subject, message);
 
-    res.json({ status: true, msg: 'Vendor approved and login details sent via email' });
+    res.json({
+      status: true,
+      msg: "Vendor approved and login details sent via email",
+    });
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
@@ -227,21 +344,21 @@ exports.active_vendors = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-    
+
     const { count, rows: vendors } = await User.findAndCountAll({
       where: {
         role_id: 2,
-        status: 1
+        status: 1,
       },
-      order: [['createdAt', 'DESC']],
+      order: [["createdAt", "DESC"]],
       limit,
-      offset
+      offset,
     });
-    
+
     const totalPages = Math.ceil(count / limit);
 
-    res.json({ 
-      status: true, 
+    res.json({
+      status: true,
       data: vendors,
       pagination: {
         current_page: page,
@@ -249,8 +366,8 @@ exports.active_vendors = async (req, res) => {
         total_records: count,
         limit,
         has_next: page < totalPages,
-        has_prev: page > 1
-      }
+        has_prev: page > 1,
+      },
     });
   } catch (error) {
     res.json({ status: false, msg: error.message });
@@ -275,12 +392,20 @@ exports.updateSponsorRanks = async (req, res) => {
     // Update vendor category ranks one by one
     for (const v of vendors) {
       // Use upsert to create or update the rank
-      await VendorCategoryRank.upsert({
+      const rankData = await VendorCategoryRank.upsert({
         vendor_id: v.vendor_id,
         category_id: v.category_id,
         sponsor_rank: v.sponsor_rank,
         is_sponsored: v.sponsor_rank > 0 ? 1 : 0
       });
+
+      // Send socket notification for each rank update
+      // socketManager.sponsorRankUpdated({
+      //   vendor_id: v.vendor_id,
+      //   category_id: v.category_id,
+      //   sponsor_rank: v.sponsor_rank,
+      //   is_sponsored: v.sponsor_rank > 0 ? 1 : 0
+      // });
     }
 
     res.json({ status: true, msg: "Category-specific sponsor ranks updated successfully" });
@@ -296,25 +421,33 @@ exports.getPendingProfileUpdateRequests = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-    
-    const { count, rows: requests } = await ProfileUpdateRequest.findAndCountAll({
-      where: { status: 'pending' },
-      order: [['createdAt', 'ASC']],
-      include: [
-        {
-          model: User,
-          as: 'vendor',
-          attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone', 'status']
-        }
-      ],
-      limit,
-      offset
-    });
-    
+
+    const { count, rows: requests } =
+      await ProfileUpdateRequest.findAndCountAll({
+        where: { status: "pending" },
+        order: [["createdAt", "ASC"]],
+        include: [
+          {
+            model: User,
+            as: "vendor",
+            attributes: [
+              "id",
+              "owner_name",
+              "profile_name",
+              "email",
+              "phone",
+              "status",
+            ],
+          },
+        ],
+        limit,
+        offset,
+      });
+
     const totalPages = Math.ceil(count / limit);
 
-    res.json({ 
-      status: true, 
+    res.json({
+      status: true,
       data: requests,
       pagination: {
         current_page: page,
@@ -322,10 +455,9 @@ exports.getPendingProfileUpdateRequests = async (req, res) => {
         total_records: count,
         limit,
         has_next: page < totalPages,
-        has_prev: page > 1
-      }
+        has_prev: page > 1,
+      },
     });
-
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
@@ -341,35 +473,56 @@ exports.getProfileUpdateRequestDetails = async (req, res) => {
       include: [
         {
           model: User,
-          as: 'vendor',
-          attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone', 'status', 'state_id', 'city_id', 'pin_code', 'price_range', 'short_description', 'category_id', 'experience_since', 'long_description', 'facebook_link', 'instagram_link', 'twitter_link', 'linkedin_link', 'youtube_link', 'website_link', 'image']
+          as: "vendor",
+          attributes: [
+            "id",
+            "owner_name",
+            "profile_name",
+            "email",
+            "phone",
+            "status",
+            "state_id",
+            "city_id",
+            "pin_code",
+            "price_range",
+            "short_description",
+            "category_id",
+            "experience_since",
+            "long_description",
+            "facebook_link",
+            "instagram_link",
+            "twitter_link",
+            "linkedin_link",
+            "youtube_link",
+            "website_link",
+            "image",
+          ],
         },
         {
           model: User,
-          as: 'admin',
-          attributes: ['id', 'owner_name', 'profile_name']
-        }
-      ]
+          as: "admin",
+          attributes: ["id", "owner_name", "profile_name"],
+        },
+      ],
     });
 
     if (!request) {
-      return res.json({ 
-        status: false, 
-        msg: 'Profile update request not found' 
+      return res.json({
+        status: false,
+        msg: "Profile update request not found",
       });
     }
 
-    // Debug: Log the request data
-    console.log('Request ID:', request_id);
-    console.log('Request Data Type:', typeof request.request_data);
-    console.log('Request Data:', request.request_data);
-    console.log('Vendor ID:', request.vendor_id);
+    // // Debug: Log the request data
+    // console.log("Request ID:", request_id);
+    // console.log("Request Data Type:", typeof request.request_data);
+    // console.log("Request Data:", request.request_data);
+    // console.log("Vendor ID:", request.vendor_id);
 
-    res.json({ 
-      status: true, 
-      data: request 
+    res.json({
+      status: true,
+      data: request,
     });
-
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
@@ -426,7 +579,6 @@ exports.processProfileUpdateRequest = async (req, res) => {
         try {
           updateData = JSON.parse(updateData);
         } catch (error) {
-          // console.error('Error parsing request_data:', error);
           return res.json({ 
             status: false, 
             msg: 'Invalid request data format' 
@@ -434,13 +586,8 @@ exports.processProfileUpdateRequest = async (req, res) => {
         }
       }
 
-      // Debug: Log the update data
-      // console.log('Updating user with data:', updateData);
-      // console.log('Vendor ID:', request.vendor_id);
-
       // Get user data before update
       const userBefore = await User.findByPk(request.vendor_id);
-      // console.log('User data before update:', userBefore ? userBefore.toJSON() : 'User not found');
 
       // Apply the changes to vendor profile
       const updateResult = await User.update(
@@ -448,34 +595,12 @@ exports.processProfileUpdateRequest = async (req, res) => {
         { where: { id: request.vendor_id } }
       );
 
-      // console.log('Update result:', updateResult);
-
       // Get user data after update
       const userAfter = await User.findByPk(request.vendor_id);
-      // console.log('User data after update:', userAfter ? userAfter.toJSON() : 'User not found');
-
-      // Send email notification to vendor
-      const subject = 'Profile Update Approved';
-      const message = `
-        <p>Hi ${request.vendor.owner_name || request.vendor.profile_name || 'Vendor'},</p>
-        <p>Your profile update request has been approved by admin.</p>
-        <p><strong>Updated Fields:</strong></p>
-        <ul>
-          ${Object.keys(updateData).map(key => {
-            if (key === 'image' || key === 'video') {
-              return `<li>${key}: File uploaded successfully</li>`;
-            }
-            return `<li>${key}: ${updateData[key]}</li>`;
-          }).join('')}
-        </ul>
-        ${remarks ? `<p><strong>Admin Remarks:</strong> ${remarks}</p>` : ''}
-        <p>Thank you,<br/>Team HomeTalent</p>
-      `;
-
-      await commonEmail(request.vendor.email, subject, message);
 
       // Log the approval and approved data
       await Log.create({
+        request_id,
         user_id: admin_id,
         user_type: 'admin',
         action: 'profile_update_approve',
@@ -488,19 +613,53 @@ exports.processProfileUpdateRequest = async (req, res) => {
         })
       });
 
-    } else {
-      // Send rejection email to vendor
-      const subject = 'Profile Update Request Rejected';
+      // Send email notification to vendor
+      const subject = 'Profile Update Request Approved';
+
       const message = `
         <p>Hi ${request.vendor.owner_name || request.vendor.profile_name || 'Vendor'},</p>
-        <p>Your profile update request has been rejected by admin.</p>
-        ${remarks ? `<p><strong>Reason:</strong> ${remarks}</p>` : ''}
-        <p>Please review your request and submit again if needed.</p>
+        <p>Your profile update request has been approved by admin.</p>
+        ${remarks ? `<p><strong>Admin Remarks:</strong> ${remarks}</p>` : ''}
         <p>Thank you,<br/>Team HomeTalent</p>
       `;
 
       await commonEmail(request.vendor.email, subject, message);
 
+      // Send socket notification
+      socketManager.profileUpdateProcessed({
+        id: request.id,
+        vendor_id: request.vendor_id,
+        request_data: request.request_data,
+        status: request.status,
+        admin_remarks: request.admin_remarks,
+        processed_at: request.processed_at
+      }, request.vendor_id, action);
+
+      // Persist admin notification
+      try {
+        await Notification.create({
+          user_id: null,
+          user_type: 'admin',
+          type: 'profile_update_processed',
+          title: 'Profile Update',
+          message: `Vendor profile update request approved`,
+          metadata: { request_id: request.id, vendor_id: request.vendor_id }
+        });
+      } catch (e) { console.error('Failed to persist admin profile processed notification:', e.message); }
+
+      // Persist vendor notification (approved)
+      try {
+        await Notification.create({
+          user_id: request.vendor_id,
+          user_type: 'vendor',
+          type: 'profile_update_processed',
+          title: 'Profile Update',
+          message: 'Your profile update request has been Approved.',
+          metadata: { request_id: request.id, action }
+        });
+      } catch (e) { console.error('Failed to persist vendor profile processed notification:', e.message); }
+
+    } else {
       // Log the rejection and request data
       await Log.create({
         user_id: admin_id,
@@ -513,6 +672,52 @@ exports.processProfileUpdateRequest = async (req, res) => {
           remarks
         })
       });
+
+      // Send rejection email to vendor
+      const subject = 'Profile Update Request Rejected';
+      const message = `
+        <p>Hi ${request.vendor.owner_name || request.vendor.profile_name || 'Vendor'},</p>
+        <p>Your profile update request has been rejected by admin.</p>
+        ${remarks ? `<p><strong>Reason:</strong> ${remarks}</p>` : ''}
+        <p>Please review your request and submit again if needed.</p>
+        <p>Thank you,<br/>Team HomeTalent</p>
+      `;
+
+      await commonEmail(request.vendor.email, subject, message);
+
+      // Send socket notification
+      socketManager.profileUpdateProcessed({
+        id: request.id,
+        vendor_id: request.vendor_id,
+        request_data: request.request_data,
+        status: request.status,
+        admin_remarks: request.admin_remarks,
+        processed_at: request.processed_at
+      }, request.vendor_id, action);
+
+      // Persist admin notification
+      try {
+        await Notification.create({
+          user_id: null,
+          user_type: 'admin',
+          type: 'profile_update_processed',
+          title: 'Profile Update',
+          message: `Vendor profile update request rejected`,
+          metadata: { request_id: request.id, vendor_id: request.vendor_id }
+        });
+      } catch (e) { console.error('Failed to persist admin profile processed notification:', e.message); }
+
+      // Persist vendor notification (rejected)
+      try {
+        await Notification.create({
+          user_id: request.vendor_id,
+          user_type: 'vendor',
+          type: 'profile_update_processed',
+          title: 'Profile Update',
+          message: 'Your profile update request has been Rejected.',
+          metadata: { request_id: request.id, action }
+        });
+      } catch (e) { console.error('Failed to persist vendor profile processed notification:', e.message); }
     }
 
     res.json({ 
@@ -537,39 +742,38 @@ exports.getAllProfileUpdateRequests = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const whereClause = {};
-    if (status && ['pending', 'approved', 'rejected'].includes(status)) {
+    if (status && ["pending", "approved", "rejected"].includes(status)) {
       whereClause.status = status;
     }
 
     const requests = await ProfileUpdateRequest.findAndCountAll({
       where: whereClause,
-      order: [['createdAt', 'DESC']],
+      order: [["createdAt", "DESC"]],
       limit: parseInt(limit),
       offset: parseInt(offset),
       include: [
         {
           model: User,
-          as: 'vendor',
-          attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone']
+          as: "vendor",
+          attributes: ["id", "owner_name", "profile_name", "email", "phone"],
         },
         {
           model: User,
-          as: 'admin',
-          attributes: ['id', 'owner_name', 'profile_name']
-        }
-      ]
+          as: "admin",
+          attributes: ["id", "owner_name", "profile_name"],
+        },
+      ],
     });
 
-    res.json({ 
-      status: true, 
+    res.json({
+      status: true,
       data: {
         requests: requests.rows,
         total: requests.count,
         current_page: parseInt(page),
-        total_pages: Math.ceil(requests.count / limit)
-      }
+        total_pages: Math.ceil(requests.count / limit),
+      },
     });
-
   } catch (error) {
     res.json({ status: false, msg: error.message });
   }
@@ -580,6 +784,18 @@ exports.createPackage = async (req, res) => {
   try {
     const { name, description, price, validity_in_months, features, status } = req.body;
     const pkg = await Package.create({ name, description, price, validity_in_months, features, status });
+    
+    // Send socket notification
+    socketManager.packageCreated({
+      id: pkg.id,
+      name: pkg.name,
+      description: pkg.description,
+      price: pkg.price,
+      validity_in_months: pkg.validity_in_months,
+      features: pkg.features,
+      status: pkg.status
+    });
+    
     res.json({ status: true, data: pkg });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
@@ -591,17 +807,17 @@ exports.getAllPackages = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-    
-    const { count, rows: pkgs } = await Package.findAndCountAll({ 
-      order: [['id', 'DESC']],
+
+    const { count, rows: pkgs } = await Package.findAndCountAll({
+      order: [["id", "DESC"]],
       limit,
-      offset
+      offset,
     });
-    
+
     const totalPages = Math.ceil(count / limit);
-    
-    res.json({ 
-      status: true, 
+
+    res.json({
+      status: true,
       data: pkgs,
       pagination: {
         current_page: page,
@@ -609,8 +825,8 @@ exports.getAllPackages = async (req, res) => {
         total_records: count,
         limit,
         has_next: page < totalPages,
-        has_prev: page > 1
-      }
+        has_prev: page > 1,
+      },
     });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
@@ -620,7 +836,8 @@ exports.getAllPackages = async (req, res) => {
 exports.getPackageById = async (req, res) => {
   try {
     const pkg = await Package.findByPk(req.params.id);
-    if (!pkg) return res.status(404).json({ status: false, msg: 'Package not found' });
+    if (!pkg)
+      return res.status(404).json({ status: false, msg: "Package not found" });
     res.json({ status: true, data: pkg });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
@@ -630,10 +847,19 @@ exports.getPackageById = async (req, res) => {
 exports.updatePackage = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, price, validity_in_months, features, status } = req.body;
+    const { name, description, price, validity_in_months, features, status } =
+      req.body;
     const pkg = await Package.findByPk(id);
-    if (!pkg) return res.status(404).json({ status: false, msg: 'Package not found' });
-    await pkg.update({ name, description, price, validity_in_months, features, status });
+    if (!pkg)
+      return res.status(404).json({ status: false, msg: "Package not found" });
+    await pkg.update({
+      name,
+      description,
+      price,
+      validity_in_months,
+      features,
+      status,
+    });
     res.json({ status: true, data: pkg });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
@@ -644,9 +870,41 @@ exports.deletePackage = async (req, res) => {
   try {
     const { id } = req.params;
     const pkg = await Package.findByPk(id);
-    if (!pkg) return res.status(404).json({ status: false, msg: 'Package not found' });
+    if (!pkg)
+      return res.status(404).json({ status: false, msg: "Package not found" });
     await pkg.destroy();
-    res.json({ status: true, msg: 'Package deleted' });
+    res.json({ status: true, msg: "Package deleted" });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.updatePackageStatus = async (req, res) => {
+  try {
+    const { package_id, status } = req.body;
+    if (!package_id || typeof status === "undefined") {
+      return res
+        .status(400)
+        .json({ status: false, msg: "package_id and status are required" });
+    }
+    if (![0, 1].includes(Number(status))) {
+      return res
+        .status(400)
+        .json({
+          status: false,
+          msg: "status must be 0 (inactive) or 1 (active)",
+        });
+    }
+    const pkg = await Package.findByPk(package_id);
+    if (!pkg) {
+      return res.status(404).json({ status: false, msg: "Package not found" });
+    }
+    pkg.status = status;
+    await pkg.save();
+    res.json({
+      status: true,
+      msg: `Package ${status == 1 ? "activated" : "inactivated"} successfully`,
+    });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
   }
@@ -658,19 +916,72 @@ exports.getExpiredVendors = async (req, res) => {
     // Find expired subscriptions
     const expiredSubs = await VendorPackageSubscription.findAll({
       where: {
-        end_date: { [require('sequelize').Op.lt]: today },
-        payment_status: 'completed',
+        end_date: { [require("sequelize").Op.lt]: today },
+        payment_status: "completed",
       },
-      include: [{ model: User, as: 'vendor', attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone'] }],
-      order: [['end_date', 'DESC']]
+      include: [
+        {
+          model: User,
+          as: "vendor",
+          attributes: ["id", "owner_name", "profile_name", "email", "phone"],
+        },
+      ],
+      order: [["end_date", "DESC"]],
     });
     // Map to vendor details
-    const expiredVendors = expiredSubs.map(sub => ({
+    const expiredVendors = expiredSubs.map((sub) => ({
       vendor_id: sub.vendor_id,
       end_date: sub.end_date,
-      ...((sub.vendor && sub.vendor.dataValues) || {})
+      ...((sub.vendor && sub.vendor.dataValues) || {}),
     }));
     res.json({ status: true, data: expiredVendors });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.extendVendorPackage = async (req, res) => {
+  try {
+    const { id, extra_days } = req.body;
+
+    if (!id || !extra_days) {
+      return res
+        .status(400)
+        .json({
+          status: false,
+          msg: "subscription_id and extra_days are required",
+        });
+    }
+
+    const sub = await VendorPackageSubscription.findByPk(id);
+
+    if (!sub) {
+      return res
+        .status(404)
+        .json({ status: false, msg: "Subscription not found" });
+    }
+
+    const endDate = new Date(sub.end_date);
+
+    endDate.setDate(endDate.getDate() + Number(extra_days));
+
+    sub.end_date = endDate;
+
+    await sub.save();
+    
+    await Log.create({
+        user_id: sub.vendor_id,
+        package_id: sub.package_id,
+        user_type: "admin",
+        action: "extend_package_validity",
+        details: extra_days
+      });
+
+    res.json({
+      status: true,
+      msg: "Subscription end_date extended successfully",
+      data: sub,
+    });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
   }
@@ -681,18 +992,24 @@ exports.getAllLeads = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-    
+
     const { count, rows: leads } = await ClientLead.findAndCountAll({
-      include: [{ model: User, as: 'vendor', attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone'] }],
-      order: [['createdAt', 'DESC']],
+      include: [
+        {
+          model: User,
+          as: "vendor",
+          attributes: ["id", "owner_name", "profile_name", "email", "phone"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
       limit,
-      offset
+      offset,
     });
-    
+
     const totalPages = Math.ceil(count / limit);
-    
-    res.json({ 
-      status: true, 
+
+    res.json({
+      status: true,
       data: leads,
       pagination: {
         current_page: page,
@@ -700,8 +1017,8 @@ exports.getAllLeads = async (req, res) => {
         total_records: count,
         limit,
         has_next: page < totalPages,
-        has_prev: page > 1
-      }
+        has_prev: page > 1,
+      },
     });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
@@ -713,13 +1030,17 @@ exports.getAllSponsoredVendorsWithCategories = async (req, res) => {
     const sponsored = await VendorCategoryRank.findAll({
       where: { is_sponsored: 1 },
       include: [
-        { model: User, as: 'vendor', attributes: ['id', 'owner_name', 'profile_name', 'email', 'phone'] },
-        { model: Category, as: 'category', attributes: ['id', 'name'] }
+        {
+          model: User,
+          as: "vendor",
+          attributes: ["id", "owner_name", "profile_name", "email", "phone"],
+        },
+        { model: Category, as: "category", attributes: ["id", "name"] },
       ],
       order: [
-        ['category_id', 'ASC'],
-        ['sponsor_rank', 'ASC']
-      ]
+        ["category_id", "ASC"],
+        ["sponsor_rank", "ASC"],
+      ],
     });
     res.json({ status: true, data: sponsored });
   } catch (error) {
@@ -733,9 +1054,9 @@ exports.getAllContactUs = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
     const { count, rows } = await ContactUs.findAndCountAll({
-      order: [['createdAt', 'DESC']],
+      order: [["createdAt", "DESC"]],
       limit,
-      offset
+      offset,
     });
     const totalPages = Math.ceil(count / limit);
     res.json({
@@ -747,8 +1068,8 @@ exports.getAllContactUs = async (req, res) => {
         total_records: count,
         limit,
         has_next: page < totalPages,
-        has_prev: page > 1
-      }
+        has_prev: page > 1,
+      },
     });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
@@ -758,28 +1079,55 @@ exports.getAllContactUs = async (req, res) => {
 // Dashboard counts for admin
 exports.getDashboardCounts = async (req, res) => {
   try {
-    const { Op } = require('sequelize');
+    const { Op } = require("sequelize");
     const now = new Date();
     const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+    const endOfPrevMonth = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      0,
+      23,
+      59,
+      59,
+      999
+    );
 
     // Total leads
     const totalLeads = await ClientLead.count();
     // Total vendors
     const totalVendors = await User.count({ where: { role_id: 2 } });
     // Pending vendors
-    const pendingVendors = await User.count({ where: { role_id: 2, status: 0 } });
+    const pendingVendors = await User.count({
+      where: { role_id: 2, approval_status: 0 },
+    });
+
+    const approveVendors = await User.count({
+      where: { role_id: 2, approval_status: 1 },
+    });
+
+    const activeVendors = await User.count({
+      where: { role_id: 2, status: 1 },
+    });
+
+        const inactiveVendors = await User.count({
+      where: { role_id: 2, status: 2 },
+    });
 
     // Current month counts
     const leadsCurrentMonth = await ClientLead.count({
-      where: { createdAt: { [Op.gte]: startOfCurrentMonth } }
+      where: { createdAt: { [Op.gte]: startOfCurrentMonth } },
     });
     const vendorsCurrentMonth = await User.count({
-      where: { role_id: 2, createdAt: { [Op.gte]: startOfCurrentMonth } }
+      where: { role_id: 2, createdAt: { [Op.gte]: startOfCurrentMonth } },
     });
+
     const pendingVendorsCurrentMonth = await User.count({
-      where: { role_id: 2, status: 0, createdAt: { [Op.gte]: startOfCurrentMonth } }
+      where: {
+        role_id: 2,
+        approval_status: 0,
+        createdAt: { [Op.gte]: startOfCurrentMonth },
+      },
     });
 
     // Previous month counts
@@ -787,30 +1135,86 @@ exports.getDashboardCounts = async (req, res) => {
       where: {
         createdAt: {
           [Op.gte]: startOfPrevMonth,
-          [Op.lt]: startOfCurrentMonth
-        }
-      }
+          [Op.lt]: startOfCurrentMonth,
+        },
+      },
     });
     const vendorsPrevMonth = await User.count({
       where: {
         role_id: 2,
         createdAt: {
           [Op.gte]: startOfPrevMonth,
-          [Op.lt]: startOfCurrentMonth
-        }
-      }
+          [Op.lt]: startOfCurrentMonth,
+        },
+      },
     });
     const pendingVendorsPrevMonth = await User.count({
       where: {
         role_id: 2,
-        status: 0,
+        approval_status: 0,
         createdAt: {
           [Op.gte]: startOfPrevMonth,
-          [Op.lt]: startOfCurrentMonth
-        }
-      }
+          [Op.lt]: startOfCurrentMonth,
+        },
+      },
+    });
+    
+    const approveVendorsCurrentMonth = await User.count({
+      where: {
+        role_id: 2,
+        approval_status: 1,
+        createdAt: { [Op.gte]: startOfCurrentMonth },
+      },
     });
 
+    const approveVendorsPrevMonth = await User.count({
+      where: {
+        role_id: 2,
+        approval_status: 1,
+        createdAt: {
+          [Op.gte]: startOfPrevMonth,
+          [Op.lt]: startOfCurrentMonth,
+        },
+      },
+    });
+
+    const activeVendorsCurrentMonth = await User.count({
+      where: {
+        role_id: 2,
+        status: 1,
+        createdAt: { [Op.gte]: startOfCurrentMonth },
+      },
+    });
+
+    const activeVendorsPrevMonth = await User.count({
+      where: {
+        role_id: 2,
+        status: 1,
+        createdAt: {
+          [Op.gte]: startOfPrevMonth,
+          [Op.lt]: startOfCurrentMonth,
+        },
+      },
+    });
+
+    const inactiveVendorsCurrentMonth = await User.count({
+      where: {
+        role_id: 2,
+        status: 2,
+        createdAt: { [Op.gte]: startOfCurrentMonth },
+      },
+    });
+
+    const inactiveVendorsPrevMonth = await User.count({
+      where: {
+        role_id: 2,
+        status: 2,
+        createdAt: {
+          [Op.gte]: startOfPrevMonth,
+          [Op.lt]: startOfCurrentMonth,
+        },
+      },
+    });
     // Percentage increase calculation helper
     function getPercentageIncrease(current, prev) {
       if (prev === 0) return current > 0 ? 100 : 0;
@@ -823,13 +1227,153 @@ exports.getDashboardCounts = async (req, res) => {
         total_leads: totalLeads,
         total_vendors: totalVendors,
         pending_vendors: pendingVendors,
-        leads_percentage_increase: getPercentageIncrease(leadsCurrentMonth, leadsPrevMonth),
-        vendors_percentage_increase: getPercentageIncrease(vendorsCurrentMonth, vendorsPrevMonth),
-        pending_vendors_percentage_increase: getPercentageIncrease(pendingVendorsCurrentMonth, pendingVendorsPrevMonth)
-      }
+        approve_vendors: approveVendors,
+        active_vendors: activeVendors,
+        inactive_vendors: inactiveVendors,
+        leads_percentage_increase: getPercentageIncrease(
+          leadsCurrentMonth,
+          leadsPrevMonth
+        ),
+        vendors_percentage_increase: getPercentageIncrease(
+          vendorsCurrentMonth,
+          vendorsPrevMonth
+        ),
+        pending_vendors_percentage_increase: getPercentageIncrease(
+          pendingVendorsCurrentMonth,
+          pendingVendorsPrevMonth
+        ),
+        approve_vendors_percentage_increase: getPercentageIncrease(
+          approveVendorsCurrentMonth,
+          approveVendorsPrevMonth
+        ),
+        active_vendors_percentage_increase: getPercentageIncrease(
+          activeVendorsCurrentMonth,
+          activeVendorsPrevMonth
+        ),
+        inactive_vendors_percentage_increase: getPercentageIncrease(
+          inactiveVendorsCurrentMonth,
+          inactiveVendorsPrevMonth
+        ),
+      },
     });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
   }
 };
 
+exports.getprofileRequestdata = async (req, res) => {
+  try {
+    const { request_id } = req.body;
+
+    if (!request_id){
+      return res.status(400).json({ status: false, msg: 'request_id is required' });
+    }
+
+    let lastLog = await Log.findOne({
+      where: { request_id },
+      order: [['id', 'DESC']], // Or use ['id', 'DESC'] if `created_at` doesn't exist
+    });
+
+    let details = lastLog?.details;
+
+    if (typeof details === 'string') {
+      try {
+        details = JSON.parse(details);
+      } catch (err) {
+        console.error('Error parsing details JSON:', err);
+      }
+    }
+
+    lastLog.details = details;
+
+    if (!lastLog) {
+      return res.status(404).json({ status: false, msg: 'No data found for this request_id' });
+    }
+
+    return res.json({
+      status: true,
+      data: lastLog,
+    });
+
+  } catch (error) {
+    return res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.packageextendhistory = async (req, res) => {
+  try {
+    const { vendor_id } = req.body;
+
+    if (!vendor_id) {
+      return res.status(400).json({ status: false, msg: "vendor_id is required" });
+    }
+
+    const history = await Log.findAll({
+      where: {
+        user_id: vendor_id,
+        action: "extend_package_validity",
+      },
+      include: [
+        { model: Package, as: "packagelog", attributes: ["id", "name"]
+        }  
+      ], 
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (history.length === 0) {
+      return res.json({ status: true, data: [], msg: "No history found" });
+    }
+
+    return res.json({ status: true, data: history });
+  } catch (error) {
+    return res.status(500).json({ status: false, msg: error.message });
+  }
+}
+
+exports.notifyExpiredPlans = async (req, res) => {
+  try {
+    const today = new Date();
+    const expiredSubs = await VendorPackageSubscription.findAll({
+      where: {
+        end_date: { [require('sequelize').Op.lt]: today },
+        payment_status: 'completed',
+      },
+      include: [
+        { model: User, as: 'vendor', attributes: ['id','owner_name','profile_name'] },
+        { model: Package, as: 'Package', attributes: ['id','name'] }
+      ]
+    });
+
+    for (const sub of expiredSubs) {
+      const vendorName = sub.vendor?.owner_name || sub.vendor?.profile_name || '';
+      // Emit sockets
+      socketManager.planExpired(sub.vendor_id, vendorName, { id: sub.id, end_date: sub.end_date, package_id: sub.package_id });
+      // Persist vendor notification
+      try {
+        await Notification.create({
+          user_id: sub.vendor_id,
+          user_type: 'vendor',
+          type: 'plan_expired',
+          title: 'Plan Expired',
+          message: 'Plan expired. Please renew to avoid interruption.',
+          metadata: { subscription_id: sub.id, end_date: sub.end_date }
+        });
+      } catch (e) { console.error('Failed to persist vendor plan expired notification:', e.message); }
+      // Persist admin notification
+      try {
+        await Notification.create({
+          user_id: null,
+          user_type: 'admin',
+          type: 'plan_expired',
+          title: 'Plan Expired',
+          message: `Vendor ${vendorName} subscription plan has expired.`,
+          metadata: { vendor_id: sub.vendor_id, subscription_id: sub.id }
+        });
+      } catch (e) { console.error('Failed to persist admin plan expired notification:', e.message); }
+    }
+
+    res.json({ status: true, msg: 'Expiry notifications processed', count: expiredSubs.length });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};

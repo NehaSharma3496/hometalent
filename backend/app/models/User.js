@@ -112,13 +112,24 @@ const User = sequelize.define('User', {
     status: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        defaultValue: 2, 
+        validate: {
+            isIn: [[0, 1, 2]], // Validates that the value is either 0 or 1
+        },
+        comment: '1 = active, 2 = inactive',
+    },
+
+    approval_status: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
         defaultValue: 0, // 0 = pending, 1 = approved, 2 = blocked
         validate: {
             isIn: [[0, 1, 2]], // Validates that the value is either 0 or 1
         },
-        comment: '0 = pending, 1 = approved, 2 = blocked',
+        comment: '0 = pending, 1 = approved, 2 = rejected',
     },
-        is_sponsored: {
+
+    is_sponsored: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0, // 1 = sponsored vendor, 0 = not sponsored
@@ -132,7 +143,17 @@ const User = sequelize.define('User', {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0, // 1 = sponsored vendor, 0 = not sponsored
-    },  
+    },
+    
+    password_reset_token: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    },
+
+   password_reset_expires: {
+   type: DataTypes.DATE,
+   allowNull: true,
+   },
 },
     {
         tableName: 'users',
@@ -148,6 +169,10 @@ User.associate = (models) => {
     User.belongsTo(models.City, { foreignKey: 'city_id' });
     User.hasMany(models.VendorCategoryRank, { foreignKey: 'vendor_id', as: 'categoryRanks' });
     User.hasMany(models.Gallery, { foreignKey: 'user_id', as: 'gallery' });
+    User.hasMany(models.VendorPackageSubscription, { foreignKey: 'vendor_id', as: 'subscriptions' });
+    User.hasMany(models.Log, { foreignKey: 'package_id', as: 'packagelog' });
+    User.hasMany(models.Log, { foreignKey: 'user_id', as: 'userlog' });
+
     // User.hasMany(models.Order, { foreignKey: 'user_id' });
     //User.belongsTo(models.Category, { foreignKey: 'category_id' });
     // User.hasMany(models.Product, { foreignKey: 'user_id' });

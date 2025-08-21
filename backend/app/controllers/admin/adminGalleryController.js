@@ -1,6 +1,7 @@
-const { User, Gallery } = require('../../models');
+const { User, Gallery, VendorPackageSubscription, Package, Notification } = require('../../models');
 const fs = require('fs');
 const path = require('path');
+const socketManager = require('../../socket/socketManager');
 
 // Upload admin gallery files (no approval needed)
 exports.uploadAdminGalleryFiles = async (req, res) => {
@@ -304,53 +305,81 @@ exports.getPendingGalleryRequests = async (req, res) => {
 // Process gallery request (approve/reject)
 exports.processGalleryRequest = async (req, res) => {
   try {
-    const { gallery_id, action, admin_id, remarks } = req.body;
-    
-    if (!gallery_id || !action || !admin_id) {
-      return res.status(400).json({ 
-        status: false, 
-        msg: 'gallery_id, action, and admin_id are required' 
+    const { gallery_ids, action, admin_id, remarks } = req.body;
+
+    // ✅ Validate inputs
+    if (!gallery_ids || !Array.isArray(gallery_ids) || gallery_ids.length === 0 || !action || !admin_id) {
+      return res.status(400).json({
+        status: false,
+        msg: 'gallery_ids (array), action, and admin_id are required'
       });
     }
 
     if (!['approve', 'reject'].includes(action)) {
-      return res.status(400).json({ 
-        status: false, 
-        msg: 'Action must be either "approve" or "reject"' 
+      return res.status(400).json({
+        status: false,
+        msg: 'Action must be either "approve" or "reject"'
       });
     }
 
-    const galleryItem = await Gallery.findByPk(gallery_id);
-    if (!galleryItem) {
-      return res.status(404).json({ 
-        status: false, 
-        msg: 'Gallery item not found' 
+    // ✅ Fetch gallery items by IDs
+    const galleryItems = await Gallery.findAll({
+      where: { id: gallery_ids }
+    });
+
+    if (!galleryItems.length) {
+      return res.status(404).json({
+        status: false,
+        msg: 'No matching gallery items found'
       });
     }
 
     const newStatus = action === 'approve' ? 'approved' : 'rejected';
-    
-    await galleryItem.update({
-      status: newStatus,
-      admin_remarks: remarks || null,
-      admin_id: admin_id,
-      processed_at: new Date()
-    });
 
-    res.json({ 
-      status: true, 
-      msg: `Gallery request ${action}d successfully`,
-      data: {
-        id: galleryItem.id,
-        status: newStatus,
-        processed_at: galleryItem.processed_at
-      }
+    // ✅ Update all matching gallery items
+    await Promise.all(
+      galleryItems.map(item =>
+        item.update({
+          status: newStatus,
+          admin_remarks: remarks || null,
+          admin_id,
+          processed_at: new Date()
+        })
+      )
+    );
+
+    // Notify vendor via socket and persist notification
+    try {
+      const vendorId = galleryItems[0].user_id;
+      const vendor = await User.findByPk(vendorId, { attributes: ['owner_name','profile_name'] });
+      const vendorName = vendor?.owner_name || vendor?.profile_name || 'Vendor';
+      socketManager.galleryRequestProcessed(vendorId, action, { items: gallery_ids });
+      await Notification.create({
+        user_id: vendorId,
+        user_type: 'vendor',
+        type: 'gallery_request_processed',
+        title: 'Gallery Request',
+        message: `Your Gallery update request has been ${action === 'approve' ? 'Approved' : 'Rejected'}.`,
+        metadata: { gallery_ids, remarks }
+      });
+    } catch (e) { console.error('Failed to notify/persist vendor notification for gallery process:', e.message); }
+
+    res.json({
+      status: true,
+      msg: `Gallery items ${action}d successfully`,
+      updated_count: galleryItems.length,
+      data: galleryItems.map(item => ({
+        id: item.id,
+        status: item.status,
+        processed_at: item.processed_at
+      }))
     });
 
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    res.status(500).json({ status: false, msg: error.message });
   }
 };
+
 
 // Get user complete profile with gallery
 exports.getUserCompleteProfile = async (req, res) => {
@@ -383,9 +412,79 @@ exports.getUserCompleteProfile = async (req, res) => {
       });
     }
 
+    const now = new Date();
+    const subscriptions = await VendorPackageSubscription.findAll({
+      where: { vendor_id: user_id, payment_status: 'completed' },
+      include: [
+        {
+          model: Package,
+          as: 'Package',
+          required: true
+        }
+      ],
+      order: [['end_date', 'DESC']]
+    });
+
+    const running_packages = [];
+    const expired_packages = [];
+    let subscribed_package = null;
+
+    subscriptions.forEach(sub => {
+      const isRunning = sub.start_date <= now && sub.end_date >= now;
+      const isExpired = sub.end_date < now;
+      const isUpcoming = sub.start_date > now;
+
+      if (isRunning) {
+        running_packages.push({
+          id: sub.id,
+          start_date: sub.start_date,
+          end_date: sub.end_date,
+          payment_status: sub.payment_status,
+          package: sub.Package
+        });
+
+        if (!subscribed_package) {
+          subscribed_package = {
+            id: sub.id,
+            start_date: sub.start_date,
+            end_date: sub.end_date,
+            payment_status: sub.payment_status,
+            package: sub.Package
+          };
+        }
+      } else if (isExpired) {
+        expired_packages.push({
+          id: sub.id,
+          start_date: sub.start_date,
+          end_date: sub.end_date,
+          payment_status: sub.payment_status,
+          package: sub.Package
+        });
+      }
+    });
+
+    // If no running package, get the next upcoming one for `subscribed_package`
+    if (!subscribed_package) {
+      const futureSub = subscriptions.find(sub => sub.start_date > now);
+      if (futureSub) {
+        subscribed_package = {
+          id: futureSub.id,
+          start_date: futureSub.start_date,
+          end_date: futureSub.end_date,
+          payment_status: futureSub.payment_status,
+          package: futureSub.Package
+        };
+      }
+    }
+
     res.json({ 
       status: true, 
-      data: user 
+      data: {
+        user,
+        subscribed_package,     // current running or next
+        running_packages,       // only currently running
+        expired_packages        // only expired
+      }
     });
 
   } catch (error) {

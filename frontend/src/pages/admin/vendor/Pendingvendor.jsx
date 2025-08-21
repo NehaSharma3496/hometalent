@@ -7,7 +7,7 @@ import {
 } from "../../../Services/admin/Admin";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 
 export default function PendingVendor() {
@@ -16,66 +16,200 @@ export default function PendingVendor() {
   const [categoryList, setCategoryList] = useState([]);
   const [categoryMap, setCategoryMap] = useState({});
   const navigate = useNavigate();
+  const [allPendingVendors, setAllPendingVendors] = useState([]);
 
-  const handleApproveVendor = async (vendorId) => {
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+
+  const handleApproveVendor = async (vendorId, status) => {
     try {
+      const isApprove = status === 1;
+
       const confirm = await Swal.fire({
-        title: "Approve Vendor?",
-        text: "Are you sure you want to approve this vendor?",
+        title: isApprove ? "Approve Vendor?" : "Reject Vendor?",
+        text: isApprove
+          ? "Are you sure you want to approve this vendor?"
+          : "Are you sure you want to reject this vendor?",
         icon: "question",
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, approve it!",
+        confirmButtonColor: isApprove ? "#3085d6" : "#d33",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: isApprove ? "Yes, approve!" : "Yes, reject!",
       });
 
       if (!confirm.isConfirmed) return;
 
       const token = localStorage.getItem("token");
-      const response = await GetApproveVendor(vendorId, token);
+      const response = await GetApproveVendor(vendorId, status, token);
 
       if (response.status === true || response.status === "true") {
         await Swal.fire(
-          "Approved!",
-          "Vendor approved successfully.",
+          "Success",
+          response.message ||
+            (isApprove ? "Vendor approved." : "Vendor rejected."),
           "success"
         );
         fetchPendingVendors();
       } else {
-        await Swal.fire("Failed!", "Failed to approve vendor.", "error");
+        await Swal.fire(
+          "Failed",
+          response.message || "Something went wrong!",
+          "error"
+        );
       }
     } catch (error) {
-      console.error("Error approving vendor:", error);
+      console.error("Error approving/rejecting vendor:", error);
       await Swal.fire("Error!", "Something went wrong.", "error");
     }
   };
 
-  const fetchPendingVendors = async () => {
+  const fetchPendingVendors = async (page, limit) => {
+    setLoading(true);
     try {
-      const response = await GetPendingVendoreList();
-      setPendingVendors(response.data);
-      console.log("Vendor list", response.data);
-    } catch (error) {
-      console.log("error");
+      const token = localStorage.getItem("token");
+      const res = await GetPendingVendoreList(token, page, limit);
+      if (res?.data && res?.pagination) {
+        setPendingVendors(res.data);
+        setTotalRows(res.pagination.total_records);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (err) {
+      console.error("Error fetching vendors:", err);
+      Swal.fire("Error", "Could not load vendor list", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(pendingvendors);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Pending Vendor");
+  const fetchAllPendingVendors = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      let fullList = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
 
-    XLSX.writeFile(workbook, "Pending vendor List.xlsx");
+      while (page <= totalPages) {
+        const res = await GetPendingVendoreList(token, page, limit);
+        if (res?.data && res?.pagination) {
+          fullList = [...fullList, ...res.data];
+          totalPages = Math.ceil(res.pagination.total_records / limit);
+        } else {
+          throw new Error("Invalid response format");
+        }
+        page++;
+      }
+
+      setAllPendingVendors(fullList);
+    } catch (err) {
+      console.error("Error fetching all pending vendors:", err);
+    }
   };
 
-  const filteredPendingVendors = pendingvendors.filter((vendor) =>
-    vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      let allVendors = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
+
+      // Fetch all paginated data
+      while (page <= totalPages) {
+        const res = await GetPendingVendoreList(token, page, limit);
+        if (res?.data && res?.pagination) {
+          allVendors = [...allVendors, ...res.data];
+          totalPages = Math.ceil(res.pagination.total_records / limit);
+        } else {
+          throw new Error("Invalid response format");
+        }
+        page++;
+      }
+
+      // Map to export format
+      const exportData = allVendors.map((row, index) => {
+        const categoryNames = row.category_id
+          ? row.category_id
+              .split(",")
+              .map((id) => categoryMap[id.trim()] || `ID-${id.trim()}`)
+              .join(", ")
+          : "—";
+
+        const statusText =
+          row.approval_status === 1
+            ? "Approved"
+            : row.approval_status === 2
+            ? "Rejected"
+            : "Pending";
+
+        return {
+          "S.No": index + 1,
+          "Owner Name": row.owner_name || "",
+          Email: row.email || "",
+          "Category Names": categoryNames,
+          "Profile Name": row.profile_name || "",
+          "Phone Number": row.phone || "",
+          "Price Range": row.price_range || "",
+          "Short Description": row.short_description || "",
+          Image: row.image ? "Available" : "N/A",
+          "Pin Code": row.pin_code || "",
+          "Experience Since": row.experience_since || "",
+          Status: statusText,
+        };
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Pending Vendors");
+      XLSX.writeFile(workbook, "Pending_Vendor_List.xlsx");
+    } catch (error) {
+      console.error("Export error:", error);
+      Swal.fire("Error", "Failed to export pending vendors", "error");
+    }
+  };
+
+  const filteredPendingVendors = searchText
+  ? allPendingVendors.filter((vendor) => {
+      const lowerSearch = searchText.toLowerCase();
+
+      const categoryNames = vendor.category_id
+        ? vendor.category_id
+            .split(",")
+            .map((id) => categoryMap[id.trim()]?.toLowerCase() || "")
+            .join(", ")
+        : "";
+
+      return (
+        vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
+        vendor.email?.toLowerCase().includes(lowerSearch) ||
+        vendor.phone?.toLowerCase().includes(lowerSearch) ||
+        vendor.price_range?.toLowerCase().includes(lowerSearch) ||
+        vendor.pin_code?.toLowerCase().includes(lowerSearch) ||
+        vendor.experience_since?.toLowerCase().includes(lowerSearch) ||
+        categoryNames.includes(lowerSearch)
+      );
+    })
+  : pendingvendors;
+
 
   useEffect(() => {
-    fetchPendingVendors();
+    fetchPendingVendors(currentPage, perPage);
+    fetchAllPendingVendors();
     fetchCategories();
-  }, []);
+  }, [currentPage, perPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
 
   const fetchCategories = async () => {
     try {
@@ -97,19 +231,20 @@ export default function PendingVendor() {
   const columns = [
     {
       name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: false,
-      width: "70px",
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
+      width: "50px",
     },
     {
       name: "Owner Name",
       selector: (row) => row.owner_name,
       sortable: true,
+      width: "100px",
     },
     {
       name: "Email",
       selector: (row) => row.email,
       sortable: true,
+      width: "180px",
     },
     {
       name: "Category Names",
@@ -120,12 +255,7 @@ export default function PendingVendor() {
         return names.join(", ");
       },
       sortable: true,
-    },
-
-    {
-      name: "Profile Name",
-      selector: (row) => row.profile_name,
-      sortable: true,
+      width: "150px",
     },
     {
       name: "Phone Number",
@@ -138,56 +268,84 @@ export default function PendingVendor() {
       sortable: true,
     },
     {
-      name: "Short Description",
-      selector: (row) => row.short_description,
-      sortable: true,
-    },
-
-    {
-      name: "Social Media",
-      cell: (row) =>
-        row.social_media_link ? (
-          <a
-            href={row.social_media_link}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <i className="fa-brands fa-instagram" />
-          </a>
-        ) : (
-          <span className="text-muted">Not Provided</span>
-        ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-
-    {
       name: "Pin Code",
       selector: (row) => row.pin_code,
       sortable: true,
     },
-
     {
       name: "Experience Since",
       selector: (row) => row.experience_since,
       sortable: true,
     },
-
     {
-      name: "Action",
-      cell: (row) => (
-        <div className="action-div">
-          <button
-            className="btn btn-sm btn-success d-flex align-items-center gap-1"
-            onClick={() => handleApproveVendor(row.id)}
-            title="Approve"
-          >
-            Approve
-          </button>
-        </div>
-      ),
+      name: "Status",
+      cell: (row) => {
+        const status = row.approval_status;
+
+        // Set button label and color
+        const getStatusLabel = () => {
+          if (status === 1) return "Approved";
+          if (status === 2) return "Rejected";
+          return "Pending";
+        };
+
+        const getButtonClass = () => {
+          if (status === 1) return "btn-success";
+          if (status === 2) return "btn-danger";
+          return "btn-warning dropdown-toggle"; // dropdown only for pending
+        };
+
+        return (
+          <div className="dropdown">
+            {status === 0 ? (
+              <>
+                <button
+                  className={`btn btn-sm ${getButtonClass()}`}
+                  type="button"
+                  id={`statusDropdown-${row.id}`}
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  {getStatusLabel()}
+                </button>
+                <ul
+                  className="dropdown-menu"
+                  aria-labelledby={`statusDropdown-${row.id}`}
+                >
+                  <li>
+                    <button
+                      className="dropdown-item text-success"
+                      onClick={() => handleApproveVendor(row.id, 1)}
+                    >
+                      ✅ Approve
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item text-danger"
+                      onClick={() => handleApproveVendor(row.id, 2)}
+                    >
+                      ❌ Reject
+                    </button>
+                  </li>
+                </ul>
+              </>
+            ) : (
+              <button
+                className={`btn btn-sm ${getButtonClass()}`}
+                type="button"
+                disabled
+                style={{ cursor: "default" }}
+                title={getStatusLabel()}
+              >
+                {getStatusLabel()}
+              </button>
+            )}
+          </div>
+        );
+      },
       sortable: false,
+      width: "180px",
     },
   ];
 
@@ -236,7 +394,13 @@ export default function PendingVendor() {
             <Datatable
               columns={columns}
               data={filteredPendingVendors}
+              progressPending={loading}
               pagination
+              paginationServer
+              paginationTotalRows={totalRows}
+              paginationPerPage={perPage}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
             />
           </div>
         </div>

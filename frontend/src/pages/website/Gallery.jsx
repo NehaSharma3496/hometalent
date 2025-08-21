@@ -28,7 +28,7 @@ const Gallery = () => {
       const response = await GetAdminGallery(token, userId);
       console.log("Gallery API response:", response.data);
 
-      const formatted = response.data.map((item, i) => ({
+      const formatted = response.data?.map((item, i) => ({
         src: item.file_path, // ✅ use correct field
         title: `Image ${i + 1}`, // dummy title
         description: "Beautiful gallery image", // dummy description
@@ -40,7 +40,6 @@ const Gallery = () => {
       console.error("Error fetching gallery:", error);
     }
   };
-
 
   useEffect(() => {
     fetchGallery();
@@ -58,34 +57,45 @@ const Gallery = () => {
       <section className="destination-section-two section-padding package-area">
         <div className="container">
           <div className="row g-4">
-            {gallery.map((slide, i) => (
-              <div key={i} className="col-xl-3 col-lg-4 col-sm-6">
-                <div className="package-card h-calc">
-                  <div
-                    className="package-img imgEffect4 thumbnail"
-                    onClick={() => {
-                      setIndex(i);
-                      setOpen(true);
-                    }}
-                  >
-                    <img
-                      src={slide.src}
-                      alt={`Gallery ${i + 1}`}
-                      style={{
-                        width: "100%",
-                        height: "400px",
-                        objectFit: "cover",
-                        cursor: "pointer",
+            {gallery?.length === 0 ? (
+              <div className="col-12 text-center">
+                <img
+                  src="/assets/images/NoGallery.jpg"
+                  alt="No Gallery"
+                  style={{
+                    width: "250px",
+                    height: "auto",
+                    marginBottom: "15px",
+                  }}
+                />
+                <p className="text-danger fs-5">No images found</p>
+              </div>
+            ) : (
+              gallery?.map((slide, i) => (
+                <div key={i} className="col-xl-3 col-lg-4 col-sm-6">
+                  <div className="package-card h-calc">
+                    <div
+                      className="package-img imgEffect4 thumbnail"
+                      onClick={() => {
+                        setIndex(i);
+                        setOpen(true);
                       }}
-                    />
-
-                    <div className="image-badge">
-                      <p className="pera">{slide.title}</p>
+                    >
+                      <img
+                        src={slide.src}
+                        alt={`Gallery ${i + 1}`}
+                        style={{
+                          width: "100%",
+                          height: "400px",
+                          objectFit: "cover",
+                          cursor: "pointer",
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -96,15 +106,7 @@ const Gallery = () => {
           close={() => setOpen(false)}
           index={index}
           slides={gallery}
-          plugins={[
-            Captions,
-            Fullscreen,
-            Slideshow,
-            Thumbnails,
-            Video,
-            Zoom,
-            Share,
-          ]}
+          plugins={[Fullscreen, Slideshow, Thumbnails, Video, Zoom, Share]}
           captions={{
             descriptionTextAlign: "center",
             descriptionMaxLines: 2,

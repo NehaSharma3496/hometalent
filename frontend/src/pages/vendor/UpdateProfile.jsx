@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReusableForm from "../../extracomponents/ReusableForm";
 import Swal from "sweetalert2";
-import * as Yup from "yup";
 import {
   GetCategories,
   GetCities,
@@ -20,20 +19,6 @@ export default function UpdateProfile() {
 
   const token = localStorage.getItem("token");
   const vendorId = localStorage.getItem("userId");
-
-  const validationSchema = Yup.object({
-    owner_name: Yup.string().required("Owner name is required"),
-    phone: Yup.string().required("Phone is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    state_id: Yup.string().required("State is required"),
-    city_id: Yup.string().required("City is required"),
-    pin_code: Yup.string().required("Pin Code is required"),
-    price_range: Yup.string().required("Price range is required"),
-    short_description: Yup.string().required("Short description is required"),
-    category_id: Yup.array().min(1, "Select at least one category"),
-    experience_since: Yup.string().required("Experience is required"),
-    long_description: Yup.string().required("Long description is required"),
-  });
 
   const fields = [
     {
@@ -79,8 +64,8 @@ export default function UpdateProfile() {
     },
     {
       name: "category_id",
-      label: "Categories",
-      type: "multiSelect",
+      label: "Category",
+      type: "select",
       options: categoryData,
       colClass: "col-md-4 mb-3",
     },
@@ -142,13 +127,37 @@ export default function UpdateProfile() {
   ];
 
   const onSubmit = async (values) => {
+    const cleanInitial = { ...initialValues };
+    const cleanCurrent = { ...values };
+    delete cleanInitial.image;
+    delete cleanCurrent.image;
+
+    const isSame = Object.keys(cleanInitial).every((key) => {
+      const initVal = cleanInitial[key];
+      const currVal = cleanCurrent[key];
+      if (Array.isArray(initVal)) {
+        return (
+          Array.isArray(currVal) &&
+          initVal.length === currVal.length &&
+          initVal.every((v, i) => v === currVal[i])
+        );
+      }
+      return initVal === currVal;
+    });
+
+    if (isSame && (!values.image || values.image.length === 0)) {
+      Swal.fire("No Changes", "No changes were made to the profile.", "info");
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append("vendor_id", vendorId);
+
       for (const key in values) {
         if (key === "category_id") {
-          formData.append(key, values[key].join(","));
-        } else if (key === "image" && values[key]) {
+          formData.append(key, values[key]);
+        } else if (key === "image" && values[key]?.length > 0) {
           formData.append("image", values[key][0]);
         } else {
           formData.append(key, values[key]);
@@ -156,22 +165,26 @@ export default function UpdateProfile() {
       }
 
       const res = await SubmitProfileUpdateRequest(formData);
-      if (res?.data?.status) {
-        Swal.fire(
-          "Success",
-          res.data.msg || "Profile update submitted!",
-          "success"
-        );
+
+      if (res?.status) {
+        Swal.fire("Success", res.msg || "Profile update submitted!", "success");
       } else {
-        Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+        Swal.fire("Error", res?.msg || "Something went wrong", "error");
       }
     } catch (err) {
-      console.error("API ERROR:", err);
-      Swal.fire(
-        "Error",
-        err?.response?.data?.msg || err.message || "Failed to submit",
-        "error"
-      );
+      console.error("Full error object:", err);
+
+      let errorMessage = "Failed to submit";
+
+      if (err?.response?.data?.msg) {
+        errorMessage = err.response.data.msg;
+      } else if (err?.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
+
+      Swal.fire("Error", errorMessage, "error");
     }
   };
 
@@ -184,7 +197,7 @@ export default function UpdateProfile() {
           GetVendorDetails(token, vendorId),
         ]);
 
-        const vendor = vendorRes.data;
+        const vendor = vendorRes.data.user;
 
         setCategoryData(
           cat.data.map((x) => ({ value: x.id.toString(), label: x.name }))
@@ -204,8 +217,7 @@ export default function UpdateProfile() {
           pin_code: vendor.pin_code || "",
           price_range: vendor.price_range || "",
           short_description: vendor.short_description || "",
-          category_id:
-            vendor.category_id?.split(",").map((id) => id.toString()) || [],
+          category_id: vendor.category_id?.toString() || "",
           experience_since: vendor.experience_since || "",
           long_description: vendor.long_description || "",
           facebook_link: vendor.facebook_link || "",
@@ -214,7 +226,6 @@ export default function UpdateProfile() {
           linkedin_link: vendor.linkedin_link || "",
           youtube_link: vendor.youtube_link || "",
           website_link: vendor.website_link || "",
-          image: null,
         });
       } catch (err) {
         console.log("Init fetch error", err);
@@ -249,6 +260,7 @@ export default function UpdateProfile() {
         </Link>
         <h2 className="add-page-heading mb-0">Request Profile Update</h2>
       </div>
+
       <div className="card">
         <div className="row align-items-center mb-3">
           <div className="col-md-6"></div>
@@ -258,7 +270,6 @@ export default function UpdateProfile() {
           <div className="col-md-12">
             <ReusableForm
               initialValues={initialValues}
-              validationSchema={validationSchema}
               onSubmit={onSubmit}
               fields={fields}
             />

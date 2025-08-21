@@ -1,48 +1,143 @@
 import React, { useEffect, useState } from "react";
 import { GetAllVendorLeads } from "../../../Services/vendor/Vendor";
 import { Link } from "react-router-dom";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
+import Swal from "sweetalert2";
 
 export default function AllLeads() {
-  const [leads, setAllLeads] = useState([]);
-  const [searchText, setSearchText] = useState(""); 
+  const [leads, setLeads] = useState([]);
+  const [searchText, setSearchText] = useState("");
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
+  const [allLeads, setAllLeads] = useState([]);
 
-  const fetchAllLeads = async () => {
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+
+  const fetchAllLeads = async (page, limit) => {
+    setLoading(true);
     try {
-      const response = await GetAllVendorLeads(token, userId);
-      setAllLeads(response?.data);
-    } catch (error) {
-      console.error("Error fetching leads:", error);
+      const res = await GetAllVendorLeads(token, userId, page, limit);
+      if (res?.data && res?.pagination) {
+        setLeads(res.data);
+        setTotalRows(res.pagination.total_records);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (err) {
+      console.error("Error fetching vendors:", err);
+      Swal.fire("Error", "Could not load vendor lead list", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(leads);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
+  const fetchGlobalLeads = async () => {
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
+    const userId = user?.id;
 
-    XLSX.writeFile(workbook, "vendor-leads.xlsx");
+    let fullList = [];
+    let page = 1;
+    const limit = 100;
+    let totalPages = 1;
+
+    while (page <= totalPages) {
+      const res = await GetAllVendorLeads(token, userId, page, limit);
+      if (res?.data && res?.pagination?.total_records) {
+        fullList = [...fullList, ...res.data];
+        totalPages = Math.ceil(res.pagination.total_records / limit);
+      } else {
+        break;
+      }
+      page++;
+    }
+
+    setAllLeads(fullList);
+  };
+
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const user = JSON.parse(localStorage.getItem("user"));
+      const userId = user?.id;
+
+      let allLeads = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
+
+      while (page <= totalPages) {
+        const res = await GetAllVendorLeads(token, userId, page, limit);
+        const { data, pagination } = res || {};
+        if (data?.length) allLeads = [...allLeads, ...data];
+
+        if (pagination) {
+          totalPages = Math.ceil(pagination.total_records / limit);
+        } else {
+          break; // Exit if pagination not available
+        }
+
+        page++;
+      }
+
+      const exportData = allLeads.map((lead, index) => ({
+        "S.No": index + 1,
+        "Client Name": lead.name || "",
+        "Client Phone": lead.phone || "",
+        "Client Email": lead.email || "",
+        "Client Query": lead.query || "",
+        Date: lead.createdAt
+          ? new Date(lead.createdAt).toLocaleDateString()
+          : "",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "All Leads");
+
+      XLSX.writeFile(workbook, "vendor-leads.xlsx");
+    } catch (err) {
+      console.error("Error exporting leads:", err);
+      Swal.fire("Error", "Failed to export all vendor leads", "error");
+    }
   };
 
   useEffect(() => {
     if (userId) {
-      fetchAllLeads();
+      fetchAllLeads(currentPage, perPage);
+      fetchGlobalLeads();
     }
-  }, [userId]);
+  }, [userId, currentPage, perPage]);
 
-  const filteredLeads = leads.filter((lead) =>
-    lead.name?.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
+
+  const filteredLeads = searchText
+    ? allLeads.filter((lead) => {
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          lead.name?.toLowerCase().includes(lowerSearch) ||
+          lead.email?.toLowerCase().includes(lowerSearch) ||
+          lead.phone?.toLowerCase().includes(lowerSearch)
+        );
+      })
+    : leads;
 
   const columns = [
     {
       name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: false,
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "70px",
     },
     {
@@ -65,6 +160,11 @@ export default function AllLeads() {
       selector: (row) => row.query,
       sortable: true,
     },
+    {
+      name: "Date",
+      selector: (row) => new Date(row.createdAt).toLocaleDateString(),
+      sortable: true,
+    },
   ];
 
   return (
@@ -72,7 +172,7 @@ export default function AllLeads() {
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/admin/dashboard">
+            <Link to="/vendor/dashboard">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
             <h2 className="add-page-heading">All Leads</h2>
@@ -112,7 +212,17 @@ export default function AllLeads() {
 
         <div className="row">
           <div className="col-md-12">
-            <Datatable columns={columns} data={filteredLeads} pagination />
+            <Datatable
+              columns={columns}
+              data={filteredLeads}
+              progressPending={loading}
+              pagination
+              paginationServer
+              paginationTotalRows={totalRows}
+              paginationPerPage={perPage}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
+            />
           </div>
         </div>
       </div>

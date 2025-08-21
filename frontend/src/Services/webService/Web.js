@@ -28,29 +28,10 @@ export async function GetStateCity(token) {
   }
 }
 
-export async function GetVendorsByCategory(token, categoryId, cityId) {
-  try {
-    const res = await axios.get(
-      `${Config.base_url}front/vendors-by-category/${categoryId}?city_id=${cityId}`,
-      {
-        headers: {
-          Authorization: `${token}`,
-        },
-      }
-    );
-    return res?.data;
-  } catch (err) {
-    return err;
-  }
-}
-
 export async function SubmitLead(data) {
   try {
-    const response = await axios.post(
-      `${Config.base_url}client/lead`,
-      data
-    );
-     console.log(response.body);
+    const response = await axios.post(`${Config.base_url}client/lead`, data);
+    console.log(response.body);
     console.log("Lead submitted successfully", response);
     return response;
   } catch (error) {
@@ -86,11 +67,15 @@ export async function SubmitContactData(data) {
   }
 }
 
-
-export async function GetVendorsByCategoryHeader(token, categoryId) {
+export async function GetVendorsByCategory(token, categoryId, cityId) {
   try {
+ 
+    const catId = categoryId || ''; 
+
+    const cityQuery = cityId ? `?city_id=${cityId}` : '';
+
     const res = await axios.get(
-      `${Config.base_url}front/vendors-by-category/${categoryId}`,
+      `${Config.base_url}front/vendors-by-category/${catId}${cityQuery}`,
       {
         headers: {
           Authorization: `${token}`,
@@ -100,5 +85,30 @@ export async function GetVendorsByCategoryHeader(token, categoryId) {
     return res?.data;
   } catch (err) {
     return err;
+  }
+}
+
+export async function SubmitReview(data) {
+  try {
+    const response = await axios.post(`${Config.base_url}review`, data);
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function GetAllApprovedReview(token) {
+  try {
+    const response = await axios.get(
+      `${Config.base_url}reviews/active-approved`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error;
   }
 }

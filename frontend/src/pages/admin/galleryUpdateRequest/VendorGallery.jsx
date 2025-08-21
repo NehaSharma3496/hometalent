@@ -10,8 +10,9 @@ export default function VendorGallery() {
   const { vendorId } = useParams();
   const [gallery, setGallery] = useState([]);
   const [activeTab, setActiveTab] = useState("images");
-  const [selectedIds, setSelectedIds] = useState([]);
+  const [selectedItems, setSelectedItems] = useState([]);
   const token = localStorage.getItem("token");
+  const [selectAll, setSelectAll] = useState(false);
 
   const fetchGallery = async () => {
     try {
@@ -26,213 +27,285 @@ export default function VendorGallery() {
         const all = res.data.gallery || [];
         const filtered = all.filter((g) => g.user?.id == vendorId);
         setGallery(filtered);
-        setSelectedIds([]); // reset selection
       }
     } catch (err) {
       console.error("Fetch vendor gallery error:", err);
     }
   };
 
-  const viewDetails = (item) => {
-    Swal.fire({
-      title: item.user?.owner_name || "Gallery Request Details",
-      html: `
-        <p><b>File Name:</b> ${item.file_name}</p>
-        <p><b>Type:</b> ${item.file_type}</p>
-        <p><b>Size:</b> ${(item.file_size / 1024).toFixed(2)} KB</p>
-        <p><b>Status:</b> ${item.status}</p>
-        <hr/>
-        <p><b>Uploaded By:</b> ${item.user?.owner_name || "N/A"}</p>
-        <p><b>Created At:</b> ${new Date(item.createdAt).toLocaleString()}</p>
-      `,
-      imageUrl: item.file_type.startsWith("image") ? item.file_path : undefined,
-      imageWidth: 300,
-      imageAlt: "Gallery Image",
+  const toggleSelect = (id) => {
+    setSelectedItems((prev) => {
+      const updated = prev.includes(id)
+        ? prev.filter((item) => item !== id)
+        : [...prev, id];
+
+      const pendingIds = filteredGallery
+        .filter((item) => item.status === "pending")
+        .map((item) => item.id);
+
+      if (updated.length !== pendingIds.length) {
+        setSelectAll(false);
+      } else {
+        setSelectAll(true);
+      }
+
+      return updated;
     });
   };
 
-  const processRequest = async (action, id) => {
+  const handleSelectAll = () => {
+    const pendingItems = filteredGallery
+      .filter((item) => item.status === "pending")
+      .map((item) => item.id);
+
+    if (selectAll) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(pendingItems);
+    }
+
+    setSelectAll(!selectAll);
+  };
+
+  const handleSingleAction = async (action, id) => {
+    let idsToProcess = [];
+
+    if (selectedItems.includes(id)) {
+      idsToProcess = gallery
+        .filter(
+          (item) => selectedItems.includes(item.id) && item.status === "pending"
+        )
+        .map((item) => item.id);
+    } else {
+      const item = gallery.find((g) => g.id === id);
+      if (!item || item.status !== "pending") return;
+      idsToProcess = [id];
+    }
+
+    if (idsToProcess.length === 0) {
+      Swal.fire("Info", `No  image(s) to ${action}.`, "info");
+      return;
+    }
+
+    const confirm = await Swal.fire({
+      title: `Are you sure you want to ${action} ${idsToProcess.length} image(s)?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: `Yes, ${action}`,
+    });
+
+    if (!confirm.isConfirmed) return;
+
     const res = await ProcessGalleryUpdateRequests(
-      id,
+      idsToProcess,
       action,
       `${action}d by admin`,
       1,
       token
     );
-    return res;
+
+    if (res?.status) {
+      Swal.fire("Success", `Image(s) ${action}d successfully.`, "success");
+      setSelectedItems([]);
+      fetchGallery();
+    } else {
+      Swal.fire("Failed", res?.message || "Action failed", "error");
+    }
   };
 
   const handleBulkAction = async (action) => {
-    if (selectedIds.length === 0) {
-      return Swal.fire("No Selection", "Please select items first.", "info");
+    const selectedValidItems = gallery.filter(
+      (item) => selectedItems.includes(item.id) && item.status === "pending"
+    );
+
+    if (selectedValidItems.length === 0) {
+      Swal.fire("Info", `No valid items to ${action}.`, "info");
+      return;
     }
 
-    Swal.fire({
-      title: `Are you sure you want to ${action} selected items?`,
+    const confirm = await Swal.fire({
+      title: `Are you sure you want to ${action} selected image(s)?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: `Yes, ${action}`,
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        let successCount = 0;
-
-        for (const id of selectedIds) {
-          const res = await processRequest(action, id);
-          if (res?.status) successCount++;
-        }
-
-        Swal.fire(
-          "Done",
-          `${successCount} item(s) ${action}d successfully.`,
-          "success"
-        );
-        fetchGallery();
-      }
     });
-  };
 
-  const toggleCheckbox = (id) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    if (!confirm.isConfirmed) return;
+
+    const res = await ProcessGalleryUpdateRequests(
+      selectedValidItems.map((i) => i.id),
+      action,
+      `${action}d by admin`,
+      1,
+      token
     );
+
+    if (res?.status) {
+      Swal.fire("Success", `Image(s) ${action}d successfully.`, "success");
+      setSelectedItems([]);
+      fetchGallery();
+    } else {
+      Swal.fire("Failed", res?.message || "Action failed", "error");
+    }
   };
 
   useEffect(() => {
     fetchGallery();
   }, [vendorId]);
 
-  const images = gallery.filter((item) => item.file_type.startsWith("image"));
-  const videos = gallery.filter((item) => item.file_type.startsWith("video"));
-
-  const renderGalleryCard = (item) => (
-    <div className="col-md-4 mb-4" key={item.id}>
-      <div className="card h-100 shadow-sm position-relative">
-        {item.file_type.startsWith("image") ? (
-          <img
-            src={item.file_path}
-            className="card-img-top"
-            alt={item.file_name}
-            style={{ height: "200px", objectFit: "cover" }}
-          />
-        ) : (
-          <video
-            controls
-            src={item.file_path}
-            className="card-img-top"
-            style={{ height: "200px", objectFit: "cover" }}
-          />
-        )}
-
-        <div className="card-body">
-          <h5 className="card-title d-flex justify-content-between align-items-center">
-            {item.file_name}
-            {item.status === "pending" && (
-              <input
-                type="checkbox"
-                checked={selectedIds.includes(item.id)}
-                onChange={() => toggleCheckbox(item.id)}
-              />
-            )}
-          </h5>
-          <p className="card-text mb-1">
-            <strong>Status:</strong> {item.status}
-          </p>
-          <p className="card-text">
-            <strong>Date:</strong>{" "}
-            {new Date(item.createdAt).toLocaleDateString()}
-          </p>
-          <div className="d-flex justify-content-between">
-            <button
-              className="btn btn-sm btn-info"
-              onClick={() => viewDetails(item)}
-            >
-              View
-            </button>
-            {item.status === "pending" && (
-              <>
-                <button
-                  className="btn btn-sm btn-success"
-                  onClick={() => handleBulkAction("approve", [item.id])}
-                >
-                  Approve
-                </button>
-                <button
-                  className="btn btn-sm btn-danger"
-                  onClick={() => handleBulkAction("reject", [item.id])}
-                >
-                  Reject
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const filteredGallery = gallery
+    .filter((item) =>
+      activeTab === "images"
+        ? item.file_type.startsWith("image")
+        : item.file_type.startsWith("video")
+    )
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   return (
     <div className="page-content">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="add-page-heading">Vendor Gallery (ID: {vendorId})</h2>
-        <Link to="/admin/vendor/allvendors" className="btn btn-secondary btn-sm">
-          <i className="fa fa-arrow-left"></i> Back to Vendors
-        </Link>
+      <div className="row align-items-center mb-3">
+        <div className="col-md-6 mb-4">
+          <div className="add-page-heading-div">
+            <Link to="/admin/vendor/allvendors" className="me-2">
+              <i className="fa fa-arrow-left"></i>
+            </Link>
+            <h5 className="add-page-heading mb-0">Vendor Gallery</h5>
+          </div>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <ul className="nav nav-tabs mb-3">
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === "images" ? "active" : ""}`}
-            onClick={() => setActiveTab("images")}
-          >
-            Images
-          </button>
-        </li>
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === "videos" ? "active" : ""}`}
-            onClick={() => setActiveTab("videos")}
-          >
-            Videos
-          </button>
-        </li>
-      </ul>
+      <div className="card shadow-sm border-0 mb-3 p-3">
+        <ul className="nav nav-tabs">
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "images" ? "active" : ""}`}
+              onClick={() => setActiveTab("images")}
+            >
+              Images
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "videos" ? "active" : ""}`}
+              onClick={() => setActiveTab("videos")}
+            >
+              Videos
+            </button>
+          </li>
+        </ul>
+      </div>
 
-      {/* Bulk Action Buttons */}
-      {selectedIds.length > 0 && (
+      <div className="form-check mb-3">
+        <input
+          type="checkbox"
+          id="selectAll"
+          className="form-check-input"
+          checked={selectAll}
+          onChange={handleSelectAll}
+        />
+        <label htmlFor="selectAll" className="form-check-label">
+          Select All Pending
+        </label>
+      </div>
+
+      {selectedItems.length > 0 && (
         <div className="mb-3 d-flex gap-2">
           <button
-            className="btn btn-success btn-sm"
+            className="btn btn-success"
             onClick={() => handleBulkAction("approve")}
           >
-            Approve Selected
+            Approve
           </button>
           <button
-            className="btn btn-danger btn-sm"
+            className="btn btn-danger"
             onClick={() => handleBulkAction("reject")}
           >
-            Reject Selected
+            Reject
           </button>
         </div>
       )}
 
-      {/* Gallery content */}
-      <div className="row">
-        {activeTab === "images" && images.length === 0 && (
-          <div className="col-12 text-center">No images found.</div>
-        )}
-        {activeTab === "videos" && videos.length === 0 && (
-          <div className="col-12 text-center">No videos found.</div>
-        )}
+      <div className="card shadow-sm p-3 border-0 bg-light">
+        {filteredGallery.length === 0 ? (
+          <p className="text-muted text-center my-4">No {activeTab} found.</p>
+        ) : (
+          <div className="row">
+            {filteredGallery.map((item) => (
+              <div className="col-xl-4 col-md-4 col-sm-6 mb-4" key={item.id}>
+                <div className="card shadow-sm border-0 rounded-4 h-100">
+                  {item.file_type.startsWith("image") ? (
+                    <img
+                      src={item.file_path}
+                      alt="Gallery"
+                      className="card-img-top rounded-top-4"
+                      style={{ height: "250px", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <video
+                      controls
+                      className="card-img-top rounded-top-4"
+                      style={{ height: "250px", objectFit: "cover" }}
+                    >
+                      <source src={item.file_path} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  )}
 
-        {activeTab === "images" &&
-          images.map((item) => renderGalleryCard(item))}
+                  <div className="card-body text-center py-3 mt-3">
+                    <p className="text-muted small mb-2">
+                      {new Date(item.createdAt).toLocaleDateString("en-IN", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
 
-        {activeTab === "videos" &&
-          videos.map((item) => renderGalleryCard(item))}
+                    {item.status === "pending" && (
+                      <>
+                        <div className="form-check d-flex justify-content-center mb-2">
+                          <input
+                            type="checkbox"
+                            style={{ transform: "scale(1.3)" }}
+                            checked={selectedItems.includes(item.id)}
+                            onChange={() => toggleSelect(item.id)}
+                          />
+                        </div>
+
+                        <div className="d-flex justify-content-center gap-2 flex-wrap">
+                          <button
+                            className="btn btn-success btn-sm "
+                            onClick={() =>
+                              handleSingleAction("approve", item.id)
+                            }
+                          >
+                            Approve
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() =>
+                              handleSingleAction("reject", item.id)
+                            }
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </>
+                    )}
+
+                    {item.status === "approved" && (
+                      <span className="badge bg-success fs-6">Approved</span>
+                    )}
+
+                    {item.status === "rejected" && (
+                      <span className="badge bg-danger fs-6">Rejected</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 }
- 

@@ -1,78 +1,141 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from 'react-router-dom';
-
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import MenuItems from "../admincomponents/MenuItems.jsx";
+import { GetVendorDetails } from "../../Services/vendor/Vendor.js";
+import io from "socket.io-client";
+import * as Config from "../../Utils/config.js";
 
 export default function AdminHeader() {
   const role = localStorage.getItem("role");
   const MenuData = MenuItems[role] || [];
+  const navigate = useNavigate();
+  const vendorId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
 
+  const [profileImage, setProfileImage] = useState(null);
   const [sidebarToggled, setSidebarToggled] = useState(false);
-
-  const [showDropdown, setShowDropdown] = useState(false);
-
   const [isOpen, setIsOpen] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
 
-  const notifications = [
-    {
-      id: 1,
-      title: "New booking request",
-      message: "John Doe requested Canvas Painting service",
-      time: "2 minutes ago",
-      type: "booking",
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const socketRef = useRef(null);
+
+  const userId = localStorage.getItem("userId");
+  const userType = localStorage.getItem("role") === "1" ? "admin" : "vendor";
+
+  useEffect(() => {
+    if (socketRef.current) return;
+
+    const socket = io(`${Config.base_url}`, {
+      query: { userId, userType },
+    });
+    socketRef.current = socket;
+
+    socket.on("connect", () => {
+      console.log("AdminHeader socket connected:", socket.id);
+      if (userType == "admin") {
+        socket.emit("admin-connect", userId);
+      } else if (userType == "vendor") {
+        socket.emit("vendor-connect", userId);
+      } else {
+        socket.emit("client-connect", userId);
+      }
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.log("AdminHeader socket disconnected:", reason);
+    });
+
+    // const onNotification = (data) => {
+    //   console.log("AdminHeader received notification:", data);
+
+    //   setNotifications((prev) => {
+    //     const next = [data, ...prev];
+    //     return next;
+    //   });
+
+    //   setUnreadCount((prev) => prev + 1);
+    // };
+
+    socket.on("notification", onNotification);
+
+    return () => {
+      try {
+        socket.off("notification", onNotification);
+        socket.off("connect");
+        socket.off("disconnect");
+        socket.disconnect();
+      } catch (e) {}
+      socketRef.current = null;
+    };
+  }, []);
+
+  // --- Load from localStorage on first render ---
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("notifications")) || [];
+      console.log("📥 Loaded from localStorage:", saved);
+      setNotifications(saved);
+      setUnreadCount(saved.length);
+    } catch (e) {
+      console.error("Error reading notifications:", e);
+      localStorage.removeItem("notifications");
+    }
+  }, []);
+
+  const onNotification = (data) => {
+    const newNotification = {
+      id: Date.now(),
+      type: data.type || "",
+      message: data.data?.message || data.message || "Notification",
+      lead: data.data?.lead || {},
+      vendor_id: data.data?.vendor_id || null,
+      timestamp: data.timestamp || new Date().toISOString(),
       isRead: false,
+    };
+
+    setNotifications((prev) => {
+      let next = [newNotification, ...prev];
+      if (next.length > 10) next = next.slice(0, 10);
+
+      localStorage.setItem("notifications", JSON.stringify(next));
+      return next;
+    });
+
+    setUnreadCount((prev) => prev + 1);
+  };
+
+  useEffect(() => {
+    console.log("Notifications (state):", notifications);
+  }, [notifications]);
+
+  useEffect(() => {
+    console.log("Unread Count (state):", unreadCount);
+  }, [unreadCount]);
+
+  console.log("Notifications out:", notifications);
+  console.log("Unread Count out:", unreadCount);
+
+  const handleViewAll = () => {
+    setUnreadCount(0);
+    navigate("/vendor/Viewallnotification");
+  };
+
+  const RoleConfig = {
+    1: {
+      changePassword: "/admin/forgotpassword/changepassword",
+      defaultImage: "/assets/images/admin/user-img.png",
     },
-    {
-      id: 2,
-      title: "Payment received",
-      message: "Payment of ₹2500 received for Mehandi Art",
-      time: "1 hour ago",
-      type: "payment",
-      isRead: true,
+    2: {
+      profileLink: "/vendor/myprofile",
+      changePassword: "/admin/forgotpassword/changepassword",
+      defaultImage: "/assets/images/admin/user-img.png",
     },
-    {
-      id: 3,
-      title: "New review",
-      message: "You received a 5-star review for Fabric Painting",
-      time: "3 hours ago",
-      type: "review",
-      isRead: true,
-    },
-    {
-      id: 4,
-      title: "Service reminder",
-      message: "You have a Catering booking tomorrow at 3 PM",
-      time: "1 day ago",
-      type: "reminder",
-      isRead: true,
-    },
-    {
-      id: 5,
-      title: "Profile update",
-      message: "Your profile has been successfully updated",
-      time: "2 days ago",
-      type: "profile",
-      isRead: true,
-    },
-    {
-      id: 6,
-      title: "Profile update",
-      message: "Your profile has been successfully updated",
-      time: "3 days ago",
-      type: "profile",
-      isRead: false,
-    },
-    {
-      id: 7,
-      title: "Payment received",
-      message: "Payment of ₹5500 received for Mehandi Art",
-      time: "4 days ago",
-      type: "payment",
-      isRead: false,
-    },
-  ];
+  };
+
+  const currentRole = RoleConfig[role] || RoleConfig[1];
 
   useEffect(() => {
     if (window.innerWidth < 1200) {
@@ -80,7 +143,6 @@ export default function AdminHeader() {
     }
   }, []);
 
-  // Apply/remove body class based on state
   useEffect(() => {
     if (sidebarToggled) {
       document.body.classList.add("sidebar-toggle");
@@ -94,16 +156,46 @@ export default function AdminHeader() {
   };
 
   const Logout = async () => {
+    const confirm = await Swal.fire({
+      title: "Are you sure you want to logout?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Yes, logout",
+    });
+
+    if (!confirm.isConfirmed) return;
+
     localStorage.clear();
+
+    await Swal.fire(
+      "Logged out",
+      "You have been successfully logged out.",
+      "success"
+    );
+
+    navigate("/");
   };
-  const navigate = useNavigate();
 
-  const handleViewAll = () => {
-    setIsOpen(false);
-    navigate('/vendor/Viewallnotification');
+  useEffect(() => {
+    const fetchVendorProfileImage = async () => {
+      try {
+        const result = await GetVendorDetails(token, vendorId);
+        const imageUrl = result?.data?.user?.image;
 
+        if (imageUrl) {
+          setProfileImage(imageUrl);
+        }
+      } catch (error) {
+        console.error("Error fetching vendor profile image:", error);
+      }
+    };
 
-  };
+    if (role === "2") {
+      fetchVendorProfileImage();
+    }
+  }, [role, token, vendorId]);
 
   return (
     <>
@@ -113,7 +205,7 @@ export default function AdminHeader() {
             <div className="col-9">
               <div className="left-header">
                 <div className="logo-div me-5">
-                  <Link to="/">
+                  <Link to="#">
                     <img
                       src="/assets/images/logo/logo.png"
                       style={{ width: "100px" }}
@@ -125,7 +217,6 @@ export default function AdminHeader() {
                   onClick={handleToggle}
                 >
                   <i className="fa-solid fa-angle-left"></i>
-                  {/* <i class="fa-solid fa-bars"></i> */}
                 </span>
               </div>
             </div>
@@ -139,6 +230,14 @@ export default function AdminHeader() {
                       style={{ background: "none", border: "none" }}
                     >
                       <i className="fa-solid fa-bell text-primary fs-5"></i>
+                      {unreadCount > 0 && (
+                        <span
+                          className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                          style={{ fontSize: "0.7rem" }}
+                        >
+                          {unreadCount}
+                        </span>
+                      )}
                     </button>
                   </div>
 
@@ -163,7 +262,8 @@ export default function AdminHeader() {
                       >
                         <div className="d-flex justify-content-between align-items-center p-3 border-bottom bg-white shadow-sm rounded-top">
                           <h6 className="mb-0 fw-semibold fs-5 text-primary d-flex align-items-center">
-                          Notifications
+                            <i className="bi bi-bell-fill me-2 text-warning"></i>{" "}
+                            Notifications
                           </h6>
                           <button
                             className="btn btn-sm btn-outline-primary rounded-pill px-3"
@@ -173,58 +273,75 @@ export default function AdminHeader() {
                           </button>
                         </div>
 
-                        <div className="overflow-auto bg-light" style={{ maxHeight: "400px" }}>
-                          {notifications.map((notification) => (
-                            <div
-                              key={notification.id}
-                              className={`p-3 border-bottom rounded-2 mb-2 mx-2 shadow-sm notification-item hover-effect
-                                 ${notification.isRead ? 'bg-white' : 'bg-primary-subtle border-start border-3 border-primary'}`}
-                              style={{ cursor: "pointer", transition: "0.3s" }}
-                            >
-                              <h6 className={`mb-1 fw-bold d-flex align-items-center ${notification.isRead ? 'text-light' : 'text-primary'}`}>
-                               
-                                {notification.title}
-                              </h6>
-                              <p className="mb-1 text-muted small">{notification.message}</p>
-                              <div className="text-end">
-                                <small className="text-muted fst-italic">{notification.time}</small>
-                              </div>
-                            </div>
-                          ))}
+                        <div
+                          className="overflow-auto bg-light"
+                          style={{ maxHeight: "400px" }}
+                        >
+{notifications.length === 0 ? (
+  <p className="text-center text-muted p-3">
+    No notifications
+  </p>
+) : (
+  notifications.map((notification, idx) => (
+    <div
+      key={notification.id || idx}
+      className={`p-3 border-bottom rounded-2 mb-2 mx-2 shadow-sm notification-item hover-effect ${
+        notification.isRead
+          ? "bg-white"
+          : "bg-primary-subtle border-start border-3 border-primary"
+      }`}
+      style={{
+        cursor: "pointer",
+        transition: "0.3s",
+      }}
+    >
+      {/* --- Title/Message --- */}
+      <h6
+        className={`mb-1 fw-bold d-flex align-items-center ${
+          notification.isRead ? "text-secondary" : "text-primary"
+        }`}
+      >
+        <i className="bi bi-info-circle-fill me-2"></i>
+        {notification.message || "Notification"}
+      </h6>
+
+      {/* --- Date --- */}
+      <div className="text-end">
+        <small className="text-muted fst-italic">
+          {new Date(notification.timestamp).toLocaleString()}
+        </small>
+      </div>
+    </div>
+  ))
+)}
+
                         </div>
-
-
 
                         <div className="p-3 bg-white text-left rounded-bottom shadow-sm border-top">
                           <button
                             className="btn btn-sm px-8 py-4 rounded fw-semibold text-white"
                             style={{
-                              background: 'rgba(16, 64, 168, 0.64)',
-                              transition: 'all 0.3s ease-in-out',
-                              boxShadow: '0 4px 10px rgba(40, 48, 202, 0.3)',
+                              background:
+                                "linear-gradient(135deg, #4e54c8, #8f94fb)",
+                              transition: "all 0.3s ease-in-out",
+                              boxShadow: "0 4px 10px rgba(78, 84, 200, 0.3)",
                             }}
-                            onMouseEnter={(e) => (e.target.style.transform = 'scale(1.05)')}
-                            onMouseLeave={(e) => (e.target.style.transform = 'scale(1)')}
-                            onClick={() => {
-                              setIsOpen(false);                         
-                              navigate('/vendor/Viewallnotification');   
+                            onMouseEnter={(e) => {
+                              e.target.style.transform = "scale(1.05)";
                             }}
+                            onMouseLeave={(e) => {
+                              e.target.style.transform = "scale(1)";
+                            }}
+                            onClick={handleViewAll}
                           >
                             View All Notifications
                           </button>
 
 
                         </div>
-
                       </div>
                     </>
                   )}
-                </div>
-
-                <div>
-                  <Link to="#" className="setting-link">
-                    <i className="fa-solid fa-gear text-primary "></i>
-                  </Link>
                 </div>
 
                 <div>
@@ -238,27 +355,47 @@ export default function AdminHeader() {
                       aria-expanded="false"
                     >
                       <img
-                        src="/assets/images/admin/user-img.png"
+                        src={
+                          role === "2" && profileImage
+                            ? profileImage
+                            : currentRole.defaultImage
+                        }
                         className="user-img"
+                        alt="Profile"
                       />
                       <i className="fa-solid fa-angle-down"></i>
                     </Link>
 
-                   <ul className="dropdown-menu" aria-labelledby="profile-dropdown">
-  {role === "2" && (
-    <li>
-      <Link className="dropdown-item" to="/vendor/myprofile">
-        <i className="fa-light fa-user"></i> My Profile
-      </Link>
-    </li>
-  )}
-  <li>
-    <Link className="dropdown-item" onClick={Logout} to="/">
-      <i className="fa-regular fa-arrow-right-from-bracket"></i> Logout
-    </Link>
-  </li>
-</ul>
+                    <ul
+                      className="dropdown-menu"
+                      aria-labelledby="profile-dropdown"
+                    >
+                      {role == "2" && (
+                        <li>
+                          <Link
+                            className="dropdown-item"
+                            to={currentRole.profileLink}
+                          >
+                            <i className="fa-light fa-user"></i> My Profile
+                          </Link>
+                        </li>
+                      )}
 
+                      <li>
+                        <Link
+                          className="dropdown-item"
+                          to={currentRole.changePassword}
+                        >
+                          <i className="fa-light fa-user"></i> Change Password
+                        </Link>
+                      </li>
+                      <li>
+                        <button className="dropdown-item" onClick={Logout}>
+                          <i className="fa-regular fa-arrow-right-from-bracket"></i>
+                          Log Out
+                        </button>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
@@ -269,7 +406,7 @@ export default function AdminHeader() {
 
       <aside id="sidebar">
         <ul className="sidebar-nav">
-          {(MenuData || []).map((item, idx) => (
+          {MenuData.map((item, idx) => (
             <li
               key={idx}
               className={`nav-item ${item.children ? "menu-dropdown" : ""}`}

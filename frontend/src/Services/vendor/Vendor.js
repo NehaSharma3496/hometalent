@@ -161,21 +161,27 @@ export async function GetVendorDetails(token, id) {
 }
 
 export async function SubmitProfileUpdateRequest(data) {
-  try {
-    const response = await axios.post(
-      `${Config.base_url}vendor/profile-update-request`,
-      data
-    );
-    return response;
-  } catch (error) {
-    throw error?.response?.data || error;
-  }
+  const token = localStorage.getItem("token");
+
+  const response = await axios.post(
+    `${Config.base_url}vendor/profile-update-request`,
+    data,
+    {
+      headers: {
+        Authorization: `${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return response.data; 
 }
 
-export async function GetAllVendorLeads(token, id) {
+
+export async function GetAllVendorLeads(token, id, page = 1, limit = 10) {
   try {
     const response = await axios.get(
-      `${Config.base_url}vendor/my-leads?vendor_id=${id}&page=1&limit=10`,
+      `${Config.base_url}vendor/my-leads?vendor_id=${id}&page=${page}&limit=${limit}`,
       {
         headers: {
           Authorization: `${token}`,
@@ -222,17 +228,16 @@ export async function GetAdminGallery(token, userId) {
   }
 }
 
-export async function RemoveGalleryItem(token, id) {
+export async function RemoveGalleryItem(token, gallery_ids) {
   try {
-    let userId = localStorage.getItem("userId");
-    const response = await axios.delete(
-      `${Config.base_url}gallery/remove/${id}`,
+    const response = await axios.post(
+      `${Config.base_url}gallery/remove`,
+      {
+        gallery_ids,
+      },
       {
         headers: {
           Authorization: `${token}`,
-        },
-        data: {
-          user_id: userId,
         },
       }
     );
@@ -270,23 +275,22 @@ export async function UpdateGalleryOrder(token, items) {
   }
 }
 
-export const getVendorPackages = async (token) => {
+export async function getVendorPackages(token, page = 1, limit = 10) {
   try {
     const response = await axios.get(
-      `${Config.base_url}vendor/packages?page=1&limit=100`,
+      `${Config.base_url}vendor/packages?page=${page}&limit=${limit}`,
       {
         headers: {
           Authorization: `${token}`,
-          "Content-Type": "application/json",
         },
       }
     );
     return response?.data;
   } catch (error) {
     console.error("Error fetching vendor packages:", error);
-    throw error;
+    return error;
   }
-};
+}
 
 // Suscribe plan vendor
 
@@ -306,10 +310,49 @@ export const subscribeToPackage = async (payload, token) => {
     return res?.data;
   } catch (err) {
     console.error("Error subscribing to package", err);
-    throw err;
+    return err;
   }
 };
 
-// GET ALL package VENDOR
+export const getVendorPackageHistory = async (
+  token,
+  vendorId,
+  page = 1,
+  limit = 10
+) => {
+  try {
+    const response = await axios.get(
+      `${Config.base_url}vendor/package-history?vendor_id=${vendorId}&page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: token,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching vendor package history:", error);
+    return error;
+  }
+};
 
-// Suscribe plan vendor
+
+export const GetDashBoardCount = async (vendor_id, token) => {
+  try {
+    const res = await axios.post(
+      `${Config.base_url}vendor/dashboard-counts`,
+      vendor_id,
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return res?.data;
+  } catch (err) {
+    console.error("Error in getting vendor dashboard", err);
+    return err;
+  }
+};

@@ -1,40 +1,159 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { GetActiveVendors, GetCategories } from "../../../Services/admin/Admin";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
+import Swal from "sweetalert2";
 
 export default function ActiveVendor() {
-  const [activevendors, setActiveVendors] = React.useState([]);
+  const [activevendors, setActiveVendors] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [categoryList, setCategoryList] = useState([]);
   const [categoryMap, setCategoryMap] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+  const [allActiveVendors, setAllActiveVendors] = useState([]);
 
-  const fetchActiveVendors = async () => {
+  const fetchActiveVendors = async (page, limit) => {
+    setLoading(true);
     try {
-      const response = await GetActiveVendors();
-      setActiveVendors(response.data);
-      console.log("Vendor list", response.data);
-    } catch (error) {
-      console.log("error");
+      const token = localStorage.getItem("token");
+      const res = await GetActiveVendors(token, page, limit);
+      if (res?.data && res?.pagination) {
+        setActiveVendors(res.data);
+        setTotalRows(res.pagination.total_records);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (err) {
+      console.error("Error fetching active vendors:", err);
+    } finally {
+      setLoading(false);
     }
   };
+
   useEffect(() => {
-    fetchActiveVendors();
+    fetchActiveVendors(currentPage, perPage);
+    fetchAllActiveVendors();
     fetchCategories();
-  }, []);
+  }, [currentPage, perPage]);
 
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(activevendors);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Active Vendor");
-
-    XLSX.writeFile(workbook, "Active vendor List.xlsx");
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
-  const filteredActiveVendors = activevendors.filter((vendor) =>
-    vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
+
+  const fetchAllActiveVendors = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      let fullList = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
+
+      while (page <= totalPages) {
+        const res = await GetActiveVendors(token, page, limit);
+        const { data, pagination } = res || {};
+        if (data?.length) fullList = [...fullList, ...data];
+
+        if (pagination) {
+          totalPages = Math.ceil(pagination.total_records / limit);
+        } else {
+          break;
+        }
+
+        page++;
+      }
+
+      setAllActiveVendors(fullList);
+    } catch (err) {
+      console.error("Error fetching all active vendors:", err);
+    }
+  };
+
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      let allVendors = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
+
+      while (page <= totalPages) {
+        const res = await GetActiveVendors(token, page, limit);
+        const { data, pagination } = res || {};
+
+        if (data?.length) allVendors = [...allVendors, ...data];
+
+        if (pagination) {
+          totalPages = Math.ceil(pagination.total_records / limit);
+        } else {
+          break;
+        }
+
+        page++;
+      }
+
+      const exportData = allVendors.map((row, index) => {
+        const categoryNames = row.category_id
+          ? row.category_id
+              .split(",")
+              .map((id) => categoryMap[id.trim()] || `ID-${id.trim()}`)
+              .join(", ")
+          : "—";
+
+        return {
+          "S.No": index + 1,
+          "Owner Name": row.owner_name || "",
+          Email: row.email || "",
+          "Category Names": categoryNames,
+          "Profile Name": row.profile_name || "",
+          "Phone Number": row.phone || "",
+          "Price Range": row.price_range || "",
+          "Short Description": row.short_description || "",
+          Image: row.image ? "Available" : "N/A",
+          "Pin Code": row.pin_code || "",
+          "Experience Since": row.experience_since || "",
+        };
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Active Vendors");
+      XLSX.writeFile(workbook, "Active_Vendor_List.xlsx");
+    } catch (err) {
+      console.error("Error exporting vendors:", err);
+      Swal.fire("Error", "Failed to export all active vendors", "error");
+    }
+  };
+
+  const filteredActiveVendors = searchText
+    ? allActiveVendors.filter((v) => {
+        const lowerSearch = searchText.toLowerCase();
+        const categoryNames = v.category_id
+          ? v.category_id
+              .split(",")
+              .map((id) => categoryMap[id.trim()]?.toLowerCase() || "")
+              .join(", ")
+          : "";
+
+        return (
+          v.owner_name?.toLowerCase().includes(lowerSearch) ||
+          v.email?.toLowerCase().includes(lowerSearch) ||
+          v.phone?.toLowerCase().includes(lowerSearch) ||
+          v.price_range?.toLowerCase().includes(lowerSearch) ||
+          v.experience_since?.toLowerCase().includes(lowerSearch) ||
+          categoryNames.includes(lowerSearch)
+        );
+      })
+    : activevendors;
 
   const fetchCategories = async () => {
     try {
@@ -56,8 +175,7 @@ export default function ActiveVendor() {
   const columns = [
     {
       name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: false,
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "70px",
     },
     {
@@ -80,12 +198,6 @@ export default function ActiveVendor() {
       },
       sortable: true,
     },
-
-    {
-      name: "Profile Name",
-      selector: (row) => row.profile_name,
-      sortable: true,
-    },
     {
       name: "Phone Number",
       selector: (row) => row.phone,
@@ -94,35 +206,6 @@ export default function ActiveVendor() {
     {
       name: "Price Range",
       selector: (row) => row.price_range,
-      sortable: true,
-    },
-    {
-      name: "Short Description",
-      selector: (row) => row.short_description,
-      sortable: true,
-    },
-
-    {
-      name: "Social Media",
-      cell: (row) =>
-        row.social_media_link ? (
-          <a
-            href={row.social_media_link}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <i className="fa-brands fa-instagram" />
-          </a>
-        ) : (
-          <span className="text-muted">Not Provided</span>
-        ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-    {
-      name: "Pin Code",
-      selector: (row) => row.pin_code,
       sortable: true,
     },
     {
@@ -177,6 +260,11 @@ export default function ActiveVendor() {
               columns={columns}
               data={filteredActiveVendors}
               pagination
+              paginationServer
+              paginationTotalRows={totalRows}
+              paginationPerPage={perPage}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
             />
           </div>
         </div>

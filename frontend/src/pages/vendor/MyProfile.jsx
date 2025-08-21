@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { GetVendorDetails } from "../../Services/vendor/Vendor";
+import { GetVendorDetails, GetCategories } from "../../Services/vendor/Vendor";
 
 export default function MyProfile() {
   const [vendor, setVendor] = useState(null);
+  const [category, setCategory] = useState([]);
   const token = localStorage.getItem("token");
   const vendorId = localStorage.getItem("userId");
 
@@ -11,8 +12,9 @@ export default function MyProfile() {
     try {
       const res = await GetVendorDetails(token, vendorId);
       console.log("Vendor API Response:", res);
-      if (res?.data) {
-        setVendor(res.data);
+
+      if (res?.data?.user) {
+        setVendor(res.data.user);
       } else {
         console.error("Invalid response structure", res);
       }
@@ -21,9 +23,26 @@ export default function MyProfile() {
     }
   };
 
+  const fetchCategory = async () => {
+    try {
+      const res = await GetCategories(token);
+      setCategory(res?.data);
+    } catch (error) {
+      console.log("Error in fetching categories", error);
+    }
+  };
+
+  const getCategoryNameById = (id) => {
+    if (!id || !category || category.length === 0) return "Not provided";
+
+    const cat = category.find((c) => String(c.id) === String(id));
+    return cat ? cat.name : "Not provided";
+  };
+
   useEffect(() => {
     if (token && vendorId) {
       fetchVendor();
+      fetchCategory();
     } else {
       console.warn("Missing token or vendor ID");
     }
@@ -46,42 +65,12 @@ export default function MyProfile() {
   }
 
   const socialLinks = [
-    {
-      key: "facebook_link",
-      // name: "Facebook",
-      icon: "fab fa-facebook-f",
-      color: "#1877f2",
-    },
-    {
-      key: "instagram_link",
-      // name: "Instagram",
-      icon: "fab fa-instagram",
-      color: "#e4405f",
-    },
-    {
-      key: "twitter_link",
-      // name: "Twitter",
-      icon: "fab fa-twitter",
-      color: "#1da1f2",
-    },
-    {
-      key: "linkedin_link",
-      // name: "LinkedIn",
-      icon: "fab fa-linkedin-in",
-      color: "#0077b5",
-    },
-    {
-      key: "youtube_link",
-      // name: "YouTube",
-      icon: "fab fa-youtube",
-      color: "#ff0000",
-    },
-    {
-      key: "website_link",
-      // name: "Website",
-      icon: "fas fa-globe",
-      color: "#6c757d",
-    },
+    { key: "facebook_link", icon: "fab fa-facebook-f", color: "#1877f2" },
+    { key: "instagram_link", icon: "fab fa-instagram", color: "#e4405f" },
+    { key: "twitter_link", icon: "fab fa-twitter", color: "#1da1f2" },
+    { key: "linkedin_link", icon: "fab fa-linkedin-in", color: "#0077b5" },
+    { key: "youtube_link", icon: "fab fa-youtube", color: "#ff0000" },
+    { key: "website_link", icon: "fas fa-globe", color: "#6c757d" },
   ];
 
   const profileFields = [
@@ -102,7 +91,11 @@ export default function MyProfile() {
       value: vendor.pin_code,
       icon: "fas fa-map-marker-alt",
     },
-    { label: "Category IDs", value: vendor.category_id, icon: "fas fa-tags" },
+    {
+      label: "Category Name",
+      value: getCategoryNameById(vendor.category_id),
+      icon: "fas fa-tags",
+    },
   ];
 
   return (
@@ -113,7 +106,7 @@ export default function MyProfile() {
             <Link to="/vendor/dashboard" className="me-2">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
-            <h5 className="add-page-heading mb-0">Vendor Pofile</h5>
+            <h5 className="add-page-heading mb-0">My Profile</h5>
           </div>
         </div>
 
@@ -128,10 +121,9 @@ export default function MyProfile() {
         </div>
       </div>
 
-      {/* Main Profile Card */}
       <div className="card border-0 shadow-lg rounded-4 overflow-hidden">
-        {/* Profile Header with Gradient Background */}
-        <div className=" p-4">
+        {/* Profile Header with My Packages Button on Top Right */}
+        <div className="p-4 position-relative">
           <div className="row align-items-center">
             <div className="col-auto">
               <div className="position-relative">
@@ -151,7 +143,7 @@ export default function MyProfile() {
               <h3 className="mb-2 fw-bold">{vendor.owner_name}</h3>
               <div className="d-flex align-items-center gap-3 mb-2">
                 {vendor.experience_since && (
-                  <span className="">
+                  <span>
                     <i className="fas fa-calendar-alt me-1"></i>
                     Since {vendor.experience_since}
                   </span>
@@ -159,12 +151,21 @@ export default function MyProfile() {
               </div>
             </div>
           </div>
+
+          {/* My Packages Button on the top right corner of the card */}
+          <div className="position-absolute top-0 end-0 p-3">
+            <Link
+              to="/vendor/mypackages"
+              className="btn btn-outline-primary btn-sm shadow-sm"
+            >
+              <i className="fas fa-box-open me-1"></i>
+              My Packages
+            </Link>
+          </div>
         </div>
 
-        {/* Profile Details */}
         <div className="card-body p-4">
           <div className="row g-4">
-            {/* Contact Information */}
             <div className="col-lg-8">
               <h5 className="mb-4 d-flex align-items-center">
                 <i className="fas fa-info-circle text-primary me-2"></i>
@@ -173,14 +174,13 @@ export default function MyProfile() {
               <div className="row g-3">
                 {profileFields.map(({ label, value, icon }, i) => (
                   <div key={i} className="col-md-6">
-                    <div className=" justify-content-between align-items-center p-3 bg-light rounded-3 h-100">
+                    <div className="justify-content-between align-items-center p-3 bg-light rounded-3 h-100">
                       <div className="d-flex align-items-center gap-3">
                         <div className="text-primary fs-5">
                           <i className={icon}></i>
                         </div>
                         <div className="fw-semibold">{label}</div>
                       </div>
-
                       <div className="fw-medium">{value || "Not provided"}</div>
                     </div>
                   </div>
@@ -189,14 +189,12 @@ export default function MyProfile() {
             </div>
           </div>
 
-          {/* Description Section */}
           {(vendor.short_description || vendor.long_description) && (
             <div className="mt-3">
               <h5 className="mb-3 d-flex align-items-center">
                 <i className="fas fa-file-alt text-info me-2"></i>
                 About
               </h5>
-
               <div className="row">
                 {vendor.short_description && (
                   <div className="col-md-6 mb-3">
@@ -206,7 +204,6 @@ export default function MyProfile() {
                     </div>
                   </div>
                 )}
-
                 {vendor.long_description && (
                   <div className="col-md-6 mb-3">
                     <div className="bg-light p-4 rounded-3 h-100">
@@ -219,12 +216,11 @@ export default function MyProfile() {
             </div>
           )}
 
-          {/* Social Links Section */}
           <div className="mt-3">
             <h5 className="mb-4 d-flex align-items-center">
               Social Media & Links
             </h5>
-            <div className=" d-flex ">
+            <div className="d-flex">
               {socialLinks.map(({ key, icon, color }) => {
                 const link = vendor[key];
                 if (!link) return null;

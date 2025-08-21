@@ -38,7 +38,6 @@ export async function LoginApi(data) {
 //   }
 // }
 
-
 // export async function UserOtpSubmit(data) {
 //   try {
 //     const response = await axios.post(`${Config.base_url}api/client/otp_submit`, data);
@@ -50,12 +49,50 @@ export async function LoginApi(data) {
 //   }
 // }
 
-
 export async function VendorRegister(data) {
   try {
     const response = await axios.post(`${Config.base_url}addUser`, data);
     return response;
   } catch (error) {
     throw error?.response?.data || error;
+  }
+}
+
+export async function Forgotpassword(data) {
+  try {
+    const response = await axios.post(`${Config.base_url}forgotPassword`, data);
+    return response;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function Resetpassword(token, data) {
+  try {
+    const response = await axios.post(`${Config.base_url}resetPassword`, data, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function ChangePasswords(token, data) {
+  try {
+    const response = await axios.post(
+      `${Config.base_url}change_password`,
+      data,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    return error;
   }
 }

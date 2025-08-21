@@ -1,48 +1,175 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { GetVendoreList } from "../../../Services/admin/Admin";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
+import Swal from "sweetalert2";
 
 export default function ApprovedVendors() {
   const [approvedVendors, setApprovedVendors] = useState([]);
   const [searchText, setSearchText] = useState("");
-
-  const fetchApprovedVendors = async () => {
+  const [allApprovedVendors, setAllApprovedVendors] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const fetchApprovedVendors = async (page, limit) => {
+    setLoading(true);
     try {
-      const response = await GetVendoreList();
-      const approved = response.data?.filter((vendor) => vendor.status === 1);
-      setApprovedVendors(approved || []);
-    } catch (error) {
-      console.error("Failed to fetch vendors:", error);
+      const token = localStorage.getItem("token");
+      const res = await GetVendoreList(token, page, limit);
+      if (res?.data && res?.pagination) {
+        const approved = res.data?.filter(
+          (vendor) => vendor.approval_status === 1
+        );
+        setApprovedVendors(approved || []);
+
+        setTotalRows(res.pagination.total_records);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (err) {
+      console.error("Error fetching vendors:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchApprovedVendors();
-  }, []);
+    fetchApprovedVendors(currentPage, perPage);
+    fetchAllApprovedVendors();
+  }, [currentPage, perPage]);
 
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(approvedVendors);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Approved Vendor");
-
-    XLSX.writeFile(workbook, "Approved vendor List.xlsx");
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
-  const filteredApprovedVendors = approvedVendors.filter((vendor) =>
-    vendor.owner_name?.toLowerCase().includes(searchText.toLowerCase())
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
+
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      let allVendors = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
+
+      while (page <= totalPages) {
+        const res = await GetVendoreList(token, page, limit);
+        const { data, pagination } = res || {};
+        if (data?.length) {
+          const approvedOnly = data.filter(
+            (vendor) => vendor.approval_status === 1
+          );
+          allVendors = [...allVendors, ...approvedOnly];
+        }
+
+        if (pagination) {
+          totalPages = Math.ceil(pagination.total_records / limit);
+        } else {
+          break;
+        }
+
+        page++;
+      }
+
+      const exportData = allVendors.map((row, index) => ({
+        "S.No": index + 1,
+        "Owner Name": row.owner_name || "",
+        Email: row.email || "",
+        Categories: Array.isArray(row.category_names)
+          ? row.category_names.join(", ")
+          : row.category_names || "",
+        Phone: row.phone || "",
+        "Price Range": row.price_range || "",
+        Experience: row.experience_since || "",
+        Image: row.image ? "Available" : "N/A",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Approved Vendors");
+      XLSX.writeFile(workbook, "Approved_Vendor_List.xlsx");
+    } catch (err) {
+      console.error("Error exporting vendors:", err);
+      Swal.fire("Error", "Failed to export approved vendors", "error");
+    }
+  };
+
+  const filtered = allApprovedVendors.filter((vendor) => {
+    const lowerSearch = searchText.toLowerCase();
+    return (
+      vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
+      vendor.email?.toLowerCase().includes(lowerSearch) ||
+      vendor.phone?.toLowerCase().includes(lowerSearch)||
+      vendor.price_range?.toLowerCase().includes(lowerSearch) ||
+      vendor.experience_since?.toLowerCase().includes(lowerSearch) ||
+       (Array.isArray(vendor.category_names)
+            ? vendor.category_names.join(", ").toLowerCase().includes(lowerSearch)
+            : vendor.category_names?.toLowerCase().includes(lowerSearch))
+    );
+  });
+
+  const filteredApprovedVendors = filtered.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
   );
+
+  const fetchAllApprovedVendors = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      let fullList = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
+
+      while (page <= totalPages) {
+        const res = await GetVendoreList(token, page, limit);
+        const { data, pagination } = res || {};
+        if (data?.length) {
+          const approvedOnly = data.filter(
+            (vendor) => vendor.approval_status === 1
+          );
+          fullList = [...fullList, ...approvedOnly];
+        }
+
+        if (pagination) {
+          totalPages = Math.ceil(pagination.total_records / limit);
+        } else {
+          break;
+        }
+
+        page++;
+      }
+
+      setAllApprovedVendors(fullList);
+    } catch (err) {
+      console.error("Error fetching all approved vendors:", err);
+    }
+  };
 
   const columns = [
     {
       name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: false,
-      width: "70px",
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
+      width: "50px",
     },
-    { name: "Owner Name", selector: (row) => row.owner_name, sortable: true },
-    { name: "Email", selector: (row) => row.email, sortable: true },
+    {
+      name: "Owner Name",
+      selector: (row) => row.owner_name,
+      sortable: true,
+      width: "150px",
+    },
+    {
+      name: "Email",
+      selector: (row) => row.email,
+      sortable: true,
+      width: "230px",
+    },
     {
       name: "Categories",
       selector: (row) => row.category_names.join(", "),
@@ -54,20 +181,6 @@ export default function ApprovedVendors() {
       name: "Experience",
       selector: (row) => row.experience_since,
       sortable: true,
-    },
-    {
-      name: "Image",
-      selector: (row) => row.image,
-      cell: (row) =>
-        row.image ? (
-          <img
-            src={row.image}
-            alt={row.profile_name}
-            style={{ width: "50px", height: "50px", objectFit: "cover" }}
-          />
-        ) : (
-          "N/A"
-        ),
     },
   ];
 
@@ -113,7 +226,17 @@ export default function ApprovedVendors() {
         </div>
         <div className="row">
           <div className="col-md-12">
-            <Datatable columns={columns} data={filteredApprovedVendors} pagination />
+            <Datatable
+              columns={columns}
+              data={filteredApprovedVendors}
+              progressPending={loading}
+              pagination
+              paginationServer
+              paginationTotalRows={totalRows}
+              paginationPerPage={perPage}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
+            />
           </div>
         </div>
       </div>

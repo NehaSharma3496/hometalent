@@ -13,6 +13,8 @@ router.get('/vendors', adminController.listAllVendors);
 // 🔍 2. Approve Listings (status = 0)
 router.get('/vendors/pending', adminController.listPendingVendors);
 
+router.get('/vendors/rejected', adminController.listRejectedVendors);
+
 // ✅ Approve a vendor and email credentials
 router.post('/vendors/approve', adminController.approveVendor);
 
@@ -57,9 +59,12 @@ router.get('/package', adminController.getAllPackages);
 router.get('/package/:id', adminController.getPackageById);
 router.put('/package/:id', adminController.updatePackage);
 router.delete('/package/:id', adminController.deletePackage);
+router.post('/package/update-status', adminController.updatePackageStatus);
+router.post('/package/extend-vendor', adminController.extendVendorPackage);
 
 // Expired Vendors
 router.get('/expired-vendors', adminController.getExpiredVendors);
+router.post('/notify-expired-plans', adminController.notifyExpiredPlans);
 
 router.get('/leads', adminController.getAllLeads);
 router.get('/sponsored-vendors-with-categories', adminController.getAllSponsoredVendorsWithCategories);
@@ -67,5 +72,10 @@ router.get('/contact-us', adminController.getAllContactUs);
 
 // Dashboard summary counts
 router.get('/dashboard-counts', adminController.getDashboardCounts);
+router.post('/getprofileRequestdata', adminController.getprofileRequestdata)
+router.post('/packageextendhistory', adminController.packageextendhistory)
+
+
+
 
 module.exports = router;

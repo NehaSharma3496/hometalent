@@ -1,156 +1,238 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import axios from "axios";
+import { useLocation, Link, useNavigate } from "react-router-dom";
+import { GetVendorDetails, GetCategories } from "../../../Services/vendor/Vendor";
 
 export default function VendorDetails() {
-  const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [vendor, setVendor] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const token = localStorage.getItem("token");
+  const vendorId = location.state?.vendorId;
 
   const fetchVendor = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(
-        `http://localhost:8888/admin/user-profile/${id}`,
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
+      const res = await GetVendorDetails(token, vendorId);
+      console.log("Vendor API Response:", res);
 
-      setVendor(res.data?.data);
+      if (res?.data?.user) {
+        setVendor(res.data.user);
+      } else {
+        console.error("Invalid response structure", res);
+      }
     } catch (err) {
       console.error("Error fetching vendor:", err);
     }
   };
 
-  useEffect(() => {
-    fetchVendor();
-  }, [id]);
+  const fetchCategories = async () => {
+    try {
+      const res = await GetCategories(token);
+      if (res?.data) {
+        setCategories(res.data);
+      }
+    } catch (error) {
+      console.log("Error fetching categories:", error);
+    }
+  };
 
-  if (!vendor)
-    return <div className="text-center py-5">Loading vendor details...</div>;
+  const getCategoryNames = (ids) => {
+    if (!ids || categories.length === 0) return "Not provided";
+
+    const idArray = String(ids).split(","); // vendor.category_id could be comma separated
+    const names = idArray
+      .map((id) => {
+        const cat = categories.find((c) => String(c.id) === String(id.trim()));
+        return cat ? cat.name : null;
+      })
+      .filter(Boolean);
+
+    return names.length > 0 ? names.join(", ") : "Not provided";
+  };
+
+  useEffect(() => {
+    if (token && vendorId) {
+      fetchVendor();
+      fetchCategories();
+    }
+  }, [vendorId, token]);
+
+  if (!vendor) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "60vh" }}
+      >
+        <div className="text-center">
+          <div className="spinner-border text-primary mb-3" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <h5 className="text-muted">Loading Vendor Profile...</h5>
+        </div>
+      </div>
+    );
+  }
+
+  const socialLinks = [
+    { key: "facebook_link", icon: "fab fa-facebook-f", color: "#1877f2" },
+    { key: "instagram_link", icon: "fab fa-instagram", color: "#e4405f" },
+    { key: "twitter_link", icon: "fab fa-twitter", color: "#1da1f2" },
+    { key: "linkedin_link", icon: "fab fa-linkedin-in", color: "#0077b5" },
+    { key: "youtube_link", icon: "fab fa-youtube", color: "#ff0000" },
+    { key: "website_link", icon: "fas fa-globe", color: "#6c757d" },
+  ];
+
+  const profileFields = [
+    { label: "Email", value: vendor.email, icon: "fas fa-envelope" },
+    { label: "Phone", value: vendor.phone, icon: "fas fa-phone" },
+    { label: "Price Range", value: vendor.price_range, icon: "fas fa-dollar-sign" },
+    { label: "Experience Since", value: vendor.experience_since, icon: "fas fa-calendar-alt" },
+    { label: "Pin Code", value: vendor.pin_code, icon: "fas fa-map-marker-alt" },
+    { label: "Category Name", value: getCategoryNames(vendor.category_id), icon: "fas fa-tags" },
+  ];
 
   return (
-    <div className="page-content container-fluid">
-      <div className="add-page-heading-div mb-3">
-        <Link to="/admin/vendor/allvendors">
-          <i className="fa fa-arrow-left"></i>
-        </Link>
-        <h2 className="add-page-heading">
-          Vendor Profile: {vendor.owner_name}
-        </h2>
+    <div className="page-content">
+      <div className="row align-items-center mb-1">
+        <div className="col-md-6 mb-2">
+          <div className="add-page-heading-div">
+            <Link to="/admin/vendor/allvendors" className="me-2">
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </Link>
+            <h5 className="add-page-heading mb-0">Vendor Profile</h5>
+          </div>
+        </div>
       </div>
 
-      <div className="card p-4 shadow-sm rounded-4">
-        <div className="row">
-          <div className="col-md-3 text-center">
-            <img
-              src={vendor.image || "/no-image.png"}
-              alt="Vendor"
-              className="img-fluid rounded-3 shadow"
-              style={{ width: "100%", maxWidth: "220px", height: "auto" }}
-            />
-            <h5 className="mt-3">{vendor.owner_name}</h5>
-            <span className="badge bg-primary">{vendor.profile_name}</span>
-          </div>
-
-          <div className="col-md-9">
-            <div className="row g-3">
-              <div className="col-md-6">
-                <label className="fw-semibold">Email</label>
-                <div>{vendor.email}</div>
-              </div>
-              <div className="col-md-6">
-                <label className="fw-semibold">Phone</label>
-                <div>{vendor.phone}</div>
-              </div>
-              <div className="col-md-6">
-                <label className="fw-semibold">Price Range</label>
-                <div>{vendor.price_range}</div>
-              </div>
-              <div className="col-md-6">
-                <label className="fw-semibold">Experience Since</label>
-                <div>{vendor.experience_since}</div>
-              </div>
-              <div className="col-md-6">
-                <label className="fw-semibold">Pin Code</label>
-                <div>{vendor.pin_code}</div>
-              </div>
-              <div className="col-md-6">
-                <label className="fw-semibold">Category IDs</label>
-                <div>{vendor.category_id}</div>
-              </div>
-              <div className="col-12">
-                <label className="fw-semibold">Short Description</label>
-                <div>{vendor.short_description || "N/A"}</div>
-              </div>
-              <div className="col-12">
-                <label className="fw-semibold">Long Description</label>
-                <div>{vendor.long_description || "N/A"}</div>
+      <div className="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <div className="p-4 position-relative">
+          <div className="row align-items-center">
+            <div className="col-auto">
+              <div className="position-relative">
+                <img
+                  src={vendor.image || "/no-image.png"}
+                  alt="Vendor"
+                  className="rounded-circle border border-3 border-white shadow"
+                  style={{ width: "120px", height: "120px", objectFit: "cover" }}
+                />
               </div>
             </div>
-
-            <hr className="my-4" />
-
-            <div>
-              <h5 className="mb-3">🔗 Social Links</h5>
-              <div className="d-flex flex-wrap gap-3">
-                {vendor.facebook_link && (
-                  <a
-                    href={vendor.facebook_link}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Facebook
-                  </a>
+            <div className="col">
+              <h3 className="mb-2 fw-bold">{vendor.owner_name}</h3>
+              <div className="d-flex align-items-center gap-3 mb-2">
+                {vendor.profile_name && (
+                  <span className="badge bg-primary">{vendor.profile_name}</span>
                 )}
-                {vendor.instagram_link && (
-                  <a
-                    href={vendor.instagram_link}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Instagram
-                  </a>
-                )}
-                {vendor.twitter_link && (
-                  <a
-                    href={vendor.twitter_link}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Twitter
-                  </a>
-                )}
-                {vendor.linkedin_link && (
-                  <a
-                    href={vendor.linkedin_link}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    LinkedIn
-                  </a>
-                )}
-                {vendor.youtube_link && (
-                  <a
-                    href={vendor.youtube_link}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    YouTube
-                  </a>
-                )}
-                {vendor.website_link && (
-                  <a
-                    href={vendor.website_link}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Website
-                  </a>
+                {vendor.experience_since && (
+                  <span>
+                    <i className="fas fa-calendar-alt me-1"></i>
+                    Since {vendor.experience_since}
+                  </span>
                 )}
               </div>
+            </div>
+          </div>
+          <div className="position-absolute top-0 end-0 p-3">
+            <Link
+              to="/admin/vendor/vendorpackagedetails"
+              className="btn btn-outline-primary btn-sm shadow-sm"
+              state={{ vendorId: vendorId }}
+            >
+              <i className="fas fa-box-open me-1"></i>
+              Vendor Packages
+            </Link>
+          </div>
+        </div>
+
+        <div className="card-body p-4">
+          <div className="row g-4">
+            <div className="col-lg-8">
+              <h5 className="mb-4 d-flex align-items-center">
+                <i className="fas fa-info-circle text-primary me-2"></i>
+                Contact Information
+              </h5>
+              <div className="row g-3">
+                {profileFields.map(({ label, value, icon }, i) => (
+                  <div key={i} className="col-md-6">
+                    <div className="justify-content-between align-items-center p-3 bg-light rounded-3 h-100">
+                      <div className="d-flex align-items-center gap-3">
+                        <div className="text-primary fs-5">
+                          <i className={icon}></i>
+                        </div>
+                        <div className="fw-semibold">{label}</div>
+                      </div>
+                      <div className="fw-medium">{value || "Not provided"}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {(vendor.short_description || vendor.long_description) && (
+            <div className="mt-4">
+              <h5 className="mb-3 d-flex align-items-center">
+                <i className="fas fa-file-alt text-info me-2"></i>
+                About
+              </h5>
+              <div className="row">
+                {vendor.short_description && (
+                  <div className="col-md-6 mb-3">
+                    <div className="bg-light p-4 rounded-3 h-100">
+                      <h6 className="text-primary mb-2">Short Description</h6>
+                      <p className="mb-0 lh-lg">{vendor.short_description}</p>
+                    </div>
+                  </div>
+                )}
+                {vendor.long_description && (
+                  <div className="col-md-6 mb-3">
+                    <div className="bg-light p-4 rounded-3 h-100">
+                      <h6 className="text-primary mb-2">Long Description</h6>
+                      <p className="mb-0 lh-lg">{vendor.long_description}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-4">
+            <h5 className="mb-4 d-flex align-items-center">Social Media & Links</h5>
+            <div className="d-flex flex-wrap gap-3">
+              {socialLinks.map(({ key, icon, color }) => {
+                const link = vendor[key];
+                if (!link) return null;
+                const fullUrl = link.startsWith("http") ? link : `https://${link}`;
+                return (
+                  <div key={key}>
+                    <a
+                      href={fullUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn btn-outline-secondary rounded-3 p-3 d-flex align-items-center gap-3"
+                      style={{ borderColor: color + "30" }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = color + "10";
+                        e.target.style.borderColor = color;
+                        e.target.style.color = color;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = "";
+                        e.target.style.borderColor = color + "30";
+                        e.target.style.color = "";
+                      }}
+                    >
+                      <i className={icon} style={{ color }}></i>
+                    </a>
+                  </div>
+                );
+              })}
+              {socialLinks.every(({ key }) => !vendor[key]) && (
+                <div className="text-center py-4 w-100">
+                  <i className="fas fa-link text-muted mb-2"></i>
+                  <p className="text-muted mb-0">No social links added yet</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

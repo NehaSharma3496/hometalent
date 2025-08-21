@@ -1,103 +1,159 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
-import Datatable from "../../../extracomponents/Datatable";
-import {
-  GetProfileUpdateRequests,
-  ProcessProfileUpdateRequest,
-} from "../../../Services/admin/Admin";
+import { Link, useNavigate } from "react-router-dom";
+import Datatable from "react-data-table-component";
+import { GetProfileUpdateRequests } from "../../../Services/admin/Admin";
 import * as XLSX from "xlsx";
 
 export default function ProfileUpdateRequests() {
   const [requests, setRequests] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchText, setSearchText] = useState("");
+  const navigate = useNavigate();
+  const [allRequests, setAllRequests] = useState([]);
 
-  const fetchRequests = async () => {
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+
+  const fetchRequests = async (page, limit) => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const page = 1;
-      const limit = 100;
-
-      const status = statusFilter;
-      const res = await GetProfileUpdateRequests(token, status, page, limit);
-
-      console.log("🔎 API Raw Response:", res);
-
-      let data = [];
-
-      if (res?.requests && Array.isArray(res.requests)) {
-        data = res.requests;
-      } else if (res?.data?.requests && Array.isArray(res.data.requests)) {
-        data = res.data.requests;
+      const res = await GetProfileUpdateRequests(
+        token,
+        statusFilter,
+        page,
+        limit
+      );
+      if (res?.data?.requests && typeof res.data.total === "number") {
+        setRequests(res.data.requests);
+        setTotalRows(res.data.total);
       } else {
-        console.warn("⚠️ Unexpected data format, forcing empty array");
+        throw new Error("Invalid response format");
       }
-
-      setRequests(data);
     } catch (err) {
-      console.error("❌ Failed to fetch requests:", err);
-      setRequests([]);
+      console.error("Error fetching vendors:", err);
+      Swal.fire("Error", "Could not load vendor list", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(requests);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Request");
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    XLSX.writeFile(workbook, "vendor-update-profile-request.xlsx");
-  };
+      let allRequests = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
 
-  const filteredRequests = requests.filter((request) =>
-    request.vendor?.owner_name?.toLowerCase().includes(searchText.toLowerCase())
-  );
-
-  useEffect(() => {
-    fetchRequests();
-  }, [statusFilter]);
-
-  const handleAction = async (row, action) => {
-    const confirm = await Swal.fire({
-      title: `${action === "approve" ? "Approve" : "Reject"} Request?`,
-      text: `Are you sure you want to ${action} this profile update request?`,
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes",
-      cancelButtonText: "No",
-    });
-
-    if (confirm.isConfirmed) {
-      try {
-        const token = localStorage.getItem("token");
-        const adminId = localStorage.getItem("userId");
-
-        const res = await ProcessProfileUpdateRequest(
-          row.id,
-          action,
-          `${action}d by admin`,
-          adminId,
-          token
+      while (page <= totalPages) {
+        const res = await GetProfileUpdateRequests(
+          token,
+          statusFilter,
+          page,
+          limit
         );
 
-        if (res?.status) {
-          Swal.fire("Success", res.msg || "Request processed", "success");
-          fetchRequests();
+        if (res?.data?.requests && typeof res.data.total === "number") {
+          allRequests = [...allRequests, ...res.data.requests];
+          totalPages = Math.ceil(res.data.total / limit);
         } else {
-          Swal.fire("Error", res?.msg || "Failed to process", "error");
+          throw new Error("Invalid response format");
         }
-      } catch (err) {
-        Swal.fire("Error", "API error occurred", "error");
-        console.error("API Error:", err);
+
+        page++;
       }
+
+      if (!allRequests.length) {
+        return Swal.fire(
+          "No Data",
+          "No profile update requests found to export",
+          "info"
+        );
+      }
+
+      const exportData = allRequests.map((row, index) => ({
+        "S.No": index + 1,
+        "Vendor Name": row.vendor?.owner_name || "N/A",
+        Email: row.vendor?.email || "N/A",
+        Phone: row.vendor?.phone || "N/A",
+        Status:
+          row.status?.charAt(0).toUpperCase() + row.status?.slice(1) || "N/A",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Profile Update Requests"
+      );
+
+      XLSX.writeFile(workbook, "Profile_Update_Requests.xlsx");
+
+      Swal.fire(
+        "Success",
+        "Profile update requests downloaded successfully",
+        "success"
+      );
+    } catch (error) {
+      console.error("Export error:", error);
+      Swal.fire("Error", "Failed to export profile update requests", "error");
     }
+  };
+
+  const fetchAllRequests = async () => {
+    const token = localStorage.getItem("token");
+    const filter = statusFilter === "all" ? "" : statusFilter;
+
+    let full = [];
+    let page = 1;
+    const limit = 100;
+    let totalPages = 1;
+
+    while (page <= totalPages) {
+      const res = await GetProfileUpdateRequests(token, filter, page, limit);
+      full = [...full, ...res.data.requests];
+      totalPages = Math.ceil(res.data.total / limit);
+      page++;
+    }
+
+    setAllRequests(full);
+  };
+
+  const filteredRequests = searchText
+    ? allRequests.filter((r) => {
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          r.vendor?.owner_name?.toLowerCase().includes(lowerSearch) ||
+          r.vendor?.email?.toLowerCase().includes(lowerSearch) ||
+          r.vendor?.phone?.toLowerCase().includes(lowerSearch)
+        );
+      })
+    : requests;
+
+  useEffect(() => {
+    fetchRequests(currentPage, perPage);
+    fetchAllRequests();
+  }, [statusFilter, currentPage, perPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
   };
 
   const columns = [
     {
       name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: false,
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "70px",
     },
     {
@@ -109,43 +165,68 @@ export default function ProfileUpdateRequests() {
     {
       name: "Email",
       selector: (row) => row.vendor?.email || "N/A",
+      width: "250px",
     },
     {
       name: "Phone",
       selector: (row) => row.vendor?.phone || "N/A",
+      width: "150px",
     },
     {
       name: "Status",
       selector: (row) => row.status,
+      cell: (row) => {
+        let badgeClass = "";
+        if (row.status === "pending") {
+          badgeClass = "bg-warning text-dark";
+        } else if (row.status === "approved") {
+          badgeClass = "bg-success";
+        } else if (row.status === "rejected") {
+          badgeClass = "bg-danger";
+        } else {
+          badgeClass = "bg-secondary";
+        }
+
+        return (
+          <span className={`badge fs-6 ${badgeClass}`}>
+            {row.status?.charAt(0).toUpperCase() + row.status?.slice(1)}
+          </span>
+        );
+      },
       sortable: true,
+      width: "120px",
     },
+
     {
-      name: "Actions",
-      cell: (row) =>
-        row.status === "pending" ? (
-          <div className="d-flex gap-1">
-            <button
-              className="btn btn-success btn-sm d-flex align-items-center px-3"
-              onClick={() => handleAction(row, "approve")}
-              title="Approve"
-              style={{ fontWeight: "500" }}
-            >
-              <i className="fa fa-check me-1"></i>
-              Approve
-            </button>
-            <button
-              className="btn btn-danger btn-sm d-flex align-items-center px-3"
-              onClick={() => handleAction(row, "reject")}
-              title="Reject"
-              style={{ fontWeight: "500" }}
-            >
-              <i className="fa fa-times me-1"></i>
-              Reject
-            </button>
-          </div>
-        ) : (
-          <span className="text-muted">No actions</span>
-        ),
+      name: "View",
+
+      cell: (row) => {
+        return (
+          <button
+            className="btn btn-warning btn-sm"
+            title="View"
+            onClick={() =>
+              navigate(`/admin/profileupdaterequest/viewprofilechanges`, {
+                state: {
+                  requestId: row.id,
+                  requestData: row,
+                  adminId: localStorage.getItem("userId"),
+                  readonly: row.status !== "pending",
+                },
+              })
+            }
+          >
+            <i className="fa-regular fa-eye"></i>
+          </button>
+        );
+      },
+      width: "100px",
+    },
+
+    {
+      name: "Date",
+      selector: (row) => new Date(row.createdAt).toLocaleDateString(),
+      width: "100px",
     },
   ];
 
@@ -208,10 +289,16 @@ export default function ProfileUpdateRequests() {
         <Datatable
           columns={columns}
           data={filteredRequests}
-          pagination
           highlightOnHover
           striped
           noDataComponent="No profile update requests found."
+          // progressPending={loading}
+          pagination
+          paginationServer
+          paginationTotalRows={totalRows}
+          paginationPerPage={perPage}
+          onChangeRowsPerPage={handlePerRowsChange}
+          onChangePage={handlePageChange}
         />
       </div>
     </div>
