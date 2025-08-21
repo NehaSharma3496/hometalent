@@ -67,7 +67,7 @@ export default function AdminHeader() {
         socket.off("connect");
         socket.off("disconnect");
         socket.disconnect();
-      } catch (e) {}
+      } catch (e) { }
       socketRef.current = null;
     };
   }, []);
@@ -220,20 +220,20 @@ export default function AdminHeader() {
                 </span>
               </div>
             </div>
+
             <div className="col-3">
               <div className="right-header">
                 <div className="position-relative">
-                  <div>
+                  <div className="notification-button-container">
                     <button
-                      className="btn p-0 setting-link position-relative"
+                      className="btn p-0 setting-link position-relative notification-button"
                       onClick={() => setIsOpen(!isOpen)}
                       style={{ background: "none", border: "none" }}
                     >
                       <i className="fa-solid fa-bell text-primary fs-5"></i>
                       {unreadCount > 0 && (
                         <span
-                          className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                          style={{ fontSize: "0.7rem" }}
+                          className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge"
                         >
                           {unreadCount}
                         </span>
@@ -250,79 +250,60 @@ export default function AdminHeader() {
                       ></div>
 
                       <div
-                        className="position-absolute bg-white shadow-lg rounded-3 border"
-                        style={{
-                          top: "100%",
-                          right: "0",
-                          width: "380px",
-                          maxHeight: "500px",
-                          zIndex: 1050,
-                          marginTop: "10px",
-                        }}
+                        className="notification-dropdown-container position-absolute bg-white shadow-lg rounded-3 border"
                       >
                         <div className="d-flex justify-content-between align-items-center p-3 border-bottom bg-white shadow-sm rounded-top">
                           <h6 className="mb-0 fw-semibold fs-5 text-primary d-flex align-items-center">
-                            <i className="bi bi-bell-fill me-2 text-warning"></i>{" "}
-                            Notifications
+                            <i className="bi bi-bell-fill me-2 text-warning"></i> Notifications
                           </h6>
                           <button
-                            className="btn btn-sm btn-outline-primary rounded-pill px-3"
+                            className="btn btn-sm d-flex align-items-center justify-content-center rounded-circle shadow-sm border-0 close-btn"
                             onClick={() => setIsOpen(false)}
+                            aria-label="Close"
                           >
-                            <i className="bi bi-x-lg me-1"></i> Close
+                            <i className="bi bi-x-lg"></i>
                           </button>
+
                         </div>
 
                         <div
                           className="overflow-auto bg-light"
                           style={{ maxHeight: "400px" }}
                         >
-{notifications.length === 0 ? (
-  <p className="text-center text-muted p-3">
-    No notifications
-  </p>
-) : (
-  notifications.map((notification, idx) => (
-    <div
-      key={notification.id || idx}
-      className={`p-3 border-bottom rounded-2 mb-2 mx-2 shadow-sm notification-item hover-effect ${
-        notification.isRead
-          ? "bg-white"
-          : "bg-primary-subtle border-start border-3 border-primary"
-      }`}
-      style={{
-        cursor: "pointer",
-        transition: "0.3s",
-      }}
-    >
-      {/* --- Title/Message --- */}
-      <h6
-        className={`mb-1 fw-bold d-flex align-items-center ${
-          notification.isRead ? "text-secondary" : "text-primary"
-        }`}
-      >
-        <i className="bi bi-info-circle-fill me-2"></i>
-        {notification.message || "Notification"}
-      </h6>
-
-      {/* --- Date --- */}
-      <div className="text-end">
-        <small className="text-muted fst-italic">
-          {new Date(notification.timestamp).toLocaleString()}
-        </small>
-      </div>
-    </div>
-  ))
-)}
-
+                          {notifications.length === 0 ? (
+                            <p className="text-center text-muted p-3">No notifications</p>
+                          ) : (
+                            notifications.map((notification, idx) => (
+                              <div
+                                key={notification.id || idx}
+                                className={`p-3 border-bottom rounded-2 mb-2 mx-2 shadow-sm notification-item hover-effect ${notification.isRead
+                                  ? "bg-white"
+                                  : "bg-primary-subtle border-start border-3 border-primary"
+                                  }`}
+                                style={{ cursor: "pointer", transition: "0.3s" }}
+                              >
+                                <h6
+                                  className={`mb-1 fw-bold d-flex align-items-center ${notification.isRead ? "text-secondary" : "text-primary"
+                                    }`}
+                                >
+                                  <i className="bi bi-info-circle-fill me-2"></i>
+                                  {notification.message || "Notification"}
+                                </h6>
+                                <div className="text-end">
+                                  <small className="text-muted fst-italic">
+                                    {new Date(notification.timestamp).toLocaleString()}
+                                  </small>
+                                </div>
+                              </div>
+                            ))
+                          )}
                         </div>
 
                         <div className="p-3 bg-white text-left rounded-bottom shadow-sm border-top">
                           <button
-                            className="btn btn-sm px-8 py-4 rounded fw-semibold text-white"
+                            className="btn btn-sm w-100 w-md-auto px-4 py-2 rounded fw-semibold text-white"
                             style={{
-                              background:
-                                "linear-gradient(135deg, #4e54c8, #8f94fb)",
+                              background: "linear-gradient(135deg, #4e54c8, #8f94fb)",
                               transition: "all 0.3s ease-in-out",
                               boxShadow: "0 4px 10px rgba(78, 84, 200, 0.3)",
                             }}
@@ -336,13 +317,12 @@ export default function AdminHeader() {
                           >
                             View All Notifications
                           </button>
-
-
                         </div>
                       </div>
                     </>
                   )}
                 </div>
+
 
                 <div>
                   <div className="dropdown profile-dropdown-div">
@@ -400,6 +380,7 @@ export default function AdminHeader() {
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </header>
