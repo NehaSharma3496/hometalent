@@ -18,10 +18,10 @@ import AllLeads from "../pages/vendor/vendorleads/AllLeads";
 import VendorPackages from "../pages/vendor/packages/AvailablePackages";
 import Viewallnotification from "../components/admincomponents/Viewallnotification";
 import MyPackages from "../pages/vendor/packages/MyPackages";
-import Payment from "../components/Payment";
-import PaymentSuccess from "../components/PaymentSuccess";
-import PaymentCallback from "../components/PaymentCallback";
-import PaymentFailed from "../components/PaymentFailed";
+import Payment from "../components/paymentcomponent/Payment.js"
+import PaymentSuccess from "../components/paymentcomponent/PaymentSuccess";
+import PaymentCallback from "../components/paymentcomponent/PaymentCallback";
+import PaymentFailed from "../components/paymentcomponent/PaymentFailed";
 
 // for vendor routing
 

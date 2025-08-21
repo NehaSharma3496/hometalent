@@ -1,238 +1,71 @@
 import React, { useState, useEffect } from "react";
-import { Bell, DollarSign, Star, Calendar, User, Package, CheckCircle, Circle, Trash2 } from "lucide-react";
+import { GetAllAdminNotification,GetAllVendorNotification } from "../../Services/notification.js/Notification";
+import { useNavigate } from "react-router-dom";
 
-const Viewallnotification = () => {
-    const [notifications, setNotifications] = useState([]);
-    const [filter, setFilter] = useState("all");
+const ViewAllNotification = () => {
+  const role = localStorage.getItem("role");
+  const userId = localStorage.getItem("userId");
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const dummyData = [
-            {
-                id: 1,
-                title: "New booking request",
-                message: "John Doe requested Canvas Painting service",
-                timestamp: "2025-07-22T16:28:00Z",
-                type: "booking",
-                isRead: false,
-            },
-            {
-                id: 2,
-                title: "Payment received",
-                message: "Payment of ₹2500 received for Mehandi Art",
-                timestamp: "2025-07-22T15:30:00Z",
-                type: "payment",
-                isRead: true,
-            },
-            {
-                id: 3,
-                title: "New review",
-                message: "You received a 5-star review for Fabric Painting",
-                time: "3 hours ago",
-                type: "review",
-                isRead: true,
-            },
-            {
-                id: 4,
-                title: "Service reminder",
-                message: "You have a Catering booking tomorrow at 3 PM",
-                time: "1 day ago",
-                type: "reminder",
-                isRead: true,
-            },
-            {
-                id: 5,
-                title: "Profile update",
-                message: "Your profile has been successfully updated",
-                time: "2 days ago",
-                type: "profile",
-                isRead: true,
-            },
-            {
-                id: 6,
-                title: "Profile update",
-                message: "Your profile has been successfully updated",
-                time: "3 days ago",
-                type: "profile",
-                isRead: false,
-            },
-            {
-                id: 7,
-                title: "Payment received",
-                message: "Payment of ₹5500 received for Mehandi Art",
-                time: "4 days ago",
-                type: "payment",
-                isRead: false,
-            },
-        ];
-        setNotifications(dummyData);
-    }, []);
+  const navigate = useNavigate();
 
-    // const getIcon = (type) => {
-    //     const iconProps = { size: 20, className: "me-2" };
-    //     switch (type) {
-    //         case "booking":
-    //             return <Calendar {...iconProps} className="text-primary" />;
-    //         case "payment":
-    //             return <DollarSign {...iconProps} className="text-success" />;
-    //         case "review":
-    //             return <Star {...iconProps} className="text-warning" />;
-    //         case "reminder":
-    //             return <Bell {...iconProps} className="text-danger" />;
-    //         case "profile":
-    //             return <User {...iconProps} className="text-info" />;
-    //         case "package":
-    //             return <Package {...iconProps} className="text-secondary" />;
-    //         default:
-    //             return <Bell {...iconProps} className="text-muted" />;
-    //     }
-    // };
-
-    const getBadgeClass = (type) => {
-        switch (type) {
-            case "booking":
-                return "badge bg-primary-subtle text-primary";
-            case "payment":
-                return "badge bg-success-subtle text-success";
-            case "review":
-                return "badge bg-warning-subtle text-warning";
-            case "reminder":
-                return "badge bg-danger-subtle text-danger";
-            case "profile":
-                return "badge bg-info-subtle text-info";
-            case "package":
-                return "badge bg-secondary-subtle text-secondary";
-            default:
-                return "badge bg-light text-muted";
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      setLoading(true);
+      try {
+        let res;
+        if (role === "1") {
+          res = await GetAllAdminNotification();
+        } else if (role === "2") {
+          res = await GetAllVendorNotification(userId);
         }
+
+        if (res?.status && res?.data) {
+          // Sort by createdAt descending
+          const sorted = res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          setNotifications(sorted);
+        }
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const toggleRead = (id) => {
-        setNotifications((prev) =>
-            prev.map((n) => (n.id === id ? { ...n, isRead: !n.isRead } : n))
-        );
-    };
+    fetchNotifications();
+  }, [role, userId]);
 
-    const deleteNotification = (id) => {
-        setNotifications((prev) => prev.filter((n) => n.id !== id));
-    };
+  const formatDateTime = (datetime) => {
+    return new Date(datetime).toLocaleString(); // You can customize format
+  };
 
-    const markAllAsRead = () => {
-        setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-    };
+  return (
+    <div className="container py-4">
+      <h3 className="mb-4">All Notifications</h3>
 
-    const unreadCount = notifications.filter((n) => !n.isRead).length;
+      {loading ? (
+        <p>Loading notifications...</p>
+      ) : notifications.length === 0 ? (
+        <p className="text-muted">No notifications found</p>
+      ) : (
+        notifications.map((notif) => (
+          <div
+            key={notif.id}
+            className={`border rounded p-3 mb-2 shadow-sm ${notif.is_read ? "bg-white" : "bg-light border-start border-4 border-primary"}`}
+          >
+            <h5 className="mb-1">{notif.title}</h5>
+            <p className="mb-1 text-secondary">{notif.message}</p>
+            <small className="text-muted">{formatDateTime(notif.createdAt)}</small>
+          </div>
+        ))
+      )}
 
-    const filtered = notifications.filter((n) => {
-        if (filter === "all") return true;
-        if (filter === "unread") return !n.isRead;
-        if (filter === "read") return n.isRead;
-        return n.type === filter;
-    });
-
-    const formatTime = (timestamp) => {
-        const date = new Date(timestamp);
-        const now = new Date();
-        const diffMin = Math.floor((now - date) / (1000 * 60));
-        // if (diffMin < 60) return `${diffMin} minutes ago`;
-        // if (diffMin < 1440) return `${Math.floor(diffMin / 60)} hours ago`;
-        // return `${Math.floor(diffMin / 1440)} days ago`;
-    };
-
-    const tabs = [
-        { key: "all", label: "All" },
-        { key: "unread", label: "Unread" },
-        { key: "booking", label: "Bookings" },
-        { key: "payment", label: "Payments" },
-    ];
-
-    return (
-        <div className="card container  py-2 p-4">
-            <div className="  mb-2 p-1">
-                <div className="card-body d-flex justify-content-between align-items-center">
-                    <div className="d-flex align-items-center">
-                        <div className="bg-primary-subtle rounded-circle p-2 me-2">
-                            <Bell size={24} className="text-primary" />
-                        </div>
-                        <div class=" p-3">
-                            <h5 class="card-title d-flex justify-content-between align-items-center mb-0 text-primary">
-                                Notifications
-                                <span class="badge bg-primary rounded-pill">{unreadCount} unread</span>
-                            </h5>
-                        </div>
-                    </div>
-                    <button
-                        className="btn btn-outline-primary btn-sm"
-                        onClick={markAllAsRead}
-                        disabled={unreadCount === 0}
-                    >
-                        Mark all as read
-                    </button>
-                </div>
-                <div className="card-body">
-                    <div className="btn-group" role="group">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab.key}
-                                type="button"
-                                onClick={() => setFilter(tab.key)}
-                                className={`btn btn-sm ${filter === tab.key ? "btn-primary" : "btn-outline-secondary"
-                                    }`}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {filtered.length === 0 ? (
-                <div className="alert alert-info text-center">
-                    <Bell size={32} className="mb-2" />
-                    You're all caught up!
-                </div>
-            ) : (
-                filtered.map((n) => (
-
-                    <div
-                        key={n.id}
-                        className={`p-2 mb-1 d-flex justify-content-between align-items-start rounded border shadow-lg ${n.isRead ? "bg-white" : "bg-light border-start border-4 border-primary"
-                            }`}
-                        style={{ transition: "0.3s ease" }}
-                    >
-                        <div>
-                            <div className="d-flex align-items-center gap-3 mb-2">
-                                {!n.isRead && (
-                                    <span className="badge bg-primary">New</span>
-                                )}
-                                <h6 className={`mb-0 ${n.isRead ? "text-primary" : "fw-bold text-primary"}`}>
-                                    {n.title}
-                                </h6>
-                            </div>
-                            <p className={`mb-1 ${n.isRead ? "text-muted" : "text-light"}`}>
-                                {n.message}
-                            </p>
-                            <small className="text-primary">{formatTime(n.timestamp)}</small>
-                        </div>
-
-                        <div className="text-end">
-                            <button
-                                onClick={() => toggleRead(n.id)}
-                                className="btn btn-sm btn-outline-primary me-2"
-                            >
-                                {n.isRead ? "Mark Unread" : "Mark Read"}
-                            </button>
-                            <button
-                                onClick={() => deleteNotification(n.id)}
-                                className="btn btn-sm btn-outline-danger"
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                ))
-            )}
-        </div>
-    );
+      <button className="btn btn-outline-primary mt-3" onClick={() => navigate(-1)}>
+        Back
+      </button>
+    </div>
+  );
 };
 
-export default Viewallnotification;
+export default ViewAllNotification;
