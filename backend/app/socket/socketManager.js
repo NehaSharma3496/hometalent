@@ -67,7 +67,7 @@ class SocketManager {
   // Send notification to all admins
   notifyAdmins(type, data) {
     this.adminSockets.forEach(socket => {
-      console.log('Sending package subscription notification to admin:', data);
+      console.log('Sending notification to admin:', data);
       socket.emit('notification', {
         type,
         data,
