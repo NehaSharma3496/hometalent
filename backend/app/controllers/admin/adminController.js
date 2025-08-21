@@ -1333,32 +1333,72 @@ exports.packageextendhistory = async (req, res) => {
 exports.notifyExpiredPlans = async (req, res) => {
   try {
     const today = new Date();
-    const expiredSubs = await VendorPackageSubscription.findAll({
+    // Vendors with at least one active subscription (end_date >= today)
+    const activeRows = await VendorPackageSubscription.findAll({
       where: {
-        end_date: { [require('sequelize').Op.lt]: today },
         payment_status: 'completed',
+        end_date: { [Op.gte]: today },
       },
-      include: [
-        { model: User, as: 'vendor', attributes: ['id','owner_name','profile_name'] },
-        { model: Package, as: 'Package', attributes: ['id','name'] }
-      ]
+      attributes: ['vendor_id'],
+      group: ['vendor_id'],
+      raw: true,
+    });
+    const activeVendorIds = new Set(activeRows.map(r => r.vendor_id));
+
+    // Vendors whose last completed subscription has expired
+    const lastRows = await VendorPackageSubscription.findAll({
+      where: { payment_status: 'completed' },
+      attributes: [
+        'vendor_id',
+        [Sequelize.fn('MAX', Sequelize.col('end_date')), 'last_end_date']
+      ],
+      group: ['vendor_id'],
+      having: Sequelize.where(Sequelize.fn('MAX', Sequelize.col('end_date')), { [Op.lt]: today }),
+      raw: true,
     });
 
-    for (const sub of expiredSubs) {
-      const vendorName = sub.vendor?.owner_name || sub.vendor?.profile_name || '';
+    let notifyCount = 0;
+
+    for (const row of lastRows) {
+      const vendorId = row.vendor_id;
+      // If vendor has any active plan, skip
+      if (activeVendorIds.has(vendorId)) continue;
+
+      // Fetch the last (most recent) completed subscription
+      const lastSub = await VendorPackageSubscription.findOne({
+        where: { vendor_id: vendorId, payment_status: 'completed' },
+        order: [['end_date', 'DESC']],
+        include: [
+          { model: User, as: 'vendor', attributes: ['id','owner_name','profile_name'] },
+          { model: Package, as: 'Package', attributes: ['id','name'] }
+        ]
+      });
+      if (!lastSub) continue;
+
+      // Optional deduplication: if we've already notified after this expiry, skip
+      const existingVendorNotif = await Notification.findOne({
+        where: { user_type: 'vendor', user_id: vendorId, type: 'plan_expired' },
+        order: [['createdAt', 'DESC']]
+      });
+      if (existingVendorNotif && existingVendorNotif.createdAt >= lastSub.end_date) continue;
+
+      const vendorName = lastSub.vendor?.owner_name || lastSub.vendor?.profile_name || '';
+
       // Emit sockets
-      socketManager.planExpired(sub.vendor_id, vendorName, { id: sub.id, end_date: sub.end_date, package_id: sub.package_id });
+      socketManager.planExpired(vendorId, vendorName, { id: lastSub.id, end_date: lastSub.end_date, package_id: lastSub.package_id });
+
       // Persist vendor notification
       try {
         await Notification.create({
-          user_id: sub.vendor_id,
+          user_id: vendorId,
           user_type: 'vendor',
           type: 'plan_expired',
           title: 'Plan Expired',
           message: 'Plan expired. Please renew to avoid interruption.',
-          metadata: { subscription_id: sub.id, end_date: sub.end_date }
+          metadata: { subscription_id: lastSub.id, end_date: lastSub.end_date }
         });
       } catch (e) { console.error('Failed to persist vendor plan expired notification:', e.message); }
+
       // Persist admin notification
       try {
         await Notification.create({
@@ -1367,12 +1407,14 @@ exports.notifyExpiredPlans = async (req, res) => {
           type: 'plan_expired',
           title: 'Plan Expired',
           message: `Vendor ${vendorName} subscription plan has expired.`,
-          metadata: { vendor_id: sub.vendor_id, subscription_id: sub.id }
+          metadata: { vendor_id: vendorId, subscription_id: lastSub.id }
         });
       } catch (e) { console.error('Failed to persist admin plan expired notification:', e.message); }
+
+      notifyCount++;
     }
 
-    res.json({ status: true, msg: 'Expiry notifications processed', count: expiredSubs.length });
+    res.json({ status: true, msg: 'Expiry notifications processed', count: notifyCount });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
   }
