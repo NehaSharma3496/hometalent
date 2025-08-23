@@ -63,20 +63,20 @@ export default function AddVendor() {
       name: "ownerName",
       label: "Owner Name*",
       type: "text",
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4",
     },
     {
       name: "profileName",
       label: "Profile Name",
       type: "text",
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4 ",
     },
     {
       name: "state",
       label: "State*",
       type: "select",
       options: statesData,
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4 ",
       onChange: (e) => setSelectedStateId(e.target.value),
     },
     {
@@ -84,98 +84,98 @@ export default function AddVendor() {
       label: "City*",
       type: "select",
       options: cityData,
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4 ",
     },
     {
       name: "pin",
       label: "Pin Code*",
       type: "text",
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4 ",
     },
     {
       name: "phone",
       label: "Phone No*",
       type: "text",
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4 ",
     },
     {
       name: "email",
       label: "Email*",
       type: "email",
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4 ",
     },
     {
       name: "priceRange",
       label: "Price Range*",
       type: "text",
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4 ",
     },
     {
       name: "category",
       label: "Category*",
       type: "select",
       options: categoryData,
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4 ",
     },
     {
       name: "experience",
       label: "Experience Since",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 ",
     },
     {
       name: "shortDesc",
       label: "Short Description",
       type: "text",
-      colClass: "col-md-12 mb-3",
+      colClass: "col-md-12 ",
     },
     {
       name: "longDesc",
       label: "Full Description",
       type: "textarea",
-      colClass: "col-md-12 mb-3",
+      colClass: "col-md-12 ",
     },
     {
       name: "facebook_link",
       label: "Facebook Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 ",
     },
     {
       name: "instagram_link",
       label: "Instagram Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 ",
     },
     {
       name: "twitter_link",
       label: "Twitter Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 ",
     },
     {
       name: "linkedin_link",
       label: "LinkedIn Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 ",
     },
     {
       name: "youtube_link",
       label: "YouTube Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 ",
     },
     {
       name: "website_link",
       label: "Website Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 ",
     },
     {
       name: "images",
       label: "Image",
       type: "file",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 ",
     },
     {
       name: "terms",
@@ -189,7 +189,7 @@ export default function AddVendor() {
         </>
       ),
       type: "checkbox",
-      colClass: "col-md-12 mb-3",
+      colClass: "col-md-12 ",
     },
   ];
 
@@ -294,7 +294,7 @@ export default function AddVendor() {
         </Link>
         <h2 className="add-page-heading">Add Vendor</h2>
       </div>
-      <div className="card">
+      <div className="card card1">
         <ReusableForm
           initialValues={initialValues}
           validationSchema={validationSchema}

@@ -418,7 +418,7 @@ export default function Allvendors() {
             <h2 className="add-page-heading">All Vendor</h2>
           </div>
         </div>
-        <div className="col-md-6 text-end">
+        <div className="col-md-6 text-end mt-2">
           <button className="btn btn-success me-2" onClick={exportToExcel}>
             <i className="fa-solid fa-file-excel me-1"></i>Download Excel
           </button>
@@ -428,7 +428,7 @@ export default function Allvendors() {
         </div>
       </div>
 
-      <div className="card">
+      <div className="card table-padding">
         <div className="card-header">
           <div className="col-md-4">
             <div className="d-flex align-items-center border rounded px-2">

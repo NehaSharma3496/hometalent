@@ -124,15 +124,15 @@ export default function AllLeads() {
 
   const filteredLeads = searchText
     ? allLeads.filter((lead) => {
-        const lowerSearch = searchText.toLowerCase();
-        return (
-          lead.owner_name?.toLowerCase().includes(lowerSearch) ||
-          lead.vendor?.phone?.toLowerCase().includes(lowerSearch) ||
-          lead.name?.toLowerCase().includes(lowerSearch) ||
-          lead.email?.toLowerCase().includes(lowerSearch) ||
-          lead.phone?.toLowerCase().includes(lowerSearch)
-        );
-      })
+      const lowerSearch = searchText.toLowerCase();
+      return (
+        lead.owner_name?.toLowerCase().includes(lowerSearch) ||
+        lead.vendor?.phone?.toLowerCase().includes(lowerSearch) ||
+        lead.name?.toLowerCase().includes(lowerSearch) ||
+        lead.email?.toLowerCase().includes(lowerSearch) ||
+        lead.phone?.toLowerCase().includes(lowerSearch)
+      );
+    })
     : leads;
 
   const columns = [
@@ -182,24 +182,23 @@ export default function AllLeads() {
   return (
     <div className="page-content">
       <div className="row align-items-center mb-3">
-        <div className="col-md-6">
-          <div className="add-page-heading-div">
+        <div className="col-md-12 d-flex justify-content-between align-items-center flex-wrap">
+          <div className="add-page-heading-div d-flex align-items-center">
             <Link to="/admin/dashboard">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
             <h2 className="add-page-heading">All Leads</h2>
           </div>
-        </div>
 
-        <div className="col-md-6 text-end">
-          <button className="btn btn-success me-2" onClick={exportToExcel}>
+          <button className="btn btn-success me-2 mt-4" onClick={exportToExcel}>
             <i className="fa-solid fa-file-excel me-1"></i>
             Download Excel
           </button>
         </div>
       </div>
 
-      <div className="card">
+
+      <div className="card table-padding">
         <div
           className="d-flex align-items-center border rounded px-2 "
           style={{ maxWidth: "250px" }}

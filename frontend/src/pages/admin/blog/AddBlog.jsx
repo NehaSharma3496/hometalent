@@ -78,7 +78,7 @@ export default function AddBlog() {
       </div>
 
       {/* Form Card */}
-      <div className="card">
+      <div className="card table-padding">
         <div className="card-body">
           <form onSubmit={handleSubmit} encType="multipart/form-data">
             <div className="row">

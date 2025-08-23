@@ -31,25 +31,25 @@ export default function AddPackage() {
       name: "name",
       label: "Package Name*",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 custom-field",
     },
     {
       name: "description",
       label: "Description*",
       type: "textarea",
-      colClass: "col-md-12 mb-3",
+      colClass: "col-md-12 custom-field",
     },
     {
       name: "price",
       label: "Price (₹)*",
       type: "number",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 custom-field",
     },
     {
       name: "validity_in_months",
       label: "Validity (in months)*",
       type: "select",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 custom-field",
       options: [
         { label: "1 Month", value: 1 },
         { label: "2 Months", value: 2 },
@@ -65,14 +65,14 @@ export default function AddPackage() {
         { label: "12 Months", value: 12 },
       ],
     },
-
     {
       name: "features",
       label: "Features*",
       type: "textarea",
-      colClass: "col-md-12 mb-3",
+      colClass: "col-md-12 custom-field",
     },
   ];
+
 
   const onSubmit = async (values) => {
     try {
@@ -99,13 +99,13 @@ export default function AddPackage() {
 
   return (
     <div className="page-content">
-      <div className="add-page-heading-div mb-4">
+      <div className="add-page-heading-div mb-2">
         <Link to="/admin/dashboard">
           <i className="fa-sharp fa-regular fa-arrow-left"></i>
         </Link>
         <h2 className="add-page-heading">Add Package</h2>
       </div>
-      <div className="card">
+      <div className="card table-padding font">
         <ReusableForm
           initialValues={initialValues}
           validationSchema={validationSchema}

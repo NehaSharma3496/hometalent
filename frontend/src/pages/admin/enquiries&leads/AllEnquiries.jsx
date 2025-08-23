@@ -119,13 +119,13 @@ export default function AllEnquiries() {
 
   const filteredContacts = searchText
     ? allContacts.filter((entry) => {
-        const lowerSearch = searchText.toLowerCase();
-        return (
-          entry.name?.toLowerCase().includes(lowerSearch) ||
-          entry.email?.toLowerCase().includes(lowerSearch) ||
-          entry.phone?.toLowerCase().includes(lowerSearch)
-        );
-      })
+      const lowerSearch = searchText.toLowerCase();
+      return (
+        entry.name?.toLowerCase().includes(lowerSearch) ||
+        entry.email?.toLowerCase().includes(lowerSearch) ||
+        entry.phone?.toLowerCase().includes(lowerSearch)
+      );
+    })
     : contacts;
 
   useEffect(() => {
@@ -194,23 +194,26 @@ export default function AllEnquiries() {
   return (
     <div className="page-content">
       <div className="row align-items-center mb-3">
-        <div className="col-md-6">
-          <div className="add-page-heading-div">
+        <div className="col-md-12 d-flex justify-content-between align-items-center flex-wrap">
+          <div className="add-page-heading-div d-flex align-items-center mb-2 mb-md-0">
             <Link to="/admin/dashboard">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
-            <h2 className="add-page-heading">All Enquiries </h2>
+            <h2 className="add-page-heading ">All Enquiries</h2>
           </div>
-        </div>
-        <div className="col-md-6 text-end">
-          <button className="btn btn-success me-2" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i>
-            Download Excel
-          </button>
+
+          <div className="text-end">
+            <button className="btn btn-success mt-3" onClick={exportToExcel}>
+              <i className="fa-solid fa-file-excel me-1"></i>
+              Download Excel
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="card">
+
+
+      <div className="card table-padding">
         <div
           className="d-flex align-items-center border rounded px-2 "
           style={{ maxWidth: "250px" }}

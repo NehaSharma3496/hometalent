@@ -5,18 +5,15 @@ import { GetVendorDetails, GetCategories } from "../../Services/vendor/Vendor";
 export default function MyProfile() {
   const [vendor, setVendor] = useState(null);
   const [category, setCategory] = useState([]);
+  const [showFullDescription, setShowFullDescription] = useState(false); // 🔹 Toggle for Read More
   const token = localStorage.getItem("token");
   const vendorId = localStorage.getItem("userId");
 
   const fetchVendor = async () => {
     try {
       const res = await GetVendorDetails(token, vendorId);
-      console.log("Vendor API Response:", res);
-
       if (res?.data?.user) {
         setVendor(res.data.user);
-      } else {
-        console.error("Invalid response structure", res);
       }
     } catch (err) {
       console.error("Error fetching vendor:", err);
@@ -26,15 +23,13 @@ export default function MyProfile() {
   const fetchCategory = async () => {
     try {
       const res = await GetCategories(token);
-      setCategory(res?.data);
+      setCategory(res?.data || []);
     } catch (error) {
-      console.log("Error in fetching categories", error);
+      console.error("Error fetching categories", error);
     }
   };
 
   const getCategoryNameById = (id) => {
-    if (!id || !category || category.length === 0) return "Not provided";
-
     const cat = category.find((c) => String(c.id) === String(id));
     return cat ? cat.name : "Not provided";
   };
@@ -43,21 +38,14 @@ export default function MyProfile() {
     if (token && vendorId) {
       fetchVendor();
       fetchCategory();
-    } else {
-      console.warn("Missing token or vendor ID");
     }
   }, [token, vendorId]);
 
   if (!vendor) {
     return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ minHeight: "60vh" }}
-      >
+      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
         <div className="text-center">
-          <div className="spinner-border text-primary mb-3" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
+          <div className="spinner-border text-primary mb-3" role="status"></div>
           <h5 className="text-muted">Loading Your Profile...</h5>
         </div>
       </div>
@@ -76,192 +64,149 @@ export default function MyProfile() {
   const profileFields = [
     { label: "Email", value: vendor.email, icon: "fas fa-envelope" },
     { label: "Phone", value: vendor.phone, icon: "fas fa-phone" },
-    {
-      label: "Price Range",
-      value: vendor.price_range,
-      icon: "fas fa-dollar-sign",
-    },
-    {
-      label: "Experience Since",
-      value: vendor.experience_since,
-      icon: "fas fa-calendar-alt",
-    },
-    {
-      label: "Pin Code",
-      value: vendor.pin_code,
-      icon: "fas fa-map-marker-alt",
-    },
-    {
-      label: "Category Name",
-      value: getCategoryNameById(vendor.category_id),
-      icon: "fas fa-tags",
-    },
+    { label: "Price Range", value: vendor.price_range, icon: "fas fa-dollar-sign" },
+    { label: "Experience Since", value: vendor.experience_since, icon: "fas fa-calendar-alt" },
+    { label: "Pin Code", value: vendor.pin_code, icon: "fas fa-map-marker-alt" },
+    { label: "Category Name", value: getCategoryNameById(vendor.category_id), icon: "fas fa-tags" },
   ];
 
-  return (
-    <div className="page-content">
-      <div className="row align-items-center mb-1">
-        <div className="col-md-6 mb-2">
-          <div className="add-page-heading-div">
-            <Link to="/vendor/dashboard" className="me-2">
-              <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
-            <h5 className="add-page-heading mb-0">My Profile</h5>
-          </div>
-        </div>
+  const maxLength = 150;
+  const longDescription = vendor.long_description || "";
+  const displayText =
+    !showFullDescription && longDescription.length > maxLength
+      ? longDescription.substring(0, maxLength) + "..."
+      : longDescription;
 
-        <div className="col-md-6 text-end mb-4">
-          <Link
-            to="/vendor/updateprofile"
-            className="btn btn-primary me-2 shadow-sm"
-          >
-            <i className="fa fa-edit me-1"></i>
-            Update Profile
+  return (
+    <div className="page-content container py-4">
+      {/* Header */}
+      <div className="d-flex justify-content-between align-items-center mb-4 mt-4 flex-wrap">
+        <div className="d-flex align-items-center">
+          <Link to="/vendor/dashboard" className="me-2 text-decoration-none text-dark">
+            <i className="fa fa-arrow-left"></i>
           </Link>
+          <h5 className="mb-0 fw-bold">My Profile</h5>
         </div>
+        <Link to="/vendor/updateprofile" className="btn btn-primary btn-sm ms-md-3 mt-2 mt-md-0">
+          <i className="fa fa-edit me-1"></i> Update Profile
+        </Link>
       </div>
 
-      <div className="card border-0 shadow-lg rounded-4 overflow-hidden">
-        {/* Profile Header with My Packages Button on Top Right */}
-        <div className="p-4 position-relative">
-          <div className="row align-items-center">
-            <div className="col-auto">
-              <div className="position-relative">
-                <img
-                  src={vendor.image || "/no-image.png"}
-                  alt="Vendor"
-                  className="rounded-circle border border-3 border-white shadow"
-                  style={{
-                    width: "120px",
-                    height: "120px",
-                    objectFit: "cover",
-                  }}
-                />
-              </div>
-            </div>
-            <div className="col">
-              <h3 className="mb-2 fw-bold">{vendor.owner_name}</h3>
-              <div className="d-flex align-items-center gap-3 mb-2">
-                {vendor.experience_since && (
-                  <span>
-                    <i className="fas fa-calendar-alt me-1"></i>
-                    Since {vendor.experience_since}
-                  </span>
-                )}
-              </div>
+      {/* Profile Card */}
+      <div className="card border-0 shadow-sm rounded-4 overflow-hidden profile-card">
+        <div className="d-flex justify-content-between align-items-center p-4 flex-wrap profile-header">
+          {/* Left Side - Image + Info */}
+          <div className="d-flex align-items-center text-center text-md-start flex-wrap">
+            <img
+              src={vendor.image || "/no-image.png"}
+              alt="Vendor"
+              className="rounded-circle border border-3 border-white shadow me-3 mb-3 mb-md-0"
+              style={{ width: "120px", height: "120px", objectFit: "cover" }}
+            />
+            <div>
+              <h3 className="fw-bold mb-1">{vendor.owner_name}</h3>
+              {vendor.experience_since && (
+                <p className="text-muted mb-0">
+                  <i className="fas fa-calendar-alt me-1"></i> Since {vendor.experience_since}
+                </p>
+              )}
             </div>
           </div>
 
-          {/* My Packages Button on the top right corner of the card */}
-          <div className="position-absolute top-0 end-0 p-3">
-            <Link
-              to="/vendor/mypackages"
-              className="btn btn-outline-primary btn-sm shadow-sm"
-            >
-              <i className="fas fa-box-open me-1"></i>
-              My Packages
-            </Link>
-          </div>
+          {/* Right Side - Button */}
+          <Link to="/vendor/mypackages" className="btn btn-outline-primary btn-sm mt-3 mt-md-0">
+            <i className="fas fa-box-open me-1"></i> My Packages
+          </Link>
         </div>
 
-        <div className="card-body p-4">
-          <div className="row g-4">
-            <div className="col-lg-8">
-              <h5 className="mb-4 d-flex align-items-center">
-                <i className="fas fa-info-circle text-primary me-2"></i>
-                Contact Information
-              </h5>
-              <div className="row g-3">
-                {profileFields.map(({ label, value, icon }, i) => (
-                  <div key={i} className="col-md-6">
-                    <div className="justify-content-between align-items-center p-3 bg-light rounded-3 h-100">
-                      <div className="d-flex align-items-center gap-3">
-                        <div className="text-primary fs-5">
-                          <i className={icon}></i>
-                        </div>
-                        <div className="fw-semibold">{label}</div>
-                      </div>
-                      <div className="fw-medium">{value || "Not provided"}</div>
-                    </div>
+
+        {/* Contact Information */}
+        <div className="card-body p-3 p-md-4">
+          <h5 className="mb-3">
+            <i className="fas fa-info-circle text-primary me-2"></i> Contact Information
+          </h5>
+          <div className="row g-3">
+            {profileFields.map(({ label, value, icon }, i) => (
+              <div key={i} className="col-lg-6 col-12">
+                <div className="p-3 border rounded-3 bg-light h-100 w-100">
+                  <div className="d-flex align-items-center mb-2">
+                    <i className={`${icon} text-primary me-2`}></i>
+                    <strong>{label}</strong>
                   </div>
-                ))}
+                  <div>{value || "Not provided"}</div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
 
+          {/* About Section */}
           {(vendor.short_description || vendor.long_description) && (
-            <div className="mt-3">
-              <h5 className="mb-3 d-flex align-items-center">
-                <i className="fas fa-file-alt text-info me-2"></i>
-                About
+            <div className="mt-4">
+              <h5 className="mb-3">
+                <i className="fas fa-file-alt text-info me-2"></i> About
               </h5>
               <div className="row">
                 {vendor.short_description && (
-                  <div className="col-md-6 mb-3">
-                    <div className="bg-light p-4 rounded-3 h-100">
-                      <h6 className="text-primary mb-2">Short Description</h6>
-                      <p className="mb-0 lh-lg">{vendor.short_description}</p>
+                  <div className="col-md-6 col-12 mb-3">
+                    <div className="bg-light p-3 rounded-3 h-100">
+                      <h6 className="text-primary">Short Description</h6>
+                      <p className="mb-0">{vendor.short_description}</p>
                     </div>
                   </div>
                 )}
                 {vendor.long_description && (
-                  <div className="col-md-6 mb-3">
-                    <div className="bg-light p-4 rounded-3 h-100">
-                      <h6 className="text-primary mb-2">Long Description</h6>
-                      <p className="mb-0 lh-lg">{vendor.long_description}</p>
+                  <div className="col-md-6 col-12 mb-3">
+                    <div className="bg-light p-3 rounded-3 h-100 position-relative">
+                      <h6 className="text-primary">Long Description</h6>
+
+
+                      <p className="mb-0">
+                        {showFullDescription
+                          ? vendor.long_description
+                          : vendor.long_description.slice(0, 120) + (vendor.long_description.length > 120 ? "..." : "")}
+                      </p>
+
+
+                      {vendor.long_description.length > 120 && (
+                        <button
+                          className="btn-readmore mt-2"
+                          onClick={() => setShowFullDescription(!showFullDescription)}
+                        >
+                          {showFullDescription ? "Read Less" : "Read More"}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
+
               </div>
             </div>
           )}
 
-          <div className="mt-3">
-            <h5 className="mb-4 d-flex align-items-center">
-              Social Media & Links
-            </h5>
-            <div className="d-flex">
+          {/* Social Links */}
+          <div className="mt-4">
+            <h5 className="mb-3">Social Media & Links</h5>
+            <div className="d-flex flex-wrap gap-2">
               {socialLinks.map(({ key, icon, color }) => {
                 const link = vendor[key];
                 if (!link) return null;
-
-                const fullUrl = link.startsWith("http")
-                  ? link
-                  : `https://${link}`;
-
+                const fullUrl = link.startsWith("http") ? link : `https://${link}`;
                 return (
-                  <div key={key} className="me-3">
-                    <a
-                      href={fullUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="btn btn-outline-secondary w-100 rounded-3 p-3 text-decoration-none d-flex align-items-center gap-3 hover-lift"
-                      style={{
-                        borderColor: color + "30",
-                        transition: "all 0.3s ease",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.backgroundColor = color + "10";
-                        e.target.style.borderColor = color;
-                        e.target.style.color = color;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.backgroundColor = "";
-                        e.target.style.borderColor = color + "30";
-                        e.target.style.color = "";
-                      }}
-                    >
-                      <i className={icon} style={{ color: color }}></i>
-                    </a>
-                  </div>
+                  <a
+                    key={key}
+                    href={fullUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn btn-sm btn-light border d-flex align-items-center gap-2 px-3 py-2"
+                    style={{ color }}
+                  >
+                    <i className={icon}></i>
+                  </a>
                 );
               })}
             </div>
             {socialLinks.every(({ key }) => !vendor[key]) && (
-              <div className="text-center py-4">
-                <i className="fas fa-link text-muted mb-2"></i>
-                <p className="text-muted mb-0">No social links added yet</p>
-              </div>
+              <p className="text-muted mt-3 text-center">No social links added yet</p>
             )}
           </div>
         </div>

@@ -309,7 +309,7 @@ export default function BlockedVendors() {
           </button>
         </div>
       </div>
-      <div className="card">
+      <div className="card table-padding">
         <div className="col-md-4">
           <div className="d-flex align-items-center border rounded px-2">
             <i className="ri-search-line me-2 text-muted" />

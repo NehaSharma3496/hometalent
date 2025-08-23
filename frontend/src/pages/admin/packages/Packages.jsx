@@ -272,7 +272,7 @@ export default function Packages() {
 
   return (
     <div className="page-content">
-      <div className="row align-items-center mb-3">
+      <div className="row align-items-center mb-2">
         <div className="col-md-6">
           <div className="add-page-heading-div">
             <Link to="/admin/dashboard">
@@ -282,20 +282,20 @@ export default function Packages() {
           </div>
         </div>
 
-        <div className="col-md-6 text-end">
+        <div className="col-md-6 text-end mt-2">
           <button className="btn btn-success me-2" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i>
+            <i className="fa-solid fa-file-excel me-2"></i>
             Download Excel
           </button>
 
-          <Link to="/admin/addpackage" className="btn btn-primary">
+          <Link to="/admin/addpackage" className="btn btn-primary me-2">
             + Add Package
           </Link>
         </div>
       </div>
 
-      <div className="card">
-        <div className="col-md-4 p-3">
+      <div className="card table-padding">
+        <div className="col-md-4 p-1">
           <div className="d-flex align-items-center border rounded px-2">
             <i className="ri-search-line me-2 text-muted" />
             <input

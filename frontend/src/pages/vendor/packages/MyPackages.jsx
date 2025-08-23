@@ -116,12 +116,12 @@ export default function MyPackages() {
 
   const filteredData = searchText
     ? allPackagesForSearch.filter((pkg) => {
-        const lowerSearch = searchText.toLowerCase();
-        return (
-          pkg.Package?.name?.toLowerCase().includes(lowerSearch) ||
-          pkg.amount?.toString().toLowerCase().includes(lowerSearch)
-        );
-      })
+      const lowerSearch = searchText.toLowerCase();
+      return (
+        pkg.Package?.name?.toLowerCase().includes(lowerSearch) ||
+        pkg.amount?.toString().toLowerCase().includes(lowerSearch)
+      );
+    })
     : paginatedPackages;
 
   const columns = [
@@ -160,9 +160,8 @@ export default function MyPackages() {
       selector: (row) => row.status,
       cell: (row) => (
         <span
-          className={`badge bg-${
-            row.status === "Active" ? "success" : "danger"
-          } fs-6`}
+          className={`badge bg-${row.status === "Active" ? "success" : "danger"
+            } fs-6`}
         >
           {row.status}
         </span>
@@ -231,21 +230,21 @@ export default function MyPackages() {
 
   return (
     <div className="page-content">
-      <div className="row align-items-center mb-4">
-        <div className="col-md-6">
-          <div className="add-page-heading-div">
-            <Link to="/vendor/dashboard" className="me-2">
-              <i className="fa fa-arrow-left"></i>
-            </Link>
-            <h5 className="add-page-heading mb-0">My Packages</h5>
-          </div>
+      <div className="d-flex justify-content-between align-items-center mb-4 p-2 mt-3 flex-nowrap">
+        {/* Back button + Heading */}
+        <div className="d-flex align-items-center">
+          <Link to="/vendor/dashboard" className="me-2">
+            <i className="fa fa-arrow-left"></i>
+          </Link>
+          <h5 className="add-page-heading mb-0">My Packages</h5>
         </div>
-        <div className="text-end mb-2">
-          <button className="btn btn-primary btn-sm" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i> Download Packages
-          </button>
-        </div>
+
+        {/* Download Button */}
+        <button className="btn btn-primary btn-sm" onClick={exportToExcel}>
+          <i className="fa-solid fa-file-excel me-1"></i> Download 
+        </button>
       </div>
+
 
       <div
         className="d-flex align-items-center border rounded px-2 mb-3"

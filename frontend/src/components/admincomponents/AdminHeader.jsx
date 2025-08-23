@@ -17,7 +17,7 @@ export default function AdminHeader() {
   const [isOpen, setIsOpen] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
 
-  
+
 
   // ✅ Context
   const {
@@ -31,22 +31,22 @@ export default function AdminHeader() {
   const userType = role === "1" ? "admin" : role === "2" ? "vendor" : "client";
 
   // --- LocalStorage sync ---
-useEffect(() => {
-  if (notifications && notifications.length > 0) {
-    // Get previously stored notifications
-    const stored = JSON.parse(localStorage.getItem("notifications")) || [];
+  useEffect(() => {
+    if (notifications && notifications.length > 0) {
+      // Get previously stored notifications
+      const stored = JSON.parse(localStorage.getItem("notifications")) || [];
 
-    // Merge current notifications with stored, remove duplicates by id
-    const merged = [...stored, ...notifications].filter(
-      (v, i, a) => a.findIndex(n => n.id === v.id) === i
-    );
+      // Merge current notifications with stored, remove duplicates by id
+      const merged = [...stored, ...notifications].filter(
+        (v, i, a) => a.findIndex(n => n.id === v.id) === i
+      );
 
-    // Limit to 20 latest notifications
-    const latest20 = merged.slice(-20);
+      // Limit to 20 latest notifications
+      const latest20 = merged.slice(-20);
 
-    localStorage.setItem("notifications", JSON.stringify(latest20));
-  }
-}, [notifications]);
+      localStorage.setItem("notifications", JSON.stringify(latest20));
+    }
+  }, [notifications]);
 
 
 
@@ -136,7 +136,7 @@ useEffect(() => {
   }, [role, token, vendorId]);
 
   const storedNotifications = JSON.parse(localStorage.getItem("notifications")) || [];
-const displayedNotifications = notifications.length > 0 ? notifications : storedNotifications;
+  const displayedNotifications = notifications.length > 0 ? notifications : storedNotifications;
 
 
   return (
@@ -172,7 +172,7 @@ const displayedNotifications = notifications.length > 0 ? notifications : stored
                       onClick={() => setIsOpen(!isOpen)}
                       style={{ background: "none", border: "none" }}
                     >
-                      <i className="fa-solid fa-bell text-primary fs-5"></i>
+                      <i className="fa-solid fa-bell text-primary fs-4 mt-2"></i>
                       {unreadCount > 0 && (
                         <span
                           className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge"
@@ -185,98 +185,94 @@ const displayedNotifications = notifications.length > 0 ? notifications : stored
 
                   {isOpen && (
                     <>
+                      {/* Overlay */}
                       <div
-                        className="position-fixed top-0 start-0 w-100 h-100"
+                        className="position-fixed  top-0 start-0 "
                         style={{ zIndex: 1040 }}
                         onClick={() => setIsOpen(false)}
                       ></div>
 
                       <div
-                        className="notification-dropdown-container position-absolute bg-white shadow-lg rounded-3 border"
+                        className="notification-dropdown-container bg-white shadow-lg rounded-3 border"
+                        style={{
+                          position: "fixed",
+                          top: "80px",
+                          right: "20px",
+                          width: "350px",      
+                          maxHeight: "400px",
+                          overflowY: "auto",
+                          zIndex: 1050,
+                        }}
                       >
-                        <div className="d-flex justify-content-between align-items-center p-3 border-bottom bg-white shadow-sm rounded-top">
-                          <h6 className="mb-0 fw-semibold fs-5 text-primary d-flex align-items-center">
+                        {/* Header */}
+                        <div className="d-flex justify-content-between align-items-center p-2 border-bottom bg-white shadow-sm rounded-top">
+                          <h6 className="mb-0 fw-semibold fs-6 text-primary d-flex align-items-center">
                             <i className="bi bi-bell-fill me-2 text-warning"></i> Notifications
                           </h6>
                           <button
-                            className="btn btn-sm d-flex align-items-center justify-content-center rounded-circle shadow-sm border-0 close-btn"
+                            className="btn btn-sm rounded-circle border-0"
                             onClick={() => setIsOpen(false)}
                             aria-label="Close"
                           >
                             <i className="bi bi-x-lg"></i>
                           </button>
-
                         </div>
 
-                        <div
-                          className="overflow-auto bg-light"
-                          style={{ maxHeight: "400px" }}
-                        >
-                          {displayedNotifications .length === 0 ? (
-                            <p className="text-center text-muted p-3">
-                              No notifications
-                            </p>
+                        {/* Notification List */}
+                        <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                          {displayedNotifications.length === 0 ? (
+                            <p className="text-center text-muted p-2">No notifications</p>
                           ) : (
-                            displayedNotifications .map((notification) => (
+                            displayedNotifications.map((notification) => (
                               <div
                                 key={notification.id}
-                                className={`p-3 border-bottom rounded-2 mb-2 mx-2 shadow-sm notification-item hover-effect ${
-                                  notification.isRead
+                                className={`p-2 border-bottom rounded-2 mb-1 notification-item ${notification.isRead
                                     ? "bg-white"
                                     : "bg-primary-subtle border-start border-3 border-primary"
-                                }`}
-                                style={{
-                                  cursor: "pointer",
-                                  transition: "0.3s",
-                                }}
-                                onClick={() =>
-                                  handleNotificationClick(notification.id)
-                                }
+                                  }`}
+                                style={{ cursor: "pointer", transition: "0.3s" }}
+                                onClick={() => handleNotificationClick(notification.id)}
                               >
                                 <h6
-                                  className={`mb-1 fw-bold d-flex align-items-center ${
-                                    notification.isRead
-                                      ? "text-secondary"
-                                      : "text-primary"
-                                  }`}
+                                  className={`mb-1 fw-bold d-flex align-items-center ${notification.isRead ? "text-secondary" : "text-primary"
+                                    }`}
+                                  style={{ fontSize: "0.9rem" }}
                                 >
-                                  <i className="bi bi-info-circle-fill me-2"></i>
+                                  <i className="bi bi-info-circle-fill me-1"></i>
                                   {notification?.data?.message}
                                 </h6>
-                                <div>
-                                  <small className="text-muted fst-italic">
-                                    {new Date(
-                                      notification.timestamp
-                                    ).toLocaleString()}
-                                  </small>
-                                </div>
+                                <small className="text-muted fst-italic" style={{ fontSize: "0.7rem" }}>
+                                  {new Date(notification.timestamp).toLocaleString()}
+                                </small>
                               </div>
                             ))
                           )}
                         </div>
 
-                        <div className="p-3 bg-white text-left rounded-bottom shadow-sm border-top">
+                        {/* Footer */}
+                        <div className="p-2 bg-white text-center border-top">
                           <button
-                            className="btn btn-sm w-100 w-md-auto px-4 py-2 rounded fw-semibold text-white"
+                            className="btn btn-sm w-100 rounded fw-semibold text-white"
                             style={{
                               background: "linear-gradient(135deg, #4e54c8, #8f94fb)",
-                              transition: "all 0.3s ease-in-out",
-                              boxShadow: "0 4px 10px rgba(78, 84, 200, 0.3)",
+                              fontSize: "0.8rem",
                             }}
-                            onMouseEnter={(e) => {
-                              e.target.style.transform = "scale(1.05)";
+                            onClick={() => {
+                              handleViewAll();
+                              setIsOpen(false); // close dropdown on View All
                             }}
-                            onMouseLeave={(e) => {
-                              e.target.style.transform = "scale(1)";
-                            }}
-                            onClick={handleViewAll}
                           >
-                            View All Notifications
+                            View All
                           </button>
                         </div>
                       </div>
+
+             
+                  
                     </>
                   )}
+
+
                 </div>
 
 

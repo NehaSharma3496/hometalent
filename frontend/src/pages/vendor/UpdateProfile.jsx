@@ -25,30 +25,30 @@ export default function UpdateProfile() {
       name: "owner_name",
       label: "Owner Name",
       type: "text",
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4 ",
     },
     {
       name: "profile_name",
       label: "Profile Name",
       type: "text",
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4 ",
     },
-    { name: "phone", label: "Phone", type: "text", colClass: "col-md-4 mb-3" },
-    { name: "email", label: "Email", type: "email", colClass: "col-md-4 mb-3" },
+    { name: "phone", label: "Phone", type: "text", colClass: "col-md-4 " },
+    { name: "email", label: "Email", type: "email", colClass: "col-md-4 " },
     {
       name: "state_id",
       label: "State",
       type: "select",
       options: statesData,
       onChange: (e) => setSelectedStateId(e.target.value),
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4 ",
     },
     {
       name: "city_id",
       label: "City",
       type: "select",
       options: cityData,
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4 ",
     },
     {
       name: "pin_code",
@@ -60,14 +60,14 @@ export default function UpdateProfile() {
       name: "price_range",
       label: "Price Range",
       type: "text",
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4 ",
     },
     {
       name: "category_id",
       label: "Category",
       type: "select",
       options: categoryData,
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4 ",
     },
     {
       name: "experience_since",
@@ -79,13 +79,13 @@ export default function UpdateProfile() {
       name: "short_description",
       label: "Short Description",
       type: "text",
-      colClass: "col-12 mb-3",
+      colClass: "col-12 ",
     },
     {
       name: "long_description",
       label: "Long Description",
       type: "textarea",
-      colClass: "col-12 mb-3",
+      colClass: "col-12 ",
     },
     {
       name: "facebook_link",
@@ -97,31 +97,31 @@ export default function UpdateProfile() {
       name: "instagram_link",
       label: "Instagram Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 ",
     },
     {
       name: "twitter_link",
       label: "Twitter Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 ",
     },
     {
       name: "linkedin_link",
       label: "LinkedIn Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 ",
     },
     {
       name: "youtube_link",
       label: "YouTube Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 ",
     },
     {
       name: "website_link",
       label: "Website Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-6 ",
     },
     { name: "image", label: "Image", type: "file", colClass: "col-md-6 mb-3" },
   ];
@@ -261,7 +261,7 @@ export default function UpdateProfile() {
         <h2 className="add-page-heading mb-0">Request Profile Update</h2>
       </div>
 
-      <div className="card">
+      <div className="card table-padding">
         <div className="row align-items-center mb-3">
           <div className="col-md-6"></div>
         </div>

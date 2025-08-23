@@ -96,13 +96,13 @@ const VendorPackages = () => {
 
   const filteredPackages = searchText
     ? allPackages.filter((pkg) => {
-        const lowerSearch = searchText.toLowerCase();
-        return (
-          pkg.name?.toLowerCase().includes(lowerSearch) ||
-          pkg.price?.toString().toLowerCase().includes(lowerSearch) ||
-          pkg.validity_in_months?.toString().toLowerCase().includes(lowerSearch)
-        );
-      })
+      const lowerSearch = searchText.toLowerCase();
+      return (
+        pkg.name?.toLowerCase().includes(lowerSearch) ||
+        pkg.price?.toString().toLowerCase().includes(lowerSearch) ||
+        pkg.validity_in_months?.toString().toLowerCase().includes(lowerSearch)
+      );
+    })
     : packages;
 
   const exportToExcel = async () => {
@@ -252,9 +252,8 @@ const VendorPackages = () => {
 
         return (
           <button
-            className={`btn btn-primary p-1 d-flex align-items-center gap-1 ${
-              isSubscribed ? "btn-outline-secondary" : "btn-primary"
-            }`}
+            className={`btn btn-primary p-1 d-flex align-items-center gap-1 ${isSubscribed ? "btn-outline-secondary" : "btn-primary"
+              }`}
             onClick={() => AddSubscribeplan(row)}
           >
             <i className="fa-solid fa-crown text-warning"></i>
@@ -275,9 +274,8 @@ const VendorPackages = () => {
             style={{ height: "40px", width: "100%" }}
           >
             <span
-              className={`fs-6 ${
-                isSubscribed ? "badge bg-success" : "text-muted"
-              }`}
+              className={`fs-6 ${isSubscribed ? "badge bg-success" : "text-muted"
+                }`}
             >
               {isSubscribed ? "Active" : "-"}
             </span>
@@ -291,17 +289,17 @@ const VendorPackages = () => {
 
   return (
     <div className="page-content">
-      <div className="row align-items-center mb-3">
-        <div className="col-md-6">
-          <div className="add-page-heading-div">
-            <Link to="/vendor/dashboard">
-              <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
-            <h2 className="add-page-heading">Available Packages</h2>
-          </div>
+      <div className="d-flex justify-content-between align-items-center flex-wrap mb-3 mt-4">
+        {/* Back button + Heading */}
+        <div className="d-flex align-items-center mb-2 mb-md-0">
+          <Link to="/vendor/dashboard" className="me-2">
+            <i className="fa-sharp fa-regular fa-arrow-left"></i>
+          </Link>
+          <h2 className="add-page-heading mb-0 fs-4">Packages</h2>
         </div>
 
-        <div className="col-md-6 text-end">
+        {/* Download Button */}
+        <div>
           <button className="btn btn-success me-2" onClick={exportToExcel}>
             <i className="fa-solid fa-file-excel me-1"></i>
             Download Excel
@@ -309,7 +307,8 @@ const VendorPackages = () => {
         </div>
       </div>
 
-      <div className="card p-4">
+
+      <div className="card table-padding">
         <div
           className="d-flex align-items-center border rounded px-2 "
           style={{ maxWidth: "250px" }}

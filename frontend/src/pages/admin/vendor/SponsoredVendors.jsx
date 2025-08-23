@@ -63,7 +63,7 @@ export default function CategoryList() {
         </div>
       </div>
 
-      <div className="card">
+      <div className="card table-padding">
         <div className="row">
           <div className="col-md-12">
             <Datatable columns={categoryColumns} data={categories} pagination />

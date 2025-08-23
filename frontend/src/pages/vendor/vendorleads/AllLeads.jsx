@@ -125,13 +125,13 @@ export default function AllLeads() {
 
   const filteredLeads = searchText
     ? allLeads.filter((lead) => {
-        const lowerSearch = searchText.toLowerCase();
-        return (
-          lead.name?.toLowerCase().includes(lowerSearch) ||
-          lead.email?.toLowerCase().includes(lowerSearch) ||
-          lead.phone?.toLowerCase().includes(lowerSearch)
-        );
-      })
+      const lowerSearch = searchText.toLowerCase();
+      return (
+        lead.name?.toLowerCase().includes(lowerSearch) ||
+        lead.email?.toLowerCase().includes(lowerSearch) ||
+        lead.phone?.toLowerCase().includes(lowerSearch)
+      );
+    })
     : leads;
 
   const columns = [
@@ -169,24 +169,25 @@ export default function AllLeads() {
 
   return (
     <div className="page-content">
-      <div className="row align-items-center mb-3">
-        <div className="col-md-6">
-          <div className="add-page-heading-div">
-            <Link to="/vendor/dashboard">
-              <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
-            <h2 className="add-page-heading">All Leads</h2>
-          </div>
+      <div className="d-flex justify-content-between align-items-center flex-wrap mb-3 p-2  rounded mt-4">
+        {/* Back + Heading on the left */}
+        <div className="d-flex align-items-center  mb-md-0 ">
+          <Link to="/vendor/dashboard" className="me-2">
+            <i className="fa-sharp fa-regular fa-arrow-left"></i>
+          </Link>
+          <h2 className="add-page-heading mb-0 fs-5">All Leads</h2>
         </div>
 
-        <div className="col-md-6 text-end">
+        {/* Download Button on the right */}
+        <div className="d-flex align-items-center">
           <button className="btn btn-success me-2" onClick={exportToExcel}>
             <i className="fa-solid fa-file-excel me-1"></i>
             Download Excel
           </button>
         </div>
       </div>
-      <div className="card p-4">
+
+      <div className="card table-padding ">
         {/* 🔍 Styled Search Bar */}
         <div
           className="d-flex align-items-center border rounded px-2 "

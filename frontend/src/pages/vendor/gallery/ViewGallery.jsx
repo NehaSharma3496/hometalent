@@ -160,35 +160,36 @@ const ViewGallery = () => {
   const filteredGallery = getSortedItems();
 
   return (
-    <div className="page-content">
-      <div className="row align-items-center mb-3">
-        <div className="col-md-6 mb-4">
-          <div className="add-page-heading-div">
-            <Link to="/vendor/dashboard" className="me-2">
-              <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
-            <h5 className="add-page-heading mb-0"> My Gallery</h5>
-          </div>
+    <div className="page-content ">
+      <div className="d-flex justify-content-between align-items-center flex-wrap mb-3 p-2 border rounded shadow-sm mt-4">
+
+        <div className="d-flex align-items-center mb-2 mb-md-0">
+          <Link to="/vendor/dashboard" className="me-1">
+            <i className="fa-sharp fa-regular fa-arrow-left"></i>
+          </Link>
+          <h5 className="add-page-heading mb-0"> Gallery</h5>
         </div>
 
-        <div className="col-md-6 text-end mb-4">
+
+        <div className="d-flex align-items-center">
           <Link
             to="/vendor/gallery/upload"
-            className="btn btn-primary me-2 shadow-sm"
+            className="btn btn-primary  me-2 shadow-sm"
           >
             <i className="ri-upload-cloud-line me-1"></i> Add Image / Video
           </Link>
 
-          {orderChanged && ( // ✅ Show only if order changed
+          {orderChanged && (
             <button
               className="btn btn-success me-2 shadow-sm"
               onClick={handleUpdateSortOrder}
             >
-              <i className="ri-check-double-line me-1"></i> Update Order
+              <i className="ri-check-double-line "></i> Update Order
             </button>
           )}
         </div>
       </div>
+
 
       <div className="card shadow-sm border-0 mb-3 p-3">
         <ul className="nav nav-tabs">
@@ -288,13 +289,12 @@ const ViewGallery = () => {
                   <div className="card-body text-center py-3 mt-3">
                     <div className="mb-2 d-flex  justify-content-center gap-15">
                       <span
-                        className={`badge ${
-                          item.status === "approved"
-                            ? "bg-success"
-                            : item.status === "pending"
+                        className={`badge ${item.status === "approved"
+                          ? "bg-success"
+                          : item.status === "pending"
                             ? "bg-warning text-dark"
                             : "bg-secondary"
-                        } fs-6`}
+                          } fs-6`}
                       >
                         {item.status.charAt(0).toUpperCase() +
                           item.status.slice(1)}
@@ -309,23 +309,30 @@ const ViewGallery = () => {
                       </button>
                     </div>
 
-                    <p className="text-muted small mb-2">
-                      {new Date(item.createdAt).toLocaleDateString("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </p>
+                    <div className="d-flex justify-content-center align-items-center gap-4 mb-2">
+                      {/* Date */}
+                      <p className="text-muted small mb-0 me-2">
+                        {new Date(item.createdAt).toLocaleDateString("en-IN", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
 
-                    <div className="form-check d-flex justify-content-center mb-2">
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        style={{ transform: "scale(1.3)" }}
-                        checked={selectedItems.includes(item.id)}
-                        onChange={() => toggleSelect(item.id)}
-                      />
+                      {/* Checkbox */}
+                      <div className="form-check m-0">
+                        <input
+                          type="checkbox"
+                          className="form-check-input"
+                          style={{ transform: "scale(1.3)" }}
+                          checked={selectedItems.includes(item.id)}
+                          onChange={() => toggleSelect(item.id)}
+                        />
+                      </div>
                     </div>
+
+
+
                   </div>
                 </div>
               </div>

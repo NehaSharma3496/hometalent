@@ -185,7 +185,7 @@ export default function ApprovedVendors() {
   ];
 
   return (
-    <div className="page-content">
+    <div className="page-content ">
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
           <div className="add-page-heading-div">
@@ -203,7 +203,7 @@ export default function ApprovedVendors() {
         </div>
       </div>
 
-      <div className="card">
+      <div className="card table-padding">
         <div className="col-md-4">
           <div className="d-flex align-items-center border rounded px-2">
             <i className="ri-search-line me-2 text-muted" />

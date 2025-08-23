@@ -26,6 +26,7 @@ const Home = () => {
   const [showAllBlog, setShowAllBlog] = useState(false);
   const [blogdata, setBlogData] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const dropdownRef = useRef(null);
 
   const fetchstatecity = async () => {
     try {
@@ -57,15 +58,15 @@ const Home = () => {
 
     const cityId = selectedCityObj ? selectedCityObj.id : null;
 
-   if (!selectedCategory && !cityId) {
-    Swal.fire({
+    if (!selectedCategory && !cityId) {
+      Swal.fire({
         icon: 'warning',
         title: 'Oops!',
         text: 'Please select at least a category or a city before proceeding!',
         confirmButtonText: 'OK'
-    });
-    return;
-}
+      });
+      return;
+    }
 
     navigate("/category", {
       state: {
@@ -150,6 +151,18 @@ const Home = () => {
     fetchReview();
   }, []);
 
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const settings = {
     dots: true,
     infinite: review?.length > 3,
@@ -184,6 +197,7 @@ const Home = () => {
   };
 
   return (
+   
     <div>
       <section className="hero-padding-for-three video-overlay position-relative hero-area">
         <div className="container">
@@ -210,37 +224,34 @@ const Home = () => {
                 <div className="choose-plan-nav">
                   <div className="">
                     <div className="row g-4 justify-content-end">
-                      <div className="col-xl-5 col-lg-12 position-relative destination-flex">
-                        <input
-                          type="text"
-                          className="form-control form-select"
-                          placeholder="Search City"
-                          value={search}
-                          onChange={(e) => setSearch(e.target.value)}
-                          onFocus={() => setShowDropdown(true)}
-                        />
 
-                        {showDropdown && (
-                          <div
-                            className="border bg-white p-3 pt-3 shadow position-absolute w-100"
-                            style={{
-                              maxHeight: "300px",
-                              overflowY: "auto",
-                              zIndex: 10,
-                              minWidth: "500px",
-                              marginTop: "55px",
-                            }}
-                          >
-                            <ul
-                              className="list-unstyled"
-                              style={{ columnCount: 3 }}
+                      <div className="col-xl-5 col-lg-6 col-md-6 col-sm-12 ">
+                        <div className="position-relative" style={{ width: "100%" }} ref={dropdownRef}>
+                          <input
+                            type="text"
+                            className="form-control form-select p-2"
+                            placeholder="Search City"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            onFocus={() => setShowDropdown(true)}
+                          />
+
+                          {showDropdown && (
+                            <div
+                              className="border bg-white p-3 pt-3 shadow position-absolute"
+                              style={{
+                                maxHeight: "400px",
+                                overflowY: "auto",
+                                zIndex: 10,
+                                width: "600px", // only matches the input width
+                                marginTop: "2px", // small gap below input
+                                left: 0,
+                              }}
                             >
-                              {groupedFilteredData(statecity, search).map(
-                                (group) => (
+                              <ul className="list-unstyled" style={{ columnCount: 3 }}>
+                                {groupedFilteredData(statecity, search).map((group) => (
                                   <li key={`group-${group.state.id}`}>
-                                    <h6 className="text-danger mb-1 mt-2">
-                                      {group.state.name}
-                                    </h6>
+                                    <h6 className="text-danger mb-1 mt-2">{group.state.name}</h6>
                                     <ul className="list-unstyled ms-3 ps-0">
                                       {group.cities?.map((city) => (
                                         <li key={`city-${city.id}`}>
@@ -258,12 +269,13 @@ const Home = () => {
                                       ))}
                                     </ul>
                                   </li>
-                                )
-                              )}
-                            </ul>
-                          </div>
-                        )}
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
                       </div>
+
 
                       <div className="col-xl-5 col-lg-12">
                         <div className="destination-flex">

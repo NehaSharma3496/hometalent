@@ -241,7 +241,7 @@ export default function ProfileUpdateRequests() {
             <h2 className="add-page-heading">Profile Update Requests</h2>
           </div>
         </div>
-        <div className="col-md-6 text-end">
+        <div className="col-md-6 text-end mt-2">
           <button className="btn btn-success me-2" onClick={exportToExcel}>
             <i className="fa-solid fa-file-excel me-1"></i>
             Download Excel
@@ -249,10 +249,10 @@ export default function ProfileUpdateRequests() {
         </div>
       </div>
 
-      <div className="card">
-        <div className="row mb-3 justify-content-between align-items-center">
-          <div className="col-md-4">
-            <div className="d-flex align-items-center border rounded px-2">
+      <div className="card table-padding">
+        <div className="row justify-content-between align-items-center">
+          <div className="col-md-4 Search">
+            <div className="d-flex align-items-center border rounded px-2 mb-2">
               <i className="ri-search-line me-2 text-muted" />
               <input
                 type="text"

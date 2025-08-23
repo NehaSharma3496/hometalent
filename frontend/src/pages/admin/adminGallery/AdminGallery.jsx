@@ -60,9 +60,8 @@ const AdminGallery = () => {
     const idsToDelete = isBulk ? selectedItems : [id];
 
     const confirm = await Swal.fire({
-      title: `Are you sure you want to delete ${
-        isBulk ? idsToDelete.length : 1
-      } image(s)?`,
+      title: `Are you sure you want to delete ${isBulk ? idsToDelete.length : 1
+        } image(s)?`,
       text: "This will permanently delete the selected image(s)(s).",
       icon: "warning",
       showCancelButton: true,
@@ -126,25 +125,24 @@ const AdminGallery = () => {
 
   return (
     <div className="page-content">
-      <div className="row align-items-center mb-3">
-        <div className="col-md-6 mb-4">
-          <div className="add-page-heading-div">
-            <Link to="/admin/dashboard" className="me-2">
-              <i className="fa fa-arrow-left"></i>
-            </Link>
-            <h5 className="add-page-heading mb-0">Gallery</h5>
-          </div>
+      <div className="d-flex justify-content-between align-items-center mb-2">
+        {/* Left side */}
+        <div className="add-page-heading-div d-flex align-items-center">
+          <Link to="/admin/dashboard" className="me-2">
+            <i className="fa fa-arrow-left"></i>
+          </Link>
+          <h5 className="add-page-heading mb-0">Gallery</h5>
         </div>
 
-        <div className="col-md-6 text-end mb-4">
-          <Link to="/admin/uploadgallery" className="btn btn-primary shadow-sm">
-            <i className="ri-upload-cloud-line me-1"></i>
-            Add Image / Video
-          </Link>
-        </div>
+        <Link to="/admin/uploadgallery" className="btn btn-primary shadow-sm Addimage">
+          <i className="ri-upload-cloud-line me-1"></i>
+          Add Image / Video
+        </Link>
+
       </div>
 
-      <div className="card shadow-sm border-0 mb-3 p-3">
+
+      <div className="card shadow-sm border-0 mb-2 p-3">
         <ul className="nav nav-tabs">
           <li className="nav-item">
             <button
@@ -166,12 +164,12 @@ const AdminGallery = () => {
       </div>
 
       {filteredGallery.length > 0 && (
-        <div className="mb-3 d-flex justify-content-between align-items-center">
+        <div className="mb-1 d-flex justify-content-between align-items-center">
           <div className="form-check">
             <input
               type="checkbox"
               id="selectAll"
-              className="form-check-input"
+              className="form-check-input mt-2"
               checked={selectAll}
               onChange={handleSelectAll}
             />
@@ -216,23 +214,27 @@ const AdminGallery = () => {
                     </video>
                   )}
 
-                  <div className="card-body text-center py-3 mt-3">
-                    <div className="form-check d-flex justify-content-center mb-2">
+                  <div className="card-body text-center py-2 mt-3">
+                    <div className="d-flex justify-content-center align-items-center mb-2">
                       <input
                         type="checkbox"
-                        style={{ transform: "scale(1.3)" }}
+                        className="form-check-input me-2 mb-1"
+                        style={{ width: "1.2rem", height: "1.4rem" }} 
                         checked={selectedItems.includes(item.id)}
                         onChange={() => toggleSelect(item.id)}
                       />
+
+                      <button
+                        className="btn btn-danger btn-sm d-flex align-items-center"
+                        style={{ height: "1.5rem", padding: "0 10px" }} // match height of checkbox
+                        onClick={() => handleSingleDelete(item.id)}
+                      >
+                        <i className="ri-delete-bin-line me-1"></i>
+                        Delete
+                      </button>
                     </div>
 
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleSingleDelete(item.id)}
-                    >
-                      <i className="ri-delete-bin-line me-1"></i>
-                      Delete
-                    </button>
+
                   </div>
                 </div>
               </div>

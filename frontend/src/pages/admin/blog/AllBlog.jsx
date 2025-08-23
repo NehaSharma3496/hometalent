@@ -145,9 +145,8 @@ export default function AllBlog() {
 
               const confirm = await Swal.fire({
                 title: newStatus ? "Enable Blog?" : "Disable Blog?",
-                text: `Are you sure you want to ${
-                  newStatus ? "enable" : "disable"
-                } this blog?`,
+                text: `Are you sure you want to ${newStatus ? "enable" : "disable"
+                  } this blog?`,
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonText: newStatus ? "Yes, enable" : "Yes, disable",
@@ -186,22 +185,24 @@ export default function AllBlog() {
   return (
     <div className="page-content">
       <div className="row align-items-center mb-3">
-        <div className="col-md-6">
-          <div className="add-page-heading-div">
+        <div className="col-md-12 d-flex justify-content-between align-items-center">
+          <div className="add-page-heading-div d-flex align-items-center">
             <Link to="/admin/dashboard">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
-            <h2 className="add-page-heading">All Blogs</h2>
+            <h2 className="add-page-heading ">All Blogs</h2>
           </div>
-        </div>
-        <div className="col-md-6 text-end">
-          <button className="btn btn-success" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i>Download Excel
-          </button>
+
+          <div className="text-end">
+            <button className="btn btn-success mt-4" onClick={exportToExcel}>
+              <i className="fa-solid fa-file-excel me-1"></i>Download Excel
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="card">
+
+      <div className="card table-padding">
         <div className="card-header">
           <div className="col-md-4">
             <div className="d-flex align-items-center border rounded px-2">
