@@ -159,7 +159,7 @@ export default function VendorPackageDetails() {
 
     try {
       const response = await ExtendPackage(token, {
-        id: latestPackageId,
+        id: row.id,
         extra_days: extraDays,
       });
 

@@ -26,9 +26,8 @@ export default function ViewProfileChanges() {
   const [newCities, setNewCities] = useState([]);
   const [comparisonRows, setComparisonRows] = useState([]);
 
-
   const readonly = state?.readonly || false;
-  const requestData = state?.requestData || {}; 
+  const requestData = state?.requestData || {};
   const vendor_id = requestData?.vendor_id;
   const request_data = requestData?.request_data;
   const status = requestData?.status;
@@ -83,22 +82,20 @@ export default function ViewProfileChanges() {
     }
   }, [oldData?.state_id, token]);
 
-const getNameById = (list, id) => {
-  if (!id) return "-";
-  const item = list.find(
-    (i) =>
-      i.id === Number(id) || 
-      i.category_id === Number(id) || 
-      i.id?.toString() === id?.toString() || 
-      i.category_id?.toString() === id?.toString()
-  );
+  const getNameById = (list, id) => {
+    if (!id) return "-";
+    const item = list.find(
+      (i) =>
+        i.id === Number(id) ||
+        i.category_id === Number(id) ||
+        i.id?.toString() === id?.toString() ||
+        i.category_id?.toString() === id?.toString()
+    );
 
-  return item
-    ? (item.name || item.category_name)   // states/cities → name, categories → category_name
-    : id;
-};
-
-
+    return item
+      ? item.name || item.category_name // states/cities → name, categories → category_name
+      : id;
+  };
 
   useEffect(() => {
     if (!oldData || !newData || categories.length === 0) return;
@@ -132,7 +129,6 @@ const getNameById = (list, id) => {
         let oldValRaw = oldData?.[key];
         let newValRaw = newData?.[key];
 
-
         if (key === "state_id") {
           oldValRaw = getNameById(states, oldValRaw);
           newValRaw = getNameById(states, newValRaw);
@@ -154,7 +150,9 @@ const getNameById = (list, id) => {
                 .map((v) => (v?.file_name ? v.file_name : JSON.stringify(v)))
                 .join(", ");
             }
-            return value?.file_name || value?.file_path || JSON.stringify(value);
+            return (
+              value?.file_name || value?.file_path || JSON.stringify(value)
+            );
           }
           return value.toString().trim();
         };
@@ -175,7 +173,6 @@ const getNameById = (list, id) => {
 
     setComparisonRows(rows);
   }, [oldData, newData, status, states, oldCities, newCities, categories]);
-
 
   const handleAction = async (actionType) => {
     const confirm = await Swal.fire({
@@ -235,12 +232,13 @@ const getNameById = (list, id) => {
         <div className="col-md-6 text-end">
           {status && (
             <span
-              className={`badge fs-6 ${status === "approved"
-                ? "bg-success"
-                : status === "rejected"
+              className={`badge fs-6 ${
+                status === "approved"
+                  ? "bg-success"
+                  : status === "rejected"
                   ? "bg-danger"
                   : "bg-warning text-dark"
-                }`}
+              }`}
             >
               Status: {status.toUpperCase()}
             </span>

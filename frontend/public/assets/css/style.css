@@ -6826,3 +6826,7 @@ div#searchs ul li:not(:last-child) {
     content: none !important;
   }
   
+
+  input.cursor-pointer {
+  cursor: pointer !important;
+}

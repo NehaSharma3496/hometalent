@@ -236,7 +236,7 @@ const Home = () => {
                         >
                           <input
                             type="text"
-                            className="form-control form-select p-2 cursor-pointer"
+                            className="form-control p-2 cursor-pointer"
                             placeholder="Search City"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -464,18 +464,18 @@ const Home = () => {
             {review?.map((item, index) => (
               <div
                 key={item.id || item._id || `${item.name}-${index}`}
-                className="p-3"
+                className="p-2"
               >
                 <div
                   className="testimonial-card"
                   style={{
                     background: "#f9f9f9",
                     borderRadius: "16px",
-                    padding: "30px 25px",
+                    padding: "35px 25px",
                     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
                     transition: "all 0.3s ease",
                     position: "relative",
-                    minHeight: "200px",
+                    minHeight: "230px",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
@@ -529,14 +529,14 @@ const Home = () => {
                       className="text-muted"
                       style={{
                         fontSize: "0.95rem",
-                        lineHeight: "1.6",
+                        lineHeight: "1.8",
                         color: "#555",
                         marginBottom: 0,
                       }}
                     >
                       {isExpanded || item.message?.length <= 200
                         ? item.message
-                        : `${item.message.slice(0, 200)}...`}
+                        : `${item.message.slice(0, 140)}...`}
                     </p>
                     {item.message?.length > 200 && (
                       <button
