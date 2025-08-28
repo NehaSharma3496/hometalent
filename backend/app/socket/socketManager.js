@@ -80,7 +80,7 @@ class SocketManager {
   notifyVendor(vendorId, type, data) {
     const vendorKey = String(vendorId);
     const vendorSocket = this.vendorSockets.get(vendorKey);
-    console.log('Sending notification to vendor:', vendorKey, 'Socket:', vendorSocket);
+    // console.log('Sending notification to vendor:', vendorKey, 'Socket:', vendorSocket);
     
     if (vendorSocket && vendorSocket != undefined) {
       vendorSocket.emit('notification', {

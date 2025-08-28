@@ -51,13 +51,17 @@ exports.createPaymentOrder = async (req, res) => {
 
     // Check if vendor already has an active subscription
     const now = new Date();
-    const activeSubscription = await VendorPackageSubscription.findOne({
-      where: {
-        vendor_id,
-        payment_status: 'completed',
-        end_date: { [Op.gte]: now }
-      }
+  const activeSubscription = await VendorPackageSubscription.findOne({
+    where: {
+      vendor_id,
+      payment_status: 'completed',
+      end_date: { [Op.gte]: now }
+    },
+    order: [['end_date', 'DESC']]  // sort by latest end_date
     });
+
+    // console.log("Active Subscription:", activeSubscription);
+    
 
     // if (activeSubscription) {
     //   return res.status(400).json({
@@ -135,7 +139,7 @@ exports.createPaymentOrder = async (req, res) => {
       },
       body: JSON.stringify(paymentData)
     });
-console.log("Response",cashfreeResponse)
+// console.log("Response",cashfreeResponse)
     if (!cashfreeResponse.ok) {
       const errorText = await cashfreeResponse.text();
       console.error('Cashfree API error:', errorText);

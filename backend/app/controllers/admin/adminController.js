@@ -1111,10 +1111,10 @@ exports.getDashboardCounts = async (req, res) => {
     });
    
     const inactiveVendors = await User.count({
-      where: { role_id: 2, status: 2 },
+      where: { role_id: 2, status: 2, approval_status: 1 },
     });
-    console.log("activeVendors",activeVendors);
-    console.log("inactiveVendors",inactiveVendors);
+    // console.log("activeVendors",activeVendors);
+    // console.log("inactiveVendors",inactiveVendors);
 
     // Current month counts
     const leadsCurrentMonth = await ClientLead.count({
