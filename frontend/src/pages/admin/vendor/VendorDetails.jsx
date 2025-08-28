@@ -85,7 +85,7 @@ export default function VendorDetails() {
   const profileFields = [
     { label: "Email", value: vendor.email, icon: "fas fa-envelope" },
     { label: "Phone", value: vendor.phone, icon: "fas fa-phone" },
-    { label: "Price Range", value: vendor.price_range, icon: "fas fa-dollar-sign" },
+    { label: "Price Range", value: vendor.price_range, icon: "fas fa-inr" },
     { label: "Experience Since", value: vendor.experience_since, icon: "fas fa-calendar-alt" },
     { label: "Pin Code", value: vendor.pin_code, icon: "fas fa-map-marker-alt" },
     { label: "Category Name", value: getCategoryNames(vendor.category_id), icon: "fas fa-tags" },
@@ -152,7 +152,7 @@ export default function VendorDetails() {
                 Contact Information
               </h5>
               <div className="row g-3">
-                {profileFields.map(({ label, value, icon }, i) => (
+                {profileFields?.map(({ label, value, icon }, i) => (
                   <div key={i} className="col-md-6">
                     <div className="justify-content-between align-items-center p-3 bg-light rounded-3 h-100">
                       <div className="d-flex align-items-center gap-3">
@@ -199,7 +199,7 @@ export default function VendorDetails() {
           <div className="mt-4">
             <h5 className="mb-4 d-flex align-items-center">Social Media & Links</h5>
             <div className="d-flex flex-wrap gap-3">
-              {socialLinks.map(({ key, icon, color }) => {
+              {socialLinks?.map(({ key, icon, color }) => {
                 const link = vendor[key];
                 if (!link) return null;
                 const fullUrl = link.startsWith("http") ? link : `https://${link}`;

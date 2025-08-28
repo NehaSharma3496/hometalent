@@ -26,7 +26,7 @@ export default function BlockedVendors() {
       const token = localStorage.getItem("token");
       const res = await GetBlockedVendore(token, page, limit);
       if (res?.data && res?.pagination) {
-        const approvedVendors = res.data.filter((v) => v.approval_status == 0);
+        const approvedVendors = res?.data;
         setBlockedVendors(approvedVendors);
         setTotalRows(res.pagination.total_records);
       } else {

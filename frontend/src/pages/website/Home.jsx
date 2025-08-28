@@ -29,7 +29,6 @@ const Home = () => {
   const dropdownRef = useRef(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
-
   const toggleReadMore = () => {
     setIsExpanded(!isExpanded);
   };
@@ -66,10 +65,10 @@ const Home = () => {
 
     if (!selectedCategory && !cityId) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Oops!',
-        text: 'Please select at least a category or a city before proceeding!',
-        confirmButtonText: 'OK'
+        icon: "warning",
+        title: "Oops!",
+        text: "Please select at least a category or a city before proceeding!",
+        confirmButtonText: "OK",
       });
       return;
     }
@@ -203,7 +202,6 @@ const Home = () => {
   };
 
   return (
-
     <div>
       <section className="hero-padding-for-three video-overlay position-relative hero-area">
         <div className="container">
@@ -230,9 +228,12 @@ const Home = () => {
                 <div className="choose-plan-nav">
                   <div className="">
                     <div className="row g-4 justify-content-end">
-
                       <div className="col-xl-5 col-lg-6 col-md-6 col-sm-12 ">
-                        <div className="position-relative" style={{ width: "100%"  }} ref={dropdownRef}>
+                        <div
+                          className="position-relative"
+                          style={{ width: "100%" }}
+                          ref={dropdownRef}
+                        >
                           <input
                             type="text"
                             className="form-control form-select p-2 cursor-pointer"
@@ -240,7 +241,6 @@ const Home = () => {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             onFocus={() => setShowDropdown(true)}
-                            
                           />
 
                           {showDropdown && (
@@ -255,34 +255,40 @@ const Home = () => {
                                 left: 0,
                               }}
                             >
-                              <ul className="list-unstyled" style={{ columnCount: 3 }}>
-                                {groupedFilteredData(statecity, search).map((group) => (
-                                  <li key={`group-${group.state.id}`}>
-                                    <h6 className="text-danger mb-1 mt-2">{group.state.name}</h6>
-                                    <ul className="list-unstyled ms-3 ps-0">
-                                      {group.cities?.map((city) => (
-                                        <li key={`city-${city.id}`}>
-                                          <button
-                                            type="button"
-                                            className="dropdown-item py-1 text-nowrap"
-                                            onMouseDown={() => {
-                                              setSearch(city.name);
-                                              setShowDropdown(false);
-                                            }}
-                                          >
-                                            * {city.name}
-                                          </button>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </li>
-                                ))}
+                              <ul
+                                className="list-unstyled"
+                                style={{ columnCount: 3 }}
+                              >
+                                {groupedFilteredData(statecity, search).map(
+                                  (group) => (
+                                    <li key={`group-${group.state.id}`}>
+                                      <h6 className="text-danger mb-1 mt-2">
+                                        {group.state.name}
+                                      </h6>
+                                      <ul className="list-unstyled ms-3 ps-0">
+                                        {group.cities?.map((city) => (
+                                          <li key={`city-${city.id}`}>
+                                            <button
+                                              type="button"
+                                              className="dropdown-item py-1 text-nowrap"
+                                              onMouseDown={() => {
+                                                setSearch(city.name);
+                                                setShowDropdown(false);
+                                              }}
+                                            >
+                                              * {city.name}
+                                            </button>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </li>
+                                  )
+                                )}
                               </ul>
                             </div>
                           )}
                         </div>
                       </div>
-
 
                       <div className="col-xl-5 col-lg-12">
                         <div className="destination-flex">
@@ -446,7 +452,10 @@ const Home = () => {
                   See Those Lovely Words From Clients
                 </h4>
                 <span className="highlights">
-                  At HomeTalent4U, every voice matters. Our community of passionate creators – from artisans and bakers to tutors and home entrepreneurs – inspires us every day. Here’s what our talented family has to say about their journey with us.
+                  At HomeTalent4U, every voice matters. Our community of
+                  passionate creators – from artisans and bakers to tutors and
+                  home entrepreneurs – inspires us every day. Here’s what our
+                  talented family has to say about their journey with us.
                 </span>
               </div>
             </div>
@@ -545,7 +554,6 @@ const Home = () => {
                       </button>
                     )}
                   </div>
-
                 </div>
               </div>
             ))}
@@ -560,7 +568,8 @@ const Home = () => {
               <div className="section-title text-center mx-605 mx-auto position-relative mb-60">
                 <h4 className="blue-title pb-2">Blog & Articles</h4>
                 <span className="highlights">
-                  At HomeTalent4U, we share tips, stories, and insights to help you grow your creativity into success.
+                  At HomeTalent4U, we share tips, stories, and insights to help
+                  you grow your creativity into success.
                 </span>
               </div>
             </div>
