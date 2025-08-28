@@ -241,7 +241,7 @@ exports.listBlockedVendors = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const { count, rows: vendors } = await User.findAndCountAll({
-      where: { role_id: 2, status: 2 },
+      where: { role_id: 2, status: 2, approval_status: 1 },
       order: [["updatedAt", "DESC"]],
       limit,
       offset,
