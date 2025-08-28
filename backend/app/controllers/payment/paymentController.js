@@ -109,7 +109,7 @@ exports.createPaymentOrder = async (req, res) => {
     //     notify_url: `${req.protocol}://${req.get('host')}/payment/webhook`
     //   }
     // };
-
+  
     const paymentData = {
       link_id: orderId,
       link_amount: pkg.price,
@@ -123,7 +123,7 @@ exports.createPaymentOrder = async (req, res) => {
       },
       link_meta: {
         // return_url: `${req.protocol}://${req.get('host')}/payment/return?order_id=${orderId}`,
-        return_url: `http://localhost:3000/vendor/payment-callback?order_id=${orderId}`,
+        return_url: `${req.headers.origin}/vendor/payment-callback?order_id=${orderId}`,
         notify_url: `${req.protocol}://${req.get('host')}/payment/webhook`
       }
     };
