@@ -325,22 +325,22 @@ exports.approveVendor = async (req, res) => {
          subject = "Vendor Profile Rejected";
     }
     if(approval == 2){
-    message = `
-      <p>Hi ${vendor.owner_name || vendor.profile_name || "Vendor"},</p>
-      <p>Your profile has been approved by admin. You can now log in using either your <strong>email</strong> or <strong>mobile number</strong>.</p>
-      <p><strong>Login Email:</strong> ${vendor.email}</p>
-      <p><strong>Login Mobile:</strong> ${vendor.phone}</p>
-      <p><strong>Password:</strong> ${vendor.show_password}</p>
-      <p>Click here to login: <a href="${req.headers.origin}/login">Login</a></p> 
-      <p>Thank you,<br/>Team HomeTalent</p>
-    `;
+      message = `
+        <p>Hi ${vendor.owner_name || vendor.profile_name || "Vendor"},</p>
+        <p>Your profile has been approved by admin. You can now log in using either your <strong>email</strong> or <strong>mobile number</strong>.</p>
+        <p><strong>Login Email:</strong> ${vendor.email}</p>
+        <p><strong>Login Mobile:</strong> ${vendor.phone}</p>
+        <p><strong>Password:</strong> ${vendor.show_password}</p>
+        <p>Click here to login: <a href="${req.headers.origin}/login">Login</a></p> 
+        <p>Thank you,<br/>Team HomeTalent</p>
+      `;
     }else{
-        message = `
-      <p>Hi ${vendor.owner_name || vendor.profile_name || "Vendor"},</p>
-      <p>Your Vendor profile has been rejected by admin.</p>
-      <p>Please contact to your service provider.</p>
-      <p>Thank you,<br/>Team HomeTalent</p>
-    `;
+      message = `
+        <p>Hi ${vendor.owner_name || vendor.profile_name || "Vendor"},</p>
+        <p>Your Vendor profile has been rejected by admin.</p>
+        <p>Please contact to your service provider.</p>
+        <p>Thank you,<br/>Team HomeTalent</p>
+      `;
     }
 
     await commonEmail(vendor.email, subject, message);
