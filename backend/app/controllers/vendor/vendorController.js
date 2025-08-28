@@ -56,6 +56,8 @@ exports.listCitiesByState = async (req, res) => {
 exports.requestProfileUpdate = async (req, res) => {
   try {
     const vendor_id = req.body.vendor_id; // Get from authenticated user
+    email = req.body.email;
+    phone = req.body.phone;
     const updateData = req.body;
 
     // Only allow certain fields to be updated
@@ -65,6 +67,19 @@ exports.requestProfileUpdate = async (req, res) => {
       'experience_since', 'long_description', 'facebook_link', 'instagram_link',
       'twitter_link', 'linkedin_link', 'youtube_link', 'website_link', 'image'
     ];
+  
+       const existingUser = await User.findOne({
+      where: {
+        [Op.or]: [{ email }, { phone }],
+      },
+    });
+
+    if (existingUser) {
+      return res.json({
+        status: false,
+        msg: "Email or phone already registered",
+      });
+    }
 
     const filteredData = {};
     Object.keys(updateData).forEach(key => {
@@ -110,7 +125,7 @@ exports.requestProfileUpdate = async (req, res) => {
       status: 'pending'
     });
     
-    console.log('Profile update request created:', profileUpdateRequest);
+    // console.log('Profile update request created:', profileUpdateRequest);
 
     // Log the request
     await Log.create({
