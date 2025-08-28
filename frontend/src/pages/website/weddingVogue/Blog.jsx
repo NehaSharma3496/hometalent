@@ -20,9 +20,9 @@ const Blog = () => {
 
   useEffect(() => {
     // setLoading(true);
-    setTimeout(() => {
+  
       fetchBlog();
-    },5000)
+  
   }, []);
 
   const breadcrumbLinks = [
