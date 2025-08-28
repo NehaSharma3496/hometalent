@@ -461,12 +461,15 @@ const CategoryDetail = () => {
                           value={leadData.name}
                           placeholder="Enter your name"
                           className="form-control form-control-m border-0 shadow-none"
-                          onChange={(e) =>
-                            setLeadData((prev) => ({
-                              ...prev,
-                              [e.target.name]: e.target.value,
-                            }))
-                          }
+                          onChange={(e) => {
+                            const { name, value } = e.target;
+                            if (/^[a-zA-Z\s]*$/.test(value)) {
+                              setLeadData((prev) => ({
+                                ...prev,
+                                [name]: value,
+                              }));
+                            }
+                          }}
                         />
                       </div>
 

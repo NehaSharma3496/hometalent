@@ -159,11 +159,8 @@ export default function MyPackages() {
       name: "Status",
       selector: (row) => row.status,
       cell: (row) => (
-        <span
-          className={`badge bg-${row.status === "Active" ? "success" : "danger"
-            } fs-6`}
-        >
-          {row.status}
+        <span>
+          {row.payment_status === "completed" ? "Active" : "Inactive"}
         </span>
       ),
     },
@@ -241,7 +238,7 @@ export default function MyPackages() {
 
         {/* Download Button */}
         <button className="btn btn-primary btn-sm" onClick={exportToExcel}>
-          <i className="fa-solid fa-file-excel me-1"></i> Download 
+          <i className="fa-solid fa-file-excel me-1"></i> Download
         </button>
       </div>
 

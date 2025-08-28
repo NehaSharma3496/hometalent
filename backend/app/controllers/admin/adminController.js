@@ -14,7 +14,7 @@ const {
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 const socketManager = require('../../socket/socketManager');
-const { Op, Sequelize,literal } = require('sequelize');
+const { Op, Sequelize, literal } = require('sequelize');
 
 exports.listAllVendors = async (req, res) => {
   try {
@@ -156,34 +156,34 @@ exports.listSponsoredVendors = async (req, res) => {
     // Get sponsored vendors
     const { count, rows: sponsoredRows } =
       await VendorCategoryRank.findAndCountAll({
-  where: {
-    ...whereCondition,
-    [Op.and]: literal(`FIND_IN_SET(VendorCategoryRank.category_id, vendor.category_id)`)
-  },
-  include: [
-    {
-      model: User,
-      as: "vendor",
-      attributes: [
-        "id",
-        "owner_name",
-        "profile_name",
-        "email",
-        "phone",
-        "status",
-        "category_id" // make sure to include this to use in FIND_IN_SET
-      ]
-    },
-    {
-      model: Category,
-      as: "category",
-      attributes: ["id", "name"]
-    }
-  ],
-  order: [["sponsor_rank", "ASC"]],
-  limit,
-  offset,
-});
+        where: {
+          ...whereCondition,
+          [Op.and]: literal(`FIND_IN_SET(VendorCategoryRank.category_id, vendor.category_id)`)
+        },
+        include: [
+          {
+            model: User,
+            as: "vendor",
+            attributes: [
+              "id",
+              "owner_name",
+              "profile_name",
+              "email",
+              "phone",
+              "status",
+              "category_id" // make sure to include this to use in FIND_IN_SET
+            ]
+          },
+          {
+            model: Category,
+            as: "category",
+            attributes: ["id", "name"]
+          }
+        ],
+        order: [["sponsor_rank", "ASC"]],
+        limit,
+        offset,
+      });
 
     // Get all sponsored vendor IDs
     const sponsoredVendorIds = sponsoredRows.map((r) => r.vendor_id);
@@ -191,18 +191,18 @@ exports.listSponsoredVendors = async (req, res) => {
     const activeVendors = await User.findAll({
       where: {
         [Op.and]: [
-      {
-        [Op.or]: [
-          { category_id: category_id }, // Exact match
-          { category_id: { [Op.like]: `%,${category_id},%` } }, // Middle
-          { category_id: { [Op.like]: `${category_id},%` } },   // Start
-          { category_id: { [Op.like]: `%,${category_id}` } }    // End
-        ]
-      },
-      { role_id: 2 },
-      { status: 1 },
-      { id: { [Op.notIn]: sponsoredVendorIds } }
-    ],
+          {
+            [Op.or]: [
+              { category_id: category_id }, // Exact match
+              { category_id: { [Op.like]: `%,${category_id},%` } }, // Middle
+              { category_id: { [Op.like]: `${category_id},%` } },   // Start
+              { category_id: { [Op.like]: `%,${category_id}` } }    // End
+            ]
+          },
+          { role_id: 2 },
+          { status: 1 },
+          { id: { [Op.notIn]: sponsoredVendorIds } }
+        ],
       },
       attributes: [
         "id",
@@ -279,10 +279,10 @@ exports.updateVendorStatus = async (req, res) => {
     if (vendor_id && vendor_id !== undefined) {
       data = await User.findOne({ where: { id: vendor_id, role_id: 2 } });
     }
-    if(blog_id && blog_id !== undefined ) {
+    if (blog_id && blog_id !== undefined) {
       data = await Blog.findOne({ where: { id: blog_id } });
     }
-    if(review_id && review_id !== undefined ) {
+    if (review_id && review_id !== undefined) {
       data = await Review.findOne({ where: { id: review_id } });
     }
     if (!data) {
@@ -300,7 +300,7 @@ exports.updateVendorStatus = async (req, res) => {
 
 exports.approveVendor = async (req, res) => {
   try {
-    const { vendor_id, approval} = req.body;
+    const { vendor_id, approval } = req.body;
     if (!vendor_id) {
       return res
         .status(400)
@@ -532,18 +532,18 @@ exports.getProfileUpdateRequestDetails = async (req, res) => {
 exports.processProfileUpdateRequest = async (req, res) => {
   try {
     const { request_id, action, remarks, admin_id } = req.body; // action: 'approve' or 'reject'
-    
+
     if (!admin_id) {
-      return res.json({ 
-        status: false, 
-        msg: 'admin_id is required' 
+      return res.json({
+        status: false,
+        msg: 'admin_id is required'
       });
     }
 
     if (!['approve', 'reject'].includes(action)) {
-      return res.json({ 
-        status: false, 
-        msg: 'Action must be either "approve" or "reject"' 
+      return res.json({
+        status: false,
+        msg: 'Action must be either "approve" or "reject"'
       });
     }
 
@@ -559,9 +559,9 @@ exports.processProfileUpdateRequest = async (req, res) => {
     });
 
     if (!request) {
-      return res.json({ 
-        status: false, 
-        msg: 'Profile update request not found or already processed' 
+      return res.json({
+        status: false,
+        msg: 'Profile update request not found or already processed'
       });
     }
 
@@ -579,9 +579,9 @@ exports.processProfileUpdateRequest = async (req, res) => {
         try {
           updateData = JSON.parse(updateData);
         } catch (error) {
-          return res.json({ 
-            status: false, 
-            msg: 'Invalid request data format' 
+          return res.json({
+            status: false,
+            msg: 'Invalid request data format'
           });
         }
       }
@@ -720,8 +720,8 @@ exports.processProfileUpdateRequest = async (req, res) => {
       } catch (e) { console.error('Failed to persist vendor profile processed notification:', e.message); }
     }
 
-    res.json({ 
-      status: true, 
+    res.json({
+      status: true,
       msg: `Profile update request ${action}d successfully`,
       data: {
         request_id: request.id,
@@ -784,7 +784,7 @@ exports.createPackage = async (req, res) => {
   try {
     const { name, description, price, validity_in_months, features, status } = req.body;
     const pkg = await Package.create({ name, description, price, validity_in_months, features, status });
-    
+
     // Send socket notification
     socketManager.packageCreated({
       id: pkg.id,
@@ -795,7 +795,7 @@ exports.createPackage = async (req, res) => {
       features: pkg.features,
       status: pkg.status
     });
-    
+
     res.json({ status: true, data: pkg });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
@@ -968,14 +968,14 @@ exports.extendVendorPackage = async (req, res) => {
     sub.end_date = endDate;
 
     await sub.save();
-    
+
     await Log.create({
-        user_id: sub.vendor_id,
-        package_id: sub.package_id,
-        user_type: "admin",
-        action: "extend_package_validity",
-        details: extra_days
-      });
+      user_id: sub.vendor_id,
+      package_id: sub.package_id,
+      user_type: "admin",
+      action: "extend_package_validity",
+      details: extra_days
+    });
 
     res.json({
       status: true,
@@ -1109,10 +1109,12 @@ exports.getDashboardCounts = async (req, res) => {
     const activeVendors = await User.count({
       where: { role_id: 2, status: 1 },
     });
-
-        const inactiveVendors = await User.count({
+   
+    const inactiveVendors = await User.count({
       where: { role_id: 2, status: 2 },
     });
+    console.log("activeVendors",activeVendors);
+    console.log("inactiveVendors",inactiveVendors);
 
     // Current month counts
     const leadsCurrentMonth = await ClientLead.count({
@@ -1158,7 +1160,7 @@ exports.getDashboardCounts = async (req, res) => {
         },
       },
     });
-    
+
     const approveVendorsCurrentMonth = await User.count({
       where: {
         role_id: 2,
@@ -1265,7 +1267,7 @@ exports.getprofileRequestdata = async (req, res) => {
   try {
     const { request_id } = req.body;
 
-    if (!request_id){
+    if (!request_id) {
       return res.status(400).json({ status: false, msg: 'request_id is required' });
     }
 
@@ -1314,9 +1316,10 @@ exports.packageextendhistory = async (req, res) => {
         action: "extend_package_validity",
       },
       include: [
-        { model: Package, as: "packagelog", attributes: ["id", "name"]
-        }  
-      ], 
+        {
+          model: Package, as: "packagelog", attributes: ["id", "name"]
+        }
+      ],
       order: [["createdAt", "DESC"]],
     });
 
@@ -1369,8 +1372,8 @@ exports.notifyExpiredPlans = async (req, res) => {
         where: { vendor_id: vendorId, payment_status: 'completed' },
         order: [['end_date', 'DESC']],
         include: [
-          { model: User, as: 'vendor', attributes: ['id','owner_name','profile_name'] },
-          { model: Package, as: 'Package', attributes: ['id','name'] }
+          { model: User, as: 'vendor', attributes: ['id', 'owner_name', 'profile_name'] },
+          { model: Package, as: 'Package', attributes: ['id', 'name'] }
         ]
       });
       if (!lastSub) continue;

@@ -64,7 +64,7 @@ export default function MyProfile() {
   const profileFields = [
     { label: "Email", value: vendor.email, icon: "fas fa-envelope" },
     { label: "Phone", value: vendor.phone, icon: "fas fa-phone" },
-    { label: "Price Range", value: vendor.price_range, icon: "fas fa-dollar-sign" },
+    { label: "Price Range", value: vendor.price_range, icon: "fas fa-inr" },
     { label: "Experience Since", value: vendor.experience_since, icon: "fas fa-calendar-alt" },
     { label: "Pin Code", value: vendor.pin_code, icon: "fas fa-map-marker-alt" },
     { label: "Category Name", value: getCategoryNameById(vendor.category_id), icon: "fas fa-tags" },

@@ -26,7 +26,7 @@ export default function BlockedVendors() {
       const token = localStorage.getItem("token");
       const res = await GetBlockedVendore(token, page, limit);
       if (res?.data && res?.pagination) {
-        const approvedVendors = res.data.filter((v) => v.approval_status === 1);
+        const approvedVendors = res.data.filter((v) => v.status == 2);
         setBlockedVendors(approvedVendors);
         setTotalRows(res.pagination.total_records);
       } else {
@@ -178,28 +178,29 @@ export default function BlockedVendors() {
     }
   };
 
-  const filteredBlockedVendors = searchText
-  ? allBlockedVendors.filter((vendor) => {
-      const lowerSearch = searchText.toLowerCase();
+  const filteredBlockedVendors = 
+  // searchText
+  // ? allBlockedVendors.filter((vendor) => {
+  //     const lowerSearch = searchText.toLowerCase();
 
-      const categoryNames = vendor.category_id
-        ? vendor.category_id
-            .split(",")
-            .map((id) => categoryMap[id.trim()]?.toLowerCase() || "")
-            .join(", ")
-        : "";
+  //     const categoryNames = vendor.category_id
+  //       ? vendor.category_id
+  //           .split(",")
+  //           .map((id) => categoryMap[id.trim()]?.toLowerCase() || "")
+  //           .join(", ")
+  //       : "";
 
-      return (
-        vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
-        vendor.email?.toLowerCase().includes(lowerSearch) ||
-        vendor.phone?.toLowerCase().includes(lowerSearch) ||
-        vendor.price_range?.toLowerCase().includes(lowerSearch) ||
-        vendor.pin_code?.toLowerCase().includes(lowerSearch) ||
-        vendor.experience_since?.toLowerCase().includes(lowerSearch) ||
-        categoryNames.includes(lowerSearch)
-      );
-    })
-  : blockedvendors;
+  //     return (
+  //       vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
+  //       vendor.email?.toLowerCase().includes(lowerSearch) ||
+  //       vendor.phone?.toLowerCase().includes(lowerSearch) ||
+  //       vendor.price_range?.toLowerCase().includes(lowerSearch) ||
+  //       vendor.pin_code?.toLowerCase().includes(lowerSearch) ||
+  //       vendor.experience_since?.toLowerCase().includes(lowerSearch) ||
+  //       categoryNames.includes(lowerSearch)
+  //     );
+  //   }) :
+   blockedvendors;
 
 
   useEffect(() => {

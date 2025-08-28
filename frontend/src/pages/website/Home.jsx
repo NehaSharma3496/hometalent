@@ -27,6 +27,12 @@ const Home = () => {
   const [blogdata, setBlogData] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const dropdownRef = useRef(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+
+  const toggleReadMore = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   const fetchstatecity = async () => {
     try {
@@ -197,7 +203,7 @@ const Home = () => {
   };
 
   return (
-   
+
     <div>
       <section className="hero-padding-for-three video-overlay position-relative hero-area">
         <div className="container">
@@ -226,14 +232,15 @@ const Home = () => {
                     <div className="row g-4 justify-content-end">
 
                       <div className="col-xl-5 col-lg-6 col-md-6 col-sm-12 ">
-                        <div className="position-relative" style={{ width: "100%" }} ref={dropdownRef}>
+                        <div className="position-relative" style={{ width: "100%"  }} ref={dropdownRef}>
                           <input
                             type="text"
-                            className="form-control form-select p-2"
+                            className="form-control form-select p-2 cursor-pointer"
                             placeholder="Search City"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             onFocus={() => setShowDropdown(true)}
+                            
                           />
 
                           {showDropdown && (
@@ -327,7 +334,7 @@ const Home = () => {
               <div className="section-title text-center mx-auto position-relative">
                 <h4 className="blue-title">Explore top vendors by category</h4>
                 <span className="highlights">
-                  from wedding lawns and marriage gardens to photographers,
+                  From wedding lawns and marriage gardens to photographers,
                   bridal wear, makeup artists, and more — all with HomeTalent4u.
                 </span>
               </div>
@@ -439,9 +446,7 @@ const Home = () => {
                   See Those Lovely Words From Clients
                 </h4>
                 <span className="highlights">
-                  HomeTalent4U is a digital Platform dedicated to supporting
-                  homegrown talent. Whether you make artisanal crafts, bake
-                  delicious treats, offer tutoring,
+                  At HomeTalent4U, every voice matters. Our community of passionate creators – from artisans and bakers to tutors and home entrepreneurs – inspires us every day. Here’s what our talented family has to say about their journey with us.
                 </span>
               </div>
             </div>
@@ -510,19 +515,37 @@ const Home = () => {
                   </div>
 
                   {/* Message */}
-                  <p
-                    className="text-muted"
-                    style={{
-                      fontSize: "0.95rem",
-                      lineHeight: "1.6",
-                      color: "#555",
-                      marginBottom: 0,
-                    }}
-                  >
-                    {item.message?.length > 200
-                      ? `${item.message.slice(0, 200)}...`
-                      : item.message}
-                  </p>
+                  <div>
+                    <p
+                      className="text-muted"
+                      style={{
+                        fontSize: "0.95rem",
+                        lineHeight: "1.6",
+                        color: "#555",
+                        marginBottom: 0,
+                      }}
+                    >
+                      {isExpanded || item.message?.length <= 200
+                        ? item.message
+                        : `${item.message.slice(0, 200)}...`}
+                    </p>
+                    {item.message?.length > 200 && (
+                      <button
+                        onClick={toggleReadMore}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#007bff",
+                          cursor: "pointer",
+                          padding: 0,
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        {isExpanded ? "Read Less" : "Read More"}
+                      </button>
+                    )}
+                  </div>
+
                 </div>
               </div>
             ))}
@@ -537,9 +560,7 @@ const Home = () => {
               <div className="section-title text-center mx-605 mx-auto position-relative mb-60">
                 <h4 className="blue-title pb-2">Blog & Articles</h4>
                 <span className="highlights">
-                  HomeTalent4U is a digital Platform dedicated to supporting
-                  homegrown talent. Whether you make artisanal crafts, bake
-                  delicious treats, offer tutoring,
+                  At HomeTalent4U, we share tips, stories, and insights to help you grow your creativity into success.
                 </span>
               </div>
             </div>

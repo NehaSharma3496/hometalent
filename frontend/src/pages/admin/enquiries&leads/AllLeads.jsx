@@ -4,6 +4,7 @@ import { GetAllLeads } from "../../../Services/admin/Admin";
 import { Link } from "react-router-dom";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
+import { Modal, Button } from "react-bootstrap";
 
 export default function AllLeads() {
   const [leads, setLeads] = useState([]);
@@ -15,6 +16,8 @@ export default function AllLeads() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [fullText, setFullText] = useState("");
 
   const fetchAllLeads = async (page, limit) => {
     setLoading(true);
@@ -122,6 +125,11 @@ export default function AllLeads() {
     setAllLeads(completeList);
   };
 
+  const handleReadMore = (text) => {
+    setFullText(text);
+    setShowModal(true);
+  };
+
   const filteredLeads = searchText
     ? allLeads.filter((lead) => {
       const lowerSearch = searchText.toLowerCase();
@@ -169,9 +177,47 @@ export default function AllLeads() {
     },
     {
       name: "Client Query",
-      selector: (row) => row?.query,
       sortable: true,
+      cell: (row) => {
+        if (!row?.query) return "—";
+
+        const maxLength = 50; // first 50 characters, adjust as needed
+        const shortText =
+          row.query.length > maxLength
+            ? row.query.substring(0, maxLength) + "..."
+            : row.query;
+
+        return (
+          <div>
+            {row.query.length > maxLength ? (
+              <>
+                {shortText}{" "}
+                <button
+                  className="btn btn-sm"
+                  style={{
+                    backgroundColor: "#e9f5ff",
+                    color: "#007bff",
+                    borderRadius: "12px",
+                    padding: "2px 8px",
+                    fontSize: "11px",
+                    fontWeight: "500",
+                    border: "1px solid #cce5ff",
+                    marginTop: "10px",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleReadMore(row.query)}
+                >
+                  Read More
+                </button>
+              </>
+            ) : (
+              row.query
+            )}
+          </div>
+        );
+      },
     },
+    
     {
       name: "Date",
       selector: (row) => new Date(row?.createdAt).toLocaleDateString(),
@@ -234,6 +280,25 @@ export default function AllLeads() {
               onChangePage={handlePageChange}
             />
           </div>
+          <Modal show={showModal} onHide={() => setShowModal(false)}>
+            <Modal.Header closeButton>
+              <Modal.Title>Full Query</Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{
+              maxHeight: "400px", 
+              overflowY: "auto",
+              wordWrap: "break-word",
+              whiteSpace: "pre-wrap" 
+            }}
+            >
+              {fullText}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowModal(false)}>
+                Close
+              </Button>
+            </Modal.Footer>
+          </Modal>
         </div>
       </div>
     </div>

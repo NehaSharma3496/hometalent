@@ -4,6 +4,9 @@ import { Link } from "react-router-dom";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
+import { Modal, Button } from "react-bootstrap";
+
+
 export default function AllEnquiries() {
   const [contacts, setContacts] = useState([]);
   const token = localStorage.getItem("token");
@@ -14,6 +17,15 @@ export default function AllEnquiries() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
+
+  const [showModal, setShowModal] = useState(false);
+  const [fullText, setFullText] = useState("");
+
+  const handleReadMore = (text) => {
+    setFullText(text);
+    setShowModal(true);
+  };
+
 
   const fetchAllContactUs = async (page, limit) => {
     setLoading(true);
@@ -174,10 +186,44 @@ export default function AllEnquiries() {
     },
     {
       name: "Message",
-      selector: (row) => row?.message,
       sortable: true,
-      // grow: 2,
+      cell: (row) => {
+        if (!row?.message) return "—";
+    
+        const maxLength = 50; // number of letters to show
+        const shortText =
+          row.message.length > maxLength
+            ? row.message.substring(0, maxLength) + "..."
+            : row.message;
+    
+        return (
+          <div>
+            {row.message.length > maxLength ? (
+              <>
+                {shortText}{" "}
+                <button
+                  className="btn btn-link p-0"
+                  style={{
+                    fontSize: "12px",
+                    color: "#007bff",
+                    textDecoration: "underline",
+                    cursor: "pointer",
+                    fontWeight: "500",
+                  }}
+                  onClick={() => handleReadMore(row.message)}
+                >
+                  Read More
+                </button>
+              </>
+            ) : (
+              row.message
+            )}
+          </div>
+        );
+      },
     },
+    
+    
     {
       name: "Date",
       selector: (row) => {
@@ -249,6 +295,26 @@ export default function AllEnquiries() {
               onChangePage={handlePageChange}
             />
           </div>
+          <Modal show={showModal} onHide={() => setShowModal(false)}>
+            <Modal.Header closeButton>
+              <Modal.Title>Full Query</Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{
+              maxHeight: "400px", 
+              overflowY: "auto",
+              wordWrap: "break-word",
+              whiteSpace: "pre-wrap" 
+            }}
+            >
+              {fullText}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowModal(false)}>
+                Close
+              </Button>
+            </Modal.Footer>
+          </Modal>
+
         </div>
       </div>
     </div>

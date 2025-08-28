@@ -6,7 +6,7 @@ import Loader from "../../../Utils/Loader"
 
 const Blog = () => {
   const [blog, setBlog] = useState([]);
-  const [loading, setLoading] = useState(true)
+  // const [loading, setLoading] = useState(true)
 
   const fetchBlog = async () => {
     try {
@@ -19,10 +19,10 @@ const Blog = () => {
   };
 
   useEffect(() => {
-    setLoading(true);
+    // setLoading(true);
     setTimeout(() => {
       fetchBlog();
-    }, 200)
+    },5000)
   }, []);
 
   const breadcrumbLinks = [
@@ -32,7 +32,7 @@ const Blog = () => {
 
   return (
     <div>
-      {loading}
+      {/* {loading} */}
       <Breadcrumbs title="Blog" links={breadcrumbLinks} />
       <section className="news-area top-bottom-padding2">
         <div className="container ">

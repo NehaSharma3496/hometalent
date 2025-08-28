@@ -86,8 +86,7 @@ const VendorPackages = () => {
     try {
       const res = await getVendorPackageHistory(token, vendorId);
       if (res.status) {
-        const subscribedIds = res.data.map((pkg) => pkg.package_id);
-        setSubscribedPackageIds(subscribedIds);
+        setSubscribedPackageIds(res.data);
       }
     } catch (err) {
       console.error("Failed to load subscribed packages", err);
@@ -204,6 +203,9 @@ const VendorPackages = () => {
     });
   };
 
+
+ 
+
   const columns = [
     {
       name: "S.No",
@@ -248,13 +250,16 @@ const VendorPackages = () => {
     {
       name: "Subscribe",
       cell: (row) => {
-        const isSubscribed = subscribedPackageIds.includes(row.id);
-
+        const isSubscribed = subscribedPackageIds.some(
+          (item) => item?.package_id === row.id && item?.payment_status === "completed"
+        );
+        console.log("isSubscribed",isSubscribed)
+    
         return (
           <button
-            className={`btn btn-primary p-1 d-flex align-items-center gap-1 ${isSubscribed ? "btn-outline-secondary" : "btn-primary"
-              }`}
+            className={`btn p-1 d-flex align-items-center gap-1 ${isSubscribed ? "btn-outline-secondary" : "btn-primary"}`}
             onClick={() => AddSubscribeplan(row)}
+            disabled={isSubscribed} // Optional: disable if already subscribed
           >
             <i className="fa-solid fa-crown text-warning"></i>
             <span>{isSubscribed ? "Subscribed" : "Subscribe"}</span>
@@ -264,20 +269,23 @@ const VendorPackages = () => {
       sortable: false,
       width: "150px",
     },
+    
     {
       name: "Status",
       cell: (row) => {
-        const isSubscribed = subscribedPackageIds.includes(row.id);
+        const isSubscribed = subscribedPackageIds.some(
+          (item) => item?.package_id === row.id && item?.payment_status === "completed"
+        );
         return (
           <div
             className="d-flex justify-content-center align-items-center"
             style={{ height: "40px", width: "100%" }}
           >
             <span
-              className={`fs-6 ${isSubscribed ? "badge bg-success" : "text-muted"
+              className={`fs-6 ${isSubscribed ? "badge bg-success" : "-"
                 }`}
             >
-              {isSubscribed ? "Active" : "-"}
+              {isSubscribed  ? "Active" : "-"}
             </span>
           </div>
         );

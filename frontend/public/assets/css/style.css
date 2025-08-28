@@ -6820,3 +6820,9 @@ div#searchs ul li:not(:last-child) {
 .animate-spin-slow {
   animation: spin-slow 2s linear infinite;
 }
+
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: none !important;
+  }
+  

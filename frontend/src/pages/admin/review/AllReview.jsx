@@ -7,10 +7,18 @@ import {
   UpdateReviewStatus,
   GetAllReview,
 } from "../../../Services/admin/Admin";
+import { Modal, Button } from "react-bootstrap";
 
 export default function AllReviews() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [fullText, setFullText] = useState("");
+
+  const handleReadMore = (text) => {
+    setFullText(text);
+    setShowModal(true);
+  };
 
   const fetchReviews = async () => {
     setLoading(true);
@@ -93,10 +101,46 @@ export default function AllReviews() {
       name: "Reviewer",
       selector: (row) => row.name || "N/A",
     },
+
     {
       name: "Review",
-      selector: (row) => row.message || "N/A",
+      sortable: true,
+      cell: (row) => {
+        if (!row?.message) return "—";
+
+        const maxLength = 50; // number of letters to show
+        const shortText =
+          row.message.length > maxLength
+            ? row.message.substring(0, maxLength) + "..."
+            : row.message;
+
+        return (
+          <div>
+            {row.message.length > maxLength ? (
+              <>
+                {shortText}{" "}
+                <button
+                  className="btn btn-link p-0"
+                  style={{
+                    fontSize: "12px",
+                    color: "#007bff",
+                    textDecoration: "underline",
+                    cursor: "pointer",
+                    fontWeight: "500",
+                  }}
+                  onClick={() => handleReadMore(row.message)}
+                >
+                  Read More
+                </button>
+              </>
+            ) : (
+              row.message
+            )}
+          </div>
+        );
+      },
     },
+
     {
       name: "Approval",
       cell: (row) => {
@@ -182,6 +226,25 @@ export default function AllReviews() {
             pagination
           />
         </div>
+        <Modal show={showModal} onHide={() => setShowModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Full Query</Modal.Title>
+          </Modal.Header>
+          <Modal.Body style={{
+            maxHeight: "400px",
+            overflowY: "auto",
+            wordWrap: "break-word",
+            whiteSpace: "pre-wrap"
+          }}
+          >
+            {fullText}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowModal(false)}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     </div>
   );

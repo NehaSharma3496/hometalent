@@ -17,6 +17,13 @@ export default function VendorPackageDetails() {
   const [totalRows, setTotalRows] = useState(0);
   const [extendDays, setExtendDays] = useState("");
   const [latestPackageId, setLatestPackageId] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [extensionHistory, setExtensionHistory] = useState([]);
+
+  const [historyPage, setHistoryPage] = useState(1);
+  const [historyPerPage, setHistoryPerPage] = useState(5);
+
+
 
   const token = localStorage.getItem("token");
   const location = useLocation();
@@ -44,9 +51,8 @@ export default function VendorPackageDetails() {
         setPaginatedPackages(enriched);
         setTotalRows(res.pagination.total_records);
 
-        // track latest package id
-        const active = enriched.filter((p) => p.status === "Active");
-        const sorted = [...active].sort(
+        // ✅ Get latest package by end_date regardless of status
+        const sorted = [...enriched].sort(
           (a, b) => new Date(b.end_date) - new Date(a.end_date)
         );
         setLatestPackageId(sorted[0]?.id || null);
@@ -58,6 +64,20 @@ export default function VendorPackageDetails() {
       setLoading(false);
     }
   };
+
+
+  const fetchExtensionHistory = async () => {
+    try {
+      const res = await GetExtendPackageHistory(token, { vendor_id: vendorId });
+      if (res?.status && res?.data) {
+        setExtensionHistory(res.data);
+        setShowHistory(true); // Modal open hoga
+      }
+    } catch (err) {
+      console.error("Failed to fetch extension history", err);
+    }
+  };
+
 
   // 📌 Fetch all data for search + export
   const fetchAllPackagesForSearch = async () => {
@@ -191,20 +211,32 @@ export default function VendorPackageDetails() {
       selector: (row) => row?.Package?.name || "N/A",
       sortable: true,
     },
-    { name: "Start Date", selector: (row) => formatDate(row.start_date) },
-    { name: "End Date", selector: (row) => formatDate(row.end_date) },
+    {
+      name: "Start Date",
+      selector: (row) =>
+        row.payment_status === "pending"
+          ? "-"
+          : formatDate(row.start_date),
+    },
+    {
+      name: "End Date",
+      selector: (row) =>
+        row.payment_status === "pending"
+          ? "-"
+          : formatDate(row.end_date),
+    },
+
     { name: "Amount", selector: (row) => `₹${row?.Package?.price || "0"}` },
     { name: "Payment Status", selector: (row) => row?.payment_status || "N/A" },
     {
       name: "Status",
       cell: (row) => (
-        <span
-          className={`badge bg-${row.status === "Active" ? "success" : "danger"}`}
-        >
-          {row.status}
+        <span>
+          {row.payment_status === "completed" ? "Active" : "Inactive"}
         </span>
       ),
     },
+
     {
       name: "Extended Days",
       selector: (row) => extensionMap[row?.Package?.name] || "—",
@@ -212,13 +244,20 @@ export default function VendorPackageDetails() {
     {
       name: "Actions",
       minWidth: "250px",
-      cell: (row) =>
-        row.id === latestPackageId ? (
+      cell: (row) => {
+
+        const latestCompleted = [...paginatedPackages]
+          .filter(pkg => pkg.payment_status === "completed")
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+
+        const isLatestCompleted = latestCompleted?.id === row.id;
+
+        return isLatestCompleted ? (
           <div className="d-flex flex-column flex-md-row gap-2">
             <input
               type="date"
               className="form-control form-control-sm"
-              style={{ width: "160px" }}
+              style={{ width: "140px" }}
               min={row.end_date?.split("T")[0]}
               value={extendDays}
               onChange={(e) => setExtendDays(e.target.value)}
@@ -232,14 +271,39 @@ export default function VendorPackageDetails() {
           </div>
         ) : (
           <span className="text-muted">—</span>
-        ),
+        );
+      }
+    },
+
+  ];
+
+  const historyColumns = [
+    {
+      name: "S.No",
+      selector: (row, index) => index + 1,
+      width: "70px",
+    },
+    {
+      name: "Package Name",
+      selector: (row) => row.packagelog?.name || "N/A",
+      sortable: true,
+    },
+    {
+      name: "Extended Days",
+      selector: (row) => row.details || "—",
+    },
+    {
+      name: "Extended Date",
+      selector: (row) =>
+        row.createdAt ? new Date(row.createdAt).toLocaleDateString("en-IN") : "N/A",
     },
   ];
 
+
   const filteredData = searchText
     ? allPackagesForSearch.filter((pkg) =>
-        pkg?.Package?.name?.toLowerCase().includes(searchText.toLowerCase())
-      )
+      pkg?.Package?.name?.toLowerCase().includes(searchText.toLowerCase())
+    )
     : paginatedPackages;
 
   useEffect(() => {
@@ -247,6 +311,7 @@ export default function VendorPackageDetails() {
       fetchPaginatedPackages(currentPage, perPage);
       fetchAllPackagesForSearch();
       fetchExtensionMap();
+
     }
   }, [token, vendorId, currentPage, perPage]);
 
@@ -262,8 +327,11 @@ export default function VendorPackageDetails() {
           </div>
         </div>
         <div className="col-md-6 text-end">
-          <button className="btn btn-primary btn-sm" onClick={exportToExcel}>
+          <button className="btn btn-primary btn-sm me-2" onClick={exportToExcel}>
             <i className="fa fa-file-excel me-1"></i> Download Packages
+          </button>
+          <button className="btn btn-primary btn-sm" onClick={fetchExtensionHistory}>
+            <i className="fa fa-file-excel me-1"></i> History
           </button>
         </div>
       </div>
@@ -288,6 +356,7 @@ export default function VendorPackageDetails() {
             <i className="ri-close-line" />
           </button>
         )}
+
       </div>
 
       <Datatable
@@ -304,6 +373,41 @@ export default function VendorPackageDetails() {
         }}
         onChangePage={(page) => setCurrentPage(page)}
       />
+      {showHistory && (
+        <div className="modal fade show d-block" tabIndex="-1" style={{ background: "rgba(0,0,0,0.5)" }}>
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Extension History</h5>
+                <button type="button" className="btn-close" onClick={() => setShowHistory(false)}></button>
+              </div>
+              <div className="modal-body">
+                {extensionHistory.length > 0 ? (
+                  <Datatable
+                    columns={historyColumns}
+                    data={extensionHistory.slice((historyPage - 1) * historyPerPage, historyPage * historyPerPage)}
+                    pagination
+                    paginationServer
+                    paginationTotalRows={extensionHistory.length}
+                    paginationPerPage={historyPerPage}
+                    onChangeRowsPerPage={(newPerPage) => {
+                      setHistoryPerPage(newPerPage);
+                      setHistoryPage(1);
+                    }}
+                    onChangePage={(page) => setHistoryPage(page)}
+                  />
+                ) : (
+                  <p>No extension history found.</p>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowHistory(false)}>Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+
   );
 }
