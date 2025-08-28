@@ -195,21 +195,20 @@ export default function VendorGallery() {
         </ul>
       </div>
 
-     {filteredGallery.some((item) => item.status === "pending") && (
-  <div className="form-check mb-3">
-    <input
-      type="checkbox"
-      id="selectAll"
-      className="form-check-input"
-      checked={selectAll}
-      onChange={handleSelectAll}
-    />
-    <label htmlFor="selectAll" className="form-check-label">
-      Select All Pending
-    </label>
-  </div>
-)}
-
+      {filteredGallery.some((item) => item.status === "pending") && (
+        <div className="form-check mb-3">
+          <input
+            type="checkbox"
+            id="selectAll"
+            className="form-check-input"
+            checked={selectAll}
+            onChange={handleSelectAll}
+          />
+          <label htmlFor="selectAll" className="form-check-label">
+            Select All Pending
+          </label>
+        </div>
+      )}
 
       {selectedItems.length > 0 && (
         <div className="mb-3 d-flex gap-2">

@@ -28,7 +28,7 @@ export default function ViewProfileChanges() {
 
 
   const readonly = state?.readonly || false;
-  const requestData = state?.requestData || {};
+  const requestData = state?.requestData || {}; 
   const vendor_id = requestData?.vendor_id;
   const request_data = requestData?.request_data;
   const status = requestData?.status;
@@ -83,13 +83,21 @@ export default function ViewProfileChanges() {
     }
   }, [oldData?.state_id, token]);
 
-  const getNameById = (list, id) => {
-    if (!id) return "-";
-    const item = list.find(
-      (i) => i.id === id || i.category_id === id 
-    );
-    return item ? (item.name || item.category_name) : id;
-  };
+const getNameById = (list, id) => {
+  if (!id) return "-";
+  const item = list.find(
+    (i) =>
+      i.id === Number(id) || 
+      i.category_id === Number(id) || 
+      i.id?.toString() === id?.toString() || 
+      i.category_id?.toString() === id?.toString()
+  );
+
+  return item
+    ? (item.name || item.category_name)   // states/cities → name, categories → category_name
+    : id;
+};
+
 
 
   useEffect(() => {

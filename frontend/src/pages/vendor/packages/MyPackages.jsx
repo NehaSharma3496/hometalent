@@ -115,14 +115,17 @@ export default function MyPackages() {
   };
 
   const filteredData = searchText
-    ? allPackagesForSearch.filter((pkg) => {
-      const lowerSearch = searchText.toLowerCase();
-      return (
-        pkg.Package?.name?.toLowerCase().includes(lowerSearch) ||
-        pkg.amount?.toString().toLowerCase().includes(lowerSearch)
-      );
-    })
-    : paginatedPackages;
+  ? allPackagesForSearch
+      .filter((pkg) => {
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          pkg.Package?.name?.toLowerCase().includes(lowerSearch) ||
+          pkg.amount?.toString().toLowerCase().includes(lowerSearch)
+        );
+      })
+      .filter((pkg) => pkg.payment_status === "completed")
+  : paginatedPackages.filter((pkg) => pkg.payment_status === "completed");
+
 
   const columns = [
     {

@@ -274,7 +274,6 @@ export default function VendorPackageDetails() {
         );
       }
     },
-
   ];
 
   const historyColumns = [
@@ -295,16 +294,18 @@ export default function VendorPackageDetails() {
     {
       name: "Extended Date",
       selector: (row) =>
-        row.createdAt ? new Date(row.createdAt).toLocaleDateString("en-IN") : "N/A",
+        row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "N/A",
     },
   ];
 
+const filteredData = searchText
+  ? allPackagesForSearch
+      .filter((pkg) =>
+        pkg?.Package?.name?.toLowerCase().includes(searchText.toLowerCase())
+      )
+      .filter((pkg) => pkg.payment_status === "completed")
+  : paginatedPackages.filter((pkg) => pkg.payment_status === "completed");
 
-  const filteredData = searchText
-    ? allPackagesForSearch.filter((pkg) =>
-      pkg?.Package?.name?.toLowerCase().includes(searchText.toLowerCase())
-    )
-    : paginatedPackages;
 
   useEffect(() => {
     if (token && vendorId) {
