@@ -26,6 +26,7 @@ export default function ViewProfileChanges() {
   const [newCities, setNewCities] = useState([]);
   const [comparisonRows, setComparisonRows] = useState([]);
 
+
   const readonly = state?.readonly || false;
   const requestData = state?.requestData || {};
   const vendor_id = requestData?.vendor_id;
@@ -82,8 +83,17 @@ export default function ViewProfileChanges() {
     }
   }, [oldData?.state_id, token]);
 
+  const getNameById = (list, id) => {
+    if (!id) return "-";
+    const item = list.find(
+      (i) => i.id === id || i.category_id === id 
+    );
+    return item ? (item.name || item.category_name) : id;
+  };
+
+
   useEffect(() => {
-    if (!oldData || !newData) return;
+    if (!oldData || !newData || categories.length === 0) return;
 
     let allKeys = [];
     if (status === "approved") {
@@ -111,8 +121,22 @@ export default function ViewProfileChanges() {
           ].includes(key)
       )
       .map((key) => {
-        const oldValRaw = oldData?.[key];
-        const newValRaw = newData?.[key];
+        let oldValRaw = oldData?.[key];
+        let newValRaw = newData?.[key];
+
+
+        if (key === "state_id") {
+          oldValRaw = getNameById(states, oldValRaw);
+          newValRaw = getNameById(states, newValRaw);
+        }
+        if (key === "city_id") {
+          oldValRaw = getNameById(oldCities, oldValRaw);
+          newValRaw = getNameById(newCities, newValRaw);
+        }
+        if (key === "category_id") {
+          oldValRaw = getNameById(categories, oldValRaw);
+          newValRaw = getNameById(categories, newValRaw);
+        }
 
         const resolveField = (value) => {
           if (!value && value !== 0) return "-";
@@ -122,9 +146,7 @@ export default function ViewProfileChanges() {
                 .map((v) => (v?.file_name ? v.file_name : JSON.stringify(v)))
                 .join(", ");
             }
-            return (
-              value?.file_name || value?.file_path || JSON.stringify(value)
-            );
+            return value?.file_name || value?.file_path || JSON.stringify(value);
           }
           return value.toString().trim();
         };
@@ -144,7 +166,8 @@ export default function ViewProfileChanges() {
       .sort((a, b) => a.field.localeCompare(b.field));
 
     setComparisonRows(rows);
-  }, [oldData, newData, status]);
+  }, [oldData, newData, status, states, oldCities, newCities, categories]);
+
 
   const handleAction = async (actionType) => {
     const confirm = await Swal.fire({
@@ -204,13 +227,12 @@ export default function ViewProfileChanges() {
         <div className="col-md-6 text-end">
           {status && (
             <span
-              className={`badge fs-6 ${
-                status === "approved"
-                  ? "bg-success"
-                  : status === "rejected"
+              className={`badge fs-6 ${status === "approved"
+                ? "bg-success"
+                : status === "rejected"
                   ? "bg-danger"
                   : "bg-warning text-dark"
-              }`}
+                }`}
             >
               Status: {status.toUpperCase()}
             </span>
