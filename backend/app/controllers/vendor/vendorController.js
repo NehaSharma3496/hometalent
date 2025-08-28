@@ -68,13 +68,13 @@ exports.requestProfileUpdate = async (req, res) => {
       'twitter_link', 'linkedin_link', 'youtube_link', 'website_link', 'image'
     ];
   
-       const existingUser = await User.findOne({
+      const existingUser = await User.findOne({
       where: {
-        [Op.or]: [{ email }, { phone }],
+        [Op.or]: [{ email }, { phone }], 
+        id: { [Op.ne]: vendor_id }  // exclude the current user
       },
     });
-
-    if (existingUser) {
+    if (existingUser) { 
       return res.json({
         status: false,
         msg: "Email or phone already registered",
