@@ -320,12 +320,19 @@ exports.approveVendor = async (req, res) => {
 
     // Send email with login credentials
     if(approval == 2){
-         subject = "Vendor Approved - Login Details";
-    }else{
          subject = "Vendor Profile Rejected";
+    }else{
+         subject = "Vendor Approved - Login Details";
     }
     if(approval == 2){
-      message = `
+        message = `
+          <p>Hi ${vendor.owner_name || vendor.profile_name || "Vendor"},</p>
+          <p>Your Vendor profile has been rejected by admin.</p>
+          <p>Please contact to your service provider.</p>
+          <p>Thank you,<br/>Team HomeTalent</p>
+        `;
+    }else{
+       message = `
         <p>Hi ${vendor.owner_name || vendor.profile_name || "Vendor"},</p>
         <p>Your profile has been approved by admin. You can now log in using either your <strong>email</strong> or <strong>mobile number</strong>.</p>
         <p><strong>Login Email:</strong> ${vendor.email}</p>
@@ -334,13 +341,7 @@ exports.approveVendor = async (req, res) => {
         <p>Click here to login: <a href="${req.headers.origin}/login">Login</a></p> 
         <p>Thank you,<br/>Team HomeTalent</p>
       `;
-    }else{
-      message = `
-        <p>Hi ${vendor.owner_name || vendor.profile_name || "Vendor"},</p>
-        <p>Your Vendor profile has been rejected by admin.</p>
-        <p>Please contact to your service provider.</p>
-        <p>Thank you,<br/>Team HomeTalent</p>
-      `;
+     
     }
 
     await commonEmail(vendor.email, subject, message);
