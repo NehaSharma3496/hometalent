@@ -95,13 +95,13 @@ const VendorPackages = () => {
 
   const filteredPackages = searchText
     ? allPackages.filter((pkg) => {
-      const lowerSearch = searchText.toLowerCase();
-      return (
-        pkg.name?.toLowerCase().includes(lowerSearch) ||
-        pkg.price?.toString().toLowerCase().includes(lowerSearch) ||
-        pkg.validity_in_months?.toString().toLowerCase().includes(lowerSearch)
-      );
-    })
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          pkg.name?.toLowerCase().includes(lowerSearch) ||
+          pkg.price?.toString().toLowerCase().includes(lowerSearch) ||
+          pkg.validity_in_months?.toString().toLowerCase().includes(lowerSearch)
+        );
+      })
     : packages;
 
   const exportToExcel = async () => {
@@ -203,9 +203,6 @@ const VendorPackages = () => {
     });
   };
 
-
- 
-
   const columns = [
     {
       name: "S.No",
@@ -250,42 +247,34 @@ const VendorPackages = () => {
     {
       name: "Subscribe",
       cell: (row) => {
-        const isSubscribed = subscribedPackageIds.some(
-          (item) => item?.package_id === row.id && item?.payment_status === "completed"
-        );
-        console.log("isSubscribed",isSubscribed)
-    
         return (
           <button
-            className={`btn p-1 d-flex align-items-center gap-1 ${isSubscribed ? "btn-outline-secondary" : "btn-primary"}`}
+            className="btn p-1 d-flex align-items-center gap-1 btn-primary"
             onClick={() => AddSubscribeplan(row)}
-            disabled={isSubscribed} // Optional: disable if already subscribed
           >
             <i className="fa-solid fa-crown text-warning"></i>
-            <span>{isSubscribed ? "Subscribed" : "Subscribe"}</span>
+            <span>Subscribe</span>
           </button>
         );
       },
       sortable: false,
       width: "150px",
     },
-    
+
     {
       name: "Status",
       cell: (row) => {
         const isSubscribed = subscribedPackageIds.some(
-          (item) => item?.package_id === row.id && item?.payment_status === "completed"
+          (item) =>
+            item?.package_id === row.id && item?.payment_status === "completed"
         );
         return (
           <div
             className="d-flex justify-content-center align-items-center"
             style={{ height: "40px", width: "100%" }}
           >
-            <span
-              className={`fs-6 ${isSubscribed ? "badge bg-success" : "-"
-                }`}
-            >
-              {isSubscribed  ? "Active" : "-"}
+            <span className={`fs-6 ${isSubscribed ? "badge bg-success" : "-"}`}>
+              {isSubscribed ? "Active" : "-"}
             </span>
           </div>
         );
@@ -314,7 +303,6 @@ const VendorPackages = () => {
           </button>
         </div>
       </div>
-
 
       <div className="card table-padding">
         <div
