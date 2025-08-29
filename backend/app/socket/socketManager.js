@@ -174,7 +174,7 @@ class SocketManager {
 
     // Notify admins
     this.notifyAdmins('profile_update_processed', {
-      message: `Vendor profile update request ${action}d`,
+      message: `Vendor profile update request ${action}ed`,
       request: requestData,
       vendor_id: vendorId,
       action
