@@ -174,11 +174,11 @@ const Faq = () => {
         </section>
         {/*/ End-of Question Area */}
         {/* FAQs S t r t */}
-        <div className="faqs-area bottom-padding">
+        {/* <div className="faqs-area bottom-padding">
           <div className="container">
             <div className="row">
               <div className="col-xl-12">
-                {/* Single */}
+                
                 <div className="single-terms mb-30">
                   <h5 className="title font-600">dolor sit amet consectetur</h5>
                   <p className="pera mb-20">
@@ -189,7 +189,7 @@ const Faq = () => {
                     arcu tincidunt cras elit dapibus vestibulum. Ipsum ornare
                     eleifend
                   </p>
-                  {/* Single Listing */}
+                 
                   <ul className="experience listing listing2">
                     <li className="single-list">
                       <i className="ri-shield-check-line" />
@@ -221,7 +221,7 @@ const Faq = () => {
                     </li>
                   </ul>
                 </div>
-                {/* Single */}
+              
                 <div className="single-terms mb-30">
                   <h5 className="title font-600">Lorem ipsum dolor</h5>
                   <p className="pera mb-20">
@@ -242,7 +242,7 @@ const Faq = () => {
                     laoreet non sed mattis tristique a ut. Volutpat consequat.
                   </p>
                 </div>
-                {/* Single */}
+           
                 <div className="single-terms mb-0">
                   <h5 className="title font-600">Acknowledgement</h5>
                   <p className="pera mb-20">
@@ -251,7 +251,7 @@ const Faq = () => {
                     AGREE TO BE BOUND BY THEM.
                   </p>
                 </div>
-                {/* Single */}
+               
                 <div className="single-terms mb-0">
                   <h5 className="title font-600">Contact Us</h5>
                   <p className="pera mb-20 text-normal">
@@ -261,7 +261,7 @@ const Faq = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

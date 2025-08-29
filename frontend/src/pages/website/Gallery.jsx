@@ -1,19 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
-import Captions from "yet-another-react-lightbox/plugins/captions";
-import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
-import Slideshow from "yet-another-react-lightbox/plugins/slideshow";
-import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
-import Video from "yet-another-react-lightbox/plugins/video";
-import Share from "yet-another-react-lightbox/plugins/share";
-import Zoom from "yet-another-react-lightbox/plugins/zoom";
-
 import "yet-another-react-lightbox/styles.css";
-import "yet-another-react-lightbox/plugins/captions.css";
-import "yet-another-react-lightbox/plugins/thumbnails.css";
-
 import Breadcrumbs from "../../components/websitecomponents/Breadcrumbs";
-
 import { GetAdminGallery } from "../../Services/webService/Web";
 
 const Gallery = () => {
@@ -26,16 +14,9 @@ const Gallery = () => {
   const fetchGallery = async () => {
     try {
       const response = await GetAdminGallery(token, userId);
-      console.log("Gallery API response:", response.data);
-
-      const formatted = response.data?.map((item, i) => ({
-        src: item.file_path, // ✅ use correct field
-        title: `Image ${i + 1}`, // dummy title
-        description: "Beautiful gallery image", // dummy description
-      }));
-
-      console.log("Formatted gallery:", formatted);
-      setGallery(formatted);
+      if (response?.status) {
+        setGallery(response?.data || []);
+      }
     } catch (error) {
       console.error("Error fetching gallery:", error);
     }
@@ -44,6 +25,22 @@ const Gallery = () => {
   useEffect(() => {
     fetchGallery();
   }, []);
+
+  // Lightbox only for images
+  const imageSlides = gallery
+    .filter((item) => item.file_type === "image")
+    .map((item) => ({ src: item.file_path }));
+
+  const handleImageClick = (clickedIndex) => {
+    const imageOnlyIndex = gallery
+      .filter((item) => item.file_type === "image")
+      .findIndex(
+        (img) => img.file_path === gallery[clickedIndex].file_path
+      );
+
+    setIndex(imageOnlyIndex);
+    setOpen(true);
+  };
 
   const breadcrumbLinks = [
     { label: "Home", to: "/" },
@@ -68,29 +65,47 @@ const Gallery = () => {
                     marginBottom: "15px",
                   }}
                 />
-                <p className="text-danger fs-5">No images found</p>
+                <p className="text-danger fs-5">No images or videos found</p>
               </div>
             ) : (
-              gallery?.map((slide, i) => (
+              gallery.map((item, i) => (
                 <div key={i} className="col-xl-3 col-lg-4 col-sm-6">
                   <div className="package-card h-calc">
                     <div
                       className="package-img imgEffect4 thumbnail"
-                      onClick={() => {
-                        setIndex(i);
-                        setOpen(true);
+                      style={{
+                        height: "250px",
+                        overflow: "hidden",
+                        borderRadius: "10px",
+                        cursor:
+                          item.file_type === "image" ? "pointer" : "default",
                       }}
+                      onClick={() =>
+                        item.file_type === "image" && handleImageClick(i)
+                      }
                     >
-                      <img
-                        src={slide.src}
-                        alt={`Gallery ${i + 1}`}
-                        style={{
-                          width: "100%",
-                          height: "400px",
-                          objectFit: "cover",
-                          cursor: "pointer",
-                        }}
-                      />
+                      {item.file_type === "video" ? (
+                        <video
+                          controls
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        >
+                          <source src={item.file_path} type="video/mp4" />
+                        </video>
+                      ) : (
+                        <img
+                          src={item.file_path}
+                          alt={`Gallery ${i + 1}`}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -104,18 +119,8 @@ const Gallery = () => {
         <Lightbox
           open={open}
           close={() => setOpen(false)}
+          slides={imageSlides}
           index={index}
-          slides={gallery}
-          plugins={[Fullscreen, Slideshow, Thumbnails, Video, Zoom, Share]}
-          captions={{
-            descriptionTextAlign: "center",
-            descriptionMaxLines: 2,
-          }}
-          share={{
-            url: gallery[index]?.src,
-            title: gallery[index]?.title,
-            description: gallery[index]?.description,
-          }}
         />
       )}
     </div>
