@@ -266,15 +266,36 @@ export default function RejectedVendors() {
     },
     {
       name: "Action",
-      cell: (row) => (
-        <button
-          className="btn btn-success btn-sm"
-          onClick={() => handleApproveVendor(row.id, 1)}
-          title="Approve Vendor"
-        >
-          Approve
-        </button>
-      ),
+      cell: (row) => {
+        return (
+          <div className="dropdown">
+            <>
+              <button
+                className={`badge bg-danger dropdown-toggle fs-6`}
+                type="button"
+                id={`actionDropdown-${row.id}`}
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Rejected
+              </button>
+              <ul
+                className="dropdown-menu"
+                aria-labelledby={`actionDropdown-${row.id}`}
+              >
+                <li>
+                  <button
+                    className="dropdown-item text-success"
+                    onClick={() => handleApproveVendor(row.id, 1)}
+                  >
+                    ✅ Approve
+                  </button>
+                </li>
+              </ul>
+            </>
+          </div>
+        );
+      },
       width: "120px",
     },
   ];

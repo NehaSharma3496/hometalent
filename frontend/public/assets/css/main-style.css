@@ -35414,3 +35414,9 @@ td .user .thumb {
     .city-item:hover {
       text-decoration: underline;
     }
+
+   
+.desktop-dropdown .Anuj .dropdown-link {
+  font-weight: bolder !important;
+  font-size: 15px;
+}
