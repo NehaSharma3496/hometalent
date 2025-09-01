@@ -811,10 +811,28 @@ exports.createPackage = async (req, res) => {
       features: pkg.features,
       status: pkg.status
     });
+
+    await Notification.create({
+      user_id: null,
+      user_type: 'admin',
+      type: 'package_created',
+      title: 'New Package Created',
+      message: `New package created.`,
+      metadata: { package_id: pkg.id }
+    });
+
+    await Notification.create({
+      user_id: null,
+      user_type: 'vendor',
+      type: 'package_created',
+      title: 'New Package Available',
+      message: `New package available`,
+      metadata: { package_id: pkg.id }
+    });  
     
-    res.json({ status: true, data: pkg });
+    return res.json({ status: true, data: pkg });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.status(500).json({ status: false, msg: error.message });
   }
 };
 
@@ -970,11 +988,14 @@ exports.extendVendorPackage = async (req, res) => {
     }
 
     const sub = await VendorPackageSubscription.findByPk(id);
+    const pkg = await Package.findByPk(sub.package_id);
+
+    if (!pkg) {
+      return res.json({ status: false, msg: "Package not found" });
+    }
 
     if (!sub) {
-      return res
-        .status(404)
-        .json({ status: false, msg: "Subscription not found" });
+      return res.json({ status: false, msg: "Subscription not found" });
     }
 
     const endDate = new Date(sub.end_date);
@@ -992,14 +1013,37 @@ exports.extendVendorPackage = async (req, res) => {
         action: "extend_package_validity",
         details: extra_days
       });
+       const new_end_date = new Date(sub.end_date);
+       const dd = String(new_end_date.getDate()).padStart(2, "0");
+       const mm = String(new_end_date.getMonth() + 1).padStart(2, "0");
+       const yy = String(new_end_date.getFullYear());
+       const formatted = `${dd}/${mm}/${yy}`;
+      socketManager.vendorPackageExtended(sub.vendor_id,{
+        id: sub.id,
+        vendor_id: sub.vendor_id,
+        package_name: pkg.name,
+        package_id: sub.package_id,
+        new_end_date: formatted,
+        extra_days: extra_days
+      });
 
-    res.json({
+      await Notification.create({
+        user_id: sub.vendor_id,
+        user_type: 'vendor',
+        type: 'package_extended',
+        title: 'Package Extended',
+        message: `Package ${pkg.name} has been extended by ${extra_days} days. New expiry date: ${formatted}.`,
+        metadata: { subscription_id: sub.id, package_id: pkg.id, extra_days, new_end_date: formatted }
+      });
+
+
+    return res.json({
       status: true,
       msg: "Subscription end_date extended successfully",
       data: sub,
     });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.status(500).json({ status: false, msg: error.message });
   }
 };
 
@@ -1332,7 +1376,16 @@ exports.packageextendhistory = async (req, res) => {
         action: "extend_package_validity",
       },
       include: [
-        { model: Package, as: "packagelog", attributes: ["id", "name"]
+        { model: Package, as: "packagelog",
+           attributes: ["id", "name"],
+            include: [
+            { model: VendorPackageSubscription, as: "Package", 
+              attributes: ["id"],
+              where: { vendor_id  }
+             }
+
+           ]
+         
         }  
       ], 
       order: [["createdAt", "DESC"]],

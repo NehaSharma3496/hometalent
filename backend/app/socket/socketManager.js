@@ -81,11 +81,12 @@ class SocketManager {
     const vendorKey = String(vendorId);
     const vendorSocket = this.vendorSockets.get(vendorKey);
     // console.log('Sending notification to vendor:', vendorKey, 'Socket:', vendorSocket);
+    console.log('Available vendors:', vendorSocket);
     
     if (vendorSocket && vendorSocket != undefined) {
       vendorSocket.emit('notification', {
         type,
-        data,
+        data, 
         timestamp: new Date().toISOString()
       });
     } else {
@@ -119,7 +120,7 @@ class SocketManager {
   // Vendor registration notification
   vendorRegistered(vendorData) {
     this.notifyAdmins('vendor_registration_request', {
-      message: 'Vendor registration request recieved. Action required',
+      message: 'Vendor registration request received. Action required',
       vendor: vendorData
     });
   }
@@ -223,7 +224,7 @@ class SocketManager {
   // Gallery request submitted by vendor
   galleryRequestSubmitted(vendorId, vendorName, payload) {
     this.notifyAdmins('gallery_request', {
-      message: `Vendor(${vendorName}) gallery request recieved. Action required`,
+      message: `Vendor(${vendorName}) gallery request received. Action required`,
       data: payload,
       vendor_id: vendorId
     });
@@ -257,6 +258,14 @@ class SocketManager {
     this.notifyAdmins('plan_expired', {
       message: `Vendor ${vendorName} subscription plan has expired.`,
       subscription: subscriptionData
+    });
+  }
+
+    vendorPackageExtended(vendorId,packageData) {
+    // Notify vendor
+    this.notifyVendor(vendorId, 'plan_extend', {
+      message: `Package ${packageData.package_name} extended successfully by Admin for ${packageData.extra_days} days. Valid till ${packageData.new_end_date}.`,
+      subscription: packageData
     });
   }
 }

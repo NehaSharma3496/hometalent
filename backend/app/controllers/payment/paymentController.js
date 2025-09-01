@@ -519,6 +519,18 @@ exports.getPaymentStatus = async (req, res) => {
           message: `New Subscription:${pkg?.name || ''} plan subscribed by Vendor${vendorName}.`,
           metadata: { vendor_id: user_id, package_id: packgeid.package_id }
         });
+
+        await Notification.create({
+          user_id: user_id,
+          user_type: 'vendor',
+          type: 'package_subscribed',
+          title: 'Package Subscribed',
+          // message: `You have successfully subscribed to the ${pkg?.name || ''} package.`,
+          message:'Subscription successful',
+          metadata: { package_id: packgeid.package_id }
+        });
+
+
       } catch (e) { console.error('Failed to persist admin plan subscription notification:', e.message); }
     }
     
