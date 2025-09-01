@@ -1376,8 +1376,16 @@ exports.packageextendhistory = async (req, res) => {
         action: "extend_package_validity",
       },
       include: [
-        { model: Package, as: "packagelog", attributes: ["id", "name"],
-          model: VendorPackageSubscription, as: "subscriptionlog", attributes: ["id"]
+        { model: Package, as: "packagelog",
+           attributes: ["id", "name"],
+            include: [
+            { model: VendorPackageSubscription, as: "Package", 
+              attributes: ["id"],
+              where: { vendor_id  }
+             }
+
+           ]
+         
         }  
       ], 
       order: [["createdAt", "DESC"]],
