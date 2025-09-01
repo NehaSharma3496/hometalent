@@ -811,10 +811,28 @@ exports.createPackage = async (req, res) => {
       features: pkg.features,
       status: pkg.status
     });
+
+    await Notification.create({
+      user_id: null,
+      user_type: 'admin',
+      type: 'package_created',
+      title: 'New Package Created',
+      message: `New package created.`,
+      metadata: { package_id: pkg.id }
+    });
+
+    await Notification.create({
+      user_id: null,
+      user_type: 'vendor',
+      type: 'package_created',
+      title: 'New Package Available',
+      message: `New package available`,
+      metadata: { package_id: pkg.id }
+    });  
     
-    res.json({ status: true, data: pkg });
+    return res.json({ status: true, data: pkg });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.status(500).json({ status: false, msg: error.message });
   }
 };
 
