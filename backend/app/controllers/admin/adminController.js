@@ -712,16 +712,16 @@ exports.processProfileUpdateRequest = async (req, res) => {
       }, request.vendor_id, action);
 
       // Persist admin notification
-      try {
-        await Notification.create({
-          user_id: null,
-          user_type: 'admin',
-          type: 'profile_update_processed',
-          title: 'Profile Update',
-          message: `Vendor profile update request rejected`,
-          metadata: { request_id: request.id, vendor_id: request.vendor_id }
-        });
-      } catch (e) { console.error('Failed to persist admin profile processed notification:', e.message); }
+      // try {
+      //   await Notification.create({
+      //     user_id: null,
+      //     user_type: 'admin',
+      //     type: 'profile_update_processed',
+      //     title: 'Profile Update',
+      //     message: `Vendor profile update request rejected`,
+      //     metadata: { request_id: request.id, vendor_id: request.vendor_id }
+      //   });
+      // } catch (e) { console.error('Failed to persist admin profile processed notification:', e.message); }
 
       // Persist vendor notification (rejected)
       try {
