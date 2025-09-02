@@ -13,6 +13,7 @@ const sequelize = require('../config/db.config');
         type: DataTypes.INTEGER,
         allowNull: true
     },
+
     status: {
         type: DataTypes.INTEGER,
         allowNull: false,
