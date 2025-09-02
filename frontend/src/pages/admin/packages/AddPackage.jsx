@@ -104,37 +104,41 @@ export default function AddPackage() {
     },
   ];
 
-  const onSubmit = async (values) => {
-    try {
-      // backend ke liye ek hi validity bhejna
-      const payload = {
-        ...values,
-        validity:
-          values.validity_type === "months"
-            ? values.validity_in_months
-            : values.days,
-      };
+ const onSubmit = async (values) => {
+  try {
+    const payload = {
+      name: values.name,
+      description: values.description,
+      price: values.price,
+      features: values.features,
+      status: 1, // agar default active rakhna ho
+      validity_in_months:
+        values.validity_type === "months" ? values.validity_in_months : null,
+      days:
+        values.validity_type === "days" ? values.validity_in_days : null,
+    };
 
-      const res = await CreatePackage(payload, token);
+    const res = await CreatePackage(payload, token);
 
-      if (res?.status==true) {
-        Swal.fire("Success", res?.msg || "Package created!", "success").then(
-          () => {
-            window.location.reload();
-          }
-        );
-      } else {
-        Swal.fire("Error", res?.msg || "Something went wrong", "error");
-      }
-    } catch (err) {
-      console.error("API ERROR:", err);
-      Swal.fire(
-        "Error",
-        err?.response?.data?.msg || "Something went wrong",
-        "error"
+    if (res?.status === true) {
+      Swal.fire("Success", res?.msg || "Package created!", "success").then(
+        () => {
+          window.location.reload();
+        }
       );
+    } else {
+      Swal.fire("Error", res?.msg || "Something went wrong", "error");
     }
-  };
+  } catch (err) {
+    console.error("API ERROR:", err);
+    Swal.fire(
+      "Error",
+      err?.response?.data?.msg || "Something went wrong",
+      "error"
+    );
+  }
+};
+
 
   return (
     <div className="page-content">
