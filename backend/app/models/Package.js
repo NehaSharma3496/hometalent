@@ -23,6 +23,10 @@ const Package = sequelize.define('Package', {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+    days: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
     features: {
         type: DataTypes.TEXT,
         allowNull: true,

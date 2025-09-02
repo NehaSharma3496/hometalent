@@ -798,8 +798,8 @@ exports.getAllProfileUpdateRequests = async (req, res) => {
 // Package Master CRUD APIs
 exports.createPackage = async (req, res) => {
   try {
-    const { name, description, price, validity_in_months, features, status } = req.body;
-    const pkg = await Package.create({ name, description, price, validity_in_months, features, status });
+    const { name, description, price, validity_in_months, days, features, status } = req.body;
+    const pkg = await Package.create({ name, description, price, validity_in_months, days, features, status });
     
     // Send socket notification
     socketManager.packageCreated({
@@ -1491,3 +1491,15 @@ exports.notifyExpiredPlans = async (req, res) => {
     res.status(500).json({ status: false, msg: error.message });
   }
 };
+
+exports.insertcategoryimages = async (req, res) => {
+  try {
+    const categories = await Category.findAll();
+    for (const category of categories) {
+      let image = `${baseUrl}/media/category/${category.name}`;
+    }
+    return res.json({ status: true, msg: "done" });
+  } catch (error) {
+    return res.status(500).json({ status: false, msg: error.message });
+  } 
+}
