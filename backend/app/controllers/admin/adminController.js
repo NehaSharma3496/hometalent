@@ -1007,6 +1007,7 @@ exports.extendVendorPackage = async (req, res) => {
     await sub.save();
     
     await Log.create({
+        request_id: id,
         user_id: sub.vendor_id,
         package_id: sub.package_id,
         user_type: "admin",
