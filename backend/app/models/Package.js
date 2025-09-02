@@ -21,7 +21,7 @@ const Package = sequelize.define('Package', {
     },
     validity_in_months: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
     },
     days: {
         type: DataTypes.INTEGER,
