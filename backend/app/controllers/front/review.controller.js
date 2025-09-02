@@ -4,13 +4,13 @@ const socketManager = require('../../socket/socketManager');
 // Create a review
 exports.createReview = async (req, res) => {
   try {
-    const { name, message } = req.body;
+    const { name, message, rating } = req.body;
 
     if (!name || !message) {
       return res.status(400).json({ status: false, message: 'Name and message are required' });
     }
 
-    const review = await Review.create({ name, message });
+    const review = await Review.create({ name, message, rating });
 
     // Emit and persist admin notification
     try {
