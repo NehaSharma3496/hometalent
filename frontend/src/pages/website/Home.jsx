@@ -234,14 +234,14 @@ const Home = () => {
                           style={{ width: "100%" }}
                           ref={dropdownRef}
                         >
-                          <input
-                            type="text"
-                            className="form-control p-2 cursor-pointer"
-                            placeholder="Search City"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            onFocus={() => setShowDropdown(true)}
-                          />
+                        <input
+  type="text"
+  className="form-control custom-input-select cursor-pointer"
+  placeholder="Search City"
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  onFocus={() => setShowDropdown(true)}
+/>
 
                           {showDropdown && (
                             <div
@@ -292,25 +292,22 @@ const Home = () => {
 
                       <div className="col-xl-5 col-lg-12">
                         <div className="destination-flex">
-                          <select
-                            className="form-select"
-                            value={selectedCategory}
-                            onChange={(e) =>
-                              setSelectedCategory(e.target.value)
-                            }
-                          >
-                            <option value="">Select Category</option>
-                            {Array.isArray(categories) &&
-                              categories?.map((cat) => {
-                                const categoryId =
-                                  cat.id || cat._id || cat.categoryId;
-                                return (
-                                  <option key={categoryId} value={categoryId}>
-                                    {cat.name}
-                                  </option>
-                                );
-                              })}
-                          </select>
+                        <select
+  className="form-select custom-input-select"
+  value={selectedCategory}
+  onChange={(e) => setSelectedCategory(e.target.value)}
+>
+  <option value="">Select Category</option>
+  {Array.isArray(categories) &&
+    categories?.map((cat) => {
+      const categoryId = cat.id || cat._id || cat.categoryId;
+      return (
+        <option key={categoryId} value={categoryId}>
+          {cat.name}
+        </option>
+      );
+    })}
+</select>
                         </div>
                       </div>
                       <div className="col-xl-2 col-lg-3">

@@ -6830,3 +6830,45 @@ div#searchs ul li:not(:last-child) {
   input.cursor-pointer {
   cursor: pointer !important;
 }
+
+
+.custom-input-select {
+  height: 54px !important;
+  font-size: 16px;      
+  padding: 10px 12px;     
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+    color: #212529 !important;   
+}
+
+::placeholder {
+  color: #212529 !important;
+  opacity: 1; /* Firefox ke liye */
+}
+
+.detail-text {
+  font-size: 16px;      /* ek jaisa font size */
+  color: #212529;       /* dark grey for readability */
+  line-height: 1.6;     /* proper spacing */
+  margin-bottom: 12px;  /* gap between paragraphs */
+}
+
+.detail-heading {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #000;
+}
+
+.price-review {
+  margin-top: 20px;
+}
+
+.price-review .title {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 5px 0 0;   /* thoda gap between text */
+  color: #212529;
+}
+

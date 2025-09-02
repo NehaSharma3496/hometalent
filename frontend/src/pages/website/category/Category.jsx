@@ -167,7 +167,7 @@ const Category = () => {
                     )}
                   </div>
 
-                  <div className="sorting-dropdown">
+                  {/* <div className="sorting-dropdown">
                     <select
                       className="form-select"
                       value={sortOption}
@@ -178,7 +178,7 @@ const Category = () => {
                       <option value="high">Price high to low</option>
                       <option value="new">Sort by Newest</option>
                     </select>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 

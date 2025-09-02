@@ -115,17 +115,16 @@ export default function MyPackages() {
   };
 
   const filteredData = searchText
-  ? allPackagesForSearch
-      .filter((pkg) => {
-        const lowerSearch = searchText.toLowerCase();
-        return (
-          pkg.Package?.name?.toLowerCase().includes(lowerSearch) ||
-          pkg.amount?.toString().toLowerCase().includes(lowerSearch)
-        );
-      })
-      .filter((pkg) => pkg.payment_status === "completed")
-  : paginatedPackages.filter((pkg) => pkg.payment_status === "completed");
-
+    ? allPackagesForSearch
+        .filter((pkg) => {
+          const lowerSearch = searchText.toLowerCase();
+          return (
+            pkg.Package?.name?.toLowerCase().includes(lowerSearch) ||
+            pkg.amount?.toString().toLowerCase().includes(lowerSearch)
+          );
+        })
+        .filter((pkg) => pkg.payment_status === "completed")
+    : paginatedPackages.filter((pkg) => pkg.payment_status === "completed");
 
   const columns = [
     {
@@ -244,7 +243,6 @@ export default function MyPackages() {
           <i className="fa-solid fa-file-excel me-1"></i> Download
         </button>
       </div>
-
 
       <div
         className="d-flex align-items-center border rounded px-2 mb-3"

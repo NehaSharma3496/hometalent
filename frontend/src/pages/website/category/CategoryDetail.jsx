@@ -279,25 +279,26 @@ const CategoryDetail = () => {
                       </div>
                     </div>
 
-                    <div className="tour-details-content mt-15">
-                      <p className="pera ">{vendors?.short_description}</p>
-                    </div>
+                   <div className="tour-details-content mt-15">
+  <p className="detail-text">{vendors?.short_description}</p>
+</div>
 
-                    <div className="price-review ">
-                      <div className="d-flex  align-items-end">
-                        <h3 className="title">Estimated Price Range -</h3>
-                        <h3 className="title">₹{vendors?.price_range}</h3>
-                      </div>
-                      <div className="rating">
-                        <p className="pera">Experience Since -</p>
-                        <p className="pera">{vendors?.experience_since}</p>
-                      </div>
-                    </div>
+<div className="price-review ">
+  <div className="d-flex align-items-end">
+    <h3 className="title">Estimated Price Range -</h3>
+    <h3 className="title fw-bold">₹{vendors?.price_range}</h3>
+  </div>
+  <div className="rating">
+    <p className="detail-text">Experience Since -</p>
+    <p className="detail-text">{vendors?.experience_since}</p>
+  </div>
+</div>
 
-                    <div className="tour-details-content mt-10">
-                      <h4 className="title">About</h4>
-                      <p className="pera ">{vendors?.long_description}</p>
-                    </div>
+<div className="tour-details-content mt-10">
+  <h4 className="title">About</h4>
+  <p className="detail-text">{vendors?.long_description}</p>
+</div>
+
 
                     {/* GALLERY SECTION WITH TABS */}
                     {/* GALLERY SECTION WITH TABS */}
