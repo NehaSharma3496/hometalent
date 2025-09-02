@@ -6,7 +6,7 @@ import {
   GetCategories,
   GetVendorsByCategory,
 } from "../../../Services/webService/Web";
-import Loader from "../../../Utils/Loader"
+import Loader from "../../../Utils/Loader";
 
 const Category = () => {
   const location = useLocation();
@@ -28,13 +28,13 @@ const Category = () => {
   console.log("Category Id", categoryId);
   console.log("City Id ", cityId);
 
-   useEffect(() => {
+  useEffect(() => {
     setLoading(true);
     setTimeout(() => {
       fetchCategories();
       fetchStateCity();
       fetchVendors();
-    }, 200); 
+    }, 200);
   }, [categoryId, cityId]);
 
   useEffect(() => {
@@ -90,7 +90,7 @@ const Category = () => {
     setLoading(true);
     try {
       const res = await GetVendorsByCategory(token, categoryId, cityId);
-      
+
       setVendor(res?.data);
     } catch (err) {
       console.log("Error in fetching vendors by categories", err);
@@ -114,7 +114,7 @@ const Category = () => {
 
   return (
     <div>
-      {loading} 
+      {loading}
       <Breadcrumbs title={categoryName} links={breadcrumbLinks} />
       <section className="tour-list-section top-bottom-padding2">
         <div className="container">
