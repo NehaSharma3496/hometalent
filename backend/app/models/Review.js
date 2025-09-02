@@ -9,12 +9,10 @@ const sequelize = require('../config/db.config');
       type: DataTypes.TEXT,
       allowNull: false,
     },
-
     rating: {
         type: DataTypes.INTEGER,
         allowNull: true
     },
-
     status: {
         type: DataTypes.INTEGER,
         allowNull: false,
