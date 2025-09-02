@@ -21,7 +21,7 @@ const Payment = () => {
   const handlePaymentClick = () => {
     if (orderData?.payment_url) {
       setLoading(true);
-      window.open(orderData.payment_url, "_blank");
+      window.open(orderData.payment_url, "_self");
       setTimeout(() => {
         setLoading(false);
         Swal.fire(
