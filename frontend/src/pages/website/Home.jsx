@@ -225,9 +225,9 @@ const Home = () => {
           <div className="row">
             <div className="col-lg-10 mx-auto col-sm-12">
               <div className="plan-section-three plan-shadow">
-                <div className="choose-plan-nav">
+                <div className="choose-plan-nav mt-4">
                   <div className="">
-                    <div className="row g-4 justify-content-end">
+                    <div className="row g-4 justify-content-center">
                       <div className="col-xl-5 col-lg-6 col-md-6 col-sm-12 ">
                         <div
                           className="position-relative"

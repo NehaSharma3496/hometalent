@@ -12,14 +12,46 @@ export const MenuItems = {
       label: "Vendors",
       link: "/admin/vendor/allvendors",
       children: [
-        { label: "All Vendors", link: "/admin/vendor/allvendors" },
-        { label: "Add Vendor", link: "/admin/vendor/addvendors" },
-        { label: "Active Vendor", link: "/admin/vendor/activevendors" },
-        { label: "Approve Vendors", link: "/admin/vendor/approvevendors" },
-        { label: "Sponsored Vendors", link: "/admin/vendor/sponsoredvendors" },
-        { label: "Inactive Vendors", link: "/admin/vendor/blockedvendors" },
-        { label: "Pending Vendors", link: "/admin/vendor/pendingvendors" },
-        { label: "Rejected Vendors", link: "/admin/vendor/rejectedvendors" },
+        {
+          icon: "fa-solid fa-users",
+          label: "All Vendors",
+          link: "/admin/vendor/allvendors",
+        },
+        {
+          icon: "fa-solid fa-user-plus",
+          label: "Add Vendor",
+          link: "/admin/vendor/addvendors",
+        },
+        {
+          icon: "fa-solid fa-user-check",
+          label: "Active Vendor",
+          link: "/admin/vendor/activevendors",
+        },
+        {
+          icon: "fa-solid fa-user-shield",
+          label: "Approve Vendors",
+          link: "/admin/vendor/approvevendors",
+        },
+        {
+          icon: "fa-solid fa-star",
+          label: "Sponsored Vendors",
+          link: "/admin/vendor/sponsoredvendors",
+        },
+        {
+          icon: "fa-solid fa-user-slash",
+          label: "Inactive Vendors",
+          link: "/admin/vendor/blockedvendors",
+        },
+        {
+          icon: "fa-solid fa-hourglass-half",
+          label: "Pending Vendors",
+          link: "/admin/vendor/pendingvendors",
+        },
+        {
+          icon: "fa-solid fa-user-xmark",
+          label: "Rejected Vendors",
+          link: "/admin/vendor/rejectedvendors",
+        },
       ],
     },
     {
@@ -28,10 +60,15 @@ export const MenuItems = {
       link: "/admin/profileupdaterequest",
       children: [
         {
+          icon: "fa-solid fa-id-card",
           label: "Profile Update Requests",
           link: "/admin/profileupdaterequest",
         },
-        { label: "Admin Gallery", link: "/admin/adminGallery" },
+        {
+          icon: "fa-solid fa-images",
+          label: "Admin Gallery",
+          link: "/admin/adminGallery",
+        },
       ],
     },
     {
@@ -39,8 +76,12 @@ export const MenuItems = {
       label: "Payments",
       link: "/admin/payments/packages",
       children: [
-        { label: "Subscription Packages", link: "/admin/payments/packages" },
-        { label: "Add packages", link: "addpackage" },
+        {
+          icon: "fa-solid fa-box",
+          label: "Subscription Packages",
+          link: "/admin/payments/packages",
+        },
+        { icon: "fa-solid fa-plus", label: "Add packages", link: "addpackage" },
       ],
     },
     {
@@ -48,9 +89,21 @@ export const MenuItems = {
       label: "Enquiries & Leads",
       link: "/admin/enquiries/allleads",
       children: [
-        { label: "All Leads", link: "/admin/enquiries/allleads" },
-        { label: "All Enquiries", link: "/admin/enquiries/AllEnquiries" },
-        { label: "All Feedback", link: "/admin/enquiries/allfeedback" }
+        {
+          icon: "fa-solid fa-list",
+          label: "All Leads",
+          link: "/admin/enquiries/allleads",
+        },
+        {
+          icon: "fa-solid fa-envelope-open-text",
+          label: "All Enquiries",
+          link: "/admin/enquiries/AllEnquiries",
+        },
+        {
+          icon: "fa-solid fa-comment-dots",
+          label: "All Feedback",
+          link: "/admin/enquiries/allfeedback",
+        },
       ],
     },
     {
@@ -58,15 +111,29 @@ export const MenuItems = {
       label: "Blog",
       link: "/admin/blog/addblog",
       children: [
-        { label: "Add Blog", link: "/admin/blog/addblog" },
-        { label: "All Blogs", link: "/admin/blog/allblogs" },
+        {
+          icon: "fa-solid fa-plus",
+          label: "Add Blog",
+          link: "/admin/blog/addblog",
+        },
+        {
+          icon: "fa-solid fa-newspaper",
+          label: "All Blogs",
+          link: "/admin/blog/allblogs",
+        },
       ],
     },
     {
       icon: "fa-solid fa-star",
       label: "Review",
       link: "/admin/review/allreview",
-      children: [{ label: "All Review", link: "/admin/review/allreview" }],
+      children: [
+        {
+          icon: "fa-solid fa-star-half-stroke",
+          label: "All Review",
+          link: "/admin/review/allreview",
+        },
+      ],
     },
   ],
   2: [
@@ -76,33 +143,59 @@ export const MenuItems = {
       link: "/vendor/dashboard",
     },
     {
-      icon: "fa fa-edit ",
+      icon: "fa fa-edit",
       label: "Update Profile",
       link: "/vendor/updateprofile",
-      children: [{ label: "Update", link: "/vendor/updateprofile" }],
+      children: [
+        {
+          icon: "fa-solid fa-pen",
+          label: "Update",
+          link: "/vendor/updateprofile",
+        },
+      ],
     },
-
     {
       icon: "fa-solid fa-image",
       label: "Gallery",
       link: "/vendor/gallery",
-      children: [{ label: "My Gallery", link: "/vendor/gallery" }],
+      children: [
+        {
+          icon: "fa-solid fa-photo-film",
+          label: "My Gallery",
+          link: "/vendor/gallery",
+        },
+      ],
     },
     {
       icon: "fa-solid fa-chart-line",
       label: "Leads & Enquiries",
       link: "/vendor/leads/all",
-      children: [{ label: "All Leads", link: "/vendor/leads/all" }],
+      children: [
+        {
+          icon: "fa-solid fa-address-card",
+          label: "All Leads",
+          link: "/vendor/leads/all",
+        },
+      ],
     },
     {
       icon: "fa-solid fa-upload",
       label: "Packages",
       link: "/vendor/allpackages",
       children: [
-        { label: "Available Packages", link: "/vendor/allpackages" },
-        { label: "My Subscription", link: "/vendor/mypackages" },
+        {
+          icon: "fa-solid fa-box-open",
+          label: "Available Packages",
+          link: "/vendor/allpackages",
+        },
+        {
+          icon: "fa-solid fa-receipt",
+          label: "My Subscription",
+          link: "/vendor/mypackages",
+        },
       ],
     },
   ],
 };
+
 export default MenuItems;

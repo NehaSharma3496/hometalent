@@ -17,8 +17,6 @@ export default function AdminHeader() {
   const [isOpen, setIsOpen] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
 
-
-
   // ✅ Context
   const {
     notifications,
@@ -38,7 +36,7 @@ export default function AdminHeader() {
 
       // Merge current notifications with stored, remove duplicates by id
       const merged = [...stored, ...notifications].filter(
-        (v, i, a) => a.findIndex(n => n.id === v.id) === i
+        (v, i, a) => a.findIndex((n) => n.id === v.id) === i
       );
 
       // Limit to 20 latest notifications
@@ -47,8 +45,6 @@ export default function AdminHeader() {
       localStorage.setItem("notifications", JSON.stringify(latest20));
     }
   }, [notifications]);
-
-
 
   const handleViewAll = () => {
     markAllAsRead();
@@ -135,9 +131,10 @@ export default function AdminHeader() {
     }
   }, [role, token, vendorId]);
 
-  const storedNotifications = JSON.parse(localStorage.getItem("notifications")) || [];
-  const displayedNotifications = notifications.length > 0 ? notifications : storedNotifications;
-
+  const storedNotifications =
+    JSON.parse(localStorage.getItem("notifications")) || [];
+  const displayedNotifications =
+    notifications.length > 0 ? notifications : storedNotifications;
 
   return (
     <>
@@ -174,9 +171,7 @@ export default function AdminHeader() {
                     >
                       <i className="fa-solid fa-bell text-primary fs-4 mt-2"></i>
                       {unreadCount > 0 && (
-                        <span
-                          className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge"
-                        >
+                        <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
                           {unreadCount}
                         </span>
                       )}
@@ -198,7 +193,7 @@ export default function AdminHeader() {
                           position: "fixed",
                           top: "80px",
                           right: "20px",
-                          width: "350px",      
+                          width: "350px",
                           maxHeight: "400px",
                           overflowY: "auto",
                           zIndex: 1050,
@@ -207,7 +202,8 @@ export default function AdminHeader() {
                         {/* Header */}
                         <div className="d-flex justify-content-between align-items-center p-2 border-bottom bg-white shadow-sm rounded-top">
                           <h6 className="mb-0 fw-semibold fs-6 text-primary d-flex align-items-center">
-                            <i className="bi bi-bell-fill me-2 text-warning"></i> Notifications
+                            <i className="bi bi-bell-fill me-2 text-warning"></i>{" "}
+                            Notifications
                           </h6>
                           <button
                             className="btn btn-sm rounded-circle border-0"
@@ -221,28 +217,44 @@ export default function AdminHeader() {
                         {/* Notification List */}
                         <div style={{ maxHeight: "300px", overflowY: "auto" }}>
                           {displayedNotifications.length === 0 ? (
-                            <p className="text-center text-muted p-2">No notifications</p>
+                            <p className="text-center text-muted p-2">
+                              No notifications
+                            </p>
                           ) : (
                             displayedNotifications.map((notification) => (
                               <div
                                 key={notification.id}
-                                className={`p-2 border-bottom rounded-2 mb-1 notification-item ${notification.isRead
+                                className={`p-2 border-bottom rounded-2 mb-1 notification-item ${
+                                  notification.isRead
                                     ? "bg-white"
                                     : "bg-primary-subtle border-start border-3 border-primary"
-                                  }`}
-                                style={{ cursor: "pointer", transition: "0.3s" }}
-                                onClick={() => handleNotificationClick(notification.id)}
+                                }`}
+                                style={{
+                                  cursor: "pointer",
+                                  transition: "0.3s",
+                                }}
+                                onClick={() =>
+                                  handleNotificationClick(notification.id)
+                                }
                               >
                                 <h6
-                                  className={`mb-1 fw-bold d-flex align-items-center ${notification.isRead ? "text-secondary" : "text-primary"
-                                    }`}
+                                  className={`mb-1 fw-bold d-flex align-items-center ${
+                                    notification.isRead
+                                      ? "text-secondary"
+                                      : "text-primary"
+                                  }`}
                                   style={{ fontSize: "0.9rem" }}
                                 >
                                   <i className="bi bi-info-circle-fill me-1"></i>
                                   {notification?.data?.message}
                                 </h6>
-                                <small className="text-muted fst-italic" style={{ fontSize: "0.7rem" }}>
-                                  {new Date(notification.timestamp).toLocaleString()}
+                                <small
+                                  className="text-muted fst-italic"
+                                  style={{ fontSize: "0.7rem" }}
+                                >
+                                  {new Date(
+                                    notification.timestamp
+                                  ).toLocaleString()}
                                 </small>
                               </div>
                             ))
@@ -254,7 +266,8 @@ export default function AdminHeader() {
                           <button
                             className="btn btn-sm w-100 rounded fw-semibold text-white"
                             style={{
-                              background: "linear-gradient(135deg, #4e54c8, #8f94fb)",
+                              background:
+                                "linear-gradient(135deg, #4e54c8, #8f94fb)",
                               fontSize: "0.8rem",
                             }}
                             onClick={() => {
@@ -266,15 +279,9 @@ export default function AdminHeader() {
                           </button>
                         </div>
                       </div>
-
-             
-                  
                     </>
                   )}
-
-
                 </div>
-
 
                 <div>
                   <div className="dropdown profile-dropdown-div">
@@ -332,7 +339,6 @@ export default function AdminHeader() {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </header>
@@ -360,7 +366,10 @@ export default function AdminHeader() {
                   <ul className="sub-menu dropdown-menu">
                     {item.children.map((child, cIdx) => (
                       <li key={cIdx}>
-                        <Link to={child.link}>{child.label}</Link>
+                        <Link to={child.link}>
+                          <i className={child.icon}></i>
+                          <span>{child.label}</span>
+                        </Link>
                       </li>
                     ))}
                   </ul>

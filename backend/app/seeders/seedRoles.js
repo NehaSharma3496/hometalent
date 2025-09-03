@@ -20,9 +20,9 @@ async function seedAll() {
     'Fabric Painting', 'Canvas Painting', 'Mehandi Art', 'Catering',
     'Cook/Chef on call', 'Bakery item', 'Food(Namkeen,Sweets, snacks)',
     'Gift & Packaging', 'Anchor', 'Clothes', 'Jewellery', 'Beauty services/ Home Salon',
-    'Music artist', 'Cutlery', 'Cosmetics', 'Dance Tutor/ Choreographer',
-    'Yoga Instructor', 'Education Tutor', 'Music teacher', 'Art & Craft Teacher',
-    'Nursery & Pottery', 'Art work', 'Babysitter or pet care'
+    'Music artist', 'Household Goods', 'Cosmetics', 'Dance Tutor/ Choreographer',
+    'Yoga Instructor', 'Academic Tutor', 'Music teacher', 'Art & Craft Teacher',
+    'Nursery & Pottery', 'Art work', 'Babysitter or pet care','Festival Essential'
   ];
 
   const catCount = await Category.count();
