@@ -80,31 +80,7 @@ export default function VendorGallery() {
       Swal.fire("Error", res?.msg || "Failed to add", "error");
     }
   };
-
-  const handleRemoveFromAdminGallery = async (item) => {
-  const confirm = await Swal.fire({
-    title: "Remove from Admin Gallery?",
-    text: "This will permanently remove the file from Admin Gallery.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Yes, Remove",
-  });
-
-  if (!confirm.isConfirmed) return;
-
-  const res = await RemoveFromAdminGallery(token, {
-    id: item.id,
-    admin_id: adminId,
-  });
-
-  if (res?.status) {
-    Swal.fire("Removed", "File removed from Admin Gallery", "success");
-    fetchAdminGallery(); // gallery reload function
-  } else {
-    Swal.fire("Error", res?.msg || "Failed to remove", "error");
-  }
-};
-
+  
 
   const handleSelectAll = () => {
     const pendingItems = filteredGallery
