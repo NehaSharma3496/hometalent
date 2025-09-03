@@ -250,9 +250,9 @@ const Category = () => {
                                   <p className="pera">
                                     ₹{item.price_range || "Contact for price"}
                                   </p>
-                                  <p className="sub-pera text-12 text-capitalize">
+                                  {/* <p className="sub-pera text-12 text-capitalize">
                                     /person
-                                  </p>
+                                  </p> */}
                                 </div>
                                 <Link
                                   to="/categorydetail"

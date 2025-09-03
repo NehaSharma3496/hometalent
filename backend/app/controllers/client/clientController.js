@@ -1,4 +1,4 @@
-const { ContactUs, ClientLead, User, Notification } = require('../../models');
+const { ContactUs, ClientLead, User, Notification, FeedBack } = require('../../models');
 const { commonEmail } = require('../../helper/commonEmail');
 const socketManager = require('../../socket/socketManager');
 
@@ -90,3 +90,39 @@ exports.submitLead = async (req, res) => {
     res.status(500).json({ status: false, msg: error.message });
   }
 } 
+
+
+exports.submitFeedback = async (req, res) => {
+  try {
+    const { name, email, phone, message } = req.body;
+    if (!name || !email || !message) {
+      return res.status(400).json({ status: false, msg: 'name, email, and message are required' });
+    }
+    const feedback = await FeedBack.create({ name, email, phone, message });
+
+    // Send socket notification
+    socketManager.feedbackSubmitted({
+      id: feedback.id,
+      name: feedback.name,
+      email: feedback.email,
+      phone: feedback.phone,
+      message: feedback.message
+    });
+
+    // Persist admin notification
+    try {
+      await Notification.create({
+        user_id: null,
+        user_type: 'admin',
+        type: 'feedback',
+        title: 'Feedback',
+        message: 'New Feedback has been received',
+        metadata: { id: feedback.id }
+      });
+    } catch (e) { console.error('Failed to persist admin feedback notification:', e.message); }
+
+    res.json({ status: true, msg: 'Feedback request submitted successfully', data: feedback });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};

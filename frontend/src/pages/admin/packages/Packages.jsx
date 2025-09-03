@@ -84,17 +84,22 @@ export default function Packages() {
         return Swal.fire("No Data", "No packages found to export", "info");
       }
 
-      const exportData = allPackages.map((pkg, index) => ({
-        "S.No": index + 1,
-        Name: pkg.name || "N/A",
-        Description: pkg.description || "N/A",
-        "Price (₹)": `₹${pkg.price}`,
-        "Validity (Months)": pkg.validity_in_months,
-        Features: pkg.features,
-        Status: pkg.status === 1 ? "Active" : "Inactive",
-        "Created At": new Date(pkg.createdAt).toLocaleDateString(),
-        "Updated At": new Date(pkg.updatedAt).toLocaleDateString(),
-      }));
+   const exportData = allPackages.map((pkg, index) => ({
+  "S.No": index + 1,
+  Name: pkg.name || "N/A",
+  Description: pkg.description || "N/A",
+  "Price (₹)": `₹${pkg.price}`,
+  Validity: pkg.validity_in_months
+    ? `${pkg.validity_in_months} Month${pkg.validity_in_months > 1 ? "s" : ""}`
+    : pkg.days
+    ? `${pkg.days} Day${pkg.days > 1 ? "s" : ""}`
+    : "N/A",
+  Features: pkg.features,
+  Status: pkg.status === 1 ? "Active" : "Inactive",
+  "Created At": new Date(pkg.createdAt).toLocaleDateString(),
+  "Updated At": new Date(pkg.updatedAt).toLocaleDateString(),
+}));
+
 
       const XLSX = await import("xlsx");
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -145,32 +150,32 @@ export default function Packages() {
     }
   };
 
-  const handleDelete = async (packageId) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-    });
+  // const handleDelete = async (packageId) => {
+  //   const result = await Swal.fire({
+  //     title: "Are you sure?",
+  //     text: "You won't be able to revert this!",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#d33",
+  //     cancelButtonColor: "#3085d6",
+  //     confirmButtonText: "Yes, delete it!",
+  //   });
 
-    if (result.isConfirmed) {
-      try {
-        const token = localStorage.getItem("adminToken");
-        const response = await DeletePackage(packageId, token);
-        if (response?.status) {
-          Swal.fire("Deleted!", response.msg || "Package deleted.", "success");
-          fetchPackages();
-        } else {
-          Swal.fire("Error!", "Something went wrong.", "error");
-        }
-      } catch (err) {
-        Swal.fire("Error!", "Server error. Try again.", "error");
-      }
-    }
-  };
+  //   if (result.isConfirmed) {
+  //     try {
+  //       const token = localStorage.getItem("adminToken");
+  //       const response = await DeletePackage(packageId, token);
+  //       if (response?.status) {
+  //         Swal.fire("Deleted!", response.msg || "Package deleted.", "success");
+  //         fetchPackages();
+  //       } else {
+  //         Swal.fire("Error!", "Something went wrong.", "error");
+  //       }
+  //     } catch (err) {
+  //       Swal.fire("Error!", "Server error. Try again.", "error");
+  //     }
+  //   }
+  // };
 
   const filteredPackages = searchText
     ? allPackages.filter((p) => {
@@ -204,11 +209,19 @@ export default function Packages() {
       selector: (row) => `₹${row.price}`,
       sortable: true,
     },
-    {
-      name: "Validity (Months)",
-      selector: (row) => row.validity_in_months,
-      sortable: true,
-    },
+   {
+  name: "Validity",
+  selector: (row) => {
+    if (row.validity_in_months) {
+      return `${row.validity_in_months} Month${row.validity_in_months > 1 ? "s" : ""}`;
+    } else if (row.days) {
+      return `${row.days} Day${row.days > 1 ? "s" : ""}`;
+    }
+    return "N/A";
+  },
+  sortable: true,
+},
+
     {
       name: "Features",
       selector: (row) => row.features,

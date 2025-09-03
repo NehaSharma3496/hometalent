@@ -80,6 +80,9 @@ const Footer = () => {
                       <li className="single-lsit">
                            <Link to="/gallery">Gallery</Link>
                       </li>
+                      <li className="single-lsit">
+                           <Link to="/feedback">Feedback</Link>
+                      </li>
                     </ul>
                   </div>
                 </div>

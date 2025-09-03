@@ -10,7 +10,8 @@ const {
   ContactUs,
   Blog,
   Review,
-  Notification
+  Notification,
+  FeedBack,
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 const socketManager = require('../../socket/socketManager');
@@ -1503,3 +1504,31 @@ exports.insertcategoryimages = async (req, res) => {
     return res.status(500).json({ status: false, msg: error.message });
   } 
 }
+
+exports.getAllFeedBack = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    const { count, rows } = await FeedBack.findAndCountAll({
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset,
+    });
+    const totalPages = Math.ceil(count / limit);
+    res.json({
+      status: true,
+      data: rows,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};

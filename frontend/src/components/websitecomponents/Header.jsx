@@ -232,7 +232,7 @@ const Header = () => {
                       </div>
                       <div className="sign-btn">
                         <Link to="/registration" className="btn-primary">
-                         Vendor Register
+                         Vendor Registration
                         </Link>
                       </div>
                     </div>

@@ -222,11 +222,19 @@ const VendorPackages = () => {
       width: "100px",
     },
     {
-      name: "Validity (Months)",
-      selector: (row) => row.validity_in_months,
+      name: "Validity",
+      selector: (row) => {
+  if (row.validity_in_months) {
+    return `${row.validity_in_months} Month${row.validity_in_months > 1 ? "s" : ""}`;
+  } else if (row.days) {
+    return `${row.days} Day${row.days > 1 ? "s" : ""}`;
+  }
+  return "N/A";
+},
+
       sortable: true,
-      width: "150px",
     },
+
     {
       name: "View",
       cell: (row) => (
