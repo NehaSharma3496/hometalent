@@ -291,7 +291,7 @@ const Header = () => {
         </div>
       </header>
 
-      {/* Mobile Sidebar Overlay */}
+    
       {mobileOpen && (
         <div className="mobile-overlay" onClick={closeMobileMenu}></div>
       )}
@@ -535,8 +535,8 @@ const Header = () => {
         .hamburger-btn {
           display: flex;
           flex-direction: column;
-          width: 30px;
-          height: 30px;
+          width: 25px;
+          height: 20px;
           background: none;
           border: none;
           cursor: pointer;
@@ -703,7 +703,7 @@ const Header = () => {
           display: grid;
           grid-template-columns: repeat(2, 1fr); /* 2 items per row */
           gap: 5px; /* Less space between items for smaller look */
-          padding: 5px; /* Less padding inside */
+         
           font-size: 13px; /* Smaller text */
         }
 
