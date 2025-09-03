@@ -80,7 +80,6 @@ export default function VendorGallery() {
       Swal.fire("Error", res?.msg || "Failed to add", "error");
     }
   };
-  
 
   const handleSelectAll = () => {
     const pendingItems = filteredGallery
@@ -325,7 +324,7 @@ export default function VendorGallery() {
                     </p>
 
                     {/* Pending Controls */}
-                    {item.status === "pending" && (
+                    {item.status === "pending" && !selectAll && (
                       <>
                         <div className="form-check d-flex justify-content-center mb-2">
                           <input
@@ -355,6 +354,7 @@ export default function VendorGallery() {
                         </div>
                       </>
                     )}
+
                     {item.status === "approved" && (
                       <button
                         className="btn btn-sm btn-primary mt-2"

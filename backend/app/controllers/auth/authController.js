@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { commonEmail } = require("../../helper/commonEmail");
 const { Op, Sequelize } = require("sequelize");
-const socketManager = require('../../socket/socketManager');
+const socketManager = require("../../socket/socketManager");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
@@ -94,25 +94,28 @@ exports.createUser = async (req, res) => {
     });
 
     // Send socket notification for vendor registration
-    if (user.role_id == 2) { 
+    if (user.role_id == 2) {
       socketManager.vendorRegistered({
         id: user.id,
         owner_name: user.owner_name,
         profile_name: user.profile_name,
         email: user.email,
-        phone: user.phone
+        phone: user.phone,
       });
       try {
         await Notification.create({
           user_id: null,
-          user_type: 'admin',
-          type: 'vendor_registration_request',
-          title: 'Vendor Registration',
-          message: 'Vendor registration request recieved. Action required',
-          metadata: { vendor_id: user.id }
+          user_type: "admin",
+          type: "vendor_registration_request",
+          title: "Vendor Registration",
+          message: "Vendor registration request recieved. Action required",
+          metadata: { vendor_id: user.id },
         });
       } catch (e) {
-        console.error('Failed to persist admin notification for vendor registration:', e.message);
+        console.error(
+          "Failed to persist admin notification for vendor registration:",
+          e.message
+        );
       }
     }
 
@@ -189,9 +192,29 @@ exports.forgotPassword = async (req, res) => {
       password_reset_expires: expires,
     });
 
+    // const resetLink = `${url}/${token}`;
+    // var message = `<p>Click to reset your password: <a href="${resetLink}">${resetLink}</a></p>`;
+    // await commonEmail(email, "Reset Password", message);
+    // return res.json({
+    //   status: true,
+    //   msg: "Password reset link sent to your email.",
+    // });
+
     const resetLink = `${url}/${token}`;
-    var message = `<p>Click to reset your password: <a href="${resetLink}">${resetLink}</a></p>`;
-    await commonEmail(email, "Reset Password", message);
+    const subject = "Reset Your HomeTalent Password";
+
+    const message = `
+  <h3>Click the link below to reset your HomeTalent password:</h3>
+  <p>
+    <a href="${resetLink}" target="_blank" style="color: #1a73e8; text-decoration: none;">
+      Reset Password
+    </a>
+  </p>
+  <br/>
+`;
+
+    await commonEmail(email, subject, message);
+
     return res.json({
       status: true,
       msg: "Password reset link sent to your email.",
@@ -238,17 +261,24 @@ exports.reset_password = async (req, res) => {
     const { oldPassword, newPassword, user_id } = req.body;
 
     if (!oldPassword || !newPassword) {
-      return res.status(400).json({ status: false, message: 'Both old and new passwords are required.' });
+      return res.status(400).json({
+        status: false,
+        message: "Both old and new passwords are required.",
+      });
     }
 
     const user = await User.findByPk(user_id);
     if (!user) {
-      return res.status(404).json({ status: false, message: 'User not found.' });
+      return res
+        .status(404)
+        .json({ status: false, message: "User not found." });
     }
 
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) {
-      return res.status(400).json({ status: false, message: 'Old password is incorrect.' });
+      return res
+        .status(400)
+        .json({ status: false, message: "Old password is incorrect." });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -256,9 +286,11 @@ exports.reset_password = async (req, res) => {
     user.show_password = newPassword;
     await user.save();
 
-    return res.status(200).json({ status: true, message: 'Password updated successfully.' });
+    return res
+      .status(200)
+      .json({ status: true, message: "Password updated successfully." });
   } catch (err) {
-    console.error('Reset password error:', err);
-    return res.status(500).json({ status: false, message: 'Server error.' });
+    console.error("Reset password error:", err);
+    return res.status(500).json({ status: false, message: "Server error." });
   }
 };
