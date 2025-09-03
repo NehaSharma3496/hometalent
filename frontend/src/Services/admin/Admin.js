@@ -696,3 +696,55 @@ export async function ApproveReview(reviewId, status) {
     return error;
   }
 }
+
+export async function GetAllFeedBack(token, page = 1, limit = 10) {
+  try {
+    const response = await axios.get(`${Config.base_url}admin/feedback?page=${page}&limit=${limit}`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+// Add vendor gallery item to admin gallery
+export const AddToAdminGallery = async (token, data) => {
+  try {
+    const res = await axios.post(`${Config.base_url}admin/gallery/upload-from-vendor`, data, {
+      headers: { Authorization: ` ${token}` },
+    });
+    return res.data;
+  } catch (err) {
+    return { status: false, msg: err.message };
+  }
+};
+
+export const RemoveFromAdminGallery = async (token, data) => {
+  try {
+    const res = await axios.post(`${Config.base_url}admin/gallery/remove`, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  } catch (err) {
+    return { status: false, msg: err.message };
+  }
+};
+
+export async function GetAdminGallery(token, userId) {
+  try {
+    const res = await axios.get(
+      `${Config.base_url}gallery/my-gallery?user_id=${userId}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return res?.data;
+  } catch (error) {
+    return error;
+  }
+}

@@ -10,7 +10,8 @@ const {
   ContactUs,
   Blog,
   Review,
-  Notification
+  Notification,
+  FeedBack,
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 const socketManager = require('../../socket/socketManager');
@@ -798,8 +799,8 @@ exports.getAllProfileUpdateRequests = async (req, res) => {
 // Package Master CRUD APIs
 exports.createPackage = async (req, res) => {
   try {
-    const { name, description, price, validity_in_months, features, status } = req.body;
-    const pkg = await Package.create({ name, description, price, validity_in_months, features, status });
+    const { name, description, price, validity_in_months, days, features, status } = req.body;
+    const pkg = await Package.create({ name, description, price, validity_in_months, days, features, status });
     
     // Send socket notification
     socketManager.packageCreated({
@@ -1487,6 +1488,46 @@ exports.notifyExpiredPlans = async (req, res) => {
     }
 
     res.json({ status: true, msg: 'Expiry notifications processed', count: notifyCount });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.insertcategoryimages = async (req, res) => {
+  try {
+    const categories = await Category.findAll();
+    for (const category of categories) {
+      let image = `${baseUrl}/media/category/${category.name}`;
+    }
+    return res.json({ status: true, msg: "done" });
+  } catch (error) {
+    return res.status(500).json({ status: false, msg: error.message });
+  } 
+}
+
+exports.getAllFeedBack = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    const { count, rows } = await FeedBack.findAndCountAll({
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset,
+    });
+    const totalPages = Math.ceil(count / limit);
+    res.json({
+      status: true,
+      data: rows,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1,
+      },
+    });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
   }

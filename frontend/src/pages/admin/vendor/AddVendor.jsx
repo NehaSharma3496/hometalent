@@ -55,8 +55,8 @@ export default function AddVendor() {
     email: Yup.string().email("Invalid email").required("Email is required"),
     category: Yup.string().required("Category is required"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
-    experience: Yup.string().required("Experience Is required"),
-    priceRange: Yup.string().required("Price Range is required"),
+    // experience: Yup.string().required("Experience Is required"),
+    // priceRange: Yup.string().required("Price Range is required"),
     longDesc: Yup.string().required("Large Description is required"),
   });
 
@@ -108,7 +108,7 @@ export default function AddVendor() {
     },
     {
       name: "priceRange",
-      label: "Price Range*",
+      label: "Price Range",
       type: "text",
       colClass: "col-md-4 ",
     },
@@ -121,7 +121,7 @@ export default function AddVendor() {
     },
     {
       name: "experience",
-      label: "Experience Since*",
+      label: "Experience Since",
       type: "text",
       colClass: "col-md-6 ",
     },

@@ -13,7 +13,7 @@ const ViewGallery = () => {
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [orderChanged, setOrderChanged] = useState(false); // ✅ New state
+  const [orderChanged, setOrderChanged] = useState(false);
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -69,7 +69,7 @@ const ViewGallery = () => {
 
     const confirm = await Swal.fire({
       title: "Are you sure?",
-      text: `You are about to delete ${idsToDelete.length} Image(s).`,
+      text: `You are about to delete ${idsToDelete.length} item(s).`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete",
@@ -79,7 +79,7 @@ const ViewGallery = () => {
       try {
         const res = await RemoveGalleryItem(token, idsToDelete);
         if (res?.status) {
-          Swal.fire("Deleted!", "Image(s) deleted successfully.", "success");
+          Swal.fire("Deleted!", "Item(s) deleted successfully.", "success");
           fetchGallery();
         } else {
           Swal.fire("Error", res?.message || "Failed to delete.", "error");
@@ -124,8 +124,7 @@ const ViewGallery = () => {
 
     setGallery(updatedGallery);
     setDraggedIndex(null);
-
-    setOrderChanged(true); // ✅ Show update button after drag-drop
+    setOrderChanged(true);
   };
 
   const getSortedItems = () =>
@@ -147,7 +146,7 @@ const ViewGallery = () => {
       const res = await UpdateGalleryOrder(token, sorted);
       if (res.status) {
         Swal.fire("Updated", "Gallery order updated", "success");
-        setOrderChanged(false); // ✅ Hide button after update
+        setOrderChanged(false);
       } else {
         Swal.fire("Error", "Failed to update order", "error");
       }
@@ -160,21 +159,20 @@ const ViewGallery = () => {
   const filteredGallery = getSortedItems();
 
   return (
-    <div className="page-content ">
+    <div className="page-content">
+      {/* Header */}
       <div className="d-flex justify-content-between align-items-center flex-wrap mb-3 p-2 border rounded shadow-sm mt-4">
-
         <div className="d-flex align-items-center mb-2 mb-md-0">
           <Link to="/vendor/dashboard" className="me-1">
-            <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            <i className="fa fa-arrow-left"></i>
           </Link>
-          <h5 className="add-page-heading mb-0"> Gallery</h5>
+          <h5 className="add-page-heading mb-0">Gallery</h5>
         </div>
-
 
         <div className="d-flex align-items-center">
           <Link
             to="/vendor/gallery/upload"
-            className="btn btn-primary  me-2 shadow-sm"
+            className="btn btn-primary me-2 shadow-sm"
           >
             <i className="ri-upload-cloud-line me-1"></i> Add Image / Video
           </Link>
@@ -184,13 +182,13 @@ const ViewGallery = () => {
               className="btn btn-success me-2 shadow-sm"
               onClick={handleUpdateSortOrder}
             >
-              <i className="ri-check-double-line "></i> Update Order
+              <i className="ri-check-double-line"></i> Update Order
             </button>
           )}
         </div>
       </div>
 
-
+      {/* Tabs */}
       <div className="card shadow-sm border-0 mb-3 p-3">
         <ul className="nav nav-tabs">
           <li className="nav-item">
@@ -220,124 +218,138 @@ const ViewGallery = () => {
         </ul>
       </div>
 
+      {/* Gallery */}
       <div className="card shadow-sm p-3 border-0 bg-light">
-        {filteredGallery.length > 0 && (
-          <div className="mb-3 d-flex justify-content-between align-items-center">
-            <div className="form-check">
-              <input
-                type="checkbox"
-                id="selectAll"
-                className="form-check-input"
-                checked={selectAll}
-                onChange={handleSelectAll}
-              />
-              <label htmlFor="selectAll" className="form-check-label">
-                Select All
-              </label>
-            </div>
-
-            {selectedItems.length > 0 && (
-              <button
-                className="btn btn-danger"
-                onClick={() => handleDelete(selectedItems[0])}
-              >
-                <i className="ri-delete-bin-line me-1"></i> Delete(
-                {selectedItems.length})
-              </button>
-            )}
-          </div>
-        )}
-
         {filteredGallery.length === 0 ? (
           <p className="text-muted text-center my-4">
             No <strong>{activeTab}</strong> found.
           </p>
         ) : (
-          <div className="row">
-            {filteredGallery.map((item, index) => (
-              <div
-                key={item.id}
-                className="col-xl-4 col-md-4 col-sm-6 mb-4"
-                draggable
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, index)}
-                style={{
-                  cursor: "grab",
-                  opacity: draggedIndex === index ? 0.5 : 1,
-                  transition: "all 0.2s ease-in-out",
-                }}
-              >
-                <div className="card shadow-sm border-0 rounded-4 h-100">
-                  {item.file_type === "image" ? (
-                    <img
-                      src={item.file_path}
-                      alt="Gallery"
-                      className="card-img-top rounded-top-4"
-                      style={{ height: "250px", objectFit: "cover" }}
-                    />
-                  ) : (
-                    <video
-                      controls
-                      className="card-img-top rounded-top-4"
-                      style={{ height: "250px", objectFit: "cover" }}
-                    >
-                      <source src={item.file_path} type="video/mp4" />
-                    </video>
-                  )}
+          <>
+            {/* Select All + Bulk Delete */}
+            <div className="mb-3 d-flex justify-content-between align-items-center">
+              <div className="form-check">
+                <input
+                  type="checkbox"
+                  id="selectAll"
+                  className="form-check-input"
+                  checked={selectAll}
+                  onChange={handleSelectAll}
+                />
+                <label htmlFor="selectAll" className="form-check-label">
+                  Select All
+                </label>
+              </div>
 
-                  <div className="card-body text-center py-3 mt-3">
-                    <div className="mb-2 d-flex  justify-content-center gap-15">
-                      <span
-                        className={`badge ${item.status === "approved"
+              {selectedItems.length > 0 && (
+                <button
+                  className="btn btn-danger"
+                  onClick={() => handleDelete(selectedItems[0])}
+                >
+                  <i className="ri-delete-bin-line me-1"></i> Delete (
+                  {selectedItems.length})
+                </button>
+              )}
+            </div>
+
+            <div className="row">
+              {filteredGallery.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="col-xl-3 col-lg-4 col-md-6 col-sm-6 mb-4"
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, index)}
+                  style={{
+                    cursor: "grab",
+                    opacity: draggedIndex === index ? 0.5 : 1,
+                    transition: "all 0.2s ease-in-out",
+                  }}
+                >
+                  <div className="card border-0 shadow-sm h-100 position-relative gallery-card">
+                    {/* Thumbnail */}
+                    {item.file_type === "image" ? (
+                      <img
+                        src={item.file_path}
+                        alt="Gallery"
+                        className="card-img-top"
+                        style={{ height: "200px", objectFit: "cover" }}
+                      />
+                    ) : (
+                      <video
+                        controls
+                        className="card-img-top"
+                        style={{ height: "200px", objectFit: "cover" }}
+                      >
+                        <source src={item.file_path} type="video/mp4" />
+                      </video>
+                    )}
+
+                    {/* Status Badge */}
+                    {/* <span
+                      className={`position-absolute top-0 end-0 m-2 badge rounded-pill px-3 py-2 
+                        ${item.status === "approved"
                           ? "bg-success"
                           : item.status === "pending"
-                            ? "bg-warning text-dark"
-                            : "bg-secondary"
-                          } fs-6`}
+                          ? "bg-warning text-dark"
+                          : "bg-secondary"}`}
+                    >
+                      {item.status.charAt(0).toUpperCase() +
+                        item.status.slice(1)}
+                    </span> */}
+
+                    {/* Card Body */}
+                    <div className="card-body text-center p-3">
+                      {/* Status Heading */}
+                      <h6
+                        className={`mb-1 fw-bold 
+                          ${item.status === "approved"
+                            ? "text-success"
+                            : item.status === "pending"
+                            ? "text-warning"
+                            : "text-secondary"}`}
                       >
                         {item.status.charAt(0).toUpperCase() +
                           item.status.slice(1)}
-                      </span>
+                      </h6>
 
+                      {/* Date + Checkbox */}
+                      <div className="d-flex justify-content-center align-items-center gap-4 mb-2">
+                        <p className="text-muted small mb-0 me-2">
+                          {new Date(item.createdAt).toLocaleDateString(
+                            "en-IN",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            }
+                          )}
+                        </p>
+                        <div className="form-check m-0">
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            style={{ transform: "scale(1.2)" }}
+                            checked={selectedItems.includes(item.id)}
+                            onChange={() => toggleSelect(item.id)}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Delete Button */}
                       <button
-                        className="btn btn-danger btn-sm shadow-sm"
+                        className="btn btn-sm btn-danger shadow-sm"
                         onClick={() => handleDelete(item.id)}
                       >
-                        <i className="ri-delete-bin-line me-1"></i>
-                        Delete
+                        <i className="ri-delete-bin-line me-1"></i> Delete
                       </button>
                     </div>
-
-                    <div className="d-flex justify-content-center align-items-center gap-4 mb-2">
-                      {/* Date */}
-                      <p className="text-muted small mb-0 me-2">
-                        {new Date(item.createdAt).toLocaleDateString("en-IN", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </p>
-
-                      {/* Checkbox */}
-                      <div className="form-check m-0">
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          style={{ transform: "scale(1.3)" }}
-                          checked={selectedItems.includes(item.id)}
-                          onChange={() => toggleSelect(item.id)}
-                        />
-                      </div>
-                    </div>
-
-
-
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

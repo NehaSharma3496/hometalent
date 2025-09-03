@@ -50,6 +50,7 @@ export const MenuItems = {
       children: [
         { label: "All Leads", link: "/admin/enquiries/allleads" },
         { label: "All Enquiries", link: "/admin/enquiries/AllEnquiries" },
+        { label: "All Feedback", link: "/admin/enquiries/allfeedback" }
       ],
     },
     {

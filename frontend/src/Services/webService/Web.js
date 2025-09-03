@@ -112,3 +112,12 @@ export async function GetAllApprovedReview(token) {
     return error;
   }
 }
+
+export async function SubmitFeedback(data) {
+  try {
+    const response = await axios.post(`${Config.base_url}client/feedback`, data);
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}

@@ -167,7 +167,7 @@ export default function MyPackages() {
     },
    {
   name: "Extended Days",
-  selector: (row) => extensionMap[row.id] || "—",  // ✅ id based lookup
+  selector: (row) => extensionMap[row.id] || "—",  
 },
 
   ];

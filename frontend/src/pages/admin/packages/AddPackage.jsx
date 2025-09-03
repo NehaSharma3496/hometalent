@@ -7,25 +7,40 @@ import { CreatePackage } from "../../../Services/admin/Admin";
 
 export default function AddPackage() {
   const token = localStorage.getItem("token");
+  const [validityType, setValidityType] = useState("months"); // default
 
   const initialValues = {
     name: "",
     description: "",
     price: "",
+    validity_type: "months", // new field
     validity_in_months: "",
+    validity_in_days: "",
     features: "",
   };
 
   const validationSchema = Yup.object({
     name: Yup.string().required("Package Name is required"),
     description: Yup.string().required("Description is required"),
-    price: Yup.number().required("Price is required").positive(),
-    validity_in_months: Yup.number()
-      .required("Validity is required")
-      .positive(),
+   price: Yup.number()
+  .required("Price is required")
+  .min(0, "Price cannot be negative"),
+
+    validity_type: Yup.string().required("Validity type is required"),
+    validity_in_months: Yup.number().when("validity_type", {
+      is: "months",
+      then: (schema) =>
+        schema.required("Validity in months is required").positive(),
+    }),
+    validity_in_days: Yup.number().when("validity_type", {
+      is: "days",
+      then: (schema) =>
+        schema.required("Validity in days is required").positive(),
+    }),
     features: Yup.string().required("Features are required"),
   });
 
+  // dynamic fields
   const fields = [
     {
       name: "name",
@@ -46,25 +61,41 @@ export default function AddPackage() {
       colClass: "col-md-6 custom-field",
     },
     {
-      name: "validity_in_months",
-      label: "Validity (in months)*",
+      name: "validity_type",
+      label: "Validity Type*",
       type: "select",
       colClass: "col-md-6 custom-field",
       options: [
-        { label: "1 Month", value: 1 },
-        { label: "2 Months", value: 2 },
-        { label: "3 Months", value: 3 },
-        { label: "4 Months", value: 4 },
-        { label: "5 Months", value: 5 },
-        { label: "6 Months", value: 6 },
-        { label: "7 Months", value: 7 },
-        { label: "8 Months", value: 8 },
-        { label: "9 Months", value: 9 },
-        { label: "10 Months", value: 10 },
-        { label: "11 Months", value: 11 },
-        { label: "12 Months", value: 12 },
+        { label: "Months", value: "months" },
+        { label: "Days", value: "days" },
       ],
+      onChange: (e) => setValidityType(e.target.value), // track change
     },
+    ...(validityType === "months"
+      ? [
+          {
+            name: "validity_in_months",
+            label: "Validity (in months)*",
+            type: "select",
+            colClass: "col-md-6 custom-field",
+            options: Array.from({ length: 12 }, (_, i) => ({
+              label: `${i + 1} Month${i + 1 > 1 ? "s" : ""}`,
+              value: i + 1,
+            })),
+          },
+        ]
+      : [
+          {
+            name: "validity_in_days",
+            label: "Validity (in days)*",
+            type: "select",
+            colClass: "col-md-6 custom-field",
+            options: Array.from({ length: 30 }, (_, i) => ({
+              label: `${i + 1} Day${i + 1 > 1 ? "s" : ""}`,
+              value: i + 1,
+            })),
+          },
+        ]),
     {
       name: "features",
       label: "Features*",
@@ -73,29 +104,41 @@ export default function AddPackage() {
     },
   ];
 
+ const onSubmit = async (values) => {
+  try {
+    const payload = {
+      name: values.name,
+      description: values.description,
+      price: values.price,
+      features: values.features,
+      status: 1, // agar default active rakhna ho
+      validity_in_months:
+        values.validity_type === "months" ? values.validity_in_months : null,
+      days:
+        values.validity_type === "days" ? values.validity_in_days : null,
+    };
 
-  const onSubmit = async (values) => {
-    try {
-      const res = await CreatePackage(values, token);
+    const res = await CreatePackage(payload, token);
 
-      if (res?.status) {
-        Swal.fire("Success", res?.msg || "Package created!", "success").then(
-          () => {
-            window.location.reload();
-          }
-        );
-      } else {
-        Swal.fire("Error", res?.msg || "Something went wrong", "error");
-      }
-    } catch (err) {
-      console.error("API ERROR:", err);
-      Swal.fire(
-        "Error",
-        err?.response?.data?.msg || "Something went wrong",
-        "error"
+    if (res?.status === true) {
+      Swal.fire("Success", res?.msg || "Package created!", "success").then(
+        () => {
+          window.location.reload();
+        }
       );
+    } else {
+      Swal.fire("Error", res?.msg || "Something went wrong", "error");
     }
-  };
+  } catch (err) {
+    console.error("API ERROR:", err);
+    Swal.fire(
+      "Error",
+      err?.response?.data?.msg || "Something went wrong",
+      "error"
+    );
+  }
+};
+
 
   return (
     <div className="page-content">

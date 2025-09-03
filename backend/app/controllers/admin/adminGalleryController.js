@@ -491,3 +491,60 @@ exports.getUserCompleteProfile = async (req, res) => {
     res.json({ status: false, msg: error.message });
   }
 }; 
+
+exports.uploadFromVendorToAdmin = async (req, res) => {
+  try {
+    const { admin_id, file_path, file_type, file_name, file_size } = req.body;
+
+    if (!admin_id || !file_path || !file_type) {
+      return res.status(400).json({ status: false, msg: "Missing required fields" });
+    }
+
+    // Copy vendor's file into admin's gallery
+    const galleryItem = await Gallery.create({
+      user_id: admin_id,     // 👈 admin ka ID
+      file_name,
+      file_type,
+      file_path,
+      file_size,
+      status: "approved",    // admin files auto-approved
+      sort_order: 0,
+    });
+
+    res.json({
+      status: true,
+      msg: "File added to Admin Gallery successfully",
+      data: galleryItem,
+    });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+// Remove file from Admin Gallery
+exports.removeFromAdminGallery = async (req, res) => {
+  try {
+    const { id, admin_id } = req.body;
+
+    if (!id || !admin_id) {
+      return res.status(400).json({ status: false, msg: "Missing id or admin_id" });
+    }
+
+    // Sirf admin ke gallery ka file delete karo
+    const deleted = await Gallery.destroy({
+      where: {
+        id: id,
+        user_id: admin_id,
+      },
+    });
+
+    if (!deleted) {
+      return res.status(404).json({ status: false, msg: "File not found or not owned by admin" });
+    }
+
+    res.json({ status: true, msg: "File removed from Admin Gallery" });
+  } catch (error) {
+    res.status(500).json({ status: false, msg: error.message });
+  }
+};
+

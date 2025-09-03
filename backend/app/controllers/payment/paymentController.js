@@ -69,8 +69,14 @@ exports.createPaymentOrder = async (req, res) => {
     //     msg: 'Vendor already has an active subscription'
     //   });
     // }
-     let startDate, endDate;
-    const validityDays = pkg.validity_in_months * 30;
+    let startDate, endDate;
+    let validityDays;
+    if(pkg.validity_in_months && pkg.validity_in_months != undefined){
+      validityDays = pkg.validity_in_months * 30;
+    }else{
+      validityDays = pkg.days;
+    }
+    
     if (activeSubscription) {
       startDate = new Date(activeSubscription.end_date);
       startDate.setDate(startDate.getDate() + 1);
