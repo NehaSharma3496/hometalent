@@ -127,7 +127,7 @@ const Footer = () => {
                     </ul>
                   </div>
                 </div>
-                <div className="footer-image float-lg-end">
+                <div className="footer-image float-lg-end ">
                   <img src='../assets/images/footer/footer-img.png' alt="footer" />
                 </div>
               </div>

@@ -594,7 +594,7 @@ const Home = () => {
                       </Link>
                     </figure>
                     <div className="news-content">
-                      <div className="date d-lg-flex">
+                      <div className="date d-flex ">
                         <div className="news-info">
                           <p className="date-time">
                             {new Date(item.createdAt).toLocaleDateString(
@@ -607,7 +607,7 @@ const Home = () => {
                             )}
                           </p>
                         </div>
-                        <span className="px-15">|</span>
+                        <span className="px-5">|</span>
                         <div className="category-name">
                           <span className=" text-primary">Home Talent</span>
                         </div>
