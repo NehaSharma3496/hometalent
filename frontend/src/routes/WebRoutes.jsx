@@ -18,6 +18,7 @@ import RealWedding from "../pages/website/realWedding/RealWedding";
 import ForgotPassword from "../auth/ForgotPassword";
 import ResetPassword from "../auth/ResetPassword";
 import Login from "../auth/Login";
+import Feedback from "../pages/website/Feedback";
 
 
 const WebRoutes = (
@@ -39,6 +40,7 @@ const WebRoutes = (
     <Route path="/forgotpassword" element={<ForgotPassword />} />
     <Route path="/reset-password/:token" element={<ResetPassword/>} />
     <Route path="/login" element={<Login/>}/>
+    <Route path="/feedback" element={<Feedback/>} />
 
   </Route>
 );

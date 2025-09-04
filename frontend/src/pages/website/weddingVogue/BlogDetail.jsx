@@ -65,8 +65,18 @@ const BlogDetail = () => {
             {/* LEFT SIDE: Main Blog Content */}
             <div className="col-xl-8 col-lg-7">
               <div className="news-details-banner imgEffect">
-                <img src={blog.image} alt={blog.title} />
+                <img
+                  src={blog.image}
+                  alt={blog.title}
+                  style={{
+                    width: "100%",
+                    height: "400px", // fixed height
+                    objectFit: "cover", // crop karega maintain karte hue
+                    borderRadius: "8px",
+                  }}
+                />
               </div>
+
               <div className="news-details-content">
                 <h2 className="title">{blog.title}</h2>
                 <p className="short-desc">{blog.short_description}</p>

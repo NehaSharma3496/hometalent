@@ -4,6 +4,7 @@ import { useParams, Link } from "react-router-dom";
 import {
   GetGalleryUpdateRequests,
   ProcessGalleryUpdateRequests,
+  AddToAdminGallery,
 } from "../../../Services/admin/Admin";
 
 export default function VendorGallery() {
@@ -13,6 +14,7 @@ export default function VendorGallery() {
   const [selectedItems, setSelectedItems] = useState([]);
   const token = localStorage.getItem("token");
   const [selectAll, setSelectAll] = useState(false);
+  const adminId = 1;
 
   const fetchGallery = async () => {
     try {
@@ -51,6 +53,32 @@ export default function VendorGallery() {
 
       return updated;
     });
+  };
+
+  const handleAddToAdminGallery = async (item) => {
+    const confirm = await Swal.fire({
+      title: "Add to Admin Gallery?",
+      text: "This will copy the file into Admin Gallery.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Add",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    const res = await AddToAdminGallery(token, {
+      admin_id: adminId, // 👈 current admin ka ID
+      file_path: item.file_path,
+      file_type: item.file_type,
+      file_name: item.file_name,
+      file_size: item.file_size,
+    });
+
+    if (res?.status) {
+      Swal.fire("Success", "Added to Admin Gallery", "success");
+    } else {
+      Swal.fire("Error", res?.msg || "Failed to add", "error");
+    }
   };
 
   const handleSelectAll = () => {
@@ -174,6 +202,7 @@ export default function VendorGallery() {
         </div>
       </div>
 
+      {/* Tabs */}
       <div className="card shadow-sm border-0 mb-3 p-3">
         <ul className="nav nav-tabs">
           <li className="nav-item">
@@ -195,6 +224,7 @@ export default function VendorGallery() {
         </ul>
       </div>
 
+      {/* Select All */}
       {filteredGallery.some((item) => item.status === "pending") && (
         <div className="form-check mb-3">
           <input
@@ -210,6 +240,7 @@ export default function VendorGallery() {
         </div>
       )}
 
+      {/* Bulk Actions */}
       {selectedItems.length > 0 && (
         <div className="mb-3 d-flex gap-2">
           <button
@@ -227,33 +258,63 @@ export default function VendorGallery() {
         </div>
       )}
 
+      {/* Gallery Grid */}
       <div className="card shadow-sm p-3 border-0 bg-light">
         {filteredGallery.length === 0 ? (
           <p className="text-muted text-center my-4">No {activeTab} found.</p>
         ) : (
           <div className="row">
             {filteredGallery.map((item) => (
-              <div className="col-xl-4 col-md-4 col-sm-6 mb-4" key={item.id}>
-                <div className="card shadow-sm border-0 rounded-4 h-100">
+              <div
+                className="col-xl-3 col-lg-4 col-md-6 col-sm-6 mb-4"
+                key={item.id}
+              >
+                <div className="card border-0 shadow-sm h-100 position-relative gallery-card">
+                  {/* Thumbnail */}
                   {item.file_type.startsWith("image") ? (
                     <img
                       src={item.file_path}
                       alt="Gallery"
-                      className="card-img-top rounded-top-4"
-                      style={{ height: "250px", objectFit: "cover" }}
+                      className="card-img-top"
+                      style={{ height: "200px", objectFit: "cover" }}
                     />
                   ) : (
                     <video
                       controls
-                      className="card-img-top rounded-top-4"
-                      style={{ height: "250px", objectFit: "cover" }}
+                      className="card-img-top"
+                      style={{ height: "200px", objectFit: "cover" }}
                     >
                       <source src={item.file_path} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                   )}
 
-                  <div className="card-body text-center py-3 mt-3">
+                  {/* Status Badge (top-right corner) */}
+                  {/* <span
+                  className={`position-absolute top-0 end-0 m-2 badge rounded-pill px-3 py-2 
+                    ${item.status === "approved" ? "bg-success" : 
+                      item.status === "rejected" ? "bg-danger" : "bg-warning text-dark"}`}
+                >
+                  {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                </span> */}
+
+                  {/* Card Body */}
+                  <div className="card-body text-center p-3">
+                    {/* Status heading instead of file name */}
+                    <h6
+                      className={`mb-1 fw-bold 
+                    ${
+                      item.status === "approved"
+                        ? "text-success"
+                        : item.status === "rejected"
+                        ? "text-danger"
+                        : "text-warning"
+                    }`}
+                    >
+                      {item.status.charAt(0).toUpperCase() +
+                        item.status.slice(1)}
+                    </h6>
+
                     <p className="text-muted small mb-2">
                       {new Date(item.createdAt).toLocaleDateString("en-IN", {
                         day: "2-digit",
@@ -262,20 +323,20 @@ export default function VendorGallery() {
                       })}
                     </p>
 
-                    {item.status === "pending" && (
+                    {/* Pending Controls */}
+                    {item.status === "pending" && !selectAll && (
                       <>
                         <div className="form-check d-flex justify-content-center mb-2">
                           <input
                             type="checkbox"
-                            style={{ transform: "scale(1.3)" }}
+                            className="form-check-input"
                             checked={selectedItems.includes(item.id)}
                             onChange={() => toggleSelect(item.id)}
                           />
                         </div>
-
                         <div className="d-flex justify-content-center gap-2 flex-wrap">
                           <button
-                            className="btn btn-success btn-sm "
+                            className="btn btn-sm btn-success"
                             onClick={() =>
                               handleSingleAction("approve", item.id)
                             }
@@ -283,7 +344,7 @@ export default function VendorGallery() {
                             Approve
                           </button>
                           <button
-                            className="btn btn-danger btn-sm"
+                            className="btn btn-sm btn-danger"
                             onClick={() =>
                               handleSingleAction("reject", item.id)
                             }
@@ -295,11 +356,12 @@ export default function VendorGallery() {
                     )}
 
                     {item.status === "approved" && (
-                      <span className="badge bg-success fs-6">Approved</span>
-                    )}
-
-                    {item.status === "rejected" && (
-                      <span className="badge bg-danger fs-6">Rejected</span>
+                      <button
+                        className="btn btn-sm btn-primary mt-2"
+                        onClick={() => handleAddToAdminGallery(item)}
+                      >
+                        Add to Admin Gallery
+                      </button>
                     )}
                   </div>
                 </div>

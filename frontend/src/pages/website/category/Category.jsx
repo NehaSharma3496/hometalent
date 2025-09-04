@@ -6,7 +6,7 @@ import {
   GetCategories,
   GetVendorsByCategory,
 } from "../../../Services/webService/Web";
-import Loader from "../../../Utils/Loader"
+import Loader from "../../../Utils/Loader";
 
 const Category = () => {
   const location = useLocation();
@@ -28,13 +28,13 @@ const Category = () => {
   console.log("Category Id", categoryId);
   console.log("City Id ", cityId);
 
-   useEffect(() => {
+  useEffect(() => {
     setLoading(true);
     setTimeout(() => {
       fetchCategories();
       fetchStateCity();
       fetchVendors();
-    }, 200); 
+    }, 200);
   }, [categoryId, cityId]);
 
   useEffect(() => {
@@ -90,7 +90,7 @@ const Category = () => {
     setLoading(true);
     try {
       const res = await GetVendorsByCategory(token, categoryId, cityId);
-      
+
       setVendor(res?.data);
     } catch (err) {
       console.log("Error in fetching vendors by categories", err);
@@ -114,7 +114,7 @@ const Category = () => {
 
   return (
     <div>
-      {loading} 
+      {loading}
       <Breadcrumbs title={categoryName} links={breadcrumbLinks} />
       <section className="tour-list-section top-bottom-padding2">
         <div className="container">
@@ -167,7 +167,7 @@ const Category = () => {
                     )}
                   </div>
 
-                  <div className="sorting-dropdown">
+                  {/* <div className="sorting-dropdown">
                     <select
                       className="form-select"
                       value={sortOption}
@@ -178,7 +178,7 @@ const Category = () => {
                       <option value="high">Price high to low</option>
                       <option value="new">Sort by Newest</option>
                     </select>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
@@ -250,9 +250,9 @@ const Category = () => {
                                   <p className="pera">
                                     ₹{item.price_range || "Contact for price"}
                                   </p>
-                                  <p className="sub-pera text-12 text-capitalize">
+                                  {/* <p className="sub-pera text-12 text-capitalize">
                                     /person
-                                  </p>
+                                  </p> */}
                                 </div>
                                 <Link
                                   to="/categorydetail"

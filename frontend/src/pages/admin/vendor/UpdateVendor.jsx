@@ -17,9 +17,17 @@ export default function UpdateVendor() {
   const [cityData, setCityData] = useState([]);
   const [selectedStateId, setSelectedStateId] = useState("");
   const [initialValues, setInitialValues] = useState(null);
+  const [cityTouched, setCityTouched] = useState(false); // <-- NEW
+
   const token = localStorage.getItem("token");
   const location = useLocation();
   const vendorId = location.state?.vendorId;
+
+  // Keep simple validation for state (city handled via cityTouched + onSubmit)
+  const validationSchema = Yup.object().shape({
+    state_id: Yup.string().required("State is required"),
+    // you can keep other validations here
+  });
 
   const fields = [
     {
@@ -41,7 +49,11 @@ export default function UpdateVendor() {
       label: "State",
       type: "select",
       options: statesData,
-      onChange: (e) => setSelectedStateId(e.target.value),
+      // when state changes: update selectedStateId (to fetch cities) AND reset cityTouched
+      onChange: (e) => {
+        setSelectedStateId(e.target.value);
+        setCityTouched(false); // user didn't touch city for the new state yet
+      },
       colClass: "col-md-4 mb-3",
     },
     {
@@ -49,6 +61,8 @@ export default function UpdateVendor() {
       label: "City",
       type: "select",
       options: cityData,
+      // when user actively changes city -> mark as touched
+      onChange: () => setCityTouched(true),
       colClass: "col-md-4 mb-3",
     },
     {
@@ -128,72 +142,76 @@ export default function UpdateVendor() {
   ];
 
   const onSubmit = async (values) => {
-  // Remove image fields for comparison
-  const cleanInitial = { ...initialValues };
-  const cleanCurrent = { ...values };
-
-  delete cleanInitial.image;
-  delete cleanCurrent.image;
-
-  const isSame = Object.keys(cleanInitial).every((key) => {
-    const initVal = cleanInitial[key];
-    const currVal = cleanCurrent[key];
-
-    if (Array.isArray(initVal)) {
-      return (
-        Array.isArray(currVal) &&
-        initVal.length === currVal.length &&
-        initVal.every((v, i) => v === currVal[i])
-      );
+    // If state changed from initial and user hasn't manually touched city -> block
+    if (values.state_id !== initialValues.state_id && !cityTouched) {
+      Swal.fire("Validation Error", "Please select a city for the new state", "warning");
+      return;
     }
 
-    return initVal === currVal;
-  });
+    // Remove image fields for comparison
+    const cleanInitial = { ...initialValues };
+    const cleanCurrent = { ...values };
 
-  if (isSame && (!values.image || values.image.length === 0)) {
-    Swal.fire("No Changes", "No changes were made to the profile.", "info");
-    return;
-  }
+    delete cleanInitial.image;
+    delete cleanCurrent.image;
 
-  try {
-    const formData = new FormData();
-    formData.append("vendor_id", vendorId);
+    const isSame = Object.keys(cleanInitial).every((key) => {
+      const initVal = cleanInitial[key];
+      const currVal = cleanCurrent[key];
 
-    for (const key in values) {
-      if (key === "image" && values[key]?.length > 0) {
-        formData.append("image", values[key][0]);
-      } else {
-        formData.append(key, values[key]);
+      if (Array.isArray(initVal)) {
+        return (
+          Array.isArray(currVal) &&
+          initVal.length === currVal.length &&
+          initVal.every((v, i) => v === currVal[i])
+        );
       }
+
+      return initVal === currVal;
+    });
+
+    if (isSame && (!values.image || values.image.length === 0)) {
+      Swal.fire("No Changes", "No changes were made to the profile.", "info");
+      return;
     }
 
-    const res = await SubmitProfileUpdateRequest(formData);
+    try {
+      const formData = new FormData();
+      formData.append("vendor_id", vendorId);
 
-    // ✅ Unified response parsing
-    const status = res?.status ?? res?.data?.status;
-    const message = res?.msg ?? res?.data?.msg ?? "Something went wrong";
+      for (const key in values) {
+        if (key === "category_id") {
+          formData.append(key, values[key]);
+        } else if (key === "image" && values[key]?.length > 0) {
+          formData.append("image", values[key][0]);
+        } else {
+          formData.append(key, values[key]);
+        }
+      }
 
-    if (status) {
-      Swal.fire("Success", message || "Profile update submitted!", "success");
-    } else {
-      Swal.fire("Error", message, "error");
+      const res = await SubmitProfileUpdateRequest(formData);
+
+      if (res?.status) {
+        Swal.fire("Success", res.msg || "Profile update submitted!", "success");
+      } else {
+        Swal.fire("Error", res?.msg || "Something went wrong", "error");
+      }
+    } catch (err) {
+      console.error("Full error object:", err);
+
+      let errorMessage = "Failed to submit";
+
+      if (err?.response?.data?.msg) {
+        errorMessage = err.response.data.msg;
+      } else if (err?.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
+
+      Swal.fire("Error", errorMessage, "error");
     }
-  } catch (err) {
-    console.error("API ERROR:", err);
-    let errorMessage = "Failed to submit";
-
-    if (err?.response?.data?.msg) {
-      errorMessage = err.response.data.msg;
-    } else if (err?.response?.data?.message) {
-      errorMessage = err.response.data.message;
-    } else if (err?.message) {
-      errorMessage = err.message;
-    }
-
-    Swal.fire("Error", errorMessage, "error");
-  }
-};
-
+  };
 
   useEffect(() => {
     const fetchInitial = async () => {
@@ -206,12 +224,8 @@ export default function UpdateVendor() {
 
         const vendor = vendorRes.data.user;
 
-        setCategoryData(
-          cat.data.map((x) => ({ value: x.id.toString(), label: x.name }))
-        );
-        setStatesData(
-          st.data.map((x) => ({ value: x.id.toString(), label: x.name }))
-        );
+        setCategoryData(cat.data.map((x) => ({ value: x.id.toString(), label: x.name })));
+        setStatesData(st.data.map((x) => ({ value: x.id.toString(), label: x.name })));
         setSelectedStateId(vendor.state_id?.toString());
 
         setInitialValues({
@@ -224,8 +238,7 @@ export default function UpdateVendor() {
           pin_code: vendor.pin_code || "",
           price_range: vendor.price_range || "",
           short_description: vendor.short_description || "",
-        category_id: vendor.category_id?.toString() || "",
-
+          category_id: vendor.category_id?.toString() || "",
           experience_since: vendor.experience_since || "",
           long_description: vendor.long_description || "",
           facebook_link: vendor.facebook_link || "",
@@ -235,6 +248,9 @@ export default function UpdateVendor() {
           youtube_link: vendor.youtube_link || "",
           website_link: vendor.website_link || "",
         });
+
+        // initial city touched should be true if initial city exists (so user isn't forced to reselect unless state changes)
+        setCityTouched(!!vendor.city_id);
       } catch (err) {
         console.log("Init fetch error", err);
       }
@@ -247,9 +263,11 @@ export default function UpdateVendor() {
     const fetchCities = async () => {
       try {
         const res = await GetCities(token, selectedStateId);
-        setCityData(
-          res.data.map((x) => ({ value: x.id.toString(), label: x.name }))
-        );
+        // FIXED: Remove the manual placeholder - let ReusableForm handle it
+        const mapped = res.data.map((x) => ({ value: x.id.toString(), label: x.name }));
+        setCityData(mapped); // Don't add placeholder here
+        // don't mark cityTouched true here — user must pick manually
+        setCityTouched(false);
       } catch (err) {
         console.log("City fetch error", err);
       }
@@ -257,8 +275,7 @@ export default function UpdateVendor() {
     fetchCities();
   }, [selectedStateId]);
 
-  if (!initialValues)
-    return <div className="text-center py-5">Loading Profile Data...</div>;
+  if (!initialValues) return <div className="text-center py-5">Loading Profile Data...</div>;
 
   return (
     <div className="page-content container-fluid">
@@ -279,6 +296,7 @@ export default function UpdateVendor() {
               initialValues={initialValues}
               onSubmit={onSubmit}
               fields={fields}
+              validationSchema={validationSchema}
             />
           </div>
         </div>

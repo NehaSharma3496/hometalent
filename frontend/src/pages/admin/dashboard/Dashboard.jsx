@@ -38,7 +38,7 @@ export default function Dashboard() {
       {
         title: "Total Vendors",
         value: fmt(counts.total_vendors),
-        icon: "fa fa-briefcase",
+       icon: "fa fa-user-tie",
         change: arrowText(counts.vendors_percentage_increase),
         color: "#7B2CBF",
         pct: counts.vendors_percentage_increase,

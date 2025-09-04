@@ -88,24 +88,23 @@ export default function MyPackages() {
     }
   };
 
-  const fetchExtensionMap = async () => {
-    try {
-      const res = await GetExtendPackageHistory(token, { vendor_id: vendorId });
-      if (res?.status) {
-        const map = {};
-        res.data.forEach((item) => {
-          const pkgName = item.packagelog?.name;
-          const days = item.details;
-          if (pkgName) {
-            map[pkgName] = (map[pkgName] || 0) + parseInt(days);
-          }
-        });
-        setExtensionMap(map);
-      }
-    } catch (err) {
-      console.error("Extension fetch error:", err);
+ const fetchExtensionMap = async () => {
+  try {
+    const res = await GetExtendPackageHistory(token, { vendor_id: vendorId });
+    if (res?.status) {
+      const map = {};
+      res.data.forEach((item) => {
+        if (item.request_id) {   // ✅ package subscription id
+          map[item.request_id] = (map[item.request_id] || 0) + parseInt(item.details || 0);
+        }
+      });
+      setExtensionMap(map);
     }
-  };
+  } catch (err) {
+    console.error("Extension fetch error:", err);
+  }
+};
+
 
   const handlePageChange = (page) => setCurrentPage(page);
 
@@ -115,17 +114,16 @@ export default function MyPackages() {
   };
 
   const filteredData = searchText
-  ? allPackagesForSearch
-      .filter((pkg) => {
-        const lowerSearch = searchText.toLowerCase();
-        return (
-          pkg.Package?.name?.toLowerCase().includes(lowerSearch) ||
-          pkg.amount?.toString().toLowerCase().includes(lowerSearch)
-        );
-      })
-      .filter((pkg) => pkg.payment_status === "completed")
-  : paginatedPackages.filter((pkg) => pkg.payment_status === "completed");
-
+    ? allPackagesForSearch
+        .filter((pkg) => {
+          const lowerSearch = searchText.toLowerCase();
+          return (
+            pkg.Package?.name?.toLowerCase().includes(lowerSearch) ||
+            pkg.amount?.toString().toLowerCase().includes(lowerSearch)
+          );
+        })
+        .filter((pkg) => pkg.payment_status === "completed")
+    : paginatedPackages.filter((pkg) => pkg.payment_status === "completed");
 
   const columns = [
     {
@@ -167,10 +165,11 @@ export default function MyPackages() {
         </span>
       ),
     },
-    {
-      name: "Extended Days",
-      selector: (row) => extensionMap[row?.Package?.name] || "—",
-    },
+   {
+  name: "Extended Days",
+  selector: (row) => extensionMap[row.id] || "—",  
+},
+
   ];
 
   const exportToExcel = async () => {
@@ -207,7 +206,8 @@ export default function MyPackages() {
         Status: new Date(pkg.end_date) >= today ? "Active" : "Expired",
         "Payment Status": pkg?.payment_status || "",
         "Payment Date": pkg?.createdAt ? formatDate(pkg.createdAt) : "",
-        "Extended Days": extensionMap[pkg?.Package?.name] || "—",
+       "Extended Days": extensionMap[pkg?.id] || "—",  
+
       }));
 
       const ws = XLSX.utils.json_to_sheet(exportData);
@@ -244,7 +244,6 @@ export default function MyPackages() {
           <i className="fa-solid fa-file-excel me-1"></i> Download
         </button>
       </div>
-
 
       <div
         className="d-flex align-items-center border rounded px-2 mb-3"

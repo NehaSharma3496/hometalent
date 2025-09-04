@@ -52,6 +52,8 @@ router.get('/admin-gallery/my-gallery', adminGalleryController.getAdminGallery);
 router.delete('/admin-gallery/remove/:gallery_id', adminGalleryController.removeAdminGalleryItem);
 router.put('/admin-gallery/update-order', adminGalleryController.updateAdminGalleryOrder);
 router.get('/admin-gallery/all', adminGalleryController.getAllAdminGalleries);
+router.post("/gallery/upload-from-vendor", adminGalleryController.uploadFromVendorToAdmin);
+router.post("/gallery/remove", adminGalleryController.removeFromAdminGallery);
 
 // Package Master CRUD
 router.post('/package', adminController.createPackage);
@@ -75,7 +77,8 @@ router.get('/dashboard-counts', adminController.getDashboardCounts);
 router.post('/getprofileRequestdata', adminController.getprofileRequestdata)
 router.post('/packageextendhistory', adminController.packageextendhistory)
 
-
+//feedback route
+router.get('/feedback', adminController.getAllFeedBack);
 
 
 module.exports = router;

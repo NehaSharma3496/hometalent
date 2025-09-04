@@ -111,25 +111,23 @@ export default function VendorPackageDetails() {
     }
   };
 
-  // 📌 Fetch extension history
-  const fetchExtensionMap = async () => {
-    try {
-      const res = await GetExtendPackageHistory(token, { vendor_id: vendorId });
-      if (res?.status) {
-        const map = {};
-        res.data.forEach((item) => {
-          const pkgName = item.packagelog?.name;
-          const days = item.details;
-          if (pkgName) {
-            map[pkgName] = (map[pkgName] || 0) + parseInt(days);
-          }
-        });
-        setExtensionMap(map);
-      }
-    } catch (err) {
-      console.error("Extension fetch error:", err);
+// 📌 Fetch extension history aur map banate waqt
+const fetchExtensionMap = async () => {
+  try {
+    const res = await GetExtendPackageHistory(token, { vendor_id: vendorId });
+    if (res?.status) {
+      const map = {};
+      res.data.forEach((item) => {
+        if (item.request_id) {
+          map[item.request_id] = (map[item.request_id] || 0) + parseInt(item.details || 0);
+        }
+      });
+      setExtensionMap(map);
     }
-  };
+  } catch (err) {
+    console.error("Extension fetch error:", err);
+  }
+};
 
   // 📌 Extend package
   const handleExtendPackage = async (row) => {
@@ -168,6 +166,7 @@ export default function VendorPackageDetails() {
         setExtendDays("");
         fetchPaginatedPackages(currentPage, perPage);
         fetchAllPackagesForSearch();
+         fetchExtensionMap(); 
       } else {
         Swal.fire("Failed", response?.message || "Extension failed.", "error");
       }
@@ -238,9 +237,10 @@ export default function VendorPackageDetails() {
     },
 
     {
-      name: "Extended Days",
-      selector: (row) => extensionMap[row?.Package?.name] || "—",
-    },
+  name: "Extended Days",
+  selector: (row) => extensionMap[row.id] || "—",  // row.id = subscriptionId
+},
+
     {
       name: "Actions",
       minWidth: "250px",

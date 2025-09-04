@@ -9,6 +9,7 @@ import {
   GetVendorDetails,
 } from "../../Services/vendor/Vendor";
 import { Link } from "react-router-dom";
+import * as Yup from "yup";
 
 export default function UpdateProfile() {
   const [categoryData, setCategoryData] = useState([]);
@@ -16,23 +17,18 @@ export default function UpdateProfile() {
   const [cityData, setCityData] = useState([]);
   const [selectedStateId, setSelectedStateId] = useState("");
   const [initialValues, setInitialValues] = useState(null);
+  const [cityTouched, setCityTouched] = useState(false);
 
   const token = localStorage.getItem("token");
   const vendorId = localStorage.getItem("userId");
 
+  const validationSchema = Yup.object().shape({
+    state_id: Yup.string().required("State is required"),
+  });
+
   const fields = [
-    {
-      name: "owner_name",
-      label: "Owner Name",
-      type: "text",
-      colClass: "col-md-4 ",
-    },
-    {
-      name: "profile_name",
-      label: "Profile Name",
-      type: "text",
-      colClass: "col-md-4 ",
-    },
+    { name: "owner_name", label: "Owner Name", type: "text", colClass: "col-md-4 " },
+    { name: "profile_name", label: "Profile Name", type: "text", colClass: "col-md-4 " },
     { name: "phone", label: "Phone", type: "text", colClass: "col-md-4 " },
     { name: "email", label: "Email", type: "email", colClass: "col-md-4 " },
     {
@@ -40,7 +36,10 @@ export default function UpdateProfile() {
       label: "State",
       type: "select",
       options: statesData,
-      onChange: (e) => setSelectedStateId(e.target.value),
+      onChange: (e) => {
+        setSelectedStateId(e.target.value);
+        setCityTouched(false);
+      },
       colClass: "col-md-4 ",
     },
     {
@@ -48,85 +47,30 @@ export default function UpdateProfile() {
       label: "City",
       type: "select",
       options: cityData,
+      onChange: () => setCityTouched(true),
       colClass: "col-md-4 ",
     },
-    {
-      name: "pin_code",
-      label: "Pin Code",
-      type: "text",
-      colClass: "col-md-4 mb-3",
-    },
-    {
-      name: "price_range",
-      label: "Price Range",
-      type: "text",
-      colClass: "col-md-4 ",
-    },
-    {
-      name: "category_id",
-      label: "Category",
-      type: "select",
-      options: categoryData,
-      colClass: "col-md-4 ",
-    },
-    {
-      name: "experience_since",
-      label: "Experience Since",
-      type: "text",
-      colClass: "col-md-4 mb-3",
-    },
-    {
-      name: "short_description",
-      label: "Short Description",
-      type: "text",
-      colClass: "col-12 ",
-    },
-    {
-      name: "long_description",
-      label: "Long Description",
-      type: "textarea",
-      colClass: "col-12 ",
-    },
-    {
-      name: "facebook_link",
-      label: "Facebook Link",
-      type: "text",
-      colClass: "col-md-6 mb-3",
-    },
-    {
-      name: "instagram_link",
-      label: "Instagram Link",
-      type: "text",
-      colClass: "col-md-6 ",
-    },
-    {
-      name: "twitter_link",
-      label: "Twitter Link",
-      type: "text",
-      colClass: "col-md-6 ",
-    },
-    {
-      name: "linkedin_link",
-      label: "LinkedIn Link",
-      type: "text",
-      colClass: "col-md-6 ",
-    },
-    {
-      name: "youtube_link",
-      label: "YouTube Link",
-      type: "text",
-      colClass: "col-md-6 ",
-    },
-    {
-      name: "website_link",
-      label: "Website Link",
-      type: "text",
-      colClass: "col-md-6 ",
-    },
+    { name: "pin_code", label: "Pin Code", type: "text", colClass: "col-md-4 mb-3" },
+    { name: "price_range", label: "Price Range", type: "text", colClass: "col-md-4 " },
+    { name: "category_id", label: "Category", type: "select", options: categoryData, colClass: "col-md-4 " },
+    { name: "experience_since", label: "Experience Since", type: "text", colClass: "col-md-4 mb-3" },
+    { name: "short_description", label: "Short Description", type: "text", colClass: "col-12 " },
+    { name: "long_description", label: "Long Description", type: "textarea", colClass: "col-12 " },
+    { name: "facebook_link", label: "Facebook Link", type: "text", colClass: "col-md-6 mb-3" },
+    { name: "instagram_link", label: "Instagram Link", type: "text", colClass: "col-md-6 " },
+    { name: "twitter_link", label: "Twitter Link", type: "text", colClass: "col-md-6 " },
+    { name: "linkedin_link", label: "LinkedIn Link", type: "text", colClass: "col-md-6 " },
+    { name: "youtube_link", label: "YouTube Link", type: "text", colClass: "col-md-6 " },
+    { name: "website_link", label: "Website Link", type: "text", colClass: "col-md-6 " },
     { name: "image", label: "Image", type: "file", colClass: "col-md-6 mb-3" },
   ];
 
   const onSubmit = async (values) => {
+    if (values.state_id !== initialValues.state_id && !cityTouched) {
+      Swal.fire("Validation Error", "Please select a city for the new state", "warning");
+      return;
+    }
+
     const cleanInitial = { ...initialValues };
     const cleanCurrent = { ...values };
     delete cleanInitial.image;
@@ -199,12 +143,8 @@ export default function UpdateProfile() {
 
         const vendor = vendorRes.data.user;
 
-        setCategoryData(
-          cat.data.map((x) => ({ value: x.id.toString(), label: x.name }))
-        );
-        setStatesData(
-          st.data.map((x) => ({ value: x.id.toString(), label: x.name }))
-        );
+        setCategoryData(cat.data.map((x) => ({ value: x.id.toString(), label: x.name })));
+        setStatesData(st.data.map((x) => ({ value: x.id.toString(), label: x.name })));
         setSelectedStateId(vendor.state_id?.toString());
 
         setInitialValues({
@@ -227,6 +167,8 @@ export default function UpdateProfile() {
           youtube_link: vendor.youtube_link || "",
           website_link: vendor.website_link || "",
         });
+
+        setCityTouched(!!vendor.city_id);
       } catch (err) {
         console.log("Init fetch error", err);
       }
@@ -239,9 +181,10 @@ export default function UpdateProfile() {
     const fetchCities = async () => {
       try {
         const res = await GetCities(token, selectedStateId);
-        setCityData(
-          res.data.map((x) => ({ value: x.id.toString(), label: x.name }))
-        );
+        // FIXED: Remove the manual placeholder - let ReusableForm handle it
+        const mapped = res.data.map((x) => ({ value: x.id.toString(), label: x.name }));
+        setCityData(mapped); // Don't add placeholder here
+        setCityTouched(false);
       } catch (err) {
         console.log("City fetch error", err);
       }
@@ -249,8 +192,7 @@ export default function UpdateProfile() {
     fetchCities();
   }, [selectedStateId]);
 
-  if (!initialValues)
-    return <div className="text-center py-5">Loading Profile Data...</div>;
+  if (!initialValues) return <div className="text-center py-5">Loading Profile Data...</div>;
 
   return (
     <div className="page-content container-fluid">
@@ -272,6 +214,7 @@ export default function UpdateProfile() {
               initialValues={initialValues}
               onSubmit={onSubmit}
               fields={fields}
+              validationSchema={validationSchema}
             />
           </div>
         </div>

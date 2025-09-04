@@ -15,7 +15,10 @@ const CategoryDetail = () => {
   const [galleryImages, setGalleryImages] = useState([]);
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
-  const [showAll, setShowAll] = useState(false);
+  const [activeTab, setActiveTab] = useState("images"); // 👈 Tabs state
+  const [showAllImages, setShowAllImages] = useState(false);
+  const [showAllVideos, setShowAllVideos] = useState(false);
+
   const location = useLocation();
   const vendor = location.state?.vendor?.id;
   const vendors = location.state?.vendor;
@@ -84,7 +87,6 @@ const CategoryDetail = () => {
 
     try {
       const res = await SubmitReview(payload);
-      console.log("SubmitReview Response:", res);
 
       if (res?.status === true) {
         Swal.fire({
@@ -149,7 +151,6 @@ const CategoryDetail = () => {
           title: "Success",
           text: "Your Enquiry submitted successfully! ",
         });
-        console.log("Lead Data:", res);
         setLeadData({ name: "", phone: "", email: "", query: "" });
       } else {
         Swal.fire({
@@ -172,6 +173,7 @@ const CategoryDetail = () => {
     { label: vendors?.category_names, to: "#" },
   ];
 
+  // fetch gallery
   useEffect(() => {
     const fetchGalleryImages = async () => {
       if (vendor) {
@@ -191,50 +193,27 @@ const CategoryDetail = () => {
     fetchGalleryImages();
   }, [vendor]);
 
-  const imageSlides = galleryImages
-    .filter((item) => item.file_type === "image")
-    .map((item) => ({ src: item.file_path }));
+  // separate images & videos
+  const imageItems = galleryImages.filter((item) => item.file_type === "image");
+  const videoItems = galleryImages.filter((item) => item.file_type === "video");
+
+  const imageSlides = imageItems.map((item) => ({ src: item.file_path }));
 
   const handleImageClick = (clickedIndex) => {
-    const imageOnlyIndex = galleryImages
-      .filter((item) => item.file_type === "image")
-      .findIndex(
-        (img) => img.file_path === galleryImages[clickedIndex].file_path
-      );
-
-    setIndex(imageOnlyIndex);
+    setIndex(clickedIndex);
     setOpen(true);
   };
-  const imageItems = galleryImages.filter((item) => item.file_type === "image");
 
-  const visibleItems = showAll ? galleryImages : galleryImages.slice(0, 4);
+  // visible items with View More
+  const visibleImages = showAllImages ? imageItems : imageItems.slice(0, 4);
+  const visibleVideos = showAllVideos ? videoItems : videoItems.slice(0, 4);
 
   const socialLinks = [
-    {
-      key: "facebook_link",
-      icon: "fab fa-facebook-f",
-      color: "#1877f2",
-    },
-    {
-      key: "instagram_link",
-      icon: "fab fa-instagram",
-      color: "#e4405f",
-    },
-    {
-      key: "twitter_link",
-      icon: "fab fa-twitter",
-      color: "#1da1f2",
-    },
-    {
-      key: "linkedin_link",
-      icon: "fab fa-linkedin-in",
-      color: "#0077b5",
-    },
-    {
-      key: "youtube_link",
-      icon: "fab fa-youtube",
-      color: "#ff0000",
-    },
+    { key: "facebook_link", icon: "fab fa-facebook-f", color: "#1877f2" },
+    { key: "instagram_link", icon: "fab fa-instagram", color: "#e4405f" },
+    { key: "twitter_link", icon: "fab fa-twitter", color: "#1da1f2" },
+    { key: "linkedin_link", icon: "fab fa-linkedin-in", color: "#0077b5" },
+    { key: "youtube_link", icon: "fab fa-youtube", color: "#ff0000" },
   ];
 
   const availableLinks = socialLinks.filter(
@@ -300,108 +279,188 @@ const CategoryDetail = () => {
                       </div>
                     </div>
 
-                    <div class="tour-details-content mt-15">
-                      <p class="pera ">{vendors?.short_description}</p>
-                    </div>
+                   <div className="tour-details-content mt-15">
+  <p className="detail-text">{vendors?.short_description}</p>
+</div>
 
-                    <div className="price-review ">
-                      <div className="d-flex  align-items-end">
-                        <h3 className="title">Estimated Price Range -</h3>
-                        <h3 className="title">₹{vendors?.price_range}</h3>
-                      </div>
-                      <div className="rating">
-                        <p className="pera">Experience Since -</p>
-                        <p className="pera">{vendors?.experience_since}</p>
-                      </div>
-                    </div>
+<div className="price-review ">
+  <div className="d-flex align-items-end">
+    <h3 className="title">Estimated Price Range -</h3>
+    <h3 className="title fw-bold">₹{vendors?.price_range}</h3>
+  </div>
+  <div className="rating">
+    <p className="detail-text">Experience Since -</p>
+    <p className="detail-text">{vendors?.experience_since}</p>
+  </div>
+</div>
 
-                    <div className="tour-details-content mt-10">
-                      <h4 className="title">About</h4>
+<div className="tour-details-content mt-10">
+  <h4 className="title">About</h4>
+  <p className="detail-text">{vendors?.long_description}</p>
+</div>
 
-                      <p class="pera ">{vendors?.long_description}</p>
-                    </div>
 
-                    <div className="row g-4" ref={imageSectionRef}>
-                      {visibleItems.map((item, i) => (
-                        <div className="col-lg-3 col-sm-6" key={i}>
-                          <div
-                            className="shadow-sm"
-                            style={{
-                              height: "200px",
-                              overflow: "hidden",
-                              borderRadius: "8px",
-                              cursor:
-                                item.file_type === "image"
-                                  ? "pointer"
-                                  : "default",
-                            }}
-                            onClick={() => {
-                              if (item.file_type === "image")
-                                handleImageClick(i);
-                            }}
-                          >
-                            {item?.file_type === "video" ? (
-                              <video
-                                autoPlay
-                                muted
-                                loop
-                                controls
-                                style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  objectFit: "cover",
-                                }}
-                              >
-                                <source
-                                  src={item?.file_path}
-                                  type="video/mp4"
-                                />
-                              </video>
-                            ) : (
-                              <img
-                                src={item?.file_path}
-                                alt={`Gallery ${i}`}
-                                style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  objectFit: "cover",
-                                }}
-                              />
-                            )}
-                          </div>
+                    {/* GALLERY SECTION WITH TABS */}
+                    {/* GALLERY SECTION WITH TABS */}
+                    {(imageItems.length > 0 || videoItems.length > 0) && (
+                      <div
+                        className="tour-details-content mt-4"
+                        ref={imageSectionRef}
+                      >
+                        <h4 className="title mb-3">Gallery</h4>
+
+                        {/* Tabs - Agar sirf ek hi type ka content hai to ek hi tab show hoga */}
+                        <div className="d-flex gap-3 mb-3">
+                          {imageItems.length > 0 && (
+                            <button
+                              className={`btn ${
+                                activeTab === "images"
+                                  ? "btn-primary"
+                                  : "btn-outline-primary"
+                              }`}
+                              onClick={() => setActiveTab("images")}
+                            >
+                              Images
+                            </button>
+                          )}
+                          {videoItems.length > 0 && (
+                            <button
+                              className={`btn ${
+                                activeTab === "videos"
+                                  ? "btn-primary"
+                                  : "btn-outline-primary"
+                              }`}
+                              onClick={() => setActiveTab("videos")}
+                            >
+                              Videos
+                            </button>
+                          )}
                         </div>
-                      ))}
-                    </div>
 
-                    {galleryImages.length > 4 && (
-                      <div className="text-center mt-3">
-                        <button
-                          className="btn btn-primary"
-                          onClick={() => {
-                            if (showAll) {
-                              setShowAll(false);
-                              setTimeout(() => {
-                                imageSectionRef.current?.scrollIntoView({
-                                  behavior: "smooth",
-                                });
-                              }, 100);
-                            } else {
-                              setShowAll(true);
-                            }
-                          }}
-                        >
-                          {showAll ? "View Less" : "View All"}
-                        </button>
+                        {/* Images Tab */}
+                        {activeTab === "images" && imageItems.length > 0 && (
+                          <>
+                            <div className="row g-4">
+                              {visibleImages.map((item, i) => (
+                                <div className="col-lg-3 col-sm-6" key={i}>
+                                  <div
+                                    className="shadow-sm"
+                                    style={{
+                                      height: "200px",
+                                      overflow: "hidden",
+                                      borderRadius: "8px",
+                                      cursor: "pointer",
+                                    }}
+                                    onClick={() => handleImageClick(i)}
+                                  >
+                                    <img
+                                      src={item?.file_path}
+                                      alt={`Gallery ${i}`}
+                                      style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            {imageItems.length > 4 && (
+                              <div className="text-center mt-3">
+                                <button
+                                  className="btn btn-primary"
+                                  onClick={() => {
+                                    if (showAllImages) {
+                                      setShowAllImages(false);
+                                      setTimeout(() => {
+                                        imageSectionRef.current?.scrollIntoView(
+                                          {
+                                            behavior: "smooth",
+                                          }
+                                        );
+                                      }, 100);
+                                    } else {
+                                      setShowAllImages(true);
+                                    }
+                                  }}
+                                >
+                                  {showAllImages ? "View Less" : "View All"}
+                                </button>
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {/* Videos Tab */}
+                        {activeTab === "videos" && videoItems.length > 0 && (
+                          <>
+                            <div className="row g-4">
+                              {visibleVideos.map((item, i) => (
+                                <div className="col-lg-3 col-sm-6" key={i}>
+                                  <div
+                                    className="shadow-sm"
+                                    style={{
+                                      height: "200px",
+                                      overflow: "hidden",
+                                      borderRadius: "8px",
+                                    }}
+                                  >
+                                    <video
+                                      controls
+                                      style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                      }}
+                                    >
+                                      <source
+                                        src={item?.file_path}
+                                        type="video/mp4"
+                                      />
+                                    </video>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            {videoItems.length > 4 && (
+                              <div className="text-center mt-3">
+                                <button
+                                  className="btn btn-primary"
+                                  onClick={() => {
+                                    if (showAllVideos) {
+                                      setShowAllVideos(false);
+                                      setTimeout(() => {
+                                        imageSectionRef.current?.scrollIntoView(
+                                          {
+                                            behavior: "smooth",
+                                          }
+                                        );
+                                      }, 100);
+                                    } else {
+                                      setShowAllVideos(true);
+                                    }
+                                  }}
+                                >
+                                  {showAllVideos ? "View Less" : "View All"}
+                                </button>
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {/* Lightbox for Images */}
+                        {open && (
+                          <Lightbox
+                            open={open}
+                            close={() => setOpen(false)}
+                            slides={imageSlides}
+                            index={index}
+                          />
+                        )}
                       </div>
-                    )}
-
-                    {open && (
-                      <Lightbox
-                        open={open}
-                        close={() => setOpen(false)}
-                        slides={imageSlides}
-                        index={index}
-                      />
                     )}
 
                     {availableLinks.length > 0 && (
@@ -449,11 +508,12 @@ const CategoryDetail = () => {
                     )}
                   </div>
 
+                  {/* SIDEBAR - Lead Form & Review Form */}
                   <div className="col-xl-4 col-lg-5">
                     <div className="date-travel-card ">
                       <h4 className="heading-card">Get In Touch</h4>
 
-                      <div className="date-time-dropdown d-flex align-items-center gap-2">
+                      <div className="date-time-dropdown d-flex align-items-center gap  -2">
                         <i className="ri-user-line fs-8" />
                         <input
                           type="text"
@@ -546,7 +606,6 @@ const CategoryDetail = () => {
                           }
                         />
                       </div>
-
                       <div className="date-time-dropdown d-flex align-items-start gap-2 mt-2">
                         <i className="ri-chat-3-line fs-8 mt-1" />
                         <textarea

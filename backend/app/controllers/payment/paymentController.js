@@ -74,7 +74,7 @@ exports.createPaymentOrder = async (req, res) => {
     if(pkg.validity_in_months && pkg.validity_in_months != undefined){
       validityDays = pkg.validity_in_months * 30;
     }else{
-      validityDays = days;
+      validityDays = pkg.days;
     }
     
     if (activeSubscription) {

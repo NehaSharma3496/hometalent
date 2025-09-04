@@ -27,25 +27,29 @@ const Header = () => {
   // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (mobileOpen && !event.target.closest('.mobile-sidebar') && !event.target.closest('.hamburger-btn')) {
+      if (
+        mobileOpen &&
+        !event.target.closest(".mobile-sidebar") &&
+        !event.target.closest(".hamburger-btn")
+      ) {
         setMobileOpen(false);
       }
     };
 
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, [mobileOpen]);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (mobileOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
-    
+
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [mobileOpen]);
 
@@ -86,7 +90,11 @@ const Header = () => {
                               <li className="single-list">
                                 <Link
                                   to="/"
-                                  className={`single ${location.pathname === "/" ? "link-active" : ""}`}
+                                  className={`single ${
+                                    location.pathname === "/"
+                                      ? "link-active"
+                                      : ""
+                                  }`}
                                 >
                                   Home
                                 </Link>
@@ -95,46 +103,78 @@ const Header = () => {
                               <li className="single-list">
                                 <Link
                                   to="/about"
-                                  className={`single ${location.pathname === "/about" ? "link-active" : ""}`}
+                                  className={`single ${
+                                    location.pathname === "/about"
+                                      ? "link-active"
+                                      : ""
+                                  }`}
                                 >
                                   About
                                 </Link>
                               </li>
 
-                              <li className={`single-list dropdown-container ${open ? "submenu-open" : ""}`}>
+                              <li
+                                className={`single-list dropdown-container ${
+                                  open ? "submenu-open" : ""
+                                }`}
+                                tabIndex={0}
+                                onBlur={() => setOpen(false)}
+                              >
                                 <div
-                                  className={`single dropdown-trigger ${location.pathname.startsWith("/category") ? "link-active" : ""}`}
+                                  className={`single dropdown-trigger font-normal ${
+                                    location.pathname.startsWith("/category")
+                                      ? "link-active"
+                                      : ""
+                                  }`}
                                   onClick={(e) => {
                                     e.preventDefault();
                                     setOpen(!open);
                                   }}
                                 >
                                   Category
-                                  <i className={`ri-arrow-down-s-line ${open ? 'rotate' : ''}`} />
+                                  <i
+                                    className={`ri-arrow-down-s-line ${
+                                      open ? "rotate" : ""
+                                    }`}
+                                  />
                                 </div>
+
                                 <ul className="desktop-dropdown">
                                   <div className="dropdown-content">
                                     <div className="dropdown-columns">
-                                      {Array.from({ length: 3 }, (_, colIndex) => (
-                                        <div className="dropdown-column" key={colIndex}>
-                                          <ul>
-                                            {category
-                                              ?.filter((_, idx) => idx % 3 === colIndex)
-                                              ?.map((cat) => (
-                                                <li key={cat._id || cat.id}>
-                                                  <Link 
-                                                    to="/category" 
-                                                    state={{ categoryId: cat.id }} 
-                                                    className="dropdown-link"
-                                                    onClick={() => setOpen(false)}
-                                                  >
-                                                    {cat.name}
-                                                  </Link>
-                                                </li>
-                                              ))}
-                                          </ul>
-                                        </div>
-                                      ))}
+                                      {Array.from(
+                                        { length: 3 },
+                                        (_, colIndex) => (
+                                          <div
+                                            className="dropdown-column Anuj"
+                                            key={colIndex}
+                                          >
+                                            <ul>
+                                              {category
+                                                ?.filter(
+                                                  (_, idx) =>
+                                                    idx % 3 === colIndex
+                                                )
+                                                ?.map((cat) => (
+                                                  <li key={cat._id || cat.id}>
+                                                    <Link
+                                                      to="/category"
+                                                      state={{
+                                                        categoryId: cat.id,
+                                                      }}
+                                                      className="dropdown-link "
+                                                      onClick={() =>
+                                                        setOpen(false)
+                                                      }
+                                                    >
+                                                      {cat.name}
+                                                    </Link>
+                                                  </li>
+                                                ))}
+                                            </ul>
+                                          </div>
+                                        )
+                                      )}
                                     </div>
                                   </div>
                                 </ul>
@@ -143,16 +183,24 @@ const Header = () => {
                               <li className="single-list">
                                 <Link
                                   to="/blog"
-                                  className={`single ${location.pathname.startsWith("/blog") ? "link-active" : ""}`}
+                                  className={`single ${
+                                    location.pathname.startsWith("/blog")
+                                      ? "link-active"
+                                      : ""
+                                  }`}
                                 >
-                                  Blog
+                                  Blogs
                                 </Link>
                               </li>
 
                               <li className="single-list">
                                 <Link
                                   to="/gallery"
-                                  className={`single ${location.pathname === "/gallery" ? "link-active" : ""}`}
+                                  className={`single ${
+                                    location.pathname === "/gallery"
+                                      ? "link-active"
+                                      : ""
+                                  }`}
                                 >
                                   Gallery
                                 </Link>
@@ -161,7 +209,11 @@ const Header = () => {
                               <li className="single-list">
                                 <Link
                                   to="/contact"
-                                  className={`single ${location.pathname === "/contact" ? "link-active" : ""}`}
+                                  className={`single ${
+                                    location.pathname === "/contact"
+                                      ? "link-active"
+                                      : ""
+                                  }`}
                                 >
                                   Contact us
                                 </Link>
@@ -180,7 +232,7 @@ const Header = () => {
                       </div>
                       <div className="sign-btn">
                         <Link to="/registration" className="btn-primary">
-                          Sign Up
+                         Vendor Registration
                         </Link>
                       </div>
                     </div>
@@ -206,7 +258,7 @@ const Header = () => {
                 </div>
 
                 <button
-                  className={`hamburger-btn ${mobileOpen ? 'active' : ''}`}
+                  className={`hamburger-btn ${mobileOpen ? "active" : ""}`}
                   onClick={() => setMobileOpen(!mobileOpen)}
                   aria-label="Toggle menu"
                 >
@@ -239,18 +291,18 @@ const Header = () => {
         </div>
       </header>
 
-      {/* Mobile Sidebar Overlay */}
+    
       {mobileOpen && (
         <div className="mobile-overlay" onClick={closeMobileMenu}></div>
       )}
 
       {/* Mobile Sidebar */}
-      <div className={`mobile-sidebar ${mobileOpen ? 'open' : ''}`}> 
+      <div className={`mobile-sidebar ${mobileOpen ? "open" : ""}`}>
         <nav className="sidebar-nav mt-5">
           <ul className="mobile-menu-list">
             <li>
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 className={location.pathname === "/" ? "active" : ""}
                 onClick={closeMobileMenu}
               >
@@ -260,8 +312,8 @@ const Header = () => {
             </li>
 
             <li>
-              <Link 
-                to="/about" 
+              <Link
+                to="/about"
                 className={location.pathname === "/about" ? "active" : ""}
                 onClick={closeMobileMenu}
               >
@@ -271,23 +323,22 @@ const Header = () => {
             </li>
 
             <li className="has-submenu">
-              <div 
-                className="menu-item-header"
-                onClick={() => setOpen(!open)}
-              >
+              <div className="menu-item-header" onClick={() => setOpen(!open)}>
                 <span>
                   <i className="ri-grid-line"></i>
                   Category
                 </span>
-                <i className={`ri-arrow-down-s-line ${open ? 'rotate' : ''}`}></i>
+                <i
+                  className={`ri-arrow-down-s-line ${open ? "rotate" : ""}`}
+                ></i>
               </div>
-              
-              <ul className={`submenu ${open ? 'open' : ''}`}>
+
+              <ul className={`submenu ${open ? "open" : ""}`}>
                 {category?.length > 0 ? (
                   category.map((cat) => (
                     <li key={cat._id || cat.id}>
-                      <Link 
-                        to="/category" 
+                      <Link
+                        to="/category"
                         state={{ categoryId: cat.id }}
                         onClick={closeMobileMenu}
                       >
@@ -297,16 +348,20 @@ const Header = () => {
                   ))
                 ) : (
                   <li>
-                    <span className="no-categories">No categories available</span>
+                    <span className="no-categories">
+                      No categories available
+                    </span>
                   </li>
                 )}
               </ul>
             </li>
 
             <li>
-              <Link 
-                to="/blog" 
-                className={location.pathname.startsWith("/blog") ? "active" : ""}
+              <Link
+                to="/blog"
+                className={
+                  location.pathname.startsWith("/blog") ? "active" : ""
+                }
                 onClick={closeMobileMenu}
               >
                 <i className="ri-article-line"></i>
@@ -315,8 +370,8 @@ const Header = () => {
             </li>
 
             <li>
-              <Link 
-                to="/gallery" 
+              <Link
+                to="/gallery"
                 className={location.pathname === "/gallery" ? "active" : ""}
                 onClick={closeMobileMenu}
               >
@@ -326,8 +381,8 @@ const Header = () => {
             </li>
 
             <li>
-              <Link 
-                to="/contact" 
+              <Link
+                to="/contact"
                 className={location.pathname === "/contact" ? "active" : ""}
                 onClick={closeMobileMenu}
               >
@@ -343,7 +398,11 @@ const Header = () => {
                 <i className="ri-login-box-line"></i>
                 Log In
               </Link>
-              <Link to="/registration" className="btn-signup" onClick={closeMobileMenu}>
+              <Link
+                to="/registration"
+                className="btn-signup"
+                onClick={closeMobileMenu}
+              >
                 <i className="ri-user-add-line"></i>
                 Sign Up
               </Link>
@@ -387,7 +446,7 @@ const Header = () => {
           left: 50%;
           transform: translateX(-50%);
           background: #fff;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
           border-radius: 12px;
           padding: 0;
           min-width: 650px;
@@ -442,11 +501,11 @@ const Header = () => {
           background: linear-gradient(135deg, #007bff, #0056b3);
           color: #fff;
           transform: translateX(5px);
-          box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+          box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
         }
 
         .dropdown-link::before {
-          content: '';
+          content: "";
           position: absolute;
           left: 0;
           top: 50%;
@@ -467,18 +526,17 @@ const Header = () => {
           position: sticky;
           top: 0;
           background: #fff;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
           z-index: 1000;
-           height: 60px;
-          
+          height: 60px;
         }
 
         /* Hamburger Button */
         .hamburger-btn {
           display: flex;
           flex-direction: column;
-          width: 30px;
-          height: 30px;
+          width: 25px;
+          height: 20px;
           background: none;
           border: none;
           cursor: pointer;
@@ -538,7 +596,7 @@ const Header = () => {
           width: 320px;
           height: 100vh;
           background: #fff;
-          box-shadow: -2px 0 20px rgba(0,0,0,0.1);
+          box-shadow: -2px 0 20px rgba(0, 0, 0, 0.1);
           z-index: 999;
           transition: right 0.3s ease;
           overflow-y: auto;
@@ -633,39 +691,38 @@ const Header = () => {
         .menu-item-header .ri-arrow-down-s-line.rotate {
           transform: rotate(180deg);
         }
-      .submenu {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease;
-        background: #f8f9fa;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-            
-        display: grid;
-        grid-template-columns: repeat(2, 1fr); /* 2 items per row */
-        gap: 5px;                /* Less space between items for smaller look */
-        padding: 5px;            /* Less padding inside */
-        font-size: 13px;         /* Smaller text */
-      }
-            
-       padding: 4px 6px;         /* Smaller padding for each item */
-       .submenu li {
-         text-align: center;       /* Center text if needed */
-          }
+        .submenu {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease;
+          background: #f8f9fa;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+
+          display: grid;
+          grid-template-columns: repeat(2, 1fr); /* 2 items per row */
+          gap: 5px; /* Less space between items for smaller look */
+         
+          font-size: 13px; /* Smaller text */
+        }
+
+        padding: 4px 6px; /* Smaller padding for each item */
+        .submenu li {
+          text-align: center; /* Center text if needed */
+        }
         .submenu a {
-        display: block;
+          display: block;
 
           text-decoration: none;
           color: #333;
-          font-size: 13px;          /* Make link text smaller */
+          font-size: 13px; /* Make link text smaller */
           padding: 4px 6px;
-          }
+        }
 
-          .submenu.open {
-            max-height: 500px;        /* Ensure it expands when open */
-          }
-
+        .submenu.open {
+          max-height: 500px; /* Ensure it expands when open */
+        }
 
         .submenu a:hover {
           color: #007bff;

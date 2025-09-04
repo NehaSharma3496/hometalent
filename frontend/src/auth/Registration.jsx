@@ -55,8 +55,10 @@ const Registration = () => {
     email: Yup.string().email("Invalid email").required("Email is required"),
     category: Yup.string().required("Category is required"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
-    experience: Yup.string().required("Experience Is required"),
-    priceRange: Yup.string().required("Price Range is required"),
+    // experience: Yup.string().required("Experience Is required"),
+    // priceRange: Yup.string().required("Price Range is required"),
+    longDesc: Yup.string().required("Large Description is required"),
+
   });
 
   // 👇 Only define fields after categoryData is available
@@ -102,10 +104,10 @@ const Registration = () => {
       type: "text",
       colClass: "col-md-4 mb-3",
     },
-    { name: "email", label: "Email", type: "email", colClass: "col-md-4 mb-3" },
+    { name: "email", label: "Email*", type: "email", colClass: "col-md-4 mb-3" },
     {
       name: "priceRange",
-      label: "Estimated Price Range*",
+      label: "Estimated Price Range",
       type: "text",
       colClass: "col-md-4 mb-3",
     },
@@ -124,13 +126,13 @@ const Registration = () => {
     },
     {
       name: "shortDesc",
-      label: "One Line Description",
+      label: "Short Description",
       type: "text",
       colClass: "col-12 mb-3",
     },
     {
       name: "longDesc",
-      label: "Large Description",
+      label: "Large Description*",
       type: "textarea",
       colClass: "col-12 mb-3",
     },

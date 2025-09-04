@@ -80,6 +80,9 @@ const Footer = () => {
                       <li className="single-lsit">
                            <Link to="/gallery">Gallery</Link>
                       </li>
+                      <li className="single-lsit">
+                           <Link to="/feedback">Feedback</Link>
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -124,7 +127,7 @@ const Footer = () => {
                     </ul>
                   </div>
                 </div>
-                <div className="footer-image float-lg-end">
+                <div className="footer-image float-lg-end ">
                   <img src='../assets/images/footer/footer-img.png' alt="footer" />
                 </div>
               </div>

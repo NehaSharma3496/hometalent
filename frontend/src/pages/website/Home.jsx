@@ -225,23 +225,23 @@ const Home = () => {
           <div className="row">
             <div className="col-lg-10 mx-auto col-sm-12">
               <div className="plan-section-three plan-shadow">
-                <div className="choose-plan-nav">
+                <div className="choose-plan-nav mt-4">
                   <div className="">
-                    <div className="row g-4 justify-content-end">
+                    <div className="row g-4 justify-content-center">
                       <div className="col-xl-5 col-lg-6 col-md-6 col-sm-12 ">
                         <div
                           className="position-relative"
                           style={{ width: "100%" }}
                           ref={dropdownRef}
                         >
-                          <input
-                            type="text"
-                            className="form-control p-2 cursor-pointer"
-                            placeholder="Search City"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            onFocus={() => setShowDropdown(true)}
-                          />
+                        <input
+  type="text"
+  className="form-control custom-input-select cursor-pointer"
+  placeholder="Search City"
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  onFocus={() => setShowDropdown(true)}
+/>
 
                           {showDropdown && (
                             <div
@@ -292,25 +292,22 @@ const Home = () => {
 
                       <div className="col-xl-5 col-lg-12">
                         <div className="destination-flex">
-                          <select
-                            className="form-select"
-                            value={selectedCategory}
-                            onChange={(e) =>
-                              setSelectedCategory(e.target.value)
-                            }
-                          >
-                            <option value="">Select Category</option>
-                            {Array.isArray(categories) &&
-                              categories?.map((cat) => {
-                                const categoryId =
-                                  cat.id || cat._id || cat.categoryId;
-                                return (
-                                  <option key={categoryId} value={categoryId}>
-                                    {cat.name}
-                                  </option>
-                                );
-                              })}
-                          </select>
+                        <select
+  className="form-select custom-input-select"
+  value={selectedCategory}
+  onChange={(e) => setSelectedCategory(e.target.value)}
+>
+  <option value="">Select Category</option>
+  {Array.isArray(categories) &&
+    categories?.map((cat) => {
+      const categoryId = cat.id || cat._id || cat.categoryId;
+      return (
+        <option key={categoryId} value={categoryId}>
+          {cat.name}
+        </option>
+      );
+    })}
+</select>
                         </div>
                       </div>
                       <div className="col-xl-2 col-lg-3">
@@ -597,7 +594,7 @@ const Home = () => {
                       </Link>
                     </figure>
                     <div className="news-content">
-                      <div className="date d-lg-flex">
+                      <div className="date d-flex ">
                         <div className="news-info">
                           <p className="date-time">
                             {new Date(item.createdAt).toLocaleDateString(
@@ -610,7 +607,7 @@ const Home = () => {
                             )}
                           </p>
                         </div>
-                        <span className="px-15">|</span>
+                        <span className="px-5">|</span>
                         <div className="category-name">
                           <span className=" text-primary">Home Talent</span>
                         </div>
