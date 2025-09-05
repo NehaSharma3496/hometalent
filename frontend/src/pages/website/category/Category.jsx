@@ -245,6 +245,14 @@ const Category = () => {
                                 </div>
                               </div>
 
+                               <h4 className="area-name">
+                                <Link
+                                  to="/categorydetail"
+                                >
+                                  {item?.short_description}
+                                </Link>
+                              </h4>
+
                               <div className="cart-footer d-flex flex-wrap justify-content-between">
                                 <div className="d-flex gap-6 align-items-center">
                                   <p className="pera">
@@ -261,7 +269,7 @@ const Category = () => {
                                   }}
                                   className="browse-btn"
                                 >
-                                  Book now
+                                  View Details
                                 </Link>
                               </div>
                             </div>

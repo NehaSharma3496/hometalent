@@ -5,24 +5,26 @@ import {
   GetGalleryUpdateRequests,
   ProcessGalleryUpdateRequests,
   AddToAdminGallery,
+  RemoveGalleryItem,
 } from "../../../Services/admin/Admin";
 
 export default function VendorGallery() {
   const { vendorId } = useParams();
   const [gallery, setGallery] = useState([]);
-  const [activeTab, setActiveTab] = useState("images");
+  const [activeTab, setActiveTab] = useState("images"); // images | videos | galleryAdded
   const [selectedItems, setSelectedItems] = useState([]);
-  const token = localStorage.getItem("token");
   const [selectAll, setSelectAll] = useState(false);
+  const token = localStorage.getItem("token");
   const adminId = 1;
 
+  /** Fetch Vendor Gallery */
   const fetchGallery = async () => {
     try {
       const res = await GetGalleryUpdateRequests({
         token,
         statusFilter: "all",
         page: 1,
-        limit: 100,
+        limit: 200,
       });
 
       if (res.status) {
@@ -35,67 +37,7 @@ export default function VendorGallery() {
     }
   };
 
-  const toggleSelect = (id) => {
-    setSelectedItems((prev) => {
-      const updated = prev.includes(id)
-        ? prev.filter((item) => item !== id)
-        : [...prev, id];
-
-      const pendingIds = filteredGallery
-        .filter((item) => item.status === "pending")
-        .map((item) => item.id);
-
-      if (updated.length !== pendingIds.length) {
-        setSelectAll(false);
-      } else {
-        setSelectAll(true);
-      }
-
-      return updated;
-    });
-  };
-
-  const handleAddToAdminGallery = async (item) => {
-    const confirm = await Swal.fire({
-      title: "Add to Admin Gallery?",
-      text: "This will copy the file into Admin Gallery.",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Add",
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    const res = await AddToAdminGallery(token, {
-      admin_id: adminId, // 👈 current admin ka ID
-      file_path: item.file_path,
-      file_type: item.file_type,
-      file_name: item.file_name,
-      file_size: item.file_size,
-      source_vendor_id: item.user?.id || vendorId,
-    });
-
-    if (res?.status) {
-      Swal.fire("Success", "Added to Admin Gallery", "success");
-    } else {
-      Swal.fire("Error", res?.msg || "Failed to add", "error");
-    }
-  };
-
-  const handleSelectAll = () => {
-    const pendingItems = filteredGallery
-      .filter((item) => item.status === "pending")
-      .map((item) => item.id);
-
-    if (selectAll) {
-      setSelectedItems([]);
-    } else {
-      setSelectedItems(pendingItems);
-    }
-
-    setSelectAll(!selectAll);
-  };
-
+  /** Approve / Reject Single Item */
   const handleSingleAction = async (action, id) => {
     let idsToProcess = [];
 
@@ -112,7 +54,7 @@ export default function VendorGallery() {
     }
 
     if (idsToProcess.length === 0) {
-      Swal.fire("Info", `No  image(s) to ${action}.`, "info");
+      Swal.fire("Info", `No image(s) to ${action}.`, "info");
       return;
     }
 
@@ -129,7 +71,7 @@ export default function VendorGallery() {
       idsToProcess,
       action,
       `${action}d by admin`,
-      1,
+      adminId,
       token
     );
 
@@ -142,6 +84,7 @@ export default function VendorGallery() {
     }
   };
 
+  /** Bulk Approve / Reject */
   const handleBulkAction = async (action) => {
     const selectedValidItems = gallery.filter(
       (item) => selectedItems.includes(item.id) && item.status === "pending"
@@ -165,7 +108,7 @@ export default function VendorGallery() {
       selectedValidItems.map((i) => i.id),
       action,
       `${action}d by admin`,
-      1,
+      adminId,
       token
     );
 
@@ -178,20 +121,121 @@ export default function VendorGallery() {
     }
   };
 
+  /** Add to Admin Gallery */
+  const handleAddToAdminGallery = async (item) => {
+    const confirm = await Swal.fire({
+      title: "Add to Admin Gallery?",
+      text: "This will copy the file into Admin Gallery.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Add",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    const res = await AddToAdminGallery(token, {
+      id: item.id,
+      admin_id: adminId,
+      file_path: item.file_path,
+      file_type: item.file_type,
+      file_name: item.file_name,
+      file_size: item.file_size,
+      source_vendor_id: item.user?.id || vendorId,
+    });
+
+    if (res?.status) {
+      Swal.fire("Success", "Added to Admin Gallery", "success");
+      fetchGallery();
+    } else {
+      Swal.fire("Error", res?.msg || "Failed to add", "error");
+    }
+  };
+
+  /** Remove from Admin Gallery */
+  const handleRemoveFromAdminGallery = async (item) => {
+    const confirm = await Swal.fire({
+      title: "Remove from Admin Gallery?",
+      text: "This will move it back to Vendor Gallery.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Remove",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const res = await RemoveGalleryItem(token, [item.id]);
+
+      if (res?.status) {
+        Swal.fire("Removed", "Item removed from Admin Gallery.", "success");
+        fetchGallery();
+      } else {
+        Swal.fire("Error", res?.msg || "Failed to remove", "error");
+      }
+    } catch (err) {
+      console.error("Remove error:", err);
+      Swal.fire("Error", "Something went wrong.", "error");
+    }
+  };
+
+  /** Select / Unselect All Pending */
+  const handleSelectAll = () => {
+    const pendingItems = filteredGallery
+      .filter((item) => item.status === "pending")
+      .map((item) => item.id);
+
+    if (selectAll) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(pendingItems);
+    }
+
+    setSelectAll(!selectAll);
+  };
+
+  /** Toggle single select */
+  const toggleSelect = (id) => {
+    setSelectedItems((prev) => {
+      const updated = prev.includes(id)
+        ? prev.filter((item) => item !== id)
+        : [...prev, id];
+
+      const pendingIds = filteredGallery
+        .filter((item) => item.status === "pending")
+        .map((item) => item.id);
+
+      if (updated.length !== pendingIds.length) {
+        setSelectAll(false);
+      } else {
+        setSelectAll(true);
+      }
+
+      return updated;
+    });
+  };
+
+  /** On Load */
   useEffect(() => {
     fetchGallery();
   }, [vendorId]);
 
+  /** Filter Gallery by Tab */
   const filteredGallery = gallery
-    .filter((item) =>
-      activeTab === "images"
-        ? item.file_type.startsWith("image")
-        : item.file_type.startsWith("video")
-    )
+    .filter((item) => {
+      if (activeTab === "images") {
+        return item.file_type.startsWith("image");
+      } else if (activeTab === "videos") {
+        return item.file_type.startsWith("video");
+      } else if (activeTab === "galleryAdded") {
+        return item.admin_remarks && item.admin_remarks.includes("source_vendor_id");
+      }
+      return true;
+    })
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   return (
     <div className="page-content">
+      {/* Header */}
       <div className="row align-items-center mb-3">
         <div className="col-md-6 mb-4">
           <div className="add-page-heading-div">
@@ -222,27 +266,36 @@ export default function VendorGallery() {
               Videos
             </button>
           </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "galleryAdded" ? "active" : ""}`}
+              onClick={() => setActiveTab("galleryAdded")}
+            >
+              Gallery Added
+            </button>
+          </li>
         </ul>
       </div>
 
-      {/* Select All */}
-      {filteredGallery.some((item) => item.status === "pending") && (
-        <div className="form-check mb-3">
-          <input
-            type="checkbox"
-            id="selectAll"
-            className="form-check-input"
-            checked={selectAll}
-            onChange={handleSelectAll}
-          />
-          <label htmlFor="selectAll" className="form-check-label">
-            Select All Pending
-          </label>
-        </div>
-      )}
+      {/* Select All (only images/videos) */}
+      {activeTab !== "galleryAdded" &&
+        filteredGallery.some((item) => item.status === "pending") && (
+          <div className="form-check mb-3">
+            <input
+              type="checkbox"
+              id="selectAll"
+              className="form-check-input"
+              checked={selectAll}
+              onChange={handleSelectAll}
+            />
+            <label htmlFor="selectAll" className="form-check-label">
+              Select All Pending
+            </label>
+          </div>
+        )}
 
-      {/* Bulk Actions */}
-      {selectedItems.length > 0 && (
+      {/* Bulk Buttons */}
+      {activeTab !== "galleryAdded" && selectedItems.length > 0 && (
         <div className="mb-3 d-flex gap-2">
           <button
             className="btn btn-success"
@@ -262,7 +315,9 @@ export default function VendorGallery() {
       {/* Gallery Grid */}
       <div className="card shadow-sm p-3 border-0 bg-light">
         {filteredGallery.length === 0 ? (
-          <p className="text-muted text-center my-4">No {activeTab} found.</p>
+          <p className="text-muted text-center my-4">
+            No {activeTab === "galleryAdded" ? "added" : activeTab} found.
+          </p>
         ) : (
           <div className="row">
             {filteredGallery.map((item) => (
@@ -271,7 +326,7 @@ export default function VendorGallery() {
                 key={item.id}
               >
                 <div className="card border-0 shadow-sm h-100 position-relative gallery-card">
-                  {/* Thumbnail */}
+                  {/* File */}
                   {item.file_type.startsWith("image") ? (
                     <img
                       src={item.file_path}
@@ -286,34 +341,22 @@ export default function VendorGallery() {
                       style={{ height: "200px", objectFit: "cover" }}
                     >
                       <source src={item.file_path} type="video/mp4" />
-                      Your browser does not support the video tag.
                     </video>
                   )}
 
-                  {/* Status Badge (top-right corner) */}
-                  {/* <span
-                  className={`position-absolute top-0 end-0 m-2 badge rounded-pill px-3 py-2 
-                    ${item.status === "approved" ? "bg-success" : 
-                      item.status === "rejected" ? "bg-danger" : "bg-warning text-dark"}`}
-                >
-                  {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                </span> */}
-
                   {/* Card Body */}
                   <div className="card-body text-center p-3">
-                    {/* Status heading instead of file name */}
                     <h6
                       className={`mb-1 fw-bold 
-                    ${
-                      item.status === "approved"
-                        ? "text-success"
-                        : item.status === "rejected"
-                        ? "text-danger"
-                        : "text-warning"
-                    }`}
+                        ${
+                          item.status === "approved"
+                            ? "text-success"
+                            : item.status === "rejected"
+                            ? "text-danger"
+                            : "text-warning"
+                        }`}
                     >
-                      {item.status.charAt(0).toUpperCase() +
-                        item.status.slice(1)}
+                      {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                     </h6>
 
                     <p className="text-muted small mb-2">
@@ -324,39 +367,38 @@ export default function VendorGallery() {
                       })}
                     </p>
 
-                    {/* Pending Controls */}
-                    {item.status === "pending" && !selectAll && (
-                      <>
-                        <div className="form-check d-flex justify-content-center mb-2">
-                          <input
-                            type="checkbox"
-                            className="form-check-input"
-                            checked={selectedItems.includes(item.id)}
-                            onChange={() => toggleSelect(item.id)}
-                          />
-                        </div>
-                        <div className="d-flex justify-content-center gap-2 flex-wrap">
-                          <button
-                            className="btn btn-sm btn-success"
-                            onClick={() =>
-                              handleSingleAction("approve", item.id)
-                            }
-                          >
-                            Approve
-                          </button>
-                          <button
-                            className="btn btn-sm btn-danger"
-                            onClick={() =>
-                              handleSingleAction("reject", item.id)
-                            }
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      </>
-                    )}
+                    {/* Pending Actions */}
+                    {activeTab !== "galleryAdded" &&
+                      item.status === "pending" &&
+                      !selectAll && (
+                        <>
+                          <div className="form-check d-flex justify-content-center mb-2">
+                            <input
+                              type="checkbox"
+                              className="form-check-input"
+                              checked={selectedItems.includes(item.id)}
+                              onChange={() => toggleSelect(item.id)}
+                            />
+                          </div>
+                          <div className="d-flex justify-content-center gap-2 flex-wrap">
+                            <button
+                              className="btn btn-sm btn-success"
+                              onClick={() => handleSingleAction("approve", item.id)}
+                            >
+                              Approve
+                            </button>
+                            <button
+                              className="btn btn-sm btn-danger"
+                              onClick={() => handleSingleAction("reject", item.id)}
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </>
+                      )}
 
-                    {item.status === "approved" && (
+                    {/* Add to Admin Gallery */}
+                    {activeTab !== "galleryAdded" && item.status === "approved" && (
                       <button
                         className="btn btn-sm btn-primary mt-2"
                         onClick={() => handleAddToAdminGallery(item)}
@@ -364,16 +406,16 @@ export default function VendorGallery() {
                         Add to Admin Gallery
                       </button>
                     )}
-                    {/* {item.status === "approved" && (
-                      <a
-                        className="btn btn-sm btn-outline-secondary mt-2 ms-2"
-                        href={`/admin/vendordetails?vendorId=${vendorId}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+
+                    {/* Remove from Admin Gallery */}
+                    {activeTab === "galleryAdded" && (
+                      <button
+                        className="btn btn-sm btn-danger mt-2"
+                        onClick={() => handleRemoveFromAdminGallery(item)}
                       >
-                        View Vendor
-                      </a>
-                    )} */}
+                        Remove from Admin Gallery
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

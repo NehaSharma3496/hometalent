@@ -108,7 +108,7 @@ const Registration = () => {
       label: (
         <>
           I accept{" "}
-          <Link to="/termscondition" target="_blank" rel="noopener noreferrer">
+          <Link to="/termscondition" target="_self" rel="noopener noreferrer">
             Terms & Conditions
           </Link>
           *

@@ -6872,3 +6872,30 @@ div#searchs ul li:not(:last-child) {
   color: #212529;
 }
 
+
+.custom-terms {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* font-size: 6px; */
+  color: #444;
+}
+
+.custom-terms input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #2278b6; /* modern browsers ke liye */
+  cursor: pointer;
+}
+
+.custom-terms label {
+  margin: 0;
+  cursor: pointer;
+}
+
+.custom-terms .terms-link {
+  color: #2278b6;
+  text-decoration: underline;
+}
+
+

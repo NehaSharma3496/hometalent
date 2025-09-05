@@ -279,26 +279,31 @@ const CategoryDetail = () => {
                       </div>
                     </div>
 
-                   <div className="tour-details-content mt-15">
-  <p className="detail-text">{vendors?.short_description}</p>
-</div>
+                    <div className="tour-details-content mt-15">
+                      <p className="detail-text">
+                        {vendors?.short_description}
+                      </p>
+                    </div>
 
-<div className="price-review ">
-  <div className="d-flex align-items-end">
-    <h3 className="title">Estimated Price Range -</h3>
-    <h3 className="title fw-bold">₹{vendors?.price_range}</h3>
-  </div>
-  <div className="rating">
-    <p className="detail-text">Experience Since -</p>
-    <p className="detail-text">{vendors?.experience_since}</p>
-  </div>
-</div>
+                    <div className="price-review ">
+                      <div className="d-flex align-items-end">
+                        <h3 className="title">Estimated Price Range -</h3>
+                        <h3 className="title fw-bold">
+                          ₹{vendors?.price_range}
+                        </h3>
+                      </div>
+                      <div className="rating">
+                        <p className="detail-text">Experience Since -</p>
+                        <p className="detail-text">
+                          {vendors?.experience_since}
+                        </p>
+                      </div>
+                    </div>
 
-<div className="tour-details-content mt-10">
-  <h4 className="title">About</h4>
-  <p className="detail-text">{vendors?.long_description}</p>
-</div>
-
+                    <div className="tour-details-content mt-10">
+                      <h4 className="title">About</h4>
+                      <p className="detail-text">{vendors?.long_description}</p>
+                    </div>
 
                     {/* GALLERY SECTION WITH TABS */}
                     {/* GALLERY SECTION WITH TABS */}
@@ -507,7 +512,8 @@ const CategoryDetail = () => {
                       </div>
                     )}
                   </div>
-
+                    
+                  {/* SIDEBAR - Lead Form & Review Form */}
                   {/* SIDEBAR - Lead Form & Review Form */}
                   <div className="col-xl-4 col-lg-5">
                     <div className="date-travel-card ">
@@ -576,13 +582,58 @@ const CategoryDetail = () => {
                         />
                       </div>
 
+                      {/* ✅ Terms & Conditions Checkbox */}
+                      <div className="custom-terms mt-3">
+                        <input
+                          type="checkbox"
+                          id="terms"
+                          checked={leadData.terms || false}
+                          onChange={(e) =>
+                            setLeadData((prev) => ({
+                              ...prev,
+                              terms: e.target.checked,
+                            }))
+                          }
+                        />
+                        <label htmlFor="terms">
+                          I agree to the{" "}
+                          <a
+                            href="/termscondition"
+                            target="_self"
+                            rel="noopener noreferrer"
+                            className="terms-link"
+                          >
+                            Terms and Conditions
+                          </a>{" "}
+                          and{" "}
+                          <a
+                            href="/privacypolicy"
+                            target="_self"
+                            rel="noopener noreferrer"
+                            className="terms-link"
+                          >
+                            Privacy Policy
+                          </a>
+                        </label>
+                      </div>
+
                       <div className="mt-30">
                         <button
                           type="button"
                           className="send-btn w-100"
-                          onClick={handleSubmit}
+                          onClick={() => {
+                            if (!leadData.terms) {
+                              Swal.fire({
+                                icon: "warning",
+                                title: "Terms Required",
+                                text: "Please agree to the Terms and Conditions before submitting.",
+                              });
+                              return;
+                            }
+                            handleSubmit();
+                          }}
                         >
-                          Check Availability
+                          Contact Vendor
                         </button>
                       </div>
                     </div>
