@@ -364,7 +364,7 @@ export default function VendorGallery() {
                         Add to Admin Gallery
                       </button>
                     )}
-                    {item.status === "approved" && (
+                    {/* {item.status === "approved" && (
                       <a
                         className="btn btn-sm btn-outline-secondary mt-2 ms-2"
                         href={`/admin/vendordetails?vendorId=${vendorId}`}
@@ -373,7 +373,7 @@ export default function VendorGallery() {
                       >
                         View Vendor
                       </a>
-                    )}
+                    )} */}
                   </div>
                 </div>
               </div>

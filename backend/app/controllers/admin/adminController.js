@@ -15,7 +15,7 @@ const {
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 const socketManager = require('../../socket/socketManager');
-const { Op, Sequelize,literal } = require('sequelize');
+const { Op, Sequelize,literal,fn, col, where } = require('sequelize');
 
 exports.listAllVendors = async (req, res) => {
   try {
@@ -957,13 +957,18 @@ exports.assignPackageToVendor = async (req, res) => {
     // Find latest running subscription
     const runningSub = await VendorPackageSubscription.findOne({
       where: {
-        vendor_id,
-        payment_status: 'completed',
-        end_date: { [Op.gte]: now }
-      },
+          vendor_id,
+          payment_status: "completed",
+          [Op.and]: [
+            where(fn("DATE", col("end_date")), {
+              [Op.gte]: fn("CURDATE") // compares only date
+            })
+          ]
+        },
       order: [['end_date', 'DESC']]
     });
-
+  console.log("runningSub", runningSub);
+  
     let startDate, endDate;
     let validityDays;
     if (pkg.validity_in_months && pkg.validity_in_months != undefined) {
@@ -1595,7 +1600,7 @@ exports.notifyExpiredPlans = async (req, res) => {
 exports.insertcategoryimages = async (req, res) => {
   try {
     const categories = await Category.findAll();
-    for (const category of categories) {
+    for (const category of categories){
       let image = `${baseUrl}/media/category/${category.name}`;
     }
     return res.json({ status: true, msg: "done" });
