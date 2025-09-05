@@ -2,6 +2,7 @@ const { User, Gallery, VendorPackageSubscription, Package, Notification } = requ
 const fs = require('fs');
 const path = require('path');
 const socketManager = require('../../socket/socketManager');
+const { Op } = require('sequelize');
 
 // Upload admin gallery files (no approval needed)
 exports.uploadAdminGalleryFiles = async (req, res) => {
@@ -252,23 +253,21 @@ exports.getAllGalleryRequests = async (req, res) => {
       ]
     });
 
-    const addedInfo = gallery.rows.map(item => {
-      let adminRemarks = null;
-      try {
-        adminRemarks = item.admin_remarks ? JSON.parse(item.admin_remarks) : null;
-      } catch (e) { /* ignore JSON parse error */ }
-      return {
-        ...item.toJSON(),
-        admin_remarks: adminRemarks
-      };
+   const addedgallery = await Gallery.findAndCountAll({
+      where: {
+        admin_remarks: {
+          [Op.like]: '%"source_vendor_id":%'
+        }
+      }
     });
 
-    console.log("Gallery fetched:", addedInfo);
-    
+ 
+    // return
     return res.json({ 
       status: true,  
       data: {
         gallery: gallery.rows,
+        addedgallery: addedgallery,
         total: gallery.count,
         current_page: parseInt(page),
         total_pages: Math.ceil(gallery.count / limit)
