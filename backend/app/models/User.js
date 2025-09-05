@@ -64,6 +64,10 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    category_name: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     experience_since: {
         type: DataTypes.STRING,
         allowNull: true,

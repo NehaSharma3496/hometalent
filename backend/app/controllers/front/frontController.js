@@ -131,13 +131,29 @@ exports.getVendorsByCategoryId = async (req, res) => {
     const allVendors = [...sponsoredVendors, ...shuffledNonSponsored];
 
     // Get all category names for each vendor
+    // for (const v of allVendors) {
+    //   const ids = (v.category_id || '').split(',').map(id => id.trim());
+    //   const categoryNames = await Category.findAll({
+    //     where: { id: ids },
+    //     attributes: ['id', 'name']
+    //   });
+    //   v.dataValues.category_names = categoryNames.map(c => c.name);
+    // }
+
     for (const v of allVendors) {
       const ids = (v.category_id || '').split(',').map(id => id.trim());
+
       const categoryNames = await Category.findAll({
         where: { id: ids },
         attributes: ['id', 'name']
       });
-      v.dataValues.category_names = categoryNames.map(c => c.name);
+
+      let names = categoryNames.map(c => c.name);
+
+      // If "Other" is present, replace it with v.category_name
+      names = names.map(name => name === "Other" ? v.category_name : name);
+
+      v.dataValues.category_names = names;
     }
 
     return res.json({ status: true, data: allVendors });

@@ -261,7 +261,6 @@ exports.getAllGalleryRequests = async (req, res) => {
       }
     });
 
- 
     // return
     return res.json({ 
       status: true,  
@@ -506,12 +505,12 @@ exports.getUserCompleteProfile = async (req, res) => {
 
 exports.uploadFromVendorToAdmin = async (req, res) => {
   try {
-    const { admin_id, file_path, file_type, file_name, file_size, source_vendor_id } = req.body;
+    const { id, admin_id, file_path, file_type, file_name, file_size, source_vendor_id } = req.body;
 
     if (!admin_id || !file_path || !file_type) {
       return res.status(400).json({ status: false, msg: "Missing required fields" });
     }
-
+  
     // Copy vendor's file into admin's gallery
     const galleryItem = await Gallery.create({
       user_id: admin_id,     // 👈 admin ka ID
@@ -522,6 +521,7 @@ exports.uploadFromVendorToAdmin = async (req, res) => {
       status: "approved",    // admin files auto-approved
       sort_order: 0,
       admin_remarks: source_vendor_id ? JSON.stringify({ source_vendor_id }) : null,
+      added_in_admin:id
     });
 
     return res.json({
@@ -537,17 +537,20 @@ exports.uploadFromVendorToAdmin = async (req, res) => {
 // Remove file from Admin Gallery
 exports.removeFromAdminGallery = async (req, res) => {
   try {
-    const { id, admin_id } = req.body;
+    const { id, added_in_admin } = req.body;
 
-    if (!id || !admin_id) {
-      return res.status(400).json({ status: false, msg: "Missing id or admin_id" });
+    if (!id || !added_in_admin) {
+      return res.status(400).json({ status: false, msg: "Missing id or added_in_admin" });
     }
-
+    
+    await Gallery.update(
+      { added_in_admin: null },
+      { where: { id: added_in_admin} }
+    );
     // Sirf admin ke gallery ka file delete karo
     const deleted = await Gallery.destroy({
       where: {
-        id: id,
-        user_id: admin_id,
+        id: id
       },
     });
 

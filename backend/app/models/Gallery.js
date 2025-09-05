@@ -62,6 +62,11 @@ const Gallery = sequelize.define('Gallery', {
         defaultValue: 0,
         comment: 'Order for displaying gallery items',
     },
+      added_in_admin: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        comment: 'If copied to admin gallery, store that gallery ID here',
+    },
 },
 {
     tableName: 'gallery',
