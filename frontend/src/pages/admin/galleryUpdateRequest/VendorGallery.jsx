@@ -72,6 +72,7 @@ export default function VendorGallery() {
       file_type: item.file_type,
       file_name: item.file_name,
       file_size: item.file_size,
+      source_vendor_id: item.user?.id || vendorId,
     });
 
     if (res?.status) {
@@ -362,6 +363,16 @@ export default function VendorGallery() {
                       >
                         Add to Admin Gallery
                       </button>
+                    )}
+                    {item.status === "approved" && (
+                      <a
+                        className="btn btn-sm btn-outline-secondary mt-2 ms-2"
+                        href={`/admin/vendordetails?vendorId=${vendorId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        View Vendor
+                      </a>
                     )}
                   </div>
                 </div>

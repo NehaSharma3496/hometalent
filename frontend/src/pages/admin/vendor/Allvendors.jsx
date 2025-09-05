@@ -5,6 +5,8 @@ import {
   GetVendoreList,
   GetApproveVendor,
   UpdateVendorStatus,
+  showPackage,
+  AssignPackageToVendor,
 } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
@@ -18,6 +20,10 @@ export default function Allvendors() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
+  const [pkgModalOpen, setPkgModalOpen] = useState(false);
+  const [pkgOptions, setPkgOptions] = useState([]);
+  const [selectedPkgId, setSelectedPkgId] = useState(null);
+  const [assignVendorId, setAssignVendorId] = useState(null);
 
   const fetchVendors = async (page, limit) => {
     setLoading(true);
@@ -70,6 +76,40 @@ export default function Allvendors() {
     fetchVendors(currentPage, perPage);
     fetchAllVendors();
   }, [currentPage, perPage]);
+
+  const openAssignPackage = async (vendorId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await showPackage(token, 1, 100);
+      const activePkgs = (res?.data || []).filter((p) => Number(p.status) === 1);
+      setPkgOptions(activePkgs);
+      setAssignVendorId(vendorId);
+      setSelectedPkgId(null);
+      setPkgModalOpen(true);
+    } catch (e) {
+      Swal.fire("Error", "Failed to load packages", "error");
+    }
+  };
+
+  const submitAssignPackage = async () => {
+    try {
+       setPkgModalOpen(false);
+      if (!assignVendorId || !selectedPkgId) {
+        return Swal.fire("Select Package", "Please select a package", "warning");
+      }
+      const token = localStorage.getItem("token");
+      const res = await AssignPackageToVendor(token, assignVendorId, selectedPkgId);
+      if (res?.status) {
+        await Swal.fire("Success", res.msg || "Package assigned", "success");
+        setPkgModalOpen(false);
+        fetchVendors(currentPage, perPage);
+      } else {
+        Swal.fire("Error", res?.msg || "Unable to assign package", "error");
+      }
+    } catch (e) {
+      Swal.fire("Error", e?.msg || e?.message || "Unable to assign package", "error");
+    }
+  };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -325,12 +365,21 @@ export default function Allvendors() {
               >
                 <i className="fa fa-edit"></i>
               </button>
+
+              <button
+                className="btn btn-success btn-sm d-flex align-items-center justify-content-center"
+                style={{ width: "35px", height: "35px" }}
+                onClick={() => openAssignPackage(row.id)}
+                title="Assign Package"
+              >
+                <i className="fa-solid fa-box"></i>
+              </button>
             </>
           )}
         </div>
       ),
 
-      width: "125px",
+      width: "160px",
     },
     {
       name: "Approval Status",
@@ -467,6 +516,46 @@ export default function Allvendors() {
           </div>
         </div>
       </div>
+
+      {pkgModalOpen && (
+        <div className="modal fade show" style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Assign Package</h5>
+                <button type="button" className="btn-close" onClick={() => setPkgModalOpen(false)} />
+              </div>
+              <div className="modal-body">
+                {pkgOptions.length === 0 ? (
+                  <p>No active packages found.</p>
+                ) : (
+                  <div className="list-group">
+                    {pkgOptions.map((p) => (
+                      <label key={p.id} className="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                          <input
+                            type="radio"
+                            name="assignPkg"
+                            className="form-check-input me-2"
+                            checked={selectedPkgId === p.id}
+                            onChange={() => setSelectedPkgId(p.id)}
+                          />
+                          <span className="fw-semibold">{p.name}</span>
+                          <div className="small text-muted">₹{p.price} • {p.validity_in_months ? `${p.validity_in_months} months` : (p.days ? `${p.days} days` : 'N/A')}</div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setPkgModalOpen(false)}>Close</button>
+                <button type="button" className="btn btn-primary" onClick={submitAssignPackage}>Assign</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

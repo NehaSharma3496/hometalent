@@ -42,9 +42,10 @@ exports.listAllVendors = async (req, res) => {
       ),
     ];
 
-    // Fetch category names
+    // Fetch category names (only numeric IDs)
+    const numericCategoryIds = categoryIds.filter((id) => !isNaN(id));
     const categories = await Category.findAll({
-      where: { id: categoryIds },
+      where: { id: numericCategoryIds },
       raw: true,
     });
 
@@ -53,13 +54,15 @@ exports.listAllVendors = async (req, res) => {
     );
 
     // Attach category names to each vendor
-    const enrichedVendors = vendors.map((v) => ({
-      ...v,
-      category_names: (v.category_id || "")
-        .split(",")
-        .map((id) => categoryMap[parseInt(id.trim())])
-        .filter(Boolean),
-    }));
+    const enrichedVendors = vendors.map((v) => {
+      const parts = (v.category_id || "").split(",").map((s) => s.trim()).filter(Boolean);
+      const names = parts.map((part) => {
+        if (part.startsWith("other:")) return part.slice(6);
+        const idNum = parseInt(part);
+        return categoryMap[idNum];
+      }).filter(Boolean);
+      return { ...v, category_names: names };
+    });
 
     const totalPages = Math.ceil(count / limit);
 
@@ -911,6 +914,102 @@ exports.deletePackage = async (req, res) => {
     res.json({ status: true, msg: "Package deleted" });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+// Admin assigns a package to a vendor without payment
+exports.assignPackageToVendor = async (req, res) => {
+  try {
+    const { vendor_id, package_id, admin_id } = req.body;
+
+    if (!vendor_id || !package_id) {
+      return res.status(400).json({ status: false, msg: 'vendor_id and package_id are required' });
+    }
+
+    const vendor = await User.findOne({ where: { id: vendor_id, role_id: 2 } });
+    if (!vendor) {
+      return res.status(404).json({ status: false, msg: 'Vendor not found' });
+    }
+
+    const pkg = await Package.findOne({ where: { id: package_id, status: 1 } });
+    if (!pkg) {
+      return res.status(404).json({ status: false, msg: 'Package not found or inactive' });
+    }
+
+    // Check if vendor is fresh (no completed subscriptions ever)
+    const completedCount = await VendorPackageSubscription.count({
+      where: { vendor_id, payment_status: 'completed' }
+    });
+     
+    
+    const isFreshVendor = completedCount === 0;
+    const isFreePackage = Number(pkg.price) === 0;
+    console.log("!isFreshVendor && isFreePackage", !isFreshVendor && isFreePackage);
+    
+    if (!isFreshVendor && isFreePackage) {
+      return res.json({
+        status: false,
+        msg: 'Fresh vendor can only be assigned the free trial package'
+      });
+    }
+
+    const now = new Date();
+    // Find latest running subscription
+    const runningSub = await VendorPackageSubscription.findOne({
+      where: {
+        vendor_id,
+        payment_status: 'completed',
+        end_date: { [Op.gte]: now }
+      },
+      order: [['end_date', 'DESC']]
+    });
+
+    let startDate, endDate;
+    let validityDays;
+    if (pkg.validity_in_months && pkg.validity_in_months != undefined) {
+      validityDays = pkg.validity_in_months * 30;
+    } else {
+      validityDays = pkg.days || 30;
+    }
+     console.log("runningSub", runningSub);
+    if (runningSub) {
+      startDate = new Date(runningSub.end_date);
+      startDate.setDate(startDate.getDate() + 1);
+    } else {
+      startDate = now;
+    }
+  
+    endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + validityDays - 1);
+
+    const subscription = await VendorPackageSubscription.create({
+      vendor_id,
+      package_id,
+      amount: pkg.price.toString(),
+      start_date: startDate,
+      end_date: endDate,
+      payment_status: 'completed',
+      payment_reference: 'manual_admin',
+      transaction_id: null,
+      payment_method: 'manual'
+    });
+
+    // Optional: notify via socket/notification
+    try {
+      socketManager.vendorSubscribed({ id: subscription.id, vendor_id, package_id }, pkg.name, vendor.owner_name || vendor.profile_name);
+      await Notification.create({
+        user_id: vendor_id,
+        user_type: 'vendor',
+        type: 'package_assigned',
+        title: 'Package Assigned',
+        message: `Admin assigned package ${pkg.name} to your account.`,
+        metadata: { subscription_id: subscription.id, package_id }
+      });
+    } catch (e) { /* ignore side-channel failures */ }
+
+    return res.json({ status: true, msg: 'Package assigned successfully', data: subscription });
+  } catch (error) {
+    return res.status(500).json({ status: false, msg: error.message });
   }
 };
 

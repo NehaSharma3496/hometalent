@@ -200,13 +200,13 @@ class SocketManager {
   vendorSubscribed(subscriptionData, planName, vendorName) {
     // Notify the vendor
     this.notifyVendor(subscriptionData.vendor_id, 'package_subscribed', {
-      message: 'Subscription successful',
+      message: `New Subscription:${planName} subscribed successfully`,
       subscription: subscriptionData
     });
 
     // Notify admins
     this.notifyAdmins('plan_subscribed', {
-      message: `New Subscription:${planName} plan subscribed by Vendor${vendorName}.`,
+      message: `New Subscription:${planName} plan subscribed by Vendor(${vendorName}).`,
       subscription: subscriptionData
     });
   }

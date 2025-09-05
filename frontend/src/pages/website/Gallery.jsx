@@ -80,9 +80,19 @@ const Gallery = () => {
                         cursor:
                           item.file_type === "image" ? "pointer" : "default",
                       }}
-                      onClick={() =>
-                        item.file_type === "image" && handleImageClick(i)
-                      }
+                      onClick={() => {
+                        // If admin stored source vendor inside admin_remarks, redirect to vendor profile on click
+                        try {
+                          if (item.admin_remarks) {
+                            const meta = JSON.parse(item.admin_remarks);
+                            if (meta?.source_vendor_id) {
+                              window.location.href = `/admin/vendordetails?vendorId=${meta.source_vendor_id}`;
+                              return;
+                            }
+                          }
+                        } catch (e) {}
+                        item.file_type === "image" && handleImageClick(i);
+                      }}
                     >
                       {item.file_type === "video" ? (
                         <video

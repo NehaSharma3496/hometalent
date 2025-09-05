@@ -29,6 +29,7 @@ const Registration = () => {
     priceRange: "",
     shortDesc: "",
     category: "",
+    otherCategory: "",
     experience: "",
     longDesc: "",
     facebook_link: "",
@@ -115,8 +116,16 @@ const Registration = () => {
       name: "category",
       label: "Category Select*",
       type: "select",
-      colClass: "col-md-4 mb-3",
-      options: categoryData,
+      colClass: "col-md-6 mb-3",
+      options: [...categoryData, { value: "other", label: "Other" }],
+    },
+    {
+      name: "otherCategory",
+      label: "Other Category Name",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+      showWhen: (values) => values.category === "other",
+      placeholder: "Enter category name",
     },
     {
       name: "experience",
@@ -204,7 +213,6 @@ const Registration = () => {
       formData.append("email", values.email);
       formData.append("price_range", values.priceRange);
       formData.append("short_description", values.shortDesc);
-      formData.append("category_id", values.category);
       formData.append("experience_since", values.experience);
       formData.append("long_description", values.longDesc);
       formData.append("role_id", 2);
@@ -217,6 +225,12 @@ const Registration = () => {
       formData.append("linkedin_link", values.linkedin_link || "");
       formData.append("youtube_link", values.youtube_link || "");
       formData.append("website_link", values.website_link || "");
+
+      if (values.category === "other") {
+        formData.append("other_category_name", values.otherCategory || "");
+      } else {
+        formData.append("category_id", values.category);
+      }
 
       if (values.image && values.image.length > 0) {
         formData.append("image", values.image[0]);

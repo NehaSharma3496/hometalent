@@ -494,7 +494,7 @@ exports.getUserCompleteProfile = async (req, res) => {
 
 exports.uploadFromVendorToAdmin = async (req, res) => {
   try {
-    const { admin_id, file_path, file_type, file_name, file_size } = req.body;
+    const { admin_id, file_path, file_type, file_name, file_size, source_vendor_id } = req.body;
 
     if (!admin_id || !file_path || !file_type) {
       return res.status(400).json({ status: false, msg: "Missing required fields" });
@@ -509,6 +509,7 @@ exports.uploadFromVendorToAdmin = async (req, res) => {
       file_size,
       status: "approved",    // admin files auto-approved
       sort_order: 0,
+      admin_remarks: source_vendor_id ? JSON.stringify({ source_vendor_id }) : null,
     });
 
     res.json({

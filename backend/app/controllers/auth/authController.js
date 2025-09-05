@@ -31,6 +31,7 @@ exports.createUser = async (req, res) => {
       price_range,
       short_description,
       category_id,
+      other_category_name,
       experience_since,
       long_description,
       facebook_link,
@@ -66,6 +67,9 @@ exports.createUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Resolve category: if other_category_name provided, use raw name marker (to be displayed later)
+    const resolvedCategoryId = other_category_name && !category_id ? `other:${other_category_name}` : category_id;
+
     // ✅ Create user
     const user = await User.create({
       owner_name,
@@ -77,7 +81,7 @@ exports.createUser = async (req, res) => {
       email,
       price_range,
       short_description,
-      category_id,
+      category_id: resolvedCategoryId,
       experience_since,
       long_description,
       facebook_link,
