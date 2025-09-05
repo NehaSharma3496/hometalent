@@ -151,7 +151,7 @@ const ReusableForm = ({ initialValues, validationSchema, onSubmit, fields, Submi
                   <div className={field.colClass || "col-12"}>
                     <div className="form-group">
                       {field.type !== "checkbox" && field.type !== "radio" && (
-                        <label htmlFor={field.name} className="contact-label mb-2">
+                        <label htmlFor={field.name} className="contact-label mb- fs-6 fw-semibold">
                           {field.label}
                         </label>
                       )}

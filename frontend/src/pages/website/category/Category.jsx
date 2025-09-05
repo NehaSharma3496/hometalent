@@ -245,13 +245,17 @@ const Category = () => {
                                 </div>
                               </div>
 
-                               <h4 className="area-name">
+                              <h1 className="area-name">
                                 <Link
                                   to="/categorydetail"
+                                  state={{
+                                    vendor: item,
+                                  }}
+                                  className="truncate-2-lines mb-3"
                                 >
                                   {item?.short_description}
                                 </Link>
-                              </h4>
+                              </h1>
 
                               <div className="cart-footer d-flex flex-wrap justify-content-between">
                                 <div className="d-flex gap-6 align-items-center">

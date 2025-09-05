@@ -79,20 +79,19 @@ const Registration = () => {
       label: "Category Select*",
       type: "select",
       colClass: "col-md-6 mb-3",
-    options: categoryData,
+      options: categoryData,
     },
-   {
-  name: "otherCategory",
-  label: "Other Category Name",
-  type: "text",
-  colClass: "col-md-6 mb-3",
-  showWhen: (values) => {
-    const selected = categoryData.find(cat => cat.value === values.category);
-    return selected?.label?.toLowerCase() === "other";
-  },
-  placeholder: "Enter category name",
-},
-
+    {
+      name: "otherCategory",
+      label: "Other Category Name",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+      showWhen: (values) => {
+        const selected = categoryData.find(cat => cat.value === values.category);
+        return selected?.label?.toLowerCase() === "others";
+      },
+      placeholder: "Enter category name",
+    },
     { name: "experience", label: "Experience Since", type: "text", colClass: "col-md-4 mb-3" },
     { name: "shortDesc", label: "Short Description", type: "text", colClass: "col-12 mb-3" },
     { name: "longDesc", label: "Large Description*", type: "textarea", colClass: "col-12 mb-3" },
@@ -134,9 +133,8 @@ const Registration = () => {
       formData.append("experience_since", values.experience);
       formData.append("long_description", values.longDesc);
       formData.append("role_id", 2);
-      formData.append("password", values.password);
-      formData.append("show_password", values.password);
 
+      // Social links
       formData.append("facebook_link", values.facebook_link || "");
       formData.append("instagram_link", values.instagram_link || "");
       formData.append("twitter_link", values.twitter_link || "");
@@ -144,12 +142,16 @@ const Registration = () => {
       formData.append("youtube_link", values.youtube_link || "");
       formData.append("website_link", values.website_link || "");
 
-      if (values.category === "other") {
+      // Category check based on label
+      const selectedCat = categoryData.find(cat => cat.value === values.category);
+
+      if (selectedCat?.label?.toLowerCase() === "others") {
         formData.append("category_name", values.otherCategory || "");
       } else {
         formData.append("category_id", values.category);
       }
 
+      // Image check
       if (values.image && values.image.length > 0) {
         formData.append("image", values.image[0]);
       }
@@ -242,9 +244,10 @@ const Registration = () => {
             </div>
           </div>
         </div>
-      </section>                            
+      </section>
     </div>
   );
 };
 
 export default Registration;
+  
