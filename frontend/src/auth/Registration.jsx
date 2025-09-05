@@ -9,7 +9,7 @@ import {
   GetStates,
   GetCities,
 } from "../Services/vendor/Vendor";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Registration = () => {
   const [categoryData, setCategoryData] = useState([]);
@@ -49,33 +49,18 @@ const Registration = () => {
     pin: Yup.string()
       .matches(/^\d{6}$/, "Pin code must be exactly 6 digits")
       .required("Pin Code is required"),
-
     phone: Yup.string()
       .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
       .required("Phone No is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
     category: Yup.string().required("Category is required"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
-    // experience: Yup.string().required("Experience Is required"),
-    // priceRange: Yup.string().required("Price Range is required"),
     longDesc: Yup.string().required("Large Description is required"),
-
   });
 
-  // 👇 Only define fields after categoryData is available
   const fields = [
-    {
-      name: "ownerName",
-      label: "Owner Name*",
-      type: "text",
-      colClass: "col-md-4 mb-3",
-    },
-    {
-      name: "profileName",
-      label: "Profile Name",
-      type: "text",
-      colClass: "col-md-4 mb-3",
-    },
+    { name: "ownerName", label: "Owner Name*", type: "text", colClass: "col-md-4 mb-3" },
+    { name: "profileName", label: "Profile Name", type: "text", colClass: "col-md-4 mb-3" },
     {
       name: "state",
       label: "State*",
@@ -84,126 +69,59 @@ const Registration = () => {
       onChange: (e) => setSelectedStateId(e.target.value),
       colClass: "col-md-4 mb-3",
     },
-    {
-      name: "city",
-      label: "City*",
-      type: "select",
-      options: cityData,
-      colClass: "col-md-4 mb-3",
-    },
-    {
-      name: "pin",
-      label: "Pin Code*",
-      type: "text",
-      colClass: "col-md-4 mb-3",
-      maxLength: 6,
-    },
-
-    {
-      name: "phone",
-      label: "Phone No*",
-      type: "text",
-      colClass: "col-md-4 mb-3",
-    },
+    { name: "city", label: "City*", type: "select", options: cityData, colClass: "col-md-4 mb-3" },
+    { name: "pin", label: "Pin Code*", type: "text", colClass: "col-md-4 mb-3", maxLength: 6 },
+    { name: "phone", label: "Phone No*", type: "text", colClass: "col-md-4 mb-3" },
     { name: "email", label: "Email*", type: "email", colClass: "col-md-4 mb-3" },
-    {
-      name: "priceRange",
-      label: "Estimated Price Range",
-      type: "text",
-      colClass: "col-md-4 mb-3",
-    },
+    { name: "priceRange", label: "Estimated Price Range", type: "text", colClass: "col-md-4 mb-3" },
     {
       name: "category",
       label: "Category Select*",
       type: "select",
       colClass: "col-md-6 mb-3",
-      options: [...categoryData],
-    },
-    {
-      name: "otherCategory",
-      label: "Other Category Name",
-      type: "text",
-      colClass: "col-md-6 mb-3",
-      showWhen: (values) => values.category === "other",
-      placeholder: "Enter category name",
-    },
-    {
-      name: "experience",
-      label: "Experience Since",
-      type: "text",
-      colClass: "col-md-4 mb-3",
-    },
-    {
-      name: "shortDesc",
-      label: "Short Description",
-      type: "text",
-      colClass: "col-12 mb-3",
-    },
-    {
-      name: "longDesc",
-      label: "Large Description*",
-      type: "textarea",
-      colClass: "col-12 mb-3",
-    },
-    {
-      name: "facebook_link",
-      label: "Facebook Link",
-      type: "text",
-      colClass: "col-md-6 mb-3",
-    },
-    {
-      name: "instagram_link",
-      label: "Instagram Link",
-      type: "text",
-      colClass: "col-md-6 mb-3",
-    },
-    {
-      name: "twitter_link",
-      label: "Twitter Link",
-      type: "text",
-      colClass: "col-md-6 mb-3",
-    },
-    {
-      name: "linkedin_link",
-      label: "LinkedIn Link",
-      type: "text",
-      colClass: "col-md-6 mb-3",
-    },
-    {
-      name: "youtube_link",
-      label: "YouTube Link",
-      type: "text",
-      colClass: "col-md-6 mb-3",
-    },
-    {
-      name: "website_link",
-      label: "Website Link",
-      type: "text",
-      colClass: "col-md-6 mb-3",
-    },
-    {
-      name: "image",
-      label: "Image",
-      type: "file",
-      colClass: "col-md-6 mb-3",
+    options: categoryData,
     },
    {
-  name: "terms",
-  label: (
-    <>
-      I accept <Link to="/termscondition" target="_blank" rel="noopener noreferrer">Terms & Conditions</Link>*
-    </>
-  ),
-  type: "checkbox",
-  colClass: "col-md-12 mb-3",
-}
+  name: "otherCategory",
+  label: "Other Category Name",
+  type: "text",
+  colClass: "col-md-6 mb-3",
+  showWhen: (values) => {
+    const selected = categoryData.find(cat => cat.value === values.category);
+    return selected?.label?.toLowerCase() === "other";
+  },
+  placeholder: "Enter category name",
+},
 
+    { name: "experience", label: "Experience Since", type: "text", colClass: "col-md-4 mb-3" },
+    { name: "shortDesc", label: "Short Description", type: "text", colClass: "col-12 mb-3" },
+    { name: "longDesc", label: "Large Description*", type: "textarea", colClass: "col-12 mb-3" },
+    { name: "facebook_link", label: "Facebook Link", type: "text", colClass: "col-md-6 mb-3" },
+    { name: "instagram_link", label: "Instagram Link", type: "text", colClass: "col-md-6 mb-3" },
+    { name: "twitter_link", label: "Twitter Link", type: "text", colClass: "col-md-6 mb-3" },
+    { name: "linkedin_link", label: "LinkedIn Link", type: "text", colClass: "col-md-6 mb-3" },
+    { name: "youtube_link", label: "YouTube Link", type: "text", colClass: "col-md-6 mb-3" },
+    { name: "website_link", label: "Website Link", type: "text", colClass: "col-md-6 mb-3" },
+    { name: "image", label: "Image", type: "file", colClass: "col-md-6 mb-3" },
+    {
+      name: "terms",
+      label: (
+        <>
+          I accept{" "}
+          <Link to="/termscondition" target="_blank" rel="noopener noreferrer">
+            Terms & Conditions
+          </Link>
+          *
+        </>
+      ),
+      type: "checkbox",
+      colClass: "col-md-12 mb-3",
+    },
   ];
 
   const onSubmit = async (values) => {
     try {
       const formData = new FormData();
-
       formData.append("owner_name", values.ownerName);
       formData.append("profile_name", values.profileName);
       formData.append("state_id", values.state);
@@ -227,7 +145,7 @@ const Registration = () => {
       formData.append("website_link", values.website_link || "");
 
       if (values.category === "other") {
-        formData.append("other_category_name", values.otherCategory || "");
+        formData.append("category_name", values.otherCategory || "");
       } else {
         formData.append("category_id", values.category);
       }
@@ -239,13 +157,11 @@ const Registration = () => {
       const res = await VendorRegister(formData);
 
       if (res?.data?.status) {
-        Swal.fire(
-          "Success",
-          "User registered! We will reach you soon on mail",
-          "success"
-        ).then(() => {
-          window.location.reload();
-        });
+        Swal.fire("Success", "User registered! We will reach you soon on mail", "success").then(
+          () => {
+            window.location.reload();
+          }
+        );
       } else {
         Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
       }
@@ -275,7 +191,6 @@ const Registration = () => {
   const fetchStates = async () => {
     try {
       const res = await GetStates();
-      // console.log("State", res.data);
       const stateformatted = res.data.map((cat) => ({
         value: cat.id.toString(),
         label: cat.name,
@@ -287,11 +202,9 @@ const Registration = () => {
   };
 
   const fetchCities = async () => {
-    if (!selectedStateId) return; // Skip if no state selected
-
+    if (!selectedStateId) return;
     try {
       const res = await GetCities(token, selectedStateId);
-      // console.log("City", res.data);
       const formatted = res.data.map((city) => ({
         value: city.id.toString(),
         label: city.name,
@@ -329,7 +242,7 @@ const Registration = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section>                            
     </div>
   );
 };

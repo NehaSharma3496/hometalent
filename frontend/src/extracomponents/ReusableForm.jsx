@@ -1,18 +1,11 @@
 import React from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage, FormikConsumer } from "formik";
 import Select from "react-select";
 
 const renderField = (field) => {
   switch (field.type) {
     case "textarea":
-      return (
-        <Field
-          as="textarea"
-          name={field.name}
-          placeholder={field.placeholder}
-          className="form-control contact-input"
-        />
-      );
+      return <Field as="textarea" name={field.name} placeholder={field.placeholder} className="form-control contact-input" />;
 
     case "select":
       return (
@@ -23,9 +16,7 @@ const renderField = (field) => {
               className="form-control contact-input"
               onChange={(e) => {
                 form.setFieldValue(field.name, e.target.value);
-                if (field.onChange) {
-                  field.onChange(e, form.setFieldValue);
-                }
+                if (field.onChange) field.onChange(e, form.setFieldValue);
               }}
             >
               <option value="">Select {field.label}</option>
@@ -49,14 +40,9 @@ const renderField = (field) => {
               options={field.options}
               className="basic-multi-select"
               classNamePrefix="select"
-              value={field.options.filter((option) =>
-                value.includes(option.value)
-              )}
+              value={field.options.filter((option) => value.includes(option.value))}
               onChange={(selectedOptions) =>
-                form.setFieldValue(
-                  field.name,
-                  selectedOptions.map((option) => option.value)
-                )
+                form.setFieldValue(field.name, selectedOptions.map((option) => option.value))
               }
               onBlur={() => form.setFieldTouched(field.name, true)}
             />
@@ -67,17 +53,8 @@ const renderField = (field) => {
     case "radio":
       return field.options?.map((option) => (
         <div key={option.value} className="form-check form-check-inline">
-          <Field
-            type="radio"
-            name={field.name}
-            value={option.value}
-            className="form-check-input"
-            id={`${field.name}-${option.value}`}
-          />
-          <label
-            className="form-check-label"
-            htmlFor={`${field.name}-${option.value}`}
-          >
+          <Field type="radio" name={field.name} value={option.value} className="form-check-input" id={`${field.name}-${option.value}`} />
+          <label className="form-check-label" htmlFor={`${field.name}-${option.value}`}>
             {option.label}
           </label>
         </div>
@@ -86,12 +63,7 @@ const renderField = (field) => {
     case "checkbox":
       return (
         <div className="form-check">
-          <Field
-            type="checkbox"
-            name={field.name}
-            className="form-check-input"
-            id={field.name}
-          />
+          <Field type="checkbox" name={field.name} className="form-check-input" id={field.name} />
           <label className="form-check-label" htmlFor={field.name}>
             {field.label}
           </label>
@@ -99,14 +71,7 @@ const renderField = (field) => {
       );
 
     case "email":
-      return (
-        <Field
-          type="email"
-          name={field.name}
-          className="form-control contact-input"
-          id={field.name}
-        />
-      );
+      return <Field type="email" name={field.name} className="form-control contact-input" id={field.name} />;
 
     case "password":
       return (
@@ -150,76 +115,63 @@ const renderField = (field) => {
   }
 };
 
-const ReusableForm = ({
-  initialValues,
-  validationSchema,
-  onSubmit,
-  fields,
-  SubmitBtn,
-}) => {
+const ReusableForm = ({ initialValues, validationSchema, onSubmit, fields, SubmitBtn }) => {
   return (
-    <Formik
-  initialValues={initialValues}
-  validationSchema={validationSchema}
-  onSubmit={onSubmit}
->
-  {({ handleSubmit, validateForm, setTouched }) => (
-    <Form
-      className="row main-form"
-      encType="multipart/form-data"
-      onSubmit={async (e) => {
-        e.preventDefault();
+    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+      {({ handleSubmit, validateForm, setTouched }) => (
+        <Form
+          className="row main-form"
+          encType="multipart/form-data"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const errors = await validateForm();
+            if (Object.keys(errors).length > 0) {
+              const touchedFields = {};
+              Object.keys(errors).forEach((key) => {
+                touchedFields[key] = true;
+              });
+              setTouched(touchedFields);
 
-        const errors = await validateForm();
+              setTimeout(() => {
+                const errorElement = document.querySelector(".is-invalid, .text-danger");
+                if (errorElement) {
+                  errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+              }, 100);
 
-        if (Object.keys(errors).length > 0) {
-          const touchedFields = {};
-          Object.keys(errors).forEach((key) => {
-            touchedFields[key] = true;
-          });
-          setTouched(touchedFields);
-
-          // Scroll to the first invalid field
-          setTimeout(() => {
-            const errorElement = document.querySelector(".is-invalid, .text-danger");
-            if (errorElement) {
-              errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+              return;
             }
-          }, 100);
+            handleSubmit(e);
+          }}
+        >
+          {fields.map((field) => (
+            <FormikConsumer key={field.name}>
+              {({ values }) =>
+                !field.showWhen || field.showWhen(values) ? (
+                  <div className={field.colClass || "col-12"}>
+                    <div className="form-group">
+                      {field.type !== "checkbox" && field.type !== "radio" && (
+                        <label htmlFor={field.name} className="contact-label mb-2">
+                          {field.label}
+                        </label>
+                      )}
+                      {renderField(field)}
+                      <ErrorMessage name={field.name} component="div" className="text-danger small" />
+                    </div>
+                  </div>
+                ) : null
+              }
+            </FormikConsumer>
+          ))}
 
-          return;
-        }
-
-        handleSubmit(e);
-      }}
-    >
-      {fields.map((field) => (
-        <div key={field.name} className={field.colClass || "col-12"}>
-          <div className="form-group">
-            {field.type !== "checkbox" && field.type !== "radio" && (
-              <label htmlFor={field.name} className="contact-label mb-2">
-                {field.label}
-              </label>
-            )}
-            {renderField(field)}
-            <ErrorMessage
-              name={field.name}
-              component="div"
-              className="text-danger small"
-            />
+          <div className="col-12">
+            <button type="submit" className="btn btn-primary mt-2">
+              {SubmitBtn ? SubmitBtn : "Submit"}
+            </button>
           </div>
-        </div>
-      ))}
-
-      <div className="col-12">
-        <button type="submit" className="btn btn-primary mt-2">
-          {SubmitBtn ? SubmitBtn : "Submit"}
-        </button>
-      </div>
-    </Form>
-  )}
-</Formik>
-
+        </Form>
+      )}
+    </Formik>
   );
 };
 
