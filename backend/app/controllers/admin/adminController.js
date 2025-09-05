@@ -967,7 +967,7 @@ exports.assignPackageToVendor = async (req, res) => {
         },
       order: [['end_date', 'DESC']]
     });
-  console.log("runningSub", runningSub);
+  // console.log("runningSub", runningSub);
   
     let startDate, endDate;
     let validityDays;
@@ -976,7 +976,7 @@ exports.assignPackageToVendor = async (req, res) => {
     } else {
       validityDays = pkg.days || 30;
     }
-     console.log("runningSub", runningSub);
+    //  console.log("runningSub", runningSub);
     if (runningSub) {
       startDate = new Date(runningSub.end_date);
       startDate.setDate(startDate.getDate() + 1);
