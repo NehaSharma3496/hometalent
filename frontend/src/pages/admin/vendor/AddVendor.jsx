@@ -28,6 +28,7 @@ export default function AddVendor() {
     priceRange: "",
     shortDesc: "",
     category: "",
+    otherCategory: "",
     experience: "",
     longDesc: "",
     facebook_link: "",
@@ -116,8 +117,16 @@ export default function AddVendor() {
       name: "category",
       label: "Category*",
       type: "select",
-      options: categoryData,
+      options: [...categoryData, { value: "other", label: "Other" }],
       colClass: "col-md-4 ",
+    },
+    {
+      name: "otherCategory",
+      label: "Other Category Name",
+      type: "text",
+      colClass: "col-md-4 ",
+      showWhen: (values) => values.category === "other",
+      placeholder: "Enter category name",
     },
     {
       name: "experience",
@@ -208,7 +217,6 @@ export default function AddVendor() {
       formData.append("price_range", values.priceRange);
       formData.append("short_description", values.shortDesc);
       formData.append("experience_since", values.experience);
-      formData.append("category_id", values.category);
       formData.append("long_description", values.longDesc);
       formData.append("role_id", 2);
       formData.append("facebook_link", values.facebook_link || "");
@@ -217,6 +225,12 @@ export default function AddVendor() {
       formData.append("linkedin_link", values.linkedin_link || "");
       formData.append("youtube_link", values.youtube_link || "");
       formData.append("website_link", values.website_link || "");
+
+      if (values.category === "other") {
+        formData.append("other_category_name", values.otherCategory || "");
+      } else {
+        formData.append("category_id", values.category);
+      }
 
       for (let i = 0; i < values.images.length; i++) {
         formData.append("image", values.images[i]);

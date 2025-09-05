@@ -363,6 +363,24 @@ export async function showPackage(token, page = 1, limit = 10) {
   }
 }
 
+export async function AssignPackageToVendor(token, vendorId, packageId) {
+  try {
+    const res = await axios.post(
+      `${Config.base_url}admin/package/assign`,
+      { vendor_id: vendorId, package_id: packageId },
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return res?.data;
+  } catch (err) {
+    return err?.response?.data || { status: false, msg: err.message };
+  }
+}
+
 // add packeges
 
 export async function CreatePackage(packageData, token) {

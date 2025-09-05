@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 
 import { paymentService } from "../../../Services/vendor/paymentService";
+// import { subscribeToPackage } from "../../../Services/vendor/Vendor";
 
 const VendorPackages = () => {
   const [packages, setPackages] = useState([]);
@@ -152,6 +153,7 @@ const VendorPackages = () => {
 
   const AddSubscribeplan = async (pkg) => {
     try {
+      alert('1')
       const confirm = await Swal.fire({
         title: "Are you sure?",
         text: `Subscribe to ${pkg.name} for ₹${pkg.price}?`,
@@ -161,21 +163,29 @@ const VendorPackages = () => {
       });
 
       if (!confirm.isConfirmed) return;
+      console.log('pkg.price',Number(pkg.price));
+      
+      // If price is 0, attempt free self-subscription (backend validates "fresh vendor" rule)
+      if (Number(pkg.price) === 0) {
+          alert('12')
+        const token = localStorage.getItem("token");
+        const res = await subscribeToPackage({ vendor_id: vendorId, package_id: pkg.id }, token);
+        console.log("res", res);
+        if (res?.status) {
+          await Swal.fire("Success", res?.msg || "Subscribed to free package", "success");
+          fetchSubscribedPackages();
+          return;
+        }else{
+           await Swal.fire("Error", res?.msg || "Something went wrong", "error");
+           return;
+        }
+        // if backend declines (not fresh), fallthrough to payment flow
+      }
 
-      const response = await paymentService.createPaymentOrder(
-        vendorId,
-        pkg.id
-      );
-      console.log("Order creation response:", response);
-
+      const response = await paymentService.createPaymentOrder(vendorId, pkg.id);
       if (response.status && response.data?.payment_url) {
         Swal.fire("Success", response.msg || "Success", "success");
-        navigate("/vendor/payment", {
-          state: {
-            orderData: response.data,
-            package: pkg,
-          },
-        });
+        navigate("/vendor/payment", { state: { orderData: response.data, package: pkg } });
       } else {
         Swal.fire("Error", response.msg || "Something went wrong.", "error");
       }

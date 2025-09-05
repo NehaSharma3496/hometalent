@@ -148,9 +148,9 @@ class SocketManager {
   // Package created notification
   packageCreated(packageData) {
     // Notify all vendors about new package
-    this.notifyAllVendors("new_package", {
-      message: "New package available",
-      package: packageData,
+    this.notifyAllVendors('new_package', {
+      message: 'New package available',
+      package: packageData
     });
 
     // Notify all admins
@@ -199,15 +199,15 @@ class SocketManager {
   // Vendor package subscription notification
   vendorSubscribed(subscriptionData, planName, vendorName) {
     // Notify the vendor
-    this.notifyVendor(subscriptionData.vendor_id, "package_subscribed", {
-      message: "Subscription successful",
-      subscription: subscriptionData,
+    this.notifyVendor(subscriptionData.vendor_id, 'package_subscribed', {
+      message: `New Subscription:${planName} subscribed successfully`,
+      subscription: subscriptionData
     });
 
     // Notify admins
-    this.notifyAdmins("plan_subscribed", {
-      message: `New Subscription:${planName} plan subscribed by Vendor${vendorName}.`,
-      subscription: subscriptionData,
+    this.notifyAdmins('plan_subscribed', {
+      message: `New Subscription:${planName} plan subscribed by Vendor(${vendorName}).`,
+      subscription: subscriptionData
     });
   }
 

@@ -303,7 +303,7 @@ exports.subscribePackage = async (req, res) => {
     });
 
     if (!vendor) {
-      return res.status(404).json({ 
+      return res.json({ 
         status: false, 
         msg: 'Vendor not found' 
       });
@@ -314,7 +314,7 @@ exports.subscribePackage = async (req, res) => {
     });
 
     if (!pkg) {
-      return res.status(404).json({ 
+      return res.json({ 
         status: false, 
         msg: 'Package not found or inactive' 
       });
@@ -331,20 +331,65 @@ exports.subscribePackage = async (req, res) => {
     });
 
     if (activeSubscription) {
-      return res.status(400).json({
+      return res.json({
         status: false,
         msg: 'Vendor already has an active subscription'
       });
     }
 
-    // Redirect to payment creation
-    // The actual payment will be handled by the payment controller
+    // Allow free package self-subscription only for fresh vendors
+    const completedCount = await VendorPackageSubscription.count({
+      where: { vendor_id, payment_status: 'completed' }
+    });
+    const isFreshVendor = completedCount === 0;
+    const isFreePackage = Number(pkg.price) === 0;
+
+    if (isFreshVendor && isFreePackage) {
+      const now = new Date();
+      let validityDays;
+      if (pkg.validity_in_months && pkg.validity_in_months != undefined) {
+        validityDays = pkg.validity_in_months * 30;
+      } else {
+        validityDays = pkg.days || 30;
+      }
+      const startDate = now;
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + validityDays - 1);
+
+      const subscription = await VendorPackageSubscription.create({
+        vendor_id,
+        package_id,
+        amount: pkg.price.toString(),
+        start_date: startDate,
+        end_date: endDate,
+        payment_status: 'completed',
+        payment_reference: 'free_trial',
+        transaction_id: null,
+        payment_method: 'manual'
+      });
+
+      try {
+        socketManager.vendorSubscribed({ id: subscription.id, vendor_id, package_id }, pkg.name, vendor.owner_name || vendor.profile_name);
+        await Notification.create({
+          user_id: vendor_id,
+          user_type: 'vendor',
+          type: 'package_assigned',
+          title: 'Free Package Subscribed',
+          message: `You have subscribed to free package ${pkg.name}.`,
+          metadata: { subscription_id: subscription.id, package_id }
+        });
+      } catch (e) { /* ignore */ }
+
+      return res.json({ status: true, msg: 'Free package subscribed successfully', data: subscription });
+    }
+
+    // Otherwise proceed with payment flow
     res.json({
       status: true,
       msg: 'Please proceed to payment to complete subscription',
       data: {
-      vendor_id,
-      package_id,
+        vendor_id,
+        package_id,
         package_name: pkg.name,
         amount: pkg.price,
         validity_months: pkg.validity_in_months,
