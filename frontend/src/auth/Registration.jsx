@@ -117,7 +117,7 @@ const Registration = () => {
       label: "Category Select*",
       type: "select",
       colClass: "col-md-6 mb-3",
-      options: [...categoryData, { value: "other", label: "Other" }],
+      options: [...categoryData],
     },
     {
       name: "otherCategory",

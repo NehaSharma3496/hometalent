@@ -117,7 +117,7 @@ export default function AddVendor() {
       name: "category",
       label: "Category*",
       type: "select",
-      options: [...categoryData, { value: "other", label: "Other" }],
+      options: [...categoryData],  
       colClass: "col-md-4 ",
     },
     {
