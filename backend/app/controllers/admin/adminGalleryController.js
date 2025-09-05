@@ -212,7 +212,7 @@ exports.getAllAdminGalleries = async (req, res) => {
       ]
     });
 
-    res.json({ 
+    return res.json({ 
       status: true, 
       data: {
         gallery: gallery.rows,
@@ -223,7 +223,7 @@ exports.getAllAdminGalleries = async (req, res) => {
     });
 
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -252,8 +252,21 @@ exports.getAllGalleryRequests = async (req, res) => {
       ]
     });
 
-    res.json({ 
-      status: true, 
+    const addedInfo = gallery.rows.map(item => {
+      let adminRemarks = null;
+      try {
+        adminRemarks = item.admin_remarks ? JSON.parse(item.admin_remarks) : null;
+      } catch (e) { /* ignore JSON parse error */ }
+      return {
+        ...item.toJSON(),
+        admin_remarks: adminRemarks
+      };
+    });
+
+    console.log("Gallery fetched:", addedInfo);
+    
+    return res.json({ 
+      status: true,  
       data: {
         gallery: gallery.rows,
         total: gallery.count,
@@ -263,7 +276,7 @@ exports.getAllGalleryRequests = async (req, res) => {
     });
 
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -512,7 +525,7 @@ exports.uploadFromVendorToAdmin = async (req, res) => {
       admin_remarks: source_vendor_id ? JSON.stringify({ source_vendor_id }) : null,
     });
 
-    res.json({
+    return res.json({
       status: true,
       msg: "File added to Admin Gallery successfully",
       data: galleryItem,

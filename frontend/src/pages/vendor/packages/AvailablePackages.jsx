@@ -153,7 +153,6 @@ const VendorPackages = () => {
 
   const AddSubscribeplan = async (pkg) => {
     try {
-      alert('1')
       const confirm = await Swal.fire({
         title: "Are you sure?",
         text: `Subscribe to ${pkg.name} for ₹${pkg.price}?`,
@@ -167,7 +166,6 @@ const VendorPackages = () => {
       
       // If price is 0, attempt free self-subscription (backend validates "fresh vendor" rule)
       if (Number(pkg.price) === 0) {
-          alert('12')
         const token = localStorage.getItem("token");
         const res = await subscribeToPackage({ vendor_id: vendorId, package_id: pkg.id }, token);
         console.log("res", res);
