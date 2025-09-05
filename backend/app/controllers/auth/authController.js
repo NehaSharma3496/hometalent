@@ -42,7 +42,7 @@ exports.createUser = async (req, res) => {
       website_link,
       role_id,
     } = req.body;
-
+  
     // ✅ Access image and video from req.files
     const imageFile = req.files?.image?.[0];
     const videoFile = req.files?.video?.[0];
