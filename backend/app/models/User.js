@@ -178,7 +178,7 @@ User.associate = (models) => {
     User.hasMany(models.Log, { foreignKey: 'user_id', as: 'userlog' });
 
     // User.hasMany(models.Order, { foreignKey: 'user_id' });
-    //User.belongsTo(models.Category, { foreignKey: 'category_id' });
+    User.belongsTo(models.Category, { foreignKey: 'category_id' });
     // User.hasMany(models.Product, { foreignKey: 'user_id' });
     // User.hasMany(models.Store, { foreignKey: 'user_id' });
     // User.hasMany(models.ActivityLogs, { foreignKey: 'user_id' });
