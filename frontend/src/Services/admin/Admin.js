@@ -323,18 +323,16 @@ export async function GetAllLeads(token, page = 1, limit = 10) {
 
 // delete Api
 
-export async function RemoveGalleryItem(token, id) {
+export async function RemoveGalleryItem(token, data) {
   try {
     let userId = localStorage.getItem("userId");
-    const response = await axios.delete(
-      `${Config.base_url}gallery/remove/${id}`,
+    const response = await axios.post(
+      `${Config.base_url}admin/gallery/remove`, data,
       {
         headers: {
           Authorization: `${token}`,
         },
-        data: {
-          user_id: userId,
-        },
+        // data: data,
       }
     );
 
