@@ -1,4 +1,4 @@
-const { User, Gallery, VendorPackageSubscription, Package, Notification } = require('../../models');
+const { User, Gallery, VendorPackageSubscription, Package, Notification, Category } = require('../../models');
 const fs = require('fs');
 const path = require('path');
 const socketManager = require('../../socket/socketManager');
@@ -427,7 +427,7 @@ exports.getUserCompleteProfile = async (req, res) => {
         msg: 'User not found' 
       });
     }
-    
+
       if (user && !user.category_name && user.Category) {
         user.dataValues.category_name = user.Category.name;
       }
