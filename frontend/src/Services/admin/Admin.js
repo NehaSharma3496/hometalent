@@ -766,3 +766,19 @@ export async function GetAdminGallery(token, userId) {
     return error;
   }
 }
+
+export async function GetVendorDetails(token, id) {
+  try {
+    const response = await axios.get(
+      `${Config.base_url}admin/user-profile/${id}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}

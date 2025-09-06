@@ -6,7 +6,7 @@ import {
   GetStateCity,
   SubmitReview,
 } from "../../../Services/webService/Web";
-import { GetGallery } from "../../../Services/vendor/Vendor";
+import { GetGallery, GetVendorDetails } from "../../../Services/vendor/Vendor";
 import Swal from "sweetalert2";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
@@ -15,14 +15,25 @@ const CategoryDetail = () => {
   const [galleryImages, setGalleryImages] = useState([]);
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState("images"); // 👈 Tabs state
+  const [activeTab, setActiveTab] = useState("images");
   const [showAllImages, setShowAllImages] = useState(false);
   const [showAllVideos, setShowAllVideos] = useState(false);
+  const [vendors, setVendors] = useState([]);
 
   const location = useLocation();
-  const vendor = location.state?.vendor?.id;
-  const vendors = location.state?.vendor;
-  const category = location.state?.category;
+  const vendorId = location.state?.vendorId;
+  const vendor = location.state?.vendor?.id || vendorId;
+
+  console.log("Vendors Data:", vendors);
+
+  useEffect(() => {
+    if (location.state?.vendor) {
+      setVendors(location?.state?.vendor);
+    } else if (vendorId) {
+      fetchVendorDetails();
+    }
+  }, [location.state?.vendor, vendorId]);
+
   const cityId = location.state?.vendor?.city_id;
   const [cityName, setCityName] = useState("");
   const imageSectionRef = React.useRef(null);
@@ -42,10 +53,7 @@ const CategoryDetail = () => {
         console.error("Error fetching city name", error);
       }
     };
-
-    if (cityId) {
-      fetchCityName();
-    }
+    if (cityId) fetchCityName();
   }, [cityId]);
 
   const [leadData, setLeadData] = useState({
@@ -70,6 +78,20 @@ const CategoryDetail = () => {
     setReviewData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const fetchVendorDetails = async () => {
+    if (vendorId) {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await GetVendorDetails(token, vendorId);
+        if (res?.status) {
+          setVendors(res?.data);
+        }
+      } catch (error) {
+        console.error("Error fetching vendor details:", error);
+      }
+    }
+  };
+
   const handleSubmitReview = async () => {
     if (!reviewData.name || !reviewData.message) {
       Swal.fire({
@@ -79,15 +101,12 @@ const CategoryDetail = () => {
       });
       return;
     }
-
     const payload = {
       ...reviewData,
       vendor_id: vendors?.id || "",
     };
-
     try {
       const res = await SubmitReview(payload);
-
       if (res?.status === true) {
         Swal.fire({
           icon: "success",
@@ -128,7 +147,6 @@ const CategoryDetail = () => {
       });
       return;
     }
-
     if (!/^\d{10}$/.test(leadData.phone)) {
       Swal.fire({
         icon: "error",
@@ -137,19 +155,17 @@ const CategoryDetail = () => {
       });
       return;
     }
-
     const payload = {
       ...leadData,
       vendor_id: vendors?.id || "",
     };
-
     try {
       const res = await SubmitLead(payload);
       if (res?.status === 200) {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Your Enquiry submitted successfully! ",
+          text: "Your Enquiry submitted successfully!",
         });
         setLeadData({ name: "", phone: "", email: "", query: "" });
       } else {
@@ -173,14 +189,12 @@ const CategoryDetail = () => {
     { label: vendors?.category_names, to: "#" },
   ];
 
-  // fetch gallery
   useEffect(() => {
     const fetchGalleryImages = async () => {
       if (vendor) {
         try {
           const token = localStorage.getItem("token");
           const res = await GetGallery(token, vendor);
-
           if (res?.status) {
             setGalleryImages(res?.data);
           }
@@ -189,14 +203,11 @@ const CategoryDetail = () => {
         }
       }
     };
-
     fetchGalleryImages();
   }, [vendor]);
 
-  // separate images & videos
   const imageItems = galleryImages.filter((item) => item.file_type === "image");
   const videoItems = galleryImages.filter((item) => item.file_type === "video");
-
   const imageSlides = imageItems.map((item) => ({ src: item.file_path }));
 
   const handleImageClick = (clickedIndex) => {
@@ -204,7 +215,6 @@ const CategoryDetail = () => {
     setOpen(true);
   };
 
-  // visible items with View More
   const visibleImages = showAllImages ? imageItems : imageItems.slice(0, 4);
   const visibleVideos = showAllVideos ? videoItems : videoItems.slice(0, 4);
 
@@ -229,7 +239,9 @@ const CategoryDetail = () => {
             <div className="container">
               <div className="mt-30">
                 <div className="row g-4">
+                  {/* Main Content */}
                   <div className="col-xl-8 col-lg-7">
+                    {/* Vendor Header */}
                     <div className="details-heading">
                       <div className="d-flex flex-column">
                         {location.state?.vendor?.image && (
@@ -252,12 +264,10 @@ const CategoryDetail = () => {
                             />
                           </div>
                         )}
-
                         <h4 className="title text-capitalize mt-4">
                           {location.state?.vendor?.owner_name ||
                             "Unknown Vendor"}
                         </h4>
-
                         <div className="d-flex flex-wrap align-items-center gap-20 mt-8">
                           <div className="location d-flex align-items-center ">
                             <i
@@ -268,7 +278,6 @@ const CategoryDetail = () => {
                               {cityName}
                             </div>
                           </div>
-
                           <div className="divider" />
                         </div>
                         <div>
@@ -279,12 +288,14 @@ const CategoryDetail = () => {
                       </div>
                     </div>
 
+                    {/* Description */}
                     <div className="tour-details-content mt-15">
                       <p className="detail-text">
                         {vendors?.short_description}
                       </p>
                     </div>
 
+                    {/* Price & Experience */}
                     <div className="price-review ">
                       <div className="d-flex align-items-end">
                         <h3 className="title">Estimated Price Range -</h3>
@@ -300,21 +311,19 @@ const CategoryDetail = () => {
                       </div>
                     </div>
 
+                    {/* About */}
                     <div className="tour-details-content mt-10">
                       <h4 className="title">About</h4>
                       <p className="detail-text">{vendors?.long_description}</p>
                     </div>
 
-                    {/* GALLERY SECTION WITH TABS */}
-                    {/* GALLERY SECTION WITH TABS */}
+                    {/* Gallery Section */}
                     {(imageItems.length > 0 || videoItems.length > 0) && (
                       <div
                         className="tour-details-content mt-4"
                         ref={imageSectionRef}
                       >
                         <h4 className="title mb-3">Gallery</h4>
-
-                        {/* Tabs - Agar sirf ek hi type ka content hai to ek hi tab show hoga */}
                         <div className="d-flex gap-3 mb-3">
                           {imageItems.length > 0 && (
                             <button
@@ -371,7 +380,6 @@ const CategoryDetail = () => {
                                 </div>
                               ))}
                             </div>
-
                             {imageItems.length > 4 && (
                               <div className="text-center mt-3">
                                 <button
@@ -429,7 +437,6 @@ const CategoryDetail = () => {
                                 </div>
                               ))}
                             </div>
-
                             {videoItems.length > 4 && (
                               <div className="text-center mt-3">
                                 <button
@@ -456,7 +463,6 @@ const CategoryDetail = () => {
                           </>
                         )}
 
-                        {/* Lightbox for Images */}
                         {open && (
                           <Lightbox
                             open={open}
@@ -468,17 +474,16 @@ const CategoryDetail = () => {
                       </div>
                     )}
 
+                    {/* Social Links */}
                     {availableLinks.length > 0 && (
                       <div className="tour-details-content mt-10">
                         <h4 className="title">Social Media & Links</h4>
-
                         <div className="d-flex flex-wrap">
                           {availableLinks.map(({ key, icon, color }) => {
                             const link = vendors?.[key];
                             const fullUrl = link.startsWith("http")
                               ? link
                               : `https://${link}`;
-
                             return (
                               <div key={key} className="me-3 mb-2">
                                 <a
@@ -512,14 +517,13 @@ const CategoryDetail = () => {
                       </div>
                     )}
                   </div>
-                    
-                  {/* SIDEBAR - Lead Form & Review Form */}
-                  {/* SIDEBAR - Lead Form & Review Form */}
+
+                  {/* Sidebar */}
                   <div className="col-xl-4 col-lg-5">
+                    {/* Lead Form */}
                     <div className="date-travel-card ">
                       <h4 className="heading-card">Get In Touch</h4>
-
-                      <div className="date-time-dropdown d-flex align-items-center gap  -2">
+                      <div className="date-time-dropdown d-flex align-items-center gap-2">
                         <i className="ri-user-line fs-8" />
                         <input
                           type="text"
@@ -538,7 +542,6 @@ const CategoryDetail = () => {
                           }}
                         />
                       </div>
-
                       <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
                         <i className="ri-phone-line fs-8" />
                         <input
@@ -557,7 +560,6 @@ const CategoryDetail = () => {
                           className="form-control form-control-m border-0 shadow-none"
                         />
                       </div>
-
                       <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
                         <i className="ri-mail-line fs-8" />
                         <input
@@ -569,7 +571,6 @@ const CategoryDetail = () => {
                           className="form-control form-control-m border-0 shadow-none"
                         />
                       </div>
-
                       <div className="date-time-dropdown d-flex align-items-start gap-2 mt-2">
                         <i className="ri-chat-3-line fs-8 mt-1" />
                         <textarea
@@ -581,8 +582,6 @@ const CategoryDetail = () => {
                           rows="3"
                         />
                       </div>
-
-                      {/* ✅ Terms & Conditions Checkbox */}
                       <div className="custom-terms mt-3">
                         <input
                           type="checkbox"
@@ -616,7 +615,6 @@ const CategoryDetail = () => {
                           </a>
                         </label>
                       </div>
-
                       <div className="mt-30">
                         <button
                           type="button"
@@ -638,9 +636,9 @@ const CategoryDetail = () => {
                       </div>
                     </div>
 
+                    {/* Review Form */}
                     <div className="date-travel-card mt-5">
                       <h4 className="heading-card">Your Review</h4>
-
                       <div className="date-time-dropdown d-flex align-items-center gap-2">
                         <i className="ri-user-line fs-8" />
                         <input
@@ -668,7 +666,6 @@ const CategoryDetail = () => {
                           rows="3"
                         />
                       </div>
-
                       <div className="mt-30">
                         <button
                           type="button"
@@ -680,6 +677,7 @@ const CategoryDetail = () => {
                       </div>
                     </div>
                   </div>
+                  {/* End Sidebar */}
                 </div>
               </div>
             </div>

@@ -3,11 +3,13 @@ import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Breadcrumbs from "../../components/websitecomponents/Breadcrumbs";
 import { GetAdminGallery } from "../../Services/webService/Web";
+import { useNavigate } from "react-router-dom";
 
 const Gallery = () => {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [gallery, setGallery] = useState([]);
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const userId = 1;
 
@@ -80,19 +82,26 @@ const Gallery = () => {
                         cursor:
                           item.file_type === "image" ? "pointer" : "default",
                       }}
-                      onClick={() => {
-                        // If admin stored source vendor inside admin_remarks, redirect to vendor profile on click
-                        try {
-                          if (item.admin_remarks) {
-                            const meta = JSON.parse(item.admin_remarks);
-                            if (meta?.source_vendor_id) {
-                              window.location.href = `/admin/vendordetails?vendorId=${meta.source_vendor_id}`;
-                              return;
-                            }
-                          }
-                        } catch (e) {}
-                        item.file_type === "image" && handleImageClick(i);
-                      }}
+                    onClick={() => {
+        try {
+          if (item.admin_remarks) {
+            const meta = JSON.parse(item.admin_remarks);
+            if (meta?.source_vendor_id) {
+              // ✅ Vendor ki ID pass ho rahi hai URL me
+              navigate(`/categorydetail/${meta.source_vendor_id}`, {
+                state: { vendorId: meta.source_vendor_id, meta }, // yahan state bhi bhej diya
+              });
+              return;
+            }
+          }
+        } catch (e) {
+          console.error("Error parsing admin_remarks:", e);
+        }
+
+        if (item.file_type === "image") {
+          handleImageClick(i);
+        }
+      }}
                     >
                       {item.file_type === "video" ? (
                         <video
