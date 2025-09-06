@@ -16,7 +16,7 @@ export default function VendorGallery() {
   const [selectAll, setSelectAll] = useState(false);
   const token = localStorage.getItem("token");
   const adminId = 1;
-
+  
   /** Fetch Vendor Gallery */
   const fetchGallery = async () => {
     try {
@@ -29,7 +29,9 @@ export default function VendorGallery() {
 
       if (res.status) {
         const all = res.data.gallery || [];
+        console.log("all gallery",all)
         const filtered = all.filter((g) => g.user?.id == vendorId);
+          console.log("all gallery ffffff",filtered)
         setGallery(filtered);
       }
     } catch (err) {
@@ -164,7 +166,8 @@ export default function VendorGallery() {
     if (!confirm.isConfirmed) return;
 
     try {
-      const res = await RemoveGalleryItem(token, [item.id]);
+      const data = { id: item.id, added_in_admin: item.added_in_admin };
+      const res = await RemoveGalleryItem(token, data);
 
       if (res?.status) {
         Swal.fire("Removed", "Item removed from Admin Gallery.", "success");
@@ -220,6 +223,7 @@ export default function VendorGallery() {
   }, [vendorId]);
 
   /** Filter Gallery by Tab */
+ 
   const filteredGallery = gallery
     .filter((item) => {
       if (activeTab === "images") {
@@ -227,7 +231,7 @@ export default function VendorGallery() {
       } else if (activeTab === "videos") {
         return item.file_type.startsWith("video");
       } else if (activeTab === "galleryAdded") {
-        return item.admin_remarks && item.admin_remarks.includes("source_vendor_id");
+        return item.added_in_admin != null;
       }
       return true;
     })
@@ -313,6 +317,8 @@ export default function VendorGallery() {
       )}
 
       {/* Gallery Grid */}
+    {console.log("filteredGallery",filteredGallery)}
+    
       <div className="card shadow-sm p-3 border-0 bg-light">
         {filteredGallery.length === 0 ? (
           <p className="text-muted text-center my-4">
@@ -398,8 +404,9 @@ export default function VendorGallery() {
                       )}
 
                     {/* Add to Admin Gallery */}
-                   
-                    {activeTab !== "galleryAdded" && item.status === "approved" && (
+                 
+
+                    {activeTab !== "galleryAdded" && item.status === "approved" && item.added_in_admin == null && (
                       <button
                         className="btn btn-sm btn-primary mt-2"
                         onClick={() => handleAddToAdminGallery(item)}
