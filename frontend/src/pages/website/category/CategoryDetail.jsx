@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Breadcrumbs from "../../../components/websitecomponents/Breadcrumbs";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import {
   SubmitLead,
   GetStateCity,
@@ -18,29 +18,100 @@ const CategoryDetail = () => {
   const [activeTab, setActiveTab] = useState("images");
   const [showAllImages, setShowAllImages] = useState(false);
   const [showAllVideos, setShowAllVideos] = useState(false);
-  const [vendors, setVendors] = useState([]);
+  const [vendors, setVendors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [cityName, setCityName] = useState("");
 
   const location = useLocation();
-  const vendorId = location.state?.vendorId;
-  const vendor = location.state?.vendor?.id || vendorId;
+  const params = useParams();
+  
+  // Get vendor ID from multiple possible sources
+  const vendorId = params.id || location.state?.vendorId || location.state?.vendor?.id;
+  
+  console.log("=== CategoryDetail Debug ===");
+  console.log("URL params:", params);
+  console.log("location.state:", location.state);
+  console.log("Computed vendorId:", vendorId);
 
-  console.log("Vendors Data:", vendors);
-
-  useEffect(() => {
-    if (location.state?.vendor) {
-      setVendors(location?.state?.vendor);
-    } else if (vendorId) {
-      fetchVendorDetails();
-    }
-  }, [location.state?.vendor, vendorId]);
-
-  const cityId = location.state?.vendor?.city_id;
-  const [cityName, setCityName] = useState("");
   const imageSectionRef = React.useRef(null);
 
+  // Fetch vendor details
+  const fetchVendorDetails = async (id) => {
+    if (!id) {
+      console.warn("No vendor ID provided to fetchVendorDetails");
+      return;
+    }
+
+    console.log("fetchVendorDetails called with ID:", id);
+    setIsLoading(true);
+    
+    try {
+      const token = localStorage.getItem("token");
+      console.log("Making API call to GetVendorDetails with token:", !!token);
+      
+      const res = await GetVendorDetails(token, id);
+      console.log("GetVendorDetails API response:", res);
+      
+      if (res?.status && res?.data) {
+        console.log("Setting vendors state with data:", res.data);
+        setVendors(res.data);
+      } else {
+        console.error("API returned invalid response:", res);
+        // Show error message to user
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to load vendor details. Please try again.",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching vendor details:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Something went wrong while loading vendor details.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Main useEffect for loading vendor data
+  useEffect(() => {
+    console.log("Main useEffect triggered with vendorId:", vendorId);
+    
+    // If vendor data is already in location.state, use it
+    if (location.state?.vendor && Object.keys(location.state.vendor).length > 0) {
+      console.log("Using vendor data from location.state");
+      setVendors(location.state.vendor);
+    } 
+    // Otherwise, fetch vendor details using the ID
+    else if (vendorId) {
+      console.log("Fetching vendor details for ID:", vendorId);
+      fetchVendorDetails(vendorId);
+    } 
+    else {
+      console.warn("No vendor data or ID found");
+      // Redirect to home or show error
+      Swal.fire({
+        icon: "warning",
+        title: "No Vendor Selected",
+        text: "Please select a vendor to view details.",
+      }).then(() => {
+        // Optionally redirect to vendors list
+        // navigate('/categories');
+      });
+    }
+  }, [vendorId, location.state?.vendor]);
+
+  // Fetch city name
   useEffect(() => {
     const fetchCityName = async () => {
+      const cityId = vendors?.city_id;
+      if (!cityId) return;
+
       try {
+        console.log("Fetching city name for cityId:", cityId);
         const res = await GetStateCity();
         if (res?.status && Array.isArray(res?.data)) {
           const citiesList = res.data.filter((c) => c.type === "city");
@@ -53,14 +124,44 @@ const CategoryDetail = () => {
         console.error("Error fetching city name", error);
       }
     };
-    if (cityId) fetchCityName();
-  }, [cityId]);
 
+    if (vendors?.city_id) {
+      fetchCityName();
+    }
+  }, [vendors?.city_id]);
+
+  // Fetch gallery images
+  useEffect(() => {
+    const fetchGalleryImages = async () => {
+      const vendorIdForGallery = vendors?.id || vendorId;
+      if (!vendorIdForGallery) return;
+
+      try {
+        console.log("Fetching gallery for vendor ID:", vendorIdForGallery);
+        const token = localStorage.getItem("token");
+        const res = await GetGallery(token, vendorIdForGallery);
+        console.log("Gallery API response:", res);
+        
+        if (res?.status && res?.data) {
+          setGalleryImages(res.data);
+        }
+      } catch (error) {
+        console.error("Gallery Fetch Error", error);
+      }
+    };
+
+    if (vendors?.id || vendorId) {
+      fetchGalleryImages();
+    }
+  }, [vendors?.id, vendorId]);
+
+  // Form states and handlers remain the same...
   const [leadData, setLeadData] = useState({
     name: "",
     phone: "",
     email: "",
     query: "",
+    terms: false,
   });
 
   const [reviewData, setReviewData] = useState({
@@ -78,20 +179,6 @@ const CategoryDetail = () => {
     setReviewData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const fetchVendorDetails = async () => {
-    if (vendorId) {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await GetVendorDetails(token, vendorId);
-        if (res?.status) {
-          setVendors(res?.data);
-        }
-      } catch (error) {
-        console.error("Error fetching vendor details:", error);
-      }
-    }
-  };
-
   const handleSubmitReview = async () => {
     if (!reviewData.name || !reviewData.message) {
       Swal.fire({
@@ -101,10 +188,12 @@ const CategoryDetail = () => {
       });
       return;
     }
+    
     const payload = {
       ...reviewData,
-      vendor_id: vendors?.id || "",
+      vendor_id: vendors?.id || vendorId,
     };
+    
     try {
       const res = await SubmitReview(payload);
       if (res?.status === true) {
@@ -134,12 +223,7 @@ const CategoryDetail = () => {
   };
 
   const handleSubmit = async () => {
-    if (
-      !leadData.name ||
-      !leadData.phone ||
-      !leadData.email ||
-      !leadData.query
-    ) {
+    if (!leadData.name || !leadData.phone || !leadData.email || !leadData.query) {
       Swal.fire({
         icon: "warning",
         title: "Missing Fields",
@@ -147,6 +231,7 @@ const CategoryDetail = () => {
       });
       return;
     }
+    
     if (!/^\d{10}$/.test(leadData.phone)) {
       Swal.fire({
         icon: "error",
@@ -155,10 +240,21 @@ const CategoryDetail = () => {
       });
       return;
     }
+    
+    if (!leadData.terms) {
+      Swal.fire({
+        icon: "warning",
+        title: "Terms Required",
+        text: "Please agree to the Terms and Conditions before submitting.",
+      });
+      return;
+    }
+
     const payload = {
       ...leadData,
-      vendor_id: vendors?.id || "",
+      vendor_id: vendors?.id || vendorId,
     };
+    
     try {
       const res = await SubmitLead(payload);
       if (res?.status === 200) {
@@ -167,7 +263,7 @@ const CategoryDetail = () => {
           title: "Success",
           text: "Your Enquiry submitted successfully!",
         });
-        setLeadData({ name: "", phone: "", email: "", query: "" });
+        setLeadData({ name: "", phone: "", email: "", query: "", terms: false });
       } else {
         Swal.fire({
           icon: "error",
@@ -184,28 +280,7 @@ const CategoryDetail = () => {
     }
   };
 
-  const breadcrumbLinks = [
-    { label: "Home", to: "/" },
-    { label: vendors?.category_names, to: "#" },
-  ];
-
-  useEffect(() => {
-    const fetchGalleryImages = async () => {
-      if (vendor) {
-        try {
-          const token = localStorage.getItem("token");
-          const res = await GetGallery(token, vendor);
-          if (res?.status) {
-            setGalleryImages(res?.data);
-          }
-        } catch (error) {
-          console.error("Gallery Fetch Error", error);
-        }
-      }
-    };
-    fetchGalleryImages();
-  }, [vendor]);
-
+  // Gallery handling
   const imageItems = galleryImages.filter((item) => item.file_type === "image");
   const videoItems = galleryImages.filter((item) => item.file_type === "video");
   const imageSlides = imageItems.map((item) => ({ src: item.file_path }));
@@ -218,6 +293,7 @@ const CategoryDetail = () => {
   const visibleImages = showAllImages ? imageItems : imageItems.slice(0, 4);
   const visibleVideos = showAllVideos ? videoItems : videoItems.slice(0, 4);
 
+  // Social links
   const socialLinks = [
     { key: "facebook_link", icon: "fab fa-facebook-f", color: "#1877f2" },
     { key: "instagram_link", icon: "fab fa-instagram", color: "#e4405f" },
@@ -230,9 +306,41 @@ const CategoryDetail = () => {
     (item) => vendors?.[item.key] && vendors[item.key].trim() !== ""
   );
 
+  const breadcrumbLinks = [
+    { label: "Home", to: "/" },
+    { label: vendors?.category_names || "Category", to: "#" },
+  ];
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <p className="ms-3">Loading vendor details...</p>
+      </div>
+    );
+  }
+
+  // Show error state if no vendor data
+  if (!vendors?.id && !isLoading) {
+    return (
+      <div className="container py-5">
+        <div className="text-center">
+          <h4>Vendor Not Found</h4>
+          <p>The requested vendor could not be found.</p>
+          <button className="btn btn-primary" onClick={() => window.history.back()}>
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <Breadcrumbs title={vendors?.category_names} links={breadcrumbLinks} />
+      <Breadcrumbs title={vendors?.category_names || "Category"} links={breadcrumbLinks} />
       <section className="tour-details-section section-padding">
         <div className="tour-details-area">
           <div className="tour-details-container">
@@ -241,10 +349,23 @@ const CategoryDetail = () => {
                 <div className="row g-4">
                   {/* Main Content */}
                   <div className="col-xl-8 col-lg-7">
+                    {/* Debug Info - Remove in production */}
+                    {process.env.NODE_ENV === 'development' && (
+                      <div className="alert alert-info">
+                        <h6>Debug Info:</h6>
+                        <p>Vendors ID: {vendors?.id || 'Not found'}</p>
+                        <p>Owner Name: {vendors?.owner_name || 'Not found'}</p>
+                        <p>Has Image: {vendors?.image ? 'Yes' : 'No'}</p>
+                        <p>City ID: {vendors?.city_id || 'Not found'}</p>
+                        <p>From Gallery: {location.state?.fromGallery ? 'Yes' : 'No'}</p>
+                        <p>URL Param ID: {params.id || 'None'}</p>
+                      </div>
+                    )}
+
                     {/* Vendor Header */}
                     <div className="details-heading">
                       <div className="d-flex flex-column">
-                        {location.state?.vendor?.image && (
+                        {vendors?.image && (
                           <div
                             style={{
                               width: "100%",
@@ -254,7 +375,7 @@ const CategoryDetail = () => {
                             }}
                           >
                             <img
-                              src={location.state.vendor.image}
+                              src={vendors.image}
                               alt="Vendor Image"
                               style={{
                                 width: "100%",
@@ -265,8 +386,7 @@ const CategoryDetail = () => {
                           </div>
                         )}
                         <h4 className="title text-capitalize mt-4">
-                          {location.state?.vendor?.owner_name ||
-                            "Unknown Vendor"}
+                          {vendors?.owner_name || "Unknown Vendor"}
                         </h4>
                         <div className="d-flex flex-wrap align-items-center gap-20 mt-8">
                           <div className="location d-flex align-items-center ">
@@ -275,14 +395,14 @@ const CategoryDetail = () => {
                               style={{ color: "#ff5e14" }}
                             />
                             <div className="name text-capitalize">
-                              {cityName}
+                              {cityName || "Unknown City"}
                             </div>
                           </div>
                           <div className="divider" />
                         </div>
                         <div>
                           <h4 className="title text-capitalize mt-2">
-                            {vendors?.category_names}
+                            {vendors?.category_names || "Category"}
                           </h4>
                         </div>
                       </div>
@@ -291,7 +411,7 @@ const CategoryDetail = () => {
                     {/* Description */}
                     <div className="tour-details-content mt-15">
                       <p className="detail-text">
-                        {vendors?.short_description}
+                        {vendors?.short_description || "No description available"}
                       </p>
                     </div>
 
@@ -300,13 +420,13 @@ const CategoryDetail = () => {
                       <div className="d-flex align-items-end">
                         <h3 className="title">Estimated Price Range -</h3>
                         <h3 className="title fw-bold">
-                          ₹{vendors?.price_range}
+                          ₹{vendors?.price_range || "Contact for price"}
                         </h3>
                       </div>
                       <div className="rating">
                         <p className="detail-text">Experience Since -</p>
                         <p className="detail-text">
-                          {vendors?.experience_since}
+                          {vendors?.experience_since || "Not specified"}
                         </p>
                       </div>
                     </div>
@@ -314,7 +434,7 @@ const CategoryDetail = () => {
                     {/* About */}
                     <div className="tour-details-content mt-10">
                       <h4 className="title">About</h4>
-                      <p className="detail-text">{vendors?.long_description}</p>
+                      <p className="detail-text">{vendors?.long_description || "No detailed description available"}</p>
                     </div>
 
                     {/* Gallery Section */}
@@ -334,7 +454,7 @@ const CategoryDetail = () => {
                               }`}
                               onClick={() => setActiveTab("images")}
                             >
-                              Images
+                              Images ({imageItems.length})
                             </button>
                           )}
                           {videoItems.length > 0 && (
@@ -346,7 +466,7 @@ const CategoryDetail = () => {
                               }`}
                               onClick={() => setActiveTab("videos")}
                             >
-                              Videos
+                              Videos ({videoItems.length})
                             </button>
                           )}
                         </div>
@@ -399,7 +519,9 @@ const CategoryDetail = () => {
                                     }
                                   }}
                                 >
-                                  {showAllImages ? "View Less" : "View All"}
+                                  {showAllImages 
+                                    ? "View Less" 
+                                    : `View All ${imageItems.length} Images`}
                                 </button>
                               </div>
                             )}
@@ -456,7 +578,9 @@ const CategoryDetail = () => {
                                     }
                                   }}
                                 >
-                                  {showAllVideos ? "View Less" : "View All"}
+                                  {showAllVideos 
+                                    ? "View Less" 
+                                    : `View All ${videoItems.length} Videos`}
                                 </button>
                               </div>
                             )}
@@ -619,17 +743,7 @@ const CategoryDetail = () => {
                         <button
                           type="button"
                           className="send-btn w-100"
-                          onClick={() => {
-                            if (!leadData.terms) {
-                              Swal.fire({
-                                icon: "warning",
-                                title: "Terms Required",
-                                text: "Please agree to the Terms and Conditions before submitting.",
-                              });
-                              return;
-                            }
-                            handleSubmit();
-                          }}
+                          onClick={handleSubmit}
                         >
                           Contact Vendor
                         </button>
@@ -647,12 +761,7 @@ const CategoryDetail = () => {
                           value={reviewData.name}
                           placeholder="Enter your name"
                           className="form-control form-control-m border-0 shadow-none"
-                          onChange={(e) =>
-                            setReviewData((prev) => ({
-                              ...prev,
-                              [e.target.name]: e.target.value,
-                            }))
-                          }
+                          onChange={handleReviewChange}
                         />
                       </div>
                       <div className="date-time-dropdown d-flex align-items-start gap-2 mt-2">

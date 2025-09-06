@@ -89,8 +89,12 @@ const Gallery = () => {
             if (meta?.source_vendor_id) {
               // ✅ Vendor ki ID pass ho rahi hai URL me
               navigate(`/categorydetail/${meta.source_vendor_id}`, {
-                state: { vendorId: meta.source_vendor_id, meta }, // yahan state bhi bhej diya
-              });
+  state: { 
+    vendorId: meta.source_vendor_id, 
+    fromGallery: true,
+    meta 
+  }
+});
               return;
             }
           }
