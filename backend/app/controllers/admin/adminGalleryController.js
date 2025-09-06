@@ -412,6 +412,11 @@ exports.getUserCompleteProfile = async (req, res) => {
           where: { status: 'approved' },
           required: false,
           order: [['sort_order', 'ASC'], ['createdAt', 'DESC']]
+        },
+        {
+          model: Category,
+          attributes: ['id', 'name'], // bring category name
+          required: false
         }
       ]
     });
@@ -422,8 +427,11 @@ exports.getUserCompleteProfile = async (req, res) => {
         msg: 'User not found' 
       });
     }
-
-    const now = new Date();
+    
+      if (user && !user.category_name && user.Category) {
+        user.dataValues.category_name = user.Category.name;
+      }
+          const now = new Date();
     const subscriptions = await VendorPackageSubscription.findAll({
       where: { vendor_id: user_id, payment_status: 'completed' },
       include: [

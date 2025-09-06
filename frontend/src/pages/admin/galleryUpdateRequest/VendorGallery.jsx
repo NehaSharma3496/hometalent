@@ -398,6 +398,7 @@ export default function VendorGallery() {
                       )}
 
                     {/* Add to Admin Gallery */}
+                   
                     {activeTab !== "galleryAdded" && item.status === "approved" && (
                       <button
                         className="btn btn-sm btn-primary mt-2"
