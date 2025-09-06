@@ -28,7 +28,6 @@ const Gallery = () => {
     fetchGallery();
   }, []);
 
-  // Lightbox only for images
   const imageSlides = gallery
     .filter((item) => item.file_type === "image")
     .map((item) => ({ src: item.file_path }));
@@ -82,30 +81,25 @@ const Gallery = () => {
                         cursor:
                           item.file_type === "image" ? "pointer" : "default",
                       }}
-                    onClick={() => {
-        try {
-          if (item.admin_remarks) {
-            const meta = JSON.parse(item.admin_remarks);
-            if (meta?.source_vendor_id) {
-              // ✅ Vendor ki ID pass ho rahi hai URL me
-              navigate(`/categorydetail/${meta.source_vendor_id}`, {
-  state: { 
-    vendorId: meta.source_vendor_id, 
-    fromGallery: true,
-    meta 
-  }
-});
-              return;
-            }
-          }
-        } catch (e) {
-          console.error("Error parsing admin_remarks:", e);
-        }
+                      onClick={() => {
+                        try {
+                          if (item.admin_remarks) {
+                            const meta = JSON.parse(item.admin_remarks);
+                            if (meta?.source_vendor_id) {
+                              navigate(`/categorydetail/${meta.source_vendor_id}`, {
+                                state: { vendorId: meta.source_vendor_id }, 
+                              });
+                              return;
+                            }
+                          }
+                        } catch (e) {
+                          console.error("Error parsing admin_remarks:", e);
+                        }
 
-        if (item.file_type === "image") {
-          handleImageClick(i);
-        }
-      }}
+                        if (item.file_type === "image") {
+                          handleImageClick(i);
+                        }
+                      }}
                     >
                       {item.file_type === "video" ? (
                         <video

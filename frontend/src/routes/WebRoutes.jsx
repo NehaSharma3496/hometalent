@@ -20,6 +20,7 @@ import ResetPassword from "../auth/ResetPassword";
 import Login from "../auth/Login";
 import Feedback from "../pages/website/Feedback";
 
+
 const WebRoutes = (
   <Route element={<MainLayout />}>
     <Route path="/" element={<Home />} />
@@ -37,10 +38,10 @@ const WebRoutes = (
     <Route path="/realwedding" element={<RealWedding />} />
     <Route path="/category/:categoryId" element={<Category />} />
     <Route path="/forgotpassword" element={<ForgotPassword />} />
-    <Route path="/reset-password/:token" element={<ResetPassword />} />
-    <Route path="/login" element={<Login />} />
-    <Route path="/feedback" element={<Feedback />} />
-    <Route path="/categorydetail/:id?" element={<CategoryDetail />} />
+    <Route path="/reset-password/:token" element={<ResetPassword/>} />
+    <Route path="/login" element={<Login/>}/>
+    <Route path="/feedback" element={<Feedback/>} />
+<Route path="/categorydetail/:id" element={<CategoryDetail />} />
   </Route>
 );
 

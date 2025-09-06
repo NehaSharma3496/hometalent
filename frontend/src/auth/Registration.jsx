@@ -56,6 +56,15 @@ const Registration = () => {
     category: Yup.string().required("Category is required"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
     longDesc: Yup.string().required("Large Description is required"),
+    otherCategory: Yup.string().when("category", {
+  is: (val) => {
+    const selected = categoryData.find(cat => cat.value === val);
+    return selected?.label?.toLowerCase() === "other";
+  },
+  then: (schema) => schema.required("Other Category Name is required"),
+  otherwise: (schema) => schema.notRequired(),
+}),
+
   });
 
   const fields = [
@@ -88,7 +97,7 @@ const Registration = () => {
       colClass: "col-md-6 mb-3",
       showWhen: (values) => {
         const selected = categoryData.find(cat => cat.value === values.category);
-        return selected?.label?.toLowerCase() === "others";
+        return selected?.label?.toLowerCase() === "other";
       },
       placeholder: "Enter category name",
     },
@@ -145,11 +154,13 @@ const Registration = () => {
       // Category check based on label
       const selectedCat = categoryData.find(cat => cat.value === values.category);
 
-      if (selectedCat?.label?.toLowerCase() === "others") {
-        formData.append("category_name", values.otherCategory || "");
-      } else {
-        formData.append("category_id", values.category);
-      }
+     if (selectedCat?.label?.toLowerCase() === "other") {
+  // always send category_id (backend requires not null)
+  formData.append("category_id", selectedCat.value);  
+  formData.append("category_name", values.otherCategory || "");
+} else {
+  formData.append("category_id", values.category);
+}
 
       // Image check
       if (values.image && values.image.length > 0) {

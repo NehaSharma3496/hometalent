@@ -117,15 +117,20 @@ export default function AddVendor() {
       name: "category",
       label: "Category*",
       type: "select",
-      options: [...categoryData],  
+      options: [...categoryData],
       colClass: "col-md-4 ",
     },
     {
       name: "otherCategory",
       label: "Other Category Name",
       type: "text",
-      colClass: "col-md-4 ",
-      showWhen: (values) => values.category === "other",
+      colClass: "col-md-6 mb-3",
+      showWhen: (values) => {
+        const selected = categoryData.find(
+          (cat) => cat.value === values.category
+        );
+        return selected?.label?.toLowerCase() === "other";
+      },
       placeholder: "Enter category name",
     },
     {
@@ -226,8 +231,14 @@ export default function AddVendor() {
       formData.append("youtube_link", values.youtube_link || "");
       formData.append("website_link", values.website_link || "");
 
-      if (values.category === "other") {
-        formData.append("other_category_name", values.otherCategory || "");
+      const selectedCat = categoryData.find(
+        (cat) => cat.value === values.category
+      );
+
+      if (selectedCat?.label?.toLowerCase() === "other") {
+        // always send category_id (backend requires not null)
+        formData.append("category_id", selectedCat.value);
+        formData.append("category_name", values.otherCategory || "");
       } else {
         formData.append("category_id", values.category);
       }
