@@ -953,7 +953,7 @@ exports.assignPackageToVendor = async (req, res) => {
     if (!isFreshVendor && isFreePackage) {
       return res.json({
         status: false,
-        msg: 'Fresh vendor can only be assigned the free trial package'
+        msg: 'Plan already assigned to this vendor'
       });
     }
 
