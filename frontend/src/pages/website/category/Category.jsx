@@ -196,17 +196,17 @@ const Category = () => {
                         <div className="col-xl-4 col-lg-4 col-sm-6" key={index}>
                           <div className="hotel-card">
                             <div className="hotel-img imgEffect4">
-                            <Link
-  to="/categorydetail"
-  state={{
-    vendorId: item.id, // ✅ ab pura vendor object nahi bhej rahe
-  }}
->
-  <img
-    src={item.image || "/default-vendor.jpg"}
-    alt={item.owner_name}
-/>
-</Link>
+                              <Link
+                                to="/categorydetail"
+                                state={{
+                                  vendorId: item.id, 
+                                }}
+                              >
+                                <img
+                                  src={item.image || "/default-vendor.jpg"}
+                                  alt={item.owner_name}
+                                />
+                              </Link>
 
                               {/* <div className="rating-badge-car">
                                 <div className="rating">
@@ -224,7 +224,6 @@ const Category = () => {
                                 <Link
                                   to="/categorydetail"
                                   state={{ vendor: item }}
-
                                 >
                                   {item.owner_name}
                                 </Link>
@@ -247,9 +246,7 @@ const Category = () => {
                               <h1 className="area-name">
                                 <Link
                                   to="/categorydetail"
-                                state={{ vendorId: item.id }}
-
-
+                                  state={{ vendorId: item.id }}
                                   className="truncate-2-lines mb-3"
                                 >
                                   {item?.short_description}
@@ -267,9 +264,9 @@ const Category = () => {
                                 </div>
                                 <Link
                                   to="/categorydetail"
-                                        state={{
-                                          vendorId: item.id,
-                                        }}
+                                  state={{
+                                    vendorId: item.id,
+                                  }}
                                   className="browse-btn"
                                 >
                                   View Details

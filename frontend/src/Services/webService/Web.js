@@ -121,3 +121,12 @@ export async function SubmitFeedback(data) {
     return error;
   }
 }
+
+export async function VerifyOtp(data) {
+  try {
+    const response = await axios.post(`${Config.base_url}admin/sendotp`, data);
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}

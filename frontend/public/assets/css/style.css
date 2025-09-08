@@ -6907,3 +6907,24 @@ div#searchs ul li:not(:last-child) {
   cursor: pointer;
 }
 
+
+@media (max-width: 576px) {
+
+  .curcle-Redius{
+    font-size: 18px;
+    
+    padding: 10px 10px;
+  }
+}
+
+
+@media (max-width: 576px) {
+
+  .hamburger{
+    display: none;
+  }
+  .showing-result{
+    justify-content: start !important;
+  }
+}
+

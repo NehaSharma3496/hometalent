@@ -80,30 +80,30 @@ const navigate=useNavigate();
                   <h6 className="title ms-2 fs-4">Who We Serve</h6>
                   <p className="pera mt-0">
                     <ul class="feature-points">
-                      <li class="feature-point">
-                        <div class="tick-icon">
-                          <i class="ri-check-line"></i>
+                      <li className="feature-point">
+                        <div className="tick-icon">
+                          <i className="ri-check-line curcle-Redius"></i>
                         </div>
-                        <p class="pera mt-0">
+                        <p className="pera mt-0">
                           Makers & Creators: Individuals who craft, bake, sew,
                           build, or create from home.
                         </p>
                       </li>
-                      <li class="feature-point">
-                        <div class="tick-icon">
-                          <i class="ri-check-line"></i>
+                      <li className="feature-point">
+                        <div className="tick-icon">
+                          <i className="ri-check-line curcle-Redius"></i>
                         </div>
-                        <p class="pera mt-0">
+                        <p className="pera mt-0">
                           Service Providers: Tutors, therapists, consultants,
                           and anyone offering a skill or service remotely or
                           locally.
                         </p>
                       </li>
-                      <li class="feature-point">
-                        <div class="tick-icon">
-                          <i class="ri-check-line"></i>
+                      <li className="feature-point">
+                        <div className="tick-icon">
+                          <i className="ri-check-line curcle-Redius"></i>
                         </div>
-                        <p class="pera mt-0">
+                        <p className="pera mt-0">
                           Customers: Shoppers and clients who value unique,
                           handmade goods and personalized services, and want to
                           support local talent.
@@ -117,36 +117,36 @@ const navigate=useNavigate();
 </h6>
                 <p className="pera mt-0">
                   <ul class="feature-points">
-                    <li class="feature-point">
-                      <div class="tick-icon">
-                        <i class="ri-check-line"></i>
+                    <li className="feature-point">
+                      <div className="tick-icon">
+                        <i className="ri-check-line curcle-Redius"></i>
                       </div>
-                      <p class="pera mt-0">
+                      <p className="pera mt-0">
                        Empowerment: We empower home-based entrepreneurs to reach new markets and realize their dreams.
 
                       </p>
                     </li>
-                    <li class="feature-point">
-                      <div class="tick-icon">
-                        <i class="ri-check-line"></i>
+                    <li className="feature-point">
+                      <div className="tick-icon">
+                        <i className="ri-check-line curcle-Redius"></i>
                       </div>
-                      <p class="pera mt-0">
+                      <p className="pera mt-0">
                         Community: We believe in the power of local connections and supporting small businesses.
                       </p>
                     </li>
-                    <li class="feature-point">
-                      <div class="tick-icon">
-                        <i class="ri-check-line"></i>
+                    <li className="feature-point">
+                      <div className="tick-icon">
+                        <i className="ri-check-line curcle-Redius"></i>
                       </div>
-                      <p class="pera mt-0">
+                      <p className="pera mt-0">
                         Trust: We foster a transparent, safe, and supportive environment for both sellers and buyers.
                       </p>
                     </li>
-                     <li class="feature-point">
-                      <div class="tick-icon">
-                        <i class="ri-check-line"></i>
+                     <li className="feature-point">
+                      <div className="tick-icon">
+                        <i className="ri-check-line curcle-Redius"></i>
                       </div>
-                      <p class="pera mt-0">
+                      <p className="pera mt-0">
                         Quality: We celebrate the craftsmanship and dedication behind every product and service showcased on our platform
                       </p>
                     </li>

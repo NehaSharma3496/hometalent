@@ -234,14 +234,14 @@ const Home = () => {
                           style={{ width: "100%" }}
                           ref={dropdownRef}
                         >
-                        <input
-  type="text"
-  className="form-control custom-input-select cursor-pointer"
-  placeholder="Search City"
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-  onFocus={() => setShowDropdown(true)}
-/>
+                          <input
+                            type="text"
+                            className="form-control custom-input-select cursor-pointer"
+                            placeholder="Search City"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            onFocus={() => setShowDropdown(true)}
+                          />
 
                           {showDropdown && (
                             <div
@@ -259,7 +259,7 @@ const Home = () => {
                                 className="list-unstyled"
                                 style={{ columnCount: 3 }}
                               >
-                                {groupedFilteredData(statecity, search).map(
+                                {groupedFilteredData(statecity, search)?.map(
                                   (group) => (
                                     <li key={`group-${group.state.id}`}>
                                       <h6 className="text-danger mb-1 mt-2">
@@ -292,22 +292,25 @@ const Home = () => {
 
                       <div className="col-xl-5 col-lg-12">
                         <div className="destination-flex">
-                        <select
-  className="form-select custom-input-select"
-  value={selectedCategory}
-  onChange={(e) => setSelectedCategory(e.target.value)}
->
-  <option value="">Select Category</option>
-  {Array.isArray(categories) &&
-    categories?.map((cat) => {
-      const categoryId = cat.id || cat._id || cat.categoryId;
-      return (
-        <option key={categoryId} value={categoryId}>
-          {cat.name}
-        </option>
-      );
-    })}
-</select>
+                          <select
+                            className="form-select custom-input-select"
+                            value={selectedCategory}
+                            onChange={(e) =>
+                              setSelectedCategory(e.target.value)
+                            }
+                          >
+                            <option value="">Select Category</option>
+                            {Array.isArray(categories) &&
+                              categories?.map((cat) => {
+                                const categoryId =
+                                  cat.id || cat._id || cat.categoryId;
+                                return (
+                                  <option key={categoryId} value={categoryId}>
+                                    {cat.name}
+                                  </option>
+                                );
+                              })}
+                          </select>
                         </div>
                       </div>
                       <div className="col-xl-2 col-lg-3">
@@ -558,12 +561,12 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="news-area section-padding2" ref={blogSectionRef}>
+      <section className="news-area section-padding2 mt-4" ref={blogSectionRef}>
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-7">
               <div className="section-title text-center mx-605 mx-auto position-relative mb-60">
-                <h4 className="blue-title pb-2">Blog & Articles</h4>
+                <h4 className="blue-title pb-2 mt-4">Blog & Articles</h4>
                 <span className="highlights">
                   At HomeTalent4U, we share tips, stories, and insights to help
                   you grow your creativity into success.
@@ -576,7 +579,7 @@ const Home = () => {
             {(showAllBlog ? blogdata : blogdata?.slice(0, 3))?.map(
               (item, index) => (
                 <div
-                  className="col-xl-4 col-lg-4 col-sm-6"
+                  className="col-xl-4 col-lg-4 col-sm-6 pb-3"
                   key={item.id || item._id || index}
                 >
                   <article className="news-card-two">

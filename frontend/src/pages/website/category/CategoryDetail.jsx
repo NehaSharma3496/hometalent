@@ -6,7 +6,7 @@ import {
   GetStateCity,
   SubmitReview,
 } from "../../../Services/webService/Web";
-import { GetGallery,GetVendorDetails } from "../../../Services/vendor/Vendor";
+import { GetGallery, GetVendorDetails } from "../../../Services/vendor/Vendor";
 import Swal from "sweetalert2";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
@@ -15,7 +15,7 @@ const CategoryDetail = () => {
   const [galleryImages, setGalleryImages] = useState([]);
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState("images"); 
+  const [activeTab, setActiveTab] = useState("images");
   const [showAllImages, setShowAllImages] = useState(false);
   const [showAllVideos, setShowAllVideos] = useState(false);
 
@@ -25,44 +25,42 @@ const CategoryDetail = () => {
   const imageSectionRef = React.useRef(null);
   const [vendorData, setVendorData] = useState(null);
 
-
   const fetchVendorDetails = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await GetVendorDetails(token, vendorId);
-        setVendorData(res?.data);
-      } catch (error) {
-        console.error("Vendor details fetch error", error);
-      }
-    };
-  
+    try {
+      const token = localStorage.getItem("token");
+      const res = await GetVendorDetails(token, vendorId);
+      setVendorData(res?.data);
+    } catch (error) {
+      console.error("Vendor details fetch error", error);
+    }
+  };
+
   useEffect(() => {
-  fetchVendorDetails();
+    fetchVendorDetails();
   }, [vendorId]);
 
   console.log("Vendor Data:", vendorData);
 
- useEffect(() => {
-  const fetchCityName = async () => {
-    try {
-      const res = await GetStateCity();
-      if (res?.status && Array.isArray(res?.data)) {
-        const citiesList = res.data.filter((c) => c.type === "city");
-        const matchedCity = citiesList.find(
-          (city) => String(city.id) === String(vendorData?.user?.city_id)
-        );
-        setCityName(matchedCity?.name || "");
+  useEffect(() => {
+    const fetchCityName = async () => {
+      try {
+        const res = await GetStateCity();
+        if (res?.status && Array.isArray(res?.data)) {
+          const citiesList = res.data.filter((c) => c.type === "city");
+          const matchedCity = citiesList.find(
+            (city) => String(city.id) === String(vendorData?.user?.city_id)
+          );
+          setCityName(matchedCity?.name || "");
+        }
+      } catch (error) {
+        console.error("Error fetching city name", error);
       }
-    } catch (error) {
-      console.error("Error fetching city name", error);
+    };
+
+    if (vendorData?.user?.city_id) {
+      fetchCityName();
     }
-  };
-
-  if (vendorData?.user?.city_id) {
-    fetchCityName();
-  }
-}, [vendorData]);
-
+  }, [vendorData]);
 
   const [leadData, setLeadData] = useState({
     name: "",
@@ -189,7 +187,7 @@ const CategoryDetail = () => {
     { label: vendorData?.user?.category_name, to: "#" },
   ];
 
- useEffect(() => {
+  useEffect(() => {
     const fetchGalleryImages = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -234,7 +232,10 @@ const CategoryDetail = () => {
 
   return (
     <div>
-      <Breadcrumbs title={vendorData?.user?.category_name} links={breadcrumbLinks} />
+      <Breadcrumbs
+        title={vendorData?.user?.category_name}
+        links={breadcrumbLinks}
+      />
       <section className="tour-details-section section-padding">
         <div className="tour-details-area">
           <div className="tour-details-container">
@@ -266,7 +267,7 @@ const CategoryDetail = () => {
                         )}
 
                         <h4 className="title text-capitalize mt-4">
-                          {vendorData?.user?.owner_name }
+                          {vendorData?.user?.owner_name}
                         </h4>
 
                         <div className="d-flex flex-wrap align-items-center gap-20 mt-8">
@@ -300,20 +301,24 @@ const CategoryDetail = () => {
                       <div className="d-flex align-items-end">
                         <h3 className="title">Estimated Price Range -</h3>
                         <h3 className="title fw-bold">
-                          ₹{vendorData?.user?.price_range}
+                          {vendorData?.user?.price_range
+                            ? `₹${vendorData.user.price_range}`
+                            : "Please contact for price"}
                         </h3>
                       </div>
                       <div className="rating">
                         <p className="detail-text">Experience Since -</p>
                         <p className="detail-text">
-                          {vendorData?.user?.experience_since}
+                          {vendorData?.user?.experience_since || "N/A"}
                         </p>
                       </div>
                     </div>
 
                     <div className="tour-details-content mt-10">
                       <h4 className="title">About</h4>
-                      <p className="detail-text">{vendorData?.user?.long_description}</p>
+                      <p className="detail-text">
+                        {vendorData?.user?.long_description}
+                      </p>
                     </div>
 
                     {/* GALLERY SECTION WITH TABS */}
@@ -523,7 +528,7 @@ const CategoryDetail = () => {
                       </div>
                     )}
                   </div>
-                    
+
                   {/* SIDEBAR - Lead Form & Review Form */}
                   {/* SIDEBAR - Lead Form & Review Form */}
                   <div className="col-xl-4 col-lg-5">

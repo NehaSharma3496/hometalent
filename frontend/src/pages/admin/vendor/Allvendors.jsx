@@ -81,7 +81,9 @@ export default function Allvendors() {
     try {
       const token = localStorage.getItem("token");
       const res = await showPackage(token, 1, 100);
-      const activePkgs = (res?.data || []).filter((p) => Number(p.status) === 1);
+      const activePkgs = (res?.data || []).filter(
+        (p) => Number(p.status) === 1
+      );
       setPkgOptions(activePkgs);
       setAssignVendorId(vendorId);
       setSelectedPkgId(null);
@@ -93,12 +95,20 @@ export default function Allvendors() {
 
   const submitAssignPackage = async () => {
     try {
-       setPkgModalOpen(false);
+      setPkgModalOpen(false);
       if (!assignVendorId || !selectedPkgId) {
-        return Swal.fire("Select Package", "Please select a package", "warning");
+        return Swal.fire(
+          "Select Package",
+          "Please select a package",
+          "warning"
+        );
       }
       const token = localStorage.getItem("token");
-      const res = await AssignPackageToVendor(token, assignVendorId, selectedPkgId);
+      const res = await AssignPackageToVendor(
+        token,
+        assignVendorId,
+        selectedPkgId
+      );
       if (res?.status) {
         await Swal.fire("Success", res.msg || "Package assigned", "success");
         setPkgModalOpen(false);
@@ -107,7 +117,11 @@ export default function Allvendors() {
         Swal.fire("Error", res?.msg || "Unable to assign package", "error");
       }
     } catch (e) {
-      Swal.fire("Error", e?.msg || e?.message || "Unable to assign package", "error");
+      Swal.fire(
+        "Error",
+        e?.msg || e?.message || "Unable to assign package",
+        "error"
+      );
     }
   };
 
@@ -518,12 +532,19 @@ export default function Allvendors() {
       </div>
 
       {pkgModalOpen && (
-        <div className="modal fade show" style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }}>
+        <div
+          className="modal fade show"
+          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+        >
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Assign Package</h5>
-                <button type="button" className="btn-close" onClick={() => setPkgModalOpen(false)} />
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setPkgModalOpen(false)}
+                />
               </div>
               <div className="modal-body">
                 {pkgOptions.length === 0 ? (
@@ -531,7 +552,10 @@ export default function Allvendors() {
                 ) : (
                   <div className="list-group">
                     {pkgOptions.map((p) => (
-                      <label key={p.id} className="list-group-item d-flex justify-content-between align-items-center">
+                      <label
+                        key={p.id}
+                        className="list-group-item d-flex justify-content-between align-items-center fs-6"
+                      >
                         <div>
                           <input
                             type="radio"
@@ -540,8 +564,15 @@ export default function Allvendors() {
                             checked={selectedPkgId === p.id}
                             onChange={() => setSelectedPkgId(p.id)}
                           />
-                          <span className="fw-semibold">{p.name}</span>
-                          <div className="small text-muted">₹{p.price} • {p.validity_in_months ? `${p.validity_in_months} months` : (p.days ? `${p.days} days` : 'N/A')}</div>
+                          <span className="fw-semibold fs-6">{p.name}</span>
+                          <div className="small text-muted fs-6">
+                            ₹{p.price} •{" "}
+                            {p.validity_in_months
+                              ? `${p.validity_in_months} months`
+                              : p.days
+                              ? `${p.days} days`
+                              : "N/A"}
+                          </div>
                         </div>
                       </label>
                     ))}
@@ -549,8 +580,20 @@ export default function Allvendors() {
                 )}
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setPkgModalOpen(false)}>Close</button>
-                <button type="button" className="btn btn-primary" onClick={submitAssignPackage}>Assign</button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setPkgModalOpen(false)}
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={submitAssignPackage}
+                >
+                  Assign
+                </button>
               </div>
             </div>
           </div>
