@@ -88,7 +88,7 @@ const Registration = () => {
   }) => {
     const handlePhoneChange = (e) => {
       const cleaned = e.target.value.replace(/\D/g, "").slice(0, 10);
-      setFieldValue("phone", cleaned); // Formik controls the value
+      setFieldValue("phone", cleaned); 
       setPhoneVerificationState((prev) => ({
         ...prev,
         isVerified: false,
@@ -223,12 +223,10 @@ const Registration = () => {
       colClass: "col-md-4 mb-3",
       maxLength: 6,
     },
-    // Custom phone field with verification
-    // In fields array
     {
       name: "phone",
       label: "Phone No*",
-      type: "custom",
+      type: "text",
       colClass: "col-md-4 mb-3",
       customComponent: (props) => (
         <PhoneVerificationComponent
@@ -238,7 +236,6 @@ const Registration = () => {
         />
       ),
     },
-
     {
       name: "email",
       label: "Email*",
