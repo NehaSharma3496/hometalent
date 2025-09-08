@@ -15,6 +15,7 @@ const {
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 const socketManager = require('../../socket/socketManager');
+const fetch = require("node-fetch");
 const { Op, Sequelize,literal,fn, col, where } = require('sequelize');
 
 exports.listAllVendors = async (req, res) => {
@@ -1634,5 +1635,33 @@ exports.getAllFeedBack = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+function generateOtp() {
+  return Math.floor(1000 + Math.random() * 9000); // ensures 4 digits
+}
+
+exports.sendotp = async (req, res) => {
+  try {
+    let otp = generateOtp();
+    const message = `Cegano Technology: Your OTP is ${otp}. Please enter this code to complete your login or signup. Do not share this code with anyone.`;
+    const url = new URL("http://smsjust.com/sms/user/urlsms.php");
+    url.search = new URLSearchParams({
+      username: "hometalent",
+      pass: "$4J@K2pj",
+      senderid: "CEGANO",
+      message: message,
+      dest_mobileno: req.phone,
+      msgtype: "TXT",
+      response: "Y",
+      dlttempid: "1707175612278037393"
+    });
+
+    const response = await fetch(url);
+    const text = await response.text();
+    return res.json({ status: true, msg: "otp send successfully", otp: otp });
+  } catch (error) {
+    return res.status(500).json({ status: false, msg: error.message });
   }
 };

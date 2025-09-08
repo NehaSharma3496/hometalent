@@ -80,6 +80,7 @@ router.post('/packageextendhistory', adminController.packageextendhistory)
 
 //feedback route
 router.get('/feedback', adminController.getAllFeedBack);
+router.post('/sendotp', adminController.sendotp);
 
 
 module.exports = router;
