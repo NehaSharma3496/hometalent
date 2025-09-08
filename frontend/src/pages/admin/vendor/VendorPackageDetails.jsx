@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { getVendorPackageHistory } from "../../../Services/vendor/Vendor";
-import { GetExtendPackageHistory, ExtendPackage } from "../../../Services/admin/Admin";
+import {
+  GetExtendPackageHistory,
+  ExtendPackage,
+} from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import { Link, useLocation } from "react-router-dom";
 import * as XLSX from "xlsx";
@@ -22,8 +25,6 @@ export default function VendorPackageDetails() {
 
   const [historyPage, setHistoryPage] = useState(1);
   const [historyPerPage, setHistoryPerPage] = useState(5);
-
-
 
   const token = localStorage.getItem("token");
   const location = useLocation();
@@ -65,7 +66,6 @@ export default function VendorPackageDetails() {
     }
   };
 
-
   const fetchExtensionHistory = async () => {
     try {
       const res = await GetExtendPackageHistory(token, { vendor_id: vendorId });
@@ -77,7 +77,6 @@ export default function VendorPackageDetails() {
       console.error("Failed to fetch extension history", err);
     }
   };
-
 
   // 📌 Fetch all data for search + export
   const fetchAllPackagesForSearch = async () => {
@@ -93,7 +92,12 @@ export default function VendorPackageDetails() {
       const totalPages = Math.ceil(res.pagination.total_records / limit);
 
       for (page = 2; page <= totalPages; page++) {
-        const more = await getVendorPackageHistory(token, vendorId, page, limit);
+        const more = await getVendorPackageHistory(
+          token,
+          vendorId,
+          page,
+          limit
+        );
         if (more?.data?.length) {
           all = [...all, ...more.data];
         }
@@ -111,23 +115,24 @@ export default function VendorPackageDetails() {
     }
   };
 
-// 📌 Fetch extension history aur map banate waqt
-const fetchExtensionMap = async () => {
-  try {
-    const res = await GetExtendPackageHistory(token, { vendor_id: vendorId });
-    if (res?.status) {
-      const map = {};
-      res.data.forEach((item) => {
-        if (item.request_id) {
-          map[item.request_id] = (map[item.request_id] || 0) + parseInt(item.details || 0);
-        }
-      });
-      setExtensionMap(map);
+  // 📌 Fetch extension history aur map banate waqt
+  const fetchExtensionMap = async () => {
+    try {
+      const res = await GetExtendPackageHistory(token, { vendor_id: vendorId });
+      if (res?.status) {
+        const map = {};
+        res.data.forEach((item) => {
+          if (item.request_id) {
+            map[item.request_id] =
+              (map[item.request_id] || 0) + parseInt(item.details || 0);
+          }
+        });
+        setExtensionMap(map);
+      }
+    } catch (err) {
+      console.error("Extension fetch error:", err);
     }
-  } catch (err) {
-    console.error("Extension fetch error:", err);
-  }
-};
+  };
 
   // 📌 Extend package
   const handleExtendPackage = async (row) => {
@@ -137,15 +142,23 @@ const fetchExtensionMap = async () => {
 
     const currentEndDate = new Date(row.end_date);
     const selectedDate = new Date(extendDays);
-    const extraDays = Math.ceil((selectedDate - currentEndDate) / (1000 * 60 * 60 * 24));
+    const extraDays = Math.ceil(
+      (selectedDate - currentEndDate) / (1000 * 60 * 60 * 24)
+    );
 
     if (isNaN(extraDays) || extraDays <= 0) {
-      return Swal.fire("Invalid", "Select a date after current end date.", "warning");
+      return Swal.fire(
+        "Invalid",
+        "Select a date after current end date.",
+        "warning"
+      );
     }
 
     const confirm = await Swal.fire({
       title: "Are you sure?",
-      html: `Extend <b>${row?.Package?.name}</b> by <strong>${extraDays} day(s)</strong> until <strong>${selectedDate.toLocaleDateString(
+      html: `Extend <b>${
+        row?.Package?.name
+      }</b> by <strong>${extraDays} day(s)</strong> until <strong>${selectedDate.toLocaleDateString(
         "en-IN"
       )}</strong>?`,
       icon: "question",
@@ -166,7 +179,7 @@ const fetchExtensionMap = async () => {
         setExtendDays("");
         fetchPaginatedPackages(currentPage, perPage);
         fetchAllPackagesForSearch();
-         fetchExtensionMap(); 
+        fetchExtensionMap();
       } else {
         Swal.fire("Failed", response?.message || "Extension failed.", "error");
       }
@@ -178,19 +191,19 @@ const fetchExtensionMap = async () => {
 
   // 📌 Excel export (all data, with search applied)
   const exportToExcel = () => {
-    const dataToExport = (searchText ? allPackagesForSearch : allPackagesForSearch).map(
-      (pkg, index) => ({
-        "S.No": index + 1,
-        "Package Name": pkg?.Package?.name || "N/A",
-        Price: pkg?.Package?.price || "",
-        "Start Date": formatDate(pkg.start_date),
-        "End Date": formatDate(pkg.end_date),
-        Status: pkg.status,
-        "Payment Status": pkg.payment_status || "N/A",
-        "Payment Date": pkg?.createdAt ? formatDate(pkg.createdAt) : "N/A",
-        "Extended Days": extensionMap[pkg?.Package?.name] || "—",
-      })
-    );
+    const dataToExport = (
+      searchText ? allPackagesForSearch : allPackagesForSearch
+    ).map((pkg, index) => ({
+      "S.No": index + 1,
+      "Package Name": pkg?.Package?.name || "N/A",
+      Price: pkg?.Package?.price || "",
+      "Start Date": formatDate(pkg.start_date),
+      "End Date": formatDate(pkg.end_date),
+      Status: pkg.status,
+      "Payment Status": pkg.payment_status || "N/A",
+      "Payment Date": pkg?.createdAt ? formatDate(pkg.createdAt) : "N/A",
+      "Extended Days": extensionMap[pkg?.Package?.name] || "—",
+    }));
 
     const ws = XLSX.utils.json_to_sheet(dataToExport);
     const wb = XLSX.utils.book_new();
@@ -213,16 +226,12 @@ const fetchExtensionMap = async () => {
     {
       name: "Start Date",
       selector: (row) =>
-        row.payment_status === "pending"
-          ? "-"
-          : formatDate(row.start_date),
+        row.payment_status === "pending" ? "-" : formatDate(row.start_date),
     },
     {
       name: "End Date",
       selector: (row) =>
-        row.payment_status === "pending"
-          ? "-"
-          : formatDate(row.end_date),
+        row.payment_status === "pending" ? "-" : formatDate(row.end_date),
     },
 
     { name: "Amount", selector: (row) => `₹${row?.Package?.price || "0"}` },
@@ -237,20 +246,26 @@ const fetchExtensionMap = async () => {
     },
 
     {
-  name: "Extended Days",
-  selector: (row) => extensionMap[row.id] || "—",  // row.id = subscriptionId
-},
+      name: "Extended Days",
+      selector: (row) => extensionMap[row.id] || "—", // row.id = subscriptionId
+    },
 
     {
       name: "Actions",
       minWidth: "250px",
       cell: (row) => {
-
         const latestCompleted = [...paginatedPackages]
-          .filter(pkg => pkg.payment_status === "completed")
+          .filter((pkg) => pkg.payment_status === "completed")
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
 
         const isLatestCompleted = latestCompleted?.id === row.id;
+
+        // 🚫 Agar package ka price 0 hai to extend option disable kar do
+        if (row?.Package?.price === 0) {
+          return (
+            <span className="text-muted">Free Package (Not Extendable)</span>
+          );
+        }
 
         return isLatestCompleted ? (
           <div className="d-flex flex-column flex-md-row gap-2">
@@ -272,7 +287,7 @@ const fetchExtensionMap = async () => {
         ) : (
           <span className="text-muted">—</span>
         );
-      }
+      },
     },
   ];
 
@@ -298,21 +313,19 @@ const fetchExtensionMap = async () => {
     },
   ];
 
-const filteredData = searchText
-  ? allPackagesForSearch
-      .filter((pkg) =>
-        pkg?.Package?.name?.toLowerCase().includes(searchText.toLowerCase())
-      )
-      .filter((pkg) => pkg.payment_status === "completed")
-  : paginatedPackages.filter((pkg) => pkg.payment_status === "completed");
-
+  const filteredData = searchText
+    ? allPackagesForSearch
+        .filter((pkg) =>
+          pkg?.Package?.name?.toLowerCase().includes(searchText.toLowerCase())
+        )
+        .filter((pkg) => pkg.payment_status === "completed")
+    : paginatedPackages.filter((pkg) => pkg.payment_status === "completed");
 
   useEffect(() => {
     if (token && vendorId) {
       fetchPaginatedPackages(currentPage, perPage);
       fetchAllPackagesForSearch();
       fetchExtensionMap();
-
     }
   }, [token, vendorId, currentPage, perPage]);
 
@@ -328,10 +341,16 @@ const filteredData = searchText
           </div>
         </div>
         <div className="col-md-6 text-end">
-          <button className="btn btn-primary btn-sm me-2" onClick={exportToExcel}>
+          <button
+            className="btn btn-primary btn-sm me-2"
+            onClick={exportToExcel}
+          >
             <i className="fa fa-file-excel me-1"></i> Download Packages
           </button>
-          <button className="btn btn-primary btn-sm" onClick={fetchExtensionHistory}>
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={fetchExtensionHistory}
+          >
             <i className="fa fa-file-excel me-1"></i> History
           </button>
         </div>
@@ -357,7 +376,6 @@ const filteredData = searchText
             <i className="ri-close-line" />
           </button>
         )}
-
       </div>
 
       <Datatable
@@ -375,18 +393,29 @@ const filteredData = searchText
         onChangePage={(page) => setCurrentPage(page)}
       />
       {showHistory && (
-        <div className="modal fade show d-block" tabIndex="-1" style={{ background: "rgba(0,0,0,0.5)" }}>
+        <div
+          className="modal fade show d-block"
+          tabIndex="-1"
+          style={{ background: "rgba(0,0,0,0.5)" }}
+        >
           <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Extension History</h5>
-                <button type="button" className="btn-close" onClick={() => setShowHistory(false)}></button>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowHistory(false)}
+                ></button>
               </div>
               <div className="modal-body">
                 {extensionHistory.length > 0 ? (
                   <Datatable
                     columns={historyColumns}
-                    data={extensionHistory.slice((historyPage - 1) * historyPerPage, historyPage * historyPerPage)}
+                    data={extensionHistory.slice(
+                      (historyPage - 1) * historyPerPage,
+                      historyPage * historyPerPage
+                    )}
                     pagination
                     paginationServer
                     paginationTotalRows={extensionHistory.length}
@@ -402,13 +431,17 @@ const filteredData = searchText
                 )}
               </div>
               <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={() => setShowHistory(false)}>Close</button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowHistory(false)}
+                >
+                  Close
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
     </div>
-
   );
 }

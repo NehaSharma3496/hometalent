@@ -9,6 +9,7 @@ import {
   GetStates,
   GetCities,
 } from "../Services/vendor/Vendor";
+import { VerifyOtp } from "../Services/webService/Web";
 import { Link } from "react-router-dom";
 
 const Registration = () => {
@@ -16,6 +17,15 @@ const Registration = () => {
   const [statesData, setStatesData] = useState([]);
   const [cityData, setCityData] = useState([]);
   const [selectedStateId, setSelectedStateId] = useState("");
+  const [phoneVerificationState, setPhoneVerificationState] = useState({
+    isVerified: false,
+    showVerifyButton: false,
+    showOtpInput: false,
+    otp: "",
+    sentOtp: "", // Store the OTP received from API response
+    phoneNumber: "",
+  });
+
   const token = localStorage.getItem("token");
 
   const initialValues = {
@@ -42,6 +52,7 @@ const Registration = () => {
     terms: false,
   };
 
+  // Enhanced validation schema with phone verification
   const validationSchema = Yup.object({
     ownerName: Yup.string().required("Owner Name is required"),
     state: Yup.string().required("State is required"),
@@ -51,7 +62,10 @@ const Registration = () => {
       .required("Pin Code is required"),
     phone: Yup.string()
       .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
-      .required("Phone No is required"),
+      .required("Phone No is required")
+      .test("phone-verified", "Phone number must be verified", () => {
+        return phoneVerificationState.isVerified;
+      }),
     email: Yup.string().email("Invalid email").required("Email is required"),
     category: Yup.string().required("Category is required"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
@@ -66,6 +80,183 @@ const Registration = () => {
     }),
   });
 
+  // Handle phone number change
+  const handlePhoneChange = (e, setFieldValue) => {
+    const phoneValue = e.target.value;
+    setFieldValue("phone", phoneValue);
+
+    // Reset verification state when phone number changes
+    setPhoneVerificationState((prev) => ({
+      ...prev,
+      isVerified: false,
+      showVerifyButton: phoneValue.length === 10,
+      showOtpInput: false,
+      otp: "",
+      sentOtp: "",
+      phoneNumber: phoneValue,
+    }));
+  };
+
+  // Send OTP function
+  const handleSendOtp = async () => {
+    try {
+      if (phoneVerificationState.phoneNumber.length !== 10) {
+        Swal.fire(
+          "Error",
+          "Please enter a valid 10-digit phone number",
+          "error"
+        );
+        return;
+      }
+
+      const otpResponse = await VerifyOtp({
+        phone: phoneVerificationState.phoneNumber,
+      });
+
+      console.log("OTP Response:", otpResponse);
+
+      if (otpResponse?.status) {
+        // Store the OTP from response for verification
+        setPhoneVerificationState((prev) => ({
+          ...prev,
+          showOtpInput: true,
+          sentOtp: otpResponse?.otp || otpResponse?.data?.otp || "", // Store the received OTP
+        }));
+
+        Swal.fire(
+          "Success",
+          "OTP sent successfully! Please check your phone.",
+          "success"
+        );
+      } else {
+        Swal.fire("Error", otpResponse?.msg || "Failed to send OTP", "error");
+      }
+    } catch (error) {
+      console.error("OTP Send Error:", error);
+      Swal.fire("Error", "Failed to send OTP. Please try again.", "error");
+    }
+  };
+
+  // Verify OTP function
+  const handleVerifyOtp = () => {
+    if (phoneVerificationState.otp.length !== 4) {
+      Swal.fire("Error", "Please enter a valid 4-digit OTP", "error");
+      return;
+    }
+
+    // Compare entered OTP with the OTP received from API
+    if (
+      phoneVerificationState.otp === phoneVerificationState.sentOtp.toString()
+    ) {
+      setPhoneVerificationState((prev) => ({
+        ...prev,
+        isVerified: true,
+        showOtpInput: false,
+      }));
+      Swal.fire("Success", "Phone number verified successfully!", "success");
+    } else {
+      Swal.fire("Error", "Invalid OTP. Please try again.", "error");
+    }
+  };
+
+  // Handle OTP input change (only allow 4 digits)
+  const handleOtpChange = (e) => {
+    const value = e.target.value.replace(/\D/g, ""); // Remove non-digits
+    if (value.length <= 4) {
+      setPhoneVerificationState((prev) => ({
+        ...prev,
+        otp: value,
+      }));
+    }
+  };
+
+  // Phone verification component
+  const PhoneVerificationComponent = ({ values, setFieldValue }) => (
+    <>
+      <label className="contact-label mb- fs-6 fw-semibold">Phone No*</label>
+      <div className="input-group">
+        <input
+          type="tel"
+          className="form-control contact-input"
+          value={values.phone || ""}
+          onChange={(e) => handlePhoneChange(e, setFieldValue)}
+          onInput={(e) => {
+            // Remove any non-digit characters as user types
+            const cleaned = e.target.value.replace(/\D/g, "");
+            if (cleaned.length <= 10) {
+              e.target.value = cleaned;
+            } else {
+              e.target.value = cleaned.slice(0, 10);
+            }
+          }}
+          maxLength={10}
+          placeholder="Enter 10-digit phone number"
+          autoComplete="tel"
+          inputMode="numeric"
+          pattern="[0-9]{10}"
+        />
+      </div>
+
+      {/* Verify Phone Button */}
+      {phoneVerificationState.showVerifyButton &&
+        !phoneVerificationState.isVerified && (
+          <button
+            type="button"
+            className="btn btn-primary btn-sm mt-2"
+            onClick={handleSendOtp}
+            disabled={phoneVerificationState.showOtpInput}
+          >
+            {phoneVerificationState.showOtpInput ? "OTP Sent" : "Verify Phone"}
+          </button>
+        )}
+
+      {/* OTP Input Field */}
+      {phoneVerificationState.showOtpInput && (
+        <div className="mt-2">
+          <div className="input-group">
+            <input
+              type="tel"
+              className="form-control contact-input"
+              value={phoneVerificationState.otp}
+              onChange={handleOtpChange}
+              onInput={(e) => {
+                // Only allow numbers and limit to 4 digits
+                const cleaned = e.target.value.replace(/\D/g, "");
+                if (cleaned.length <= 4) {
+                  e.target.value = cleaned;
+                } else {
+                  e.target.value = cleaned.slice(0, 4);
+                }
+              }}
+              maxLength={4}
+              placeholder="Enter 4-digit OTP"
+              style={{ letterSpacing: "0.5em", textAlign: "center" }}
+              autoComplete="one-time-code"
+              inputMode="numeric"
+              pattern="[0-9]{4}"
+            />
+            <button
+              type="button"
+              className="btn btn-success btn-sm"
+              onClick={handleVerifyOtp}
+              disabled={phoneVerificationState.otp.length !== 4}
+            >
+              Verify OTP
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Verification Status */}
+      {phoneVerificationState.isVerified && (
+        <div className="text-success mt-1 small">
+          <i className="fas fa-check-circle"></i> Phone number verified
+        </div>
+      )}
+    </>
+  );
+
+  // Enhanced fields array with custom phone field
   const fields = [
     {
       name: "ownerName",
@@ -101,11 +292,13 @@ const Registration = () => {
       colClass: "col-md-4 mb-3",
       maxLength: 6,
     },
+    // Custom phone field with verification
     {
       name: "phone",
       label: "Phone No*",
-      type: "text",
+      type: "custom",
       colClass: "col-md-4 mb-3",
+      customComponent: PhoneVerificationComponent,
     },
     {
       name: "email",
@@ -199,7 +392,7 @@ const Registration = () => {
       type: "file",
       colClass: "col-md-6 mb-3",
       accept: "image/*",
-      multiple: false, // Single file only
+      multiple: false,
     },
     {
       name: "terms",
@@ -218,10 +411,22 @@ const Registration = () => {
   ];
 
   const onSubmit = async (values) => {
+    // Check if phone is verified before submission
+    if (!phoneVerificationState.isVerified) {
+      Swal.fire(
+        "Error",
+        "Please verify your phone number before submitting",
+        "error"
+      );
+      return;
+    }
+
     try {
-      // Debug logs for troubleshooting
       console.log("Form submitted with values:", values);
-      console.log("Image value:", values.image);
+      console.log(
+        "Phone verification status:",
+        phoneVerificationState.isVerified
+      );
 
       const formData = new FormData();
       formData.append("owner_name", values.ownerName);
@@ -255,52 +460,34 @@ const Registration = () => {
         formData.append("category_id", values.category);
       }
 
-      // Handle image upload with proper validation
       if (values.image) {
-        console.log("Processing image file:", {
-          name: values.image.name,
-          size: values.image.size,
-          type: values.image.type
-        });
-
         const allowedTypes = [
           "image/jpeg",
           "image/png",
           "image/jpg",
           "image/webp",
-          "image/gif"
+          "image/gif",
         ];
 
-        // Validate file type
         if (!allowedTypes.includes(values.image.type)) {
-          console.log("Invalid file type:", values.image.type);
-          Swal.fire("Error", "Only image files (JPEG, PNG, JPG, WEBP, GIF) are allowed", "error");
+          Swal.fire(
+            "Error",
+            "Only image files (JPEG, PNG, JPG, WEBP, GIF) are allowed",
+            "error"
+          );
           return;
         }
 
-        // Validate file size (max 5MB)
         const maxSize = 5 * 1024 * 1024; // 5MB
         if (values.image.size > maxSize) {
-          console.log("File too large:", values.image.size);
           Swal.fire("Error", "File size must be less than 5MB", "error");
           return;
         }
 
         formData.append("image", values.image);
-        console.log("Image added to FormData successfully");
-      } else {
-        console.log("No image selected");
       }
 
-      // Debug: Log FormData contents
-      console.log("FormData contents:");
-      for (let [key, value] of formData.entries()) {
-        console.log(key + ":", value);
-      }
-
-      console.log("Calling VendorRegister API...");
       const res = await VendorRegister(formData);
-      console.log("API Response:", res);
 
       if (res?.data?.status) {
         Swal.fire(
@@ -311,11 +498,14 @@ const Registration = () => {
           window.location.reload();
         });
       } else {
-        Swal.fire("Error", res?.data?.msg || res?.msg || "Something went wrong", "error");
+        Swal.fire(
+          "Error",
+          res?.data?.msg || res?.msg || "Something went wrong",
+          "error"
+        );
       }
     } catch (err) {
       console.error("API ERROR:", err);
-      console.error("Error details:", err?.response?.data);
       Swal.fire(
         "Error",
         err?.response?.data?.msg || err?.msg || "Something went wrong",

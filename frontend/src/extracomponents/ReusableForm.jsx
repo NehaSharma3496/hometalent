@@ -1,11 +1,33 @@
+// Update your ReusableForm component's renderField function to include custom component support:
+
 import React from "react";
 import { Formik, Form, Field, ErrorMessage, FormikConsumer } from "formik";
 import Select from "react-select";
 
-const renderField = (field) => {
+const renderField = (field, form, values) => {
+  // Handle custom components (like phone verification)
+  if (field.type === "custom" && field.customComponent) {
+    const CustomComponent = field.customComponent;
+    return (
+      <CustomComponent
+        values={values}
+        setFieldValue={form.setFieldValue}
+        touched={form.touched}
+        errors={form.errors}
+      />
+    );
+  }
+
   switch (field.type) {
     case "textarea":
-      return <Field as="textarea" name={field.name} placeholder={field.placeholder} className="form-control contact-input" />;
+      return (
+        <Field
+          as="textarea"
+          name={field.name}
+          placeholder={field.placeholder}
+          className="form-control contact-input"
+        />
+      );
 
     case "select":
       return (
@@ -40,9 +62,14 @@ const renderField = (field) => {
               options={field.options}
               className="basic-multi-select"
               classNamePrefix="select"
-              value={field.options.filter((option) => value.includes(option.value))}
+              value={field.options.filter((option) =>
+                value.includes(option.value)
+              )}
               onChange={(selectedOptions) =>
-                form.setFieldValue(field.name, selectedOptions.map((option) => option.value))
+                form.setFieldValue(
+                  field.name,
+                  selectedOptions.map((option) => option.value)
+                )
               }
               onBlur={() => form.setFieldTouched(field.name, true)}
             />
@@ -53,8 +80,17 @@ const renderField = (field) => {
     case "radio":
       return field.options?.map((option) => (
         <div key={option.value} className="form-check form-check-inline">
-          <Field type="radio" name={field.name} value={option.value} className="form-check-input" id={`${field.name}-${option.value}`} />
-          <label className="form-check-label" htmlFor={`${field.name}-${option.value}`}>
+          <Field
+            type="radio"
+            name={field.name}
+            value={option.value}
+            className="form-check-input"
+            id={`${field.name}-${option.value}`}
+          />
+          <label
+            className="form-check-label"
+            htmlFor={`${field.name}-${option.value}`}
+          >
             {option.label}
           </label>
         </div>
@@ -63,7 +99,12 @@ const renderField = (field) => {
     case "checkbox":
       return (
         <div className="form-check">
-          <Field type="checkbox" name={field.name} className="form-check-input" id={field.name} />
+          <Field
+            type="checkbox"
+            name={field.name}
+            className="form-check-input"
+            id={field.name}
+          />
           <label className="form-check-label" htmlFor={field.name}>
             {field.label}
           </label>
@@ -71,7 +112,14 @@ const renderField = (field) => {
       );
 
     case "email":
-      return <Field type="email" name={field.name} className="form-control contact-input" id={field.name} />;
+      return (
+        <Field
+          type="email"
+          name={field.name}
+          className="form-control contact-input"
+          id={field.name}
+        />
+      );
 
     case "password":
       return (
@@ -85,25 +133,27 @@ const renderField = (field) => {
         />
       );
 
-    // ReusableForm में file case को update करें:
-case "file":
-  return (
-    <Field name={field.name}>
-      {({ form }) => (
-        <input
-          type="file"
-          name={field.name}
-          className="form-control contact-input"
-          accept={field.accept}
-          multiple={field.multiple !== false} // Default true, false if explicitly set
-          onChange={(event) => {
-            const files = event.currentTarget.files;
-            form.setFieldValue(field.name, field.multiple !== false ? files : files[0]);
-          }}
-        />
-      )}
-    </Field>
-  );
+    case "file":
+      return (
+        <Field name={field.name}>
+          {({ form }) => (
+            <input
+              type="file"
+              name={field.name}
+              className="form-control contact-input"
+              accept={field.accept}
+              multiple={field.multiple !== false}
+              onChange={(event) => {
+                const files = event.currentTarget.files;
+                form.setFieldValue(
+                  field.name,
+                  field.multiple !== false ? files : files[0]
+                );
+              }}
+            />
+          )}
+        </Field>
+      );
 
     default:
       return (
@@ -118,10 +168,20 @@ case "file":
   }
 };
 
-const ReusableForm = ({ initialValues, validationSchema, onSubmit, fields, SubmitBtn }) => {
+const ReusableForm = ({
+  initialValues,
+  validationSchema,
+  onSubmit,
+  fields,
+  SubmitBtn,
+}) => {
   return (
-    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ handleSubmit, validateForm, setTouched }) => (
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={onSubmit}
+    >
+      {({ handleSubmit, validateForm, setTouched, ...formikProps }) => (
         <Form
           className="row main-form"
           encType="multipart/form-data"
@@ -136,9 +196,14 @@ const ReusableForm = ({ initialValues, validationSchema, onSubmit, fields, Submi
               setTouched(touchedFields);
 
               setTimeout(() => {
-                const errorElement = document.querySelector(".is-invalid, .text-danger");
+                const errorElement = document.querySelector(
+                  ".is-invalid, .text-danger"
+                );
                 if (errorElement) {
-                  errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+                  errorElement.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
                 }
               }, 100);
 
@@ -153,13 +218,22 @@ const ReusableForm = ({ initialValues, validationSchema, onSubmit, fields, Submi
                 !field.showWhen || field.showWhen(values) ? (
                   <div className={field.colClass || "col-12"}>
                     <div className="form-group">
-                      {field.type !== "checkbox" && field.type !== "radio" && (
-                        <label htmlFor={field.name} className="contact-label mb- fs-6 fw-semibold">
-                          {field.label}
-                        </label>
-                      )}
-                      {renderField(field)}
-                      <ErrorMessage name={field.name} component="div" className="text-danger small" />
+                      {field.type !== "checkbox" &&
+                        field.type !== "radio" &&
+                        field.type !== "custom" && (
+                          <label
+                            htmlFor={field.name}
+                            className="contact-label mb- fs-6 fw-semibold"
+                          >
+                            {field.label}
+                          </label>
+                        )}
+                      {renderField(field, formikProps, values)}
+                      <ErrorMessage
+                        name={field.name}
+                        component="div"
+                        className="text-danger small"
+                      />
                     </div>
                   </div>
                 ) : null
