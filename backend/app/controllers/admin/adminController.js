@@ -17,6 +17,9 @@ const { commonEmail } = require("../../helper/commonEmail");
 const socketManager = require('../../socket/socketManager');
 const fetch = require("node-fetch");
 const { Op, Sequelize,literal,fn, col, where } = require('sequelize');
+const fs = require("fs");
+const path = require("path");
+const mime = require("mime-types");
 
 exports.listAllVendors = async (req, res) => {
   try {
@@ -1600,10 +1603,28 @@ exports.notifyExpiredPlans = async (req, res) => {
 
 exports.insertcategoryimages = async (req, res) => {
   try {
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
     const categories = await Category.findAll();
     for (const category of categories){
-      let image = `${baseUrl}/media/category/${category.name}`;
+      const imageFolder = path.join(__dirname, "../../media/category");
+
+      // Try to find a file with the same name as category (any extension)
+      const files = fs.readdirSync(imageFolder);
+      const file = files.find(f => path.parse(f).name === category.name);
+
+      if (file) {
+        const filePath = path.join(imageFolder, file);
+
+        const mimeType = mime.lookup(filePath);
+
+        const imageUrl = `${baseUrl}/${file}`;
+        
+        await category.update({ image_url: imageUrl });
+      } else {
+        console.log(`⚠️ No image found for category: ${category.name}`);
+      }
     }
+
     return res.json({ status: true, msg: "done" });
   } catch (error) {
     return res.status(500).json({ status: false, msg: error.message });

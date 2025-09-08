@@ -18,9 +18,9 @@ async function seedAll() {
   // ✅ Categories
   const categories = [
     'Fabric Painting', 'Canvas Painting', 'Mehandi Art', 'Catering',
-    'Cook/Chef on call', 'Bakery item', 'Food(Namkeen,Sweets, snacks)',
-    'Gift & Packaging', 'Anchor', 'Clothes', 'Jewellery', 'Beauty services/ Home Salon',
-    'Music artist', 'Household Goods', 'Cosmetics', 'Dance Tutor/ Choreographer',
+    'Cook or Chef on call', 'Bakery item', 'Food(Namkeen,Sweets, snacks)',
+    'Gift & Packaging', 'Anchor', 'Clothes', 'Jewellery', 'Beauty services or Home Salon',
+    'Music artist', 'Household Goods', 'Cosmetics', 'Dance Tutor or Choreographer',
     'Yoga Instructor', 'Academic Tutor', 'Music teacher', 'Art & Craft Teacher',
     'Nursery & Pottery', 'Art work', 'Babysitter or pet care','Festival Essential'
   ];
