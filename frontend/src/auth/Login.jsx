@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import Swal from "sweetalert2";
 import { LoginApi } from "../Services/auth/Login";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Config from "../Utils/config"
+import * as Config from "../Utils/config";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -29,20 +29,20 @@ const Login = () => {
     try {
       const response = await LoginApi(payload);
 
-      if (response.status === true) {
-        const user = response.user;
-        const roleId = user.role_id;
+      if (response?.status === true) {
+        const user = response?.user;
+        const roleId = user?.role_id;
 
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("role", roleId.toString());
+        localStorage.setItem("token", response?.token);
+        localStorage.setItem("role", roleId?.toString());
         localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("userId", user.id);
+        localStorage.setItem("userId", user?.id);
 
-     try {
-  await fetch(`${Config.base_url}admin/notify-expired-plans`);
-} catch (error) {
-  console.error("Error notifying expired plans:", error);
-}
+        try {
+          await fetch(`${Config.base_url}admin/notify-expired-plans`);
+        } catch (error) {
+          console.error("Error notifying expired plans:", error);
+        }
 
         Swal.fire({
           title: "Login Success",
@@ -65,7 +65,7 @@ const Login = () => {
       } else {
         Swal.fire({
           title: "Error",
-          text: response.msg || "Invalid credentials",
+          text: response?.msg || "Invalid credentials",
           icon: "error",
         });
       }
@@ -73,7 +73,7 @@ const Login = () => {
       Swal.fire({
         title: "Error",
         text:
-          error.response?.data?.msg || error.message || "Something went wrong",
+          error.response?.data?.msg || error?.message || "Something went wrong",
         icon: "error",
       });
     }

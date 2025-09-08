@@ -88,23 +88,24 @@ export default function MyPackages() {
     }
   };
 
- const fetchExtensionMap = async () => {
-  try {
-    const res = await GetExtendPackageHistory(token, { vendor_id: vendorId });
-    if (res?.status) {
-      const map = {};
-      res.data.forEach((item) => {
-        if (item.request_id) {   // ✅ package subscription id
-          map[item.request_id] = (map[item.request_id] || 0) + parseInt(item.details || 0);
-        }
-      });
-      setExtensionMap(map);
+  const fetchExtensionMap = async () => {
+    try {
+      const res = await GetExtendPackageHistory(token, { vendor_id: vendorId });
+      if (res?.status) {
+        const map = {};
+        res.data.forEach((item) => {
+          if (item.request_id) {
+            // ✅ package subscription id
+            map[item.request_id] =
+              (map[item.request_id] || 0) + parseInt(item.details || 0);
+          }
+        });
+        setExtensionMap(map);
+      }
+    } catch (err) {
+      console.error("Extension fetch error:", err);
     }
-  } catch (err) {
-    console.error("Extension fetch error:", err);
-  }
-};
-
+  };
 
   const handlePageChange = (page) => setCurrentPage(page);
 
@@ -165,11 +166,10 @@ export default function MyPackages() {
         </span>
       ),
     },
-   {
-  name: "Extended Days",
-  selector: (row) => extensionMap[row.id] || "—",  
-},
-
+    {
+      name: "Extended Days",
+      selector: (row) => extensionMap[row.id] || "—",
+    },
   ];
 
   const exportToExcel = async () => {
@@ -206,8 +206,7 @@ export default function MyPackages() {
         Status: new Date(pkg.end_date) >= today ? "Active" : "Expired",
         "Payment Status": pkg?.payment_status || "",
         "Payment Date": pkg?.createdAt ? formatDate(pkg.createdAt) : "",
-       "Extended Days": extensionMap[pkg?.id] || "—",  
-
+        "Extended Days": extensionMap[pkg?.id] || "—",
       }));
 
       const ws = XLSX.utils.json_to_sheet(exportData);
@@ -230,19 +229,20 @@ export default function MyPackages() {
 
   return (
     <div className="page-content">
-      <div className="d-flex justify-content-between align-items-center mb-4 p-2 mt-3 flex-nowrap">
-        {/* Back button + Heading */}
-        <div className="d-flex align-items-center">
-          <Link to="/vendor/dashboard" className="me-2">
-            <i className="fa fa-arrow-left"></i>
-          </Link>
-          <h5 className="add-page-heading mb-0">My Packages</h5>
+      <div className="row align-items-center mb-3">
+        <div className="col-md-6">
+          <div className="add-page-heading-div">
+            <Link to="/vendor/dashboard" className="me-2">
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </Link>
+            <h5 className="add-page-heading">My Packages</h5>
+          </div>
         </div>
-
-        {/* Download Button */}
-        <button className="btn btn-primary btn-sm" onClick={exportToExcel}>
-          <i className="fa-solid fa-file-excel me-1"></i> Download
-        </button>
+        <div className="col-md-6 text-end mt-2">
+          <button className="btn btn-success me-2" onClick={exportToExcel}>
+            <i className="fa-solid fa-file-excel me-1"></i> Download
+          </button>
+        </div>
       </div>
 
       <div
@@ -272,8 +272,8 @@ export default function MyPackages() {
         data={filteredData}
         progressPending={loading}
         pagination
-        paginationServer={!searchText}
-        paginationTotalRows={searchText ? filteredData.length : totalRows}
+        paginationServer={false} // ✅ do client-side pagination after filter
+        paginationTotalRows={filteredData.length} // ✅ count only completed
         paginationPerPage={perPage}
         onChangeRowsPerPage={handlePerRowsChange}
         onChangePage={handlePageChange}

@@ -335,7 +335,7 @@ const Header = () => {
 
               <ul className={`submenu ${open ? "open" : ""}`}>
                 {category?.length > 0 ? (
-                  category.map((cat) => (
+                  category?.map((cat) => (
                     <li key={cat._id || cat.id}>
                       <Link
                         to="/category"

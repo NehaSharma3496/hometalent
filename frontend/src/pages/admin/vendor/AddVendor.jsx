@@ -37,10 +37,8 @@ export default function AddVendor() {
     linkedin_link: "",
     youtube_link: "",
     website_link: "",
-    images: [],
-
+    image: null, // Changed from 'images' to 'image'
     terms: false,
-    // password: "",
   };
 
   const validationSchema = Yup.object({
@@ -56,8 +54,6 @@ export default function AddVendor() {
     email: Yup.string().email("Invalid email").required("Email is required"),
     category: Yup.string().required("Category is required"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
-    // experience: Yup.string().required("Experience Is required"),
-    // priceRange: Yup.string().required("Price Range is required"),
     longDesc: Yup.string().required("Large Description is required"),
   });
 
@@ -188,10 +184,12 @@ export default function AddVendor() {
       colClass: "col-md-6 ",
     },
     {
-      name: "images",
+      name: "image",
       label: "Image",
       type: "file",
       colClass: "col-md-6 ",
+      accept: "image/*",
+      multiple: false, // Single file only
     },
     {
       name: "terms",
@@ -211,6 +209,10 @@ export default function AddVendor() {
 
   const onSubmit = async (values) => {
     try {
+      // Debug: Check form values
+      console.log("Form submitted with values:", values);
+      console.log("Image value:", values.image);
+
       const formData = new FormData();
       formData.append("owner_name", values.ownerName);
       formData.append("profile_name", values.profileName);
@@ -236,29 +238,69 @@ export default function AddVendor() {
       );
 
       if (selectedCat?.label?.toLowerCase() === "other") {
-        // always send category_id (backend requires not null)
         formData.append("category_id", selectedCat.value);
         formData.append("category_name", values.otherCategory || "");
       } else {
         formData.append("category_id", values.category);
       }
 
-      for (let i = 0; i < values.images.length; i++) {
-        formData.append("image", values.images[i]);
+      // Handle image upload with proper validation
+      if (values.image) {
+        console.log("Processing image file:", {
+          name: values.image.name,
+          size: values.image.size,
+          type: values.image.type
+        });
+
+        const allowedTypes = [
+          "image/jpeg",
+          "image/png",
+          "image/jpg",
+          "image/webp",
+          "image/gif"
+        ];
+
+        // Validate file type
+        if (!allowedTypes.includes(values.image.type)) {
+          console.log("Invalid file type:", values.image.type);
+          Swal.fire("Error", "Only image files (JPEG, PNG, JPG, WEBP, GIF) are allowed", "error");
+          return;
+        }
+
+        // Validate file size (max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (values.image.size > maxSize) {
+          console.log("File too large:", values.image.size);
+          Swal.fire("Error", "File size must be less than 5MB", "error");
+          return;
+        }
+
+        formData.append("image", values.image);
+        console.log("Image added to FormData successfully");
+      } else {
+        console.log("No image selected");
       }
 
+      // Debug: Log FormData contents
+      console.log("FormData contents:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key + ":", value);
+      }
+
+      console.log("Calling VendorRegister API...");
       const res = await VendorRegister(formData);
+      console.log("API Response:", res);
+
       if (res?.data?.status) {
-        Swal.fire("Success", res?.data?.msg || "Vendor added!", "success").then(
-          () => {
-            window.location.reload();
-          }
-        );
+        Swal.fire("Success", res?.data?.msg || "Vendor added successfully!", "success").then(() => {
+          window.location.reload();
+        });
       } else {
         Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
       }
     } catch (err) {
       console.error("API ERROR:", err);
+      console.error("Error details:", err?.response?.data);
       Swal.fire(
         "Error",
         err?.response?.data?.msg || "Something went wrong",
@@ -310,6 +352,9 @@ export default function AddVendor() {
   useEffect(() => {
     fetchCategories();
     fetchStates();
+  }, []);
+
+  useEffect(() => {
     fetchCities();
   }, [selectedStateId]);
 

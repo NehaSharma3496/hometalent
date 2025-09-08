@@ -326,14 +326,14 @@ const CategoryDetail = () => {
                         <h4 className="title mb-3">Gallery</h4>
 
                         {/* Tabs - Agar sirf ek hi type ka content hai to ek hi tab show hoga */}
-                        <div className="d-flex gap-3 mb-3">
+                        <div className="d-flex gap-3 mb-3 mt-4">
                           {imageItems?.length > 0 && (
                             <button
                               className={`btn ${
                                 activeTab === "images"
                                   ? "btn-primary"
                                   : "btn-outline-primary"
-                              }`}
+                              } mb-4`}
                               onClick={() => setActiveTab("images")}
                             >
                               Images
@@ -345,7 +345,7 @@ const CategoryDetail = () => {
                                 activeTab === "videos"
                                   ? "btn-primary"
                                   : "btn-outline-primary"
-                              }`}
+                              } mb-4`}
                               onClick={() => setActiveTab("videos")}
                             >
                               Videos

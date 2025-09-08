@@ -239,7 +239,7 @@ export default function AllFeedback() {
             <Link to="/admin/dashboard">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
-            <h2 className="add-page-heading ">All Enquiries</h2>
+            <h2 className="add-page-heading ">All Feedback</h2>
           </div>
 
           <div className="text-end">
@@ -291,7 +291,7 @@ export default function AllFeedback() {
           </div>
           <Modal show={showModal} onHide={() => setShowModal(false)}>
             <Modal.Header closeButton>
-              <Modal.Title>Full Query</Modal.Title>
+              <Modal.Title>Full Message</Modal.Title>
             </Modal.Header>
             <Modal.Body style={{
               maxHeight: "400px", 

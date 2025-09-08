@@ -57,19 +57,28 @@ const Registration = () => {
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
     longDesc: Yup.string().required("Large Description is required"),
     otherCategory: Yup.string().when("category", {
-  is: (val) => {
-    const selected = categoryData.find(cat => cat.value === val);
-    return selected?.label?.toLowerCase() === "other";
-  },
-  then: (schema) => schema.required("Other Category Name is required"),
-  otherwise: (schema) => schema.notRequired(),
-}),
-
+      is: (val) => {
+        const selected = categoryData?.find((cat) => cat.value === val);
+        return selected?.label?.toLowerCase() === "other";
+      },
+      then: (schema) => schema.required("Other Category Name is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   });
 
   const fields = [
-    { name: "ownerName", label: "Owner Name*", type: "text", colClass: "col-md-4 mb-3" },
-    { name: "profileName", label: "Profile Name", type: "text", colClass: "col-md-4 mb-3" },
+    {
+      name: "ownerName",
+      label: "Owner Name*",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "profileName",
+      label: "Profile Name",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
     {
       name: "state",
       label: "State*",
@@ -78,11 +87,38 @@ const Registration = () => {
       onChange: (e) => setSelectedStateId(e.target.value),
       colClass: "col-md-4 mb-3",
     },
-    { name: "city", label: "City*", type: "select", options: cityData, colClass: "col-md-4 mb-3" },
-    { name: "pin", label: "Pin Code*", type: "text", colClass: "col-md-4 mb-3", maxLength: 6 },
-    { name: "phone", label: "Phone No*", type: "text", colClass: "col-md-4 mb-3" },
-    { name: "email", label: "Email*", type: "email", colClass: "col-md-4 mb-3" },
-    { name: "priceRange", label: "Estimated Price Range", type: "text", colClass: "col-md-4 mb-3" },
+    {
+      name: "city",
+      label: "City*",
+      type: "select",
+      options: cityData,
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "pin",
+      label: "Pin Code*",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+      maxLength: 6,
+    },
+    {
+      name: "phone",
+      label: "Phone No*",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "email",
+      label: "Email*",
+      type: "email",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "priceRange",
+      label: "Estimated Price Range",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
     {
       name: "category",
       label: "Category Select*",
@@ -96,21 +132,75 @@ const Registration = () => {
       type: "text",
       colClass: "col-md-6 mb-3",
       showWhen: (values) => {
-        const selected = categoryData.find(cat => cat.value === values.category);
+        const selected = categoryData?.find(
+          (cat) => cat.value === values.category
+        );
         return selected?.label?.toLowerCase() === "other";
       },
       placeholder: "Enter category name",
     },
-    { name: "experience", label: "Experience Since", type: "text", colClass: "col-md-4 mb-3" },
-    { name: "shortDesc", label: "Short Description", type: "text", colClass: "col-12 mb-3" },
-    { name: "longDesc", label: "Large Description*", type: "textarea", colClass: "col-12 mb-3" },
-    { name: "facebook_link", label: "Facebook Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "instagram_link", label: "Instagram Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "twitter_link", label: "Twitter Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "linkedin_link", label: "LinkedIn Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "youtube_link", label: "YouTube Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "website_link", label: "Website Link", type: "text", colClass: "col-md-6 mb-3" },
-    { name: "image", label: "Image", type: "file", colClass: "col-md-6 mb-3" },
+    {
+      name: "experience",
+      label: "Experience Since",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "shortDesc",
+      label: "Short Description",
+      type: "text",
+      colClass: "col-12 mb-3",
+    },
+    {
+      name: "longDesc",
+      label: "Large Description*",
+      type: "textarea",
+      colClass: "col-12 mb-3",
+    },
+    {
+      name: "facebook_link",
+      label: "Facebook Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "instagram_link",
+      label: "Instagram Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "twitter_link",
+      label: "Twitter Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "linkedin_link",
+      label: "LinkedIn Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "youtube_link",
+      label: "YouTube Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "website_link",
+      label: "Website Link",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+    },
+    {
+      name: "image",
+      label: "Image",
+      type: "file",
+      colClass: "col-md-6 mb-3",
+      accept: "image/*",
+      multiple: false, // Single file only
+    },
     {
       name: "terms",
       label: (
@@ -129,6 +219,10 @@ const Registration = () => {
 
   const onSubmit = async (values) => {
     try {
+      // Debug logs for troubleshooting
+      console.log("Form submitted with values:", values);
+      console.log("Image value:", values.image);
+
       const formData = new FormData();
       formData.append("owner_name", values.ownerName);
       formData.append("profile_name", values.profileName);
@@ -143,7 +237,6 @@ const Registration = () => {
       formData.append("long_description", values.longDesc);
       formData.append("role_id", 2);
 
-      // Social links
       formData.append("facebook_link", values.facebook_link || "");
       formData.append("instagram_link", values.instagram_link || "");
       formData.append("twitter_link", values.twitter_link || "");
@@ -151,38 +244,81 @@ const Registration = () => {
       formData.append("youtube_link", values.youtube_link || "");
       formData.append("website_link", values.website_link || "");
 
-      // Category check based on label
-      const selectedCat = categoryData.find(cat => cat.value === values.category);
+      const selectedCat = categoryData?.find(
+        (cat) => cat.value === values.category
+      );
 
-     if (selectedCat?.label?.toLowerCase() === "other") {
-  // always send category_id (backend requires not null)
-  formData.append("category_id", selectedCat.value);  
-  formData.append("category_name", values.otherCategory || "");
-} else {
-  formData.append("category_id", values.category);
-}
-
-      // Image check
-      if (values.image && values.image.length > 0) {
-        formData.append("image", values.image[0]);
+      if (selectedCat?.label?.toLowerCase() === "other") {
+        formData.append("category_id", selectedCat.value);
+        formData.append("category_name", values.otherCategory || "");
+      } else {
+        formData.append("category_id", values.category);
       }
 
+      // Handle image upload with proper validation
+      if (values.image) {
+        console.log("Processing image file:", {
+          name: values.image.name,
+          size: values.image.size,
+          type: values.image.type
+        });
+
+        const allowedTypes = [
+          "image/jpeg",
+          "image/png",
+          "image/jpg",
+          "image/webp",
+          "image/gif"
+        ];
+
+        // Validate file type
+        if (!allowedTypes.includes(values.image.type)) {
+          console.log("Invalid file type:", values.image.type);
+          Swal.fire("Error", "Only image files (JPEG, PNG, JPG, WEBP, GIF) are allowed", "error");
+          return;
+        }
+
+        // Validate file size (max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (values.image.size > maxSize) {
+          console.log("File too large:", values.image.size);
+          Swal.fire("Error", "File size must be less than 5MB", "error");
+          return;
+        }
+
+        formData.append("image", values.image);
+        console.log("Image added to FormData successfully");
+      } else {
+        console.log("No image selected");
+      }
+
+      // Debug: Log FormData contents
+      console.log("FormData contents:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key + ":", value);
+      }
+
+      console.log("Calling VendorRegister API...");
       const res = await VendorRegister(formData);
+      console.log("API Response:", res);
 
       if (res?.data?.status) {
-        Swal.fire("Success", "User registered! We will reach you soon on mail", "success").then(
-          () => {
-            window.location.reload();
-          }
-        );
+        Swal.fire(
+          "Success",
+          "User registered! We will reach you soon on mail",
+          "success"
+        ).then(() => {
+          window.location.reload();
+        });
       } else {
-        Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+        Swal.fire("Error", res?.data?.msg || res?.msg || "Something went wrong", "error");
       }
     } catch (err) {
       console.error("API ERROR:", err);
+      console.error("Error details:", err?.response?.data);
       Swal.fire(
         "Error",
-        err?.response?.data?.msg || err.message || "Something went wrong",
+        err?.response?.data?.msg || err?.msg || "Something went wrong",
         "error"
       );
     }
@@ -191,26 +327,26 @@ const Registration = () => {
   const fetchCategories = async () => {
     try {
       const res = await GetCategories();
-      const catformatted = res.data.map((cat) => ({
+      const catformatted = res?.data?.map((cat) => ({
         value: cat.id.toString(),
         label: cat.name,
       }));
       setCategoryData(catformatted);
     } catch (error) {
-      console.log("error", error);
+      console.log("Category fetch error:", error);
     }
   };
 
   const fetchStates = async () => {
     try {
       const res = await GetStates();
-      const stateformatted = res.data.map((cat) => ({
+      const stateformatted = res?.data?.map((cat) => ({
         value: cat.id.toString(),
         label: cat.name,
       }));
       setStatesData(stateformatted);
     } catch (error) {
-      console.log("error", error);
+      console.log("States fetch error:", error);
     }
   };
 
@@ -218,19 +354,22 @@ const Registration = () => {
     if (!selectedStateId) return;
     try {
       const res = await GetCities(token, selectedStateId);
-      const formatted = res.data.map((city) => ({
+      const formatted = res?.data?.map((city) => ({
         value: city.id.toString(),
         label: city.name,
       }));
       setCityData(formatted);
     } catch (error) {
-      console.log("Error fetching cities:", error);
+      console.log("Cities fetch error:", error);
     }
   };
 
   useEffect(() => {
     fetchCategories();
     fetchStates();
+  }, []);
+
+  useEffect(() => {
     fetchCities();
   }, [selectedStateId]);
 
@@ -261,4 +400,3 @@ const Registration = () => {
 };
 
 export default Registration;
-  

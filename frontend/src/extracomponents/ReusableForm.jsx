@@ -85,22 +85,25 @@ const renderField = (field) => {
         />
       );
 
-    case "file":
-      return (
-        <Field name={field.name}>
-          {({ form }) => (
-            <input
-              type="file"
-              name={field.name}
-              className="form-control contact-input"
-              multiple
-              onChange={(event) => {
-                form.setFieldValue(field.name, event.currentTarget.files);
-              }}
-            />
-          )}
-        </Field>
-      );
+    // ReusableForm में file case को update करें:
+case "file":
+  return (
+    <Field name={field.name}>
+      {({ form }) => (
+        <input
+          type="file"
+          name={field.name}
+          className="form-control contact-input"
+          accept={field.accept}
+          multiple={field.multiple !== false} // Default true, false if explicitly set
+          onChange={(event) => {
+            const files = event.currentTarget.files;
+            form.setFieldValue(field.name, field.multiple !== false ? files : files[0]);
+          }}
+        />
+      )}
+    </Field>
+  );
 
     default:
       return (

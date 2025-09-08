@@ -282,7 +282,7 @@ export default function AllLeads() {
           </div>
           <Modal show={showModal} onHide={() => setShowModal(false)}>
             <Modal.Header closeButton>
-              <Modal.Title>Full Query</Modal.Title>
+              <Modal.Title>Full Message</Modal.Title>
             </Modal.Header>
             <Modal.Body style={{
               maxHeight: "400px", 
