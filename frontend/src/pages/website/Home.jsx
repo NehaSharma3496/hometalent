@@ -340,8 +340,10 @@ const Home = () => {
               <div className="section-title text-center mx-auto position-relative">
                 <h4 className="blue-title">Explore top vendors by category</h4>
                 <span className="highlights">
-                  From wedding lawns and marriage gardens to photographers,
-                  bridal wear, makeup artists, and more — all with HomeTalent4u.
+                  Explore Talented Home Creators by Category From handmade
+                  crafts and artisanal products to personalized services and
+                  home-based skills—discover authentic local makers and
+                  providers
                 </span>
               </div>
             </div>
@@ -352,40 +354,25 @@ const Home = () => {
               ? categoryData
               : categoryData?.slice(0, 10)
             )?.map((category) => {
-              const imageSrc = `/assets/images/category/${category.name
-                .replace(/\s+/g, "-")
-                .toLowerCase()}.png`;
-
               return (
                 <div
                   className="grid-item"
-                  key={category._id || category.id || category.name}
+                  key={category.id || category._id || category.name}
                 >
                   <Link
                     to="/category"
-                    state={{ categoryId: category._id || category.id }}
+                    state={{ categoryId: category.id || category._id }}
                     className="category-banner"
                   >
                     <img
                       loading="lazy"
-                      src={`/assets/images/category/${category.name}.png`}
+                      src={category.image_url} // directly from API
                       alt={category.name}
-                      onError={(e1) => {
-                        const baseName = category.name;
-
-                        e1.target.onerror = (e2) => {
-                          e2.target.onerror = (e3) => {
-                            e3.target.onerror = (e4) => {
-                              e4.target.onerror = null;
-                              e4.target.src = `/assets/images/category/${baseName}.JPG`;
-                            };
-                            e3.target.src = `/assets/images/category/${baseName}.jpeg`;
-                          };
-                          e2.target.src = `/assets/images/category/${baseName}.jpg`;
-                        };
-                        e1.target.src = `/assets/images/category/${baseName}.png`;
-                      }}
                       className="your-class-name"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/assets/images/default-category.png"; // fallback image
+                      }}
                     />
 
                     <div className="category-content">
@@ -452,10 +439,9 @@ const Home = () => {
                   See Those Lovely Words From Clients
                 </h4>
                 <span className="highlights">
-                  At HomeTalent4U, every voice matters. Our community of
-                  passionate creators – from artisans and bakers to tutors and
-                  home entrepreneurs – inspires us every day. Here’s what our
-                  talented family has to say about their journey with us.
+                  Connecting Through Stories and Reviews Join the conversation
+                  and see the impact of HomeTalent4u through the eyes of our
+                  users.
                 </span>
               </div>
             </div>

@@ -132,7 +132,7 @@ const CategoryDetail = () => {
     if (
       !leadData.name ||
       !leadData.phone ||
-      !leadData.email ||
+      // !leadData.email ||
       !leadData.query
     ) {
       Swal.fire({
