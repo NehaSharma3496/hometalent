@@ -69,11 +69,11 @@ const Gallery = () => {
                 <p className="text-danger fs-5">No images or videos found</p>
               </div>
             ) : (
-              gallery.map((item, i) => (
-                <div key={i} className="col-xl-3 col-lg-4 col-sm-6">
+              gallery?.map((item, i) => (
+                <div key={i} className="col-xl-3 col-lg-4 col-sm-6 mb-4">
                   <div className="package-card h-calc">
                     <div
-                      className="package-img imgEffect4 thumbnail mt-2"
+                      className="package-img imgEffect4 thumbnail"
                       style={{
                         height: "250px",
                         overflow: "hidden",

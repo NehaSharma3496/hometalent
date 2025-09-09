@@ -301,31 +301,34 @@ const VendorPackages = () => {
   ];
 
   return (
-    <div className="page-content">
-      <div className="d-flex justify-content-between align-items-center flex-wrap mb-3 mt-4">
-        {/* Back button + Heading */}
-        <div className="d-flex align-items-center mb-2 mb-md-0">
-          <Link to="/vendor/dashboard" className="me-2">
-            <i className="fa-sharp fa-regular fa-arrow-left"></i>
-          </Link>
-          <h2 className="add-page-heading mb-0 fs-4">Packages</h2>
-        </div>
-
-        {/* Download Button */}
-        <div>
-          <button className="btn btn-success me-2" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i>
-            Download Excel
-          </button>
-        </div>
+   <div className="page-content">
+  {/* 🔹 Top Header Row */}
+  <div className="row align-items-center mb-3">
+    {/* Left side: Back + Heading */}
+    <div className="col-md-6">
+      <div className="add-page-heading-div">
+        <Link to="/vendor/dashboard">
+          <i className="fa-sharp fa-regular fa-arrow-left"></i>
+        </Link>
+        <h2 className="add-page-heading">Packages</h2>
       </div>
+    </div>
 
-      <div className="card table-padding">
-        <div
-          className="d-flex align-items-center border rounded px-2 "
-          style={{ maxWidth: "250px" }}
-        >
-          <i className="ri-search-line me-2 mx-5 text-muted" />
+    {/* Right side: Action buttons */}
+    <div className="col-md-6 text-end mt-2">
+      <button className="btn btn-success me-2" onClick={exportToExcel}>
+        <i className="fa-solid fa-file-excel me-1"></i>
+        Download Excel
+      </button>
+    </div>
+  </div>
+
+  {/* 🔹 Table Section */}
+  <div className="card table-padding">
+    <div className="card-header">
+      <div className="col-md-4">
+        <div className="d-flex align-items-center border rounded px-2">
+          <i className="ri-search-line me-2 text-muted" />
           <input
             type="text"
             className="form-control border-0 shadow-none"
@@ -342,24 +345,27 @@ const VendorPackages = () => {
             </button>
           )}
         </div>
-
-        <div className="row">
-          <div className="col-md-12">
-            <Datatable
-              columns={columns}
-              data={filteredPackages}
-              progressPending={loading}
-              pagination
-              paginationServer
-              paginationTotalRows={totalRows}
-              paginationPerPage={perPage}
-              onChangeRowsPerPage={handlePerRowsChange}
-              onChangePage={handlePageChange}
-            />
-          </div>
-        </div>
       </div>
     </div>
+
+    <div className="row">
+      <div className="card-body">
+        <Datatable
+          columns={columns}
+          data={filteredPackages}
+          progressPending={loading}
+          pagination
+          paginationServer
+          paginationTotalRows={totalRows}
+          paginationPerPage={perPage}
+          onChangeRowsPerPage={handlePerRowsChange}
+          onChangePage={handlePageChange}
+        />
+      </div>
+    </div>
+  </div>
+</div>
+
   );
 };
 

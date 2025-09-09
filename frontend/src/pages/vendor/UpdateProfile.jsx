@@ -195,12 +195,12 @@ export default function UpdateProfile() {
   if (!initialValues) return <div className="text-center py-5">Loading Profile Data...</div>;
 
   return (
-    <div className="page-content container-fluid">
-      <div className="add-page-heading-div mb-3 d-flex align-items-center gap-2">
+    <div className="page-content ">
+      <div className="add-page-heading-div">
         <Link to="/vendor/dashboard">
           <i className="fa-sharp fa-regular fa-arrow-left"></i>
         </Link>
-        <h2 className="add-page-heading mb-0">Request Profile Update</h2>
+        <h2 className="add-page-heading ">Request Profile Update</h2>
       </div>
 
       <div className="card table-padding">

@@ -98,7 +98,7 @@ const CategoryDetail = () => {
 
     const payload = {
       ...reviewData,
-      vendor_id: vendorData?.id || "",
+      vendor_id: vendorData?.user?.id || "",
     };
 
     try {
@@ -156,7 +156,7 @@ const CategoryDetail = () => {
 
     const payload = {
       ...leadData,
-      vendor_id: vendorData?.id || "",
+      vendor_id: vendorData?.user?.id || "",
     };
 
     try {

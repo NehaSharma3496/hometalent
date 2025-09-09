@@ -229,55 +229,67 @@ export default function MyPackages() {
 
   return (
     <div className="page-content">
+      {/* 🔹 Top Header Row */}
       <div className="row align-items-center mb-3">
+        {/* Left side: Back + Heading */}
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/vendor/dashboard" className="me-2">
+            <Link to="/vendor/dashboard">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
-            <h5 className="add-page-heading">My Packages</h5>
+            <h2 className="add-page-heading">My Packages</h2>
           </div>
         </div>
+
+        {/* Right side: Action button */}
         <div className="col-md-6 text-end mt-2">
           <button className="btn btn-success me-2" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i> Download
+            <i className="fa-solid fa-file-excel me-1"></i> Download Excel
           </button>
         </div>
       </div>
 
-      <div
-        className="d-flex align-items-center border rounded px-2 mb-3"
-        style={{ maxWidth: "300px" }}
-      >
-        <i className="ri-search-line me-2 mx-2 text-muted" />
-        <input
-          type="text"
-          className="form-control border-0 shadow-none"
-          placeholder="Search by package name..."
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-        />
-        {searchText && (
-          <button
-            className="btn btn-sm btn-light border-0"
-            onClick={() => setSearchText("")}
-          >
-            <i className="ri-close-line" />
-          </button>
-        )}
-      </div>
+      {/* 🔹 Table Card */}
+      <div className="card table-padding">
+        <div className="card-header">
+          <div className="col-md-4">
+            <div className="d-flex align-items-center border rounded px-2">
+              <i className="ri-search-line me-2 text-muted" />
+              <input
+                type="text"
+                className="form-control border-0 shadow-none"
+                placeholder="Search by package name..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+              {searchText && (
+                <button
+                  className="btn btn-sm btn-light border-0"
+                  onClick={() => setSearchText("")}
+                >
+                  <i className="ri-close-line" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
 
-      <Datatable
-        columns={columns}
-        data={filteredData}
-        progressPending={loading}
-        pagination
-        paginationServer={false} // ✅ do client-side pagination after filter
-        paginationTotalRows={filteredData.length} // ✅ count only completed
-        paginationPerPage={perPage}
-        onChangeRowsPerPage={handlePerRowsChange}
-        onChangePage={handlePageChange}
-      />
+        <div className="row">
+          <div className="card-body">
+            <Datatable
+              columns={columns}
+              data={filteredData}
+              progressPending={loading}
+              pagination
+              paginationServer={false} // ✅ client-side pagination
+              paginationTotalRows={filteredData.length}
+              paginationPerPage={perPage}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
