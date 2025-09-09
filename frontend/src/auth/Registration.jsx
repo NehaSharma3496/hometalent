@@ -22,7 +22,7 @@ const Registration = () => {
     showVerifyButton: false,
     showOtpInput: false,
     otp: "",
-    sentOtp: "", // Store the OTP received from API response
+    sentOtp: "", 
     phoneNumber: "",
   });
 
@@ -80,113 +80,203 @@ const Registration = () => {
     }),
   });
 
-  const PhoneVerificationComponent = ({
-    values,
-    setFieldValue,
-    phoneVerificationState,
-    setPhoneVerificationState,
-  }) => {
-    const handlePhoneChange = (e) => {
-      const cleaned = e.target.value.replace(/\D/g, "").slice(0, 10);
-      setFieldValue("phone", cleaned); 
-      setPhoneVerificationState((prev) => ({
-        ...prev,
-        isVerified: false,
-        showVerifyButton: cleaned.length === 10,
-        showOtpInput: false,
-        otp: "",
-        sentOtp: "",
-        phoneNumber: cleaned,
-      }));
-    };
-
-    const handleSendOtp = async () => {
-      if (values.phone.length !== 10) return;
-      try {
-        const res = await VerifyOtp({ phone: values.phone });
-        if (res?.status) {
-          setPhoneVerificationState((prev) => ({
-            ...prev,
-            showOtpInput: true,
-            sentOtp: res?.otp || "",
-          }));
-          Swal.fire("Success", "OTP sent successfully!", "success");
-        } else {
-          Swal.fire("Error", res?.msg || "Failed to send OTP", "error");
-        }
-      } catch (err) {
-        Swal.fire("Error", "OTP send failed", "error");
-      }
-    };
-
-    const handleVerifyOtp = () => {
-      if (
-        phoneVerificationState.otp === phoneVerificationState.sentOtp.toString()
-      ) {
-        setPhoneVerificationState((prev) => ({
-          ...prev,
-          isVerified: true,
-          showOtpInput: false,
-        }));
-        Swal.fire("Success", "Phone verified!", "success");
-      } else {
-        Swal.fire("Error", "Invalid OTP", "error");
-      }
-    };
-
-    return (
-      <>
-        <label>Phone No*</label>
-        <div className="input-group">
-          <input
-            type="tel"
-            className="form-control"
-            value={values.phone}
-            onChange={handlePhoneChange}
-            maxLength={10}
-            placeholder="Enter 10-digit phone"
-          />
-          {phoneVerificationState.showVerifyButton &&
-            !phoneVerificationState.isVerified && (
-              <button type="button" onClick={handleSendOtp}>
-                {phoneVerificationState.showOtpInput
-                  ? "OTP Sent"
-                  : "Verify Phone"}
-              </button>
-            )}
-        </div>
-
-        {phoneVerificationState.showOtpInput && (
-          <div className="input-group mt-2">
-            <input
-              type="tel"
-              value={phoneVerificationState.otp}
-              onChange={(e) => {
-                const cleaned = e.target.value.replace(/\D/g, "").slice(0, 4);
-                setPhoneVerificationState((prev) => ({
-                  ...prev,
-                  otp: cleaned,
-                }));
-              }}
-              maxLength={4}
-              placeholder="Enter OTP"
-            />
-            <button
-              onClick={handleVerifyOtp}
-              disabled={phoneVerificationState.otp.length !== 4}
-            >
-              Verify OTP
-            </button>
-          </div>
-        )}
-
-        {phoneVerificationState.isVerified && (
-          <div className="text-success mt-1">Phone verified!</div>
-        )}
-      </>
-    );
+ const PhoneVerificationComponent = ({
+  values,
+  setFieldValue,
+  setFieldTouched,
+  touched,
+  errors,
+  form, // Complete form object passed from ReusableForm
+  phoneVerificationState,
+  setPhoneVerificationState,
+}) => {
+  const fieldName = "phone";
+  
+  const handlePhoneInput = (e) => {
+    const inputValue = e.target.value;
+    
+    // Only allow numbers and limit to 10 digits
+    const numericValue = inputValue.replace(/[^0-9]/g, '').slice(0, 10);
+    
+    // Update Formik field value
+    setFieldValue(fieldName, numericValue);
+    
+    // Mark field as touched
+    if (!touched[fieldName]) {
+      setFieldTouched(fieldName, true);
+    }
+    
+    // Update phone verification state
+    setPhoneVerificationState((prev) => ({
+      ...prev,
+      isVerified: numericValue !== prev.phoneNumber ? false : prev.isVerified,
+      showVerifyButton: numericValue.length === 10,
+      showOtpInput: numericValue !== prev.phoneNumber ? false : prev.showOtpInput,
+      otp: numericValue !== prev.phoneNumber ? "" : prev.otp,
+      sentOtp: numericValue !== prev.phoneNumber ? "" : prev.sentOtp,
+      phoneNumber: numericValue,
+    }));
   };
 
+  const handleOtpInput = (e) => {
+    const inputValue = e.target.value;
+    const numericValue = inputValue.replace(/[^0-9]/g, '').slice(0, 4);
+    
+    setPhoneVerificationState((prev) => ({
+      ...prev,
+      otp: numericValue,
+    }));
+  };
+
+  const handleSendOtp = async () => {
+    const phoneValue = values[fieldName];
+    if (!phoneValue || phoneValue.length !== 10) {
+      Swal.fire("Error", "Please enter a valid 10-digit phone number", "error");
+      return;
+    }
+    
+    try {
+      // Show loading state
+      setPhoneVerificationState((prev) => ({
+        ...prev,
+        loading: true,
+      }));
+
+      const res = await VerifyOtp({ phone: phoneValue });
+      
+      if (res?.status) {
+        setPhoneVerificationState((prev) => ({
+          ...prev,
+          showOtpInput: true,
+          sentOtp: res?.otp || "",
+          loading: false,
+        }));
+        Swal.fire("Success", "OTP sent successfully to your phone!", "success");
+      } else {
+        setPhoneVerificationState((prev) => ({
+          ...prev,
+          loading: false,
+        }));
+        Swal.fire("Error", res?.msg || "Failed to send OTP", "error");
+      }
+    } catch (err) {
+      console.error("OTP send error:", err);
+      setPhoneVerificationState((prev) => ({
+        ...prev,
+        loading: false,
+      }));
+      Swal.fire("Error", "Failed to send OTP. Please try again.", "error");
+    }
+  };
+
+  const handleVerifyOtp = () => {
+    const otpValue = phoneVerificationState.otp;
+    
+    if (!otpValue || otpValue.length !== 4) {
+      Swal.fire("Error", "Please enter a valid 4-digit OTP", "error");
+      return;
+    }
+
+    if (otpValue === phoneVerificationState.sentOtp.toString()) {
+      setPhoneVerificationState((prev) => ({
+        ...prev,
+        isVerified: true,
+        showOtpInput: false,
+      }));
+      Swal.fire("Success", "Phone number verified successfully!", "success");
+    } else {
+      Swal.fire("Error", "Invalid OTP. Please try again.", "error");
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    // Only allow numbers
+    if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  return (
+    <>
+      <label className="contact-label mb-2 fs-6 fw-semibold">Phone No*</label>
+      
+      <div className="input-group mb-2">
+        <input
+          type="text"
+          className={`form-control contact-input ${
+            touched[fieldName] && errors[fieldName] ? 'is-invalid' : ''
+          }`}
+          value={values[fieldName] || ''}
+          onChange={handlePhoneInput}
+          onKeyPress={handleKeyPress}
+          placeholder="Enter 10-digit phone number"
+          maxLength="10"
+          autoComplete="tel"
+        />
+        
+        {phoneVerificationState.showVerifyButton &&
+          !phoneVerificationState.isVerified && (
+            <button 
+              type="button" 
+              className="btn btn-outline-primary"
+              onClick={handleSendOtp}
+              disabled={phoneVerificationState.showOtpInput || phoneVerificationState.loading}
+              style={{ whiteSpace: 'nowrap' }}
+            >
+              {phoneVerificationState.loading ? "Sending..." :
+               phoneVerificationState.showOtpInput ? "OTP Sent" : "Send OTP"}
+            </button>
+          )}
+      </div>
+
+      {phoneVerificationState.showOtpInput && (
+        <div className="input-group mb-2">
+          <input
+            type="text"
+            className="form-control contact-input"
+            value={phoneVerificationState.otp || ''}
+            onChange={handleOtpInput}
+            onKeyPress={handleKeyPress}
+            placeholder="Enter 4-digit OTP"
+            maxLength="4"
+            autoComplete="one-time-code"
+          />
+          <button
+            type="button"
+            className="btn btn-success"
+            onClick={handleVerifyOtp}
+            disabled={phoneVerificationState.otp.length !== 4}
+          >
+            Verify OTP
+          </button>
+        </div>
+      )}
+
+      {phoneVerificationState.isVerified && (
+        <div className="alert alert-success p-2 mt-2" role="alert">
+          <small>✓ Phone number verified successfully!</small>
+        </div>
+      )}
+
+      {/* Show validation errors */}
+      {touched[fieldName] && errors[fieldName] && (
+        <div className="text-danger small mt-1">
+          {errors[fieldName]}
+        </div>
+      )}
+
+      {/* Show warning if phone number is complete but not verified */}
+      {!phoneVerificationState.isVerified && 
+       values[fieldName] && 
+       values[fieldName].length === 10 && 
+       !errors[fieldName] && (
+        <div className="text-warning mt-1">
+          <small>⚠️ Please verify your phone number before submitting</small>
+        </div>
+      )}
+    </>
+  );
+};
   // Enhanced fields array with custom phone field
   const fields = [
     {
@@ -222,11 +312,12 @@ const Registration = () => {
       type: "text",
       colClass: "col-md-4 mb-3",
       maxLength: 6,
+       numeric: true,
     },
     {
       name: "phone",
       label: "Phone No*",
-      type: "text",
+      type: "custom",
       colClass: "col-md-4 mb-3",
       customComponent: (props) => (
         <PhoneVerificationComponent

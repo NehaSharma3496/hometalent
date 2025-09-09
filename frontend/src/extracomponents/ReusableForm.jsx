@@ -1,5 +1,3 @@
-// Update your ReusableForm component's renderField function to include custom component support:
-
 import React from "react";
 import { Formik, Form, Field, ErrorMessage, FormikConsumer } from "formik";
 import Select from "react-select";
@@ -12,8 +10,11 @@ const renderField = (field, form, values) => {
       <CustomComponent
         values={values}
         setFieldValue={form.setFieldValue}
+        setFieldTouched={form.setFieldTouched}
         touched={form.touched}
         errors={form.errors}
+        // Pass the entire form object for more flexibility
+        form={form}
       />
     );
   }
@@ -118,6 +119,7 @@ const renderField = (field, form, values) => {
           name={field.name}
           className="form-control contact-input"
           id={field.name}
+          placeholder={field.placeholder}
         />
       );
 
@@ -157,13 +159,37 @@ const renderField = (field, form, values) => {
 
     default:
       return (
-        <Field
-          type={field.type}
-          name={field.name}
-          placeholder={field.placeholder}
-          className="form-control contact-input"
-          autoComplete={field.autoComplete}
-        />
+        <Field name={field.name}>
+          {({ field: formikField, form }) => (
+            <input
+              {...formikField}
+              type={field.type}
+              placeholder={field.placeholder}
+              className="form-control contact-input"
+              autoComplete={field.autoComplete}
+              maxLength={field.maxLength}
+              // Handle onChange for special cases
+              onChange={(e) => {
+                let value = e.target.value;
+
+                // Special handling for numeric fields
+                if (field.numeric) {
+                  value = value.replace(/[^0-9]/g, "");
+                  if (field.maxLength) {
+                    value = value.slice(0, field.maxLength);
+                  }
+                }
+
+                form.setFieldValue(field.name, value);
+
+                // Call custom onChange if provided
+                if (field.onChange) {
+                  field.onChange(e, form.setFieldValue);
+                }
+              }}
+            />
+          )}
+        </Field>
       );
   }
 };
@@ -180,6 +206,8 @@ const ReusableForm = ({
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={onSubmit}
+      // Enable reinitialize to handle dynamic initial values
+      enableReinitialize={true}
     >
       {({ handleSubmit, validateForm, setTouched, ...formikProps }) => (
         <Form
@@ -218,22 +246,26 @@ const ReusableForm = ({
                 !field.showWhen || field.showWhen(values) ? (
                   <div className={field.colClass || "col-12"}>
                     <div className="form-group">
+                      {/* Don't show label for custom components as they handle their own labels */}
                       {field.type !== "checkbox" &&
                         field.type !== "radio" &&
                         field.type !== "custom" && (
                           <label
                             htmlFor={field.name}
-                            className="contact-label mb- fs-6 fw-semibold"
+                            className="contact-label mb-2 fs-6 fw-semibold"
                           >
                             {field.label}
                           </label>
                         )}
                       {renderField(field, formikProps, values)}
-                      <ErrorMessage
-                        name={field.name}
-                        component="div"
-                        className="text-danger small"
-                      />
+                      {/* Only show ErrorMessage for non-custom components */}
+                      {field.type !== "custom" && (
+                        <ErrorMessage
+                          name={field.name}
+                          component="div"
+                          className="text-danger small mt-1"
+                        />
+                      )}
                     </div>
                   </div>
                 ) : null
@@ -242,8 +274,8 @@ const ReusableForm = ({
           ))}
 
           <div className="col-12">
-            <button type="submit" className="btn btn-primary mt-2">
-              {SubmitBtn ? SubmitBtn : "Submit"}
+            <button type="submit" className="btn btn-primary mt-3">
+              {SubmitBtn || "Submit"}
             </button>
           </div>
         </Form>

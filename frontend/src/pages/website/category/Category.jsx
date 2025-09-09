@@ -249,7 +249,7 @@ const Category = () => {
                                   state={{ vendorId: item.id }}
                                   className="truncate-2-lines mb-3"
                                 >
-                                  {item?.short_description}
+                                  {item?.long_description}
                                 </Link>
                               </h1>
 

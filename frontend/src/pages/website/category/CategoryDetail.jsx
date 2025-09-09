@@ -35,6 +35,8 @@ const CategoryDetail = () => {
     }
   };
 
+  console.log("Vendor data ", vendorData);
+
   useEffect(() => {
     fetchVendorDetails();
   }, [vendorId]);
@@ -226,8 +228,9 @@ const CategoryDetail = () => {
     { key: "youtube_link", icon: "fab fa-youtube", color: "#ff0000" },
   ];
 
-  const availableLinks = socialLinks.filter(
-    (item) => vendorData?.[item.key] && vendorData[item.key].trim() !== ""
+  const availableLinks = socialLinks?.filter(
+    (item) =>
+      vendorData?.user?.[item.key] && vendorData.user[item.key].trim() !== ""
   );
 
   return (
@@ -365,7 +368,7 @@ const CategoryDetail = () => {
                               {visibleImages?.map((item, i) => (
                                 <div className="col-lg-3 col-sm-6" key={i}>
                                   <div
-                                    className="shadow-sm"
+                                    className="shadow-sm mt-2"
                                     style={{
                                       height: "200px",
                                       overflow: "hidden",
@@ -449,7 +452,7 @@ const CategoryDetail = () => {
                             {videoItems?.length > 4 && (
                               <div className="text-center mt-3">
                                 <button
-                                  className="btn btn-primary"
+                                  className="btn btn-primary "
                                   onClick={() => {
                                     if (showAllVideos) {
                                       setShowAllVideos(false);
