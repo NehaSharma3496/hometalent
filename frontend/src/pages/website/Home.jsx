@@ -338,12 +338,9 @@ const Home = () => {
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-7">
               <div className="section-title text-center mx-auto position-relative">
-                <h4 className="blue-title">Explore top vendors by category</h4>
+                <h4 className="blue-title">Explore Talented Home Creators by Category</h4>
                 <span className="highlights">
-                  Explore Talented Home Creators by Category From handmade
-                  crafts and artisanal products to personalized services and
-                  home-based skills—discover authentic local makers and
-                  providers
+                  From handmade crafts and artisanal products to personalized services and home-based skills—discover authentic local makers and providers
                 </span>
               </div>
             </div>
