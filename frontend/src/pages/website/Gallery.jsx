@@ -73,7 +73,7 @@ const Gallery = () => {
                 <div key={i} className="col-xl-3 col-lg-4 col-sm-6">
                   <div className="package-card h-calc">
                     <div
-                      className="package-img imgEffect4 thumbnail"
+                      className="package-img imgEffect4 thumbnail mt-2"
                       style={{
                         height: "250px",
                         overflow: "hidden",

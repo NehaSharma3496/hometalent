@@ -223,7 +223,7 @@ const Category = () => {
                               <h4 className="area-name">
                                 <Link
                                   to="/categorydetail"
-                                  state={{ vendor: item }}
+                                   state={{ vendorId: item.id }}
                                 >
                                   {item.owner_name}
                                 </Link>

@@ -19,10 +19,7 @@ const Blog = () => {
   };
 
   useEffect(() => {
-    // setLoading(true);
-  
       fetchBlog();
-  
   }, []);
 
   const breadcrumbLinks = [
