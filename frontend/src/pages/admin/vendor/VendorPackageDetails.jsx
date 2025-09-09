@@ -261,7 +261,8 @@ export default function VendorPackageDetails() {
         const isLatestCompleted = latestCompleted?.id === row.id;
 
         // 🚫 Agar package ka price 0 hai to extend option disable kar do
-        if (row?.Package?.price === 0) {
+        if (row?.Package?.validity_in_months
+ ==null) {
           return (
             <span className="text-muted">Free Package (Not Extendable)</span>
           );
