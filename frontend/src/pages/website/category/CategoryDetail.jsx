@@ -29,19 +29,19 @@ const CategoryDetail = () => {
 
   const [activeTab, setActiveTab] = useState("review");
   const [reviewForm, setReviewForm] = useState({
+    vendor_id: vendorId, 
     name: "",
     email: "",
     phone: "",
+    reason: "",
     rating: 0,
-    review: "",
-    vendor_id: vendorId, // props से आएगा
   });
   const [reportForm, setReportForm] = useState({
+    vendor_id: vendorId,
     name: "",
     phone: "",
-    description: "",
     issue: "",
-    vendor_id: vendorId,
+    reason: "",
   });
 
   // ====== OTP STATES ======
@@ -86,7 +86,7 @@ const sendOtp = async (type) => {
 
 // ====== VERIFY OTP ======
 const verifyOtp = () => {
-  if (otp === serverOtp) {
+  if (otp == serverOtp) {
     setIsOtpVerified(true);
     setOtpMessage("✅ OTP Verified");
     Swal.fire("Verified!", "Mobile number verified successfully", "success");

@@ -131,13 +131,13 @@ function generateOtp() {
 
 exports.sendotpreview = async (req, res) => {
   try {
-    if(req.type == 'review'){
-      const checkphone = await Review.findOne({ where: { phone: req.phone } });
+    if(req.body.type == 'review'){
+      const checkphone = await Review.findOne({ where: { phone: req.body.phone } });
       if (checkphone) {
         return res.status(400).json({ status: false, msg: "Already verify" });
       }
     }else{
-      const checkphone = await Report.findOne({ where: { phone: req.phone } });
+      const checkphone = await Report.findOne({ where: { phone: req.body.phone } });
       if (checkphone) {
         return res.status(400).json({ status: false, msg: "Already verify" });
       }
@@ -151,7 +151,7 @@ exports.sendotpreview = async (req, res) => {
       pass: "$4J@K2pj",
       senderid: "CEGANO",
       message: message,
-      dest_mobileno: req.phone,
+      dest_mobileno: req.body.phone,
       msgtype: "TXT",
       response: "Y",
       dlttempid: "1707175612278037393"
