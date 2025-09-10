@@ -248,10 +248,21 @@ class SocketManager {
 
   // Review submitted
   reviewSubmitted(reviewData) {
-    this.notifyAdmins("review_submitted", {
-      message: "New review has been received.",
-      review: reviewData,
-    });
+    if(reviewData.reason !== undefined && reviewData.reason){
+      // It's a report 
+      this.notifyAdmins("report_submitted", {
+        message: "New report has been received.",
+        report: reviewData,
+      });
+      return;
+    }else {
+      // It's a review
+      this.notifyAdmins("review_submitted", {
+        message: "New review has been received.",
+        review: reviewData,
+      });
+      
+    }
   }
 
   // Plan expired notifications

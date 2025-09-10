@@ -182,6 +182,8 @@ User.associate = (models) => {
     // User.hasMany(models.Product, { foreignKey: 'user_id' });
     // User.hasMany(models.Store, { foreignKey: 'user_id' });
     // User.hasMany(models.ActivityLogs, { foreignKey: 'user_id' });
+    User.hasMany(models.Review, { foreignKey: 'vendor_id', as: 'reviews' });
+    User.hasMany(models.Report, { foreignKey: 'vendor_id', as: 'reports' });
     
 };
 
