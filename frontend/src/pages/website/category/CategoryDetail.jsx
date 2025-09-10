@@ -5,8 +5,10 @@ import {
   SubmitLead,
   GetStateCity,
   SubmitReview,
+  SubmitReport,
+  Submitotp,
 } from "../../../Services/webService/Web";
-import { GetGallery } from "../../../Services/vendor/Vendor";
+import { GetGallery, GetVendorDetails } from "../../../Services/vendor/Vendor";
 import Swal from "sweetalert2";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
@@ -15,17 +17,157 @@ const CategoryDetail = () => {
   const [galleryImages, setGalleryImages] = useState([]);
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState("images"); // 👈 Tabs state
+  const [activeTabs, setActiveTabs] = useState("images");
   const [showAllImages, setShowAllImages] = useState(false);
   const [showAllVideos, setShowAllVideos] = useState(false);
 
   const location = useLocation();
-  const vendor = location.state?.vendor?.id;
-  const vendors = location.state?.vendor;
-  const category = location.state?.category;
-  const cityId = location.state?.vendor?.city_id;
+  const vendorId = location.state?.vendorId;
   const [cityName, setCityName] = useState("");
   const imageSectionRef = React.useRef(null);
+  const [vendorData, setVendorData] = useState(null);
+
+  const [activeTab, setActiveTab] = useState("review");
+  const [reviewForm, setReviewForm] = useState({
+    vendor_id: vendorId, 
+    name: "",
+    email: "",
+    phone: "",
+    reason: "",
+    rating: 0,
+  });
+  const [reportForm, setReportForm] = useState({
+    vendor_id: vendorId,
+    name: "",
+    phone: "",
+    issue: "",
+    reason: "",
+  });
+
+  // ====== OTP STATES ======
+const [otp, setOtp] = useState("");
+const [isOtpSent, setIsOtpSent] = useState(false);
+const [isOtpVerified, setIsOtpVerified] = useState(false);
+const [serverOtp, setServerOtp] = useState(""); // 🔹 backend से आएगा
+const [otpMessage, setOtpMessage] = useState("");
+
+// ====== SEND OTP ======
+const sendOtp = async (type) => {
+  try {
+    const phone = type === "review" ? reviewForm.phone : reportForm.phone;
+
+    if (!/^\d{10}$/.test(phone)) {
+      Swal.fire("Invalid!", "Enter a valid 10-digit phone number.", "error");
+      return;
+    }
+
+    const res = await Submitotp({ phone, type });
+
+    if (res?.status) {
+      // अगर पहले से verified है
+      if (res.message?.toLowerCase().includes("already verified")) {
+        setIsOtpVerified(true);
+        setOtpMessage("✅ Mobile already verified");
+        Swal.fire("Info", "Mobile already verified", "info");
+      } else {
+        setIsOtpSent(true);
+        setServerOtp(res.otp); // 🔹 backend से OTP save करेंगे
+        setOtpMessage("OTP sent successfully!");
+        Swal.fire("Success", "OTP sent to your mobile", "success");
+      }
+    } else {
+      Swal.fire("Failed!", res?.message || "OTP not sent", "error");
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error", "Something went wrong while sending OTP", "error");
+  }
+};
+
+// ====== VERIFY OTP ======
+const verifyOtp = () => {
+  if (otp == serverOtp) {
+    setIsOtpVerified(true);
+    setOtpMessage("✅ OTP Verified");
+    Swal.fire("Verified!", "Mobile number verified successfully", "success");
+  } else {
+    Swal.fire("Invalid OTP", "Please enter correct OTP", "error");
+  }
+};
+
+// ====== HANDLE REVIEW SUBMIT ======
+const handleSubmitReview = async (e) => {
+  e.preventDefault();
+
+  if (!isOtpVerified) {
+    Swal.fire("OTP Required", "Please verify your mobile number", "warning");
+    return;
+  }
+
+  const res = await SubmitReview(reviewForm);
+  if (res?.status) {
+    Swal.fire("Success!", "Review submitted successfully!", "success");
+    setReviewForm({
+      name: "",
+      email: "",
+      phone: "",
+      rating: 0,
+      review: "",
+      vendor_id: vendorId,
+    });
+    setIsOtpSent(false);
+    setIsOtpVerified(false);
+    setOtp("");
+  } else {
+    Swal.fire("Failed!", res?.message || "Unable to submit review", "error");
+  }
+};
+
+// ====== HANDLE REPORT SUBMIT ======
+const handleSubmitReport = async (e) => {
+  e.preventDefault();
+
+  if (!isOtpVerified) {
+    Swal.fire("OTP Required", "Please verify your mobile number", "warning");
+    return;
+  }
+
+  const res = await SubmitReport(reportForm);
+  if (res?.status) {
+    Swal.fire("Success!", "Report submitted successfully!", "success");
+    setReportForm({
+      name: "",
+      phone: "",
+      description: "",
+      issue: "",
+      vendor_id: vendorId,
+    });
+    setIsOtpSent(false);
+    setIsOtpVerified(false);
+    setOtp("");
+  } else {
+    Swal.fire("Failed!", res?.message || "Unable to submit report", "error");
+  }
+};
+
+
+  const fetchVendorDetails = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await GetVendorDetails(token, vendorId);
+      setVendorData(res?.data);
+    } catch (error) {
+      console.error("Vendor details fetch error", error);
+    }
+  };
+
+  console.log("Vendor data ", vendorData);
+
+  useEffect(() => {
+    fetchVendorDetails();
+  }, [vendorId]);
+
+  console.log("Vendor Data:", vendorData);
 
   useEffect(() => {
     const fetchCityName = async () => {
@@ -34,19 +176,19 @@ const CategoryDetail = () => {
         if (res?.status && Array.isArray(res?.data)) {
           const citiesList = res.data.filter((c) => c.type === "city");
           const matchedCity = citiesList.find(
-            (city) => String(city.id) === String(cityId)
+            (city) => String(city.id) === String(vendorData?.user?.city_id)
           );
-          setCityName(matchedCity?.name || "Unknown City");
+          setCityName(matchedCity?.name || "");
         }
       } catch (error) {
         console.error("Error fetching city name", error);
       }
     };
 
-    if (cityId) {
+    if (vendorData?.user?.city_id) {
       fetchCityName();
     }
-  }, [cityId]);
+  }, [vendorData]);
 
   const [leadData, setLeadData] = useState({
     name: "",
@@ -70,55 +212,11 @@ const CategoryDetail = () => {
     setReviewData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmitReview = async () => {
-    if (!reviewData.name || !reviewData.message) {
-      Swal.fire({
-        icon: "warning",
-        title: "Missing Fields",
-        text: "Please fill in all required fields.",
-      });
-      return;
-    }
-
-    const payload = {
-      ...reviewData,
-      vendor_id: vendors?.id || "",
-    };
-
-    try {
-      const res = await SubmitReview(payload);
-
-      if (res?.status === true) {
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: res?.message || "Review submitted!",
-        });
-        setReviewData({ name: "", message: "" });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Failed",
-          text: res?.message || "Failed to submit review.",
-        });
-      }
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text:
-          error?.response?.data?.message ||
-          error?.message ||
-          "Something went wrong. Please try again.",
-      });
-    }
-  };
-
   const handleSubmit = async () => {
     if (
       !leadData.name ||
       !leadData.phone ||
-      !leadData.email ||
+      // !leadData.email ||
       !leadData.query
     ) {
       Swal.fire({
@@ -140,7 +238,7 @@ const CategoryDetail = () => {
 
     const payload = {
       ...leadData,
-      vendor_id: vendors?.id || "",
+      vendor_id: vendorData?.user?.id || "",
     };
 
     try {
@@ -170,28 +268,24 @@ const CategoryDetail = () => {
 
   const breadcrumbLinks = [
     { label: "Home", to: "/" },
-    { label: vendors?.category_names, to: "#" },
+    { label: vendorData?.user?.category_name, to: "#" },
   ];
 
-  // fetch gallery
   useEffect(() => {
     const fetchGalleryImages = async () => {
-      if (vendor) {
-        try {
-          const token = localStorage.getItem("token");
-          const res = await GetGallery(token, vendor);
-
-          if (res?.status) {
-            setGalleryImages(res?.data);
-          }
-        } catch (error) {
-          console.error("Gallery Fetch Error", error);
+      try {
+        const token = localStorage.getItem("token");
+        const res = await GetGallery(token, vendorId);
+        if (res?.status) {
+          setGalleryImages(res?.data);
         }
+      } catch (error) {
+        console.error("Gallery Fetch Error", error);
       }
     };
 
-    fetchGalleryImages();
-  }, [vendor]);
+    if (vendorId) fetchGalleryImages();
+  }, [vendorId]);
 
   // separate images & videos
   const imageItems = galleryImages.filter((item) => item.file_type === "image");
@@ -216,13 +310,17 @@ const CategoryDetail = () => {
     { key: "youtube_link", icon: "fab fa-youtube", color: "#ff0000" },
   ];
 
-  const availableLinks = socialLinks.filter(
-    (item) => vendors?.[item.key] && vendors[item.key].trim() !== ""
+  const availableLinks = socialLinks?.filter(
+    (item) =>
+      vendorData?.user?.[item.key] && vendorData.user[item.key].trim() !== ""
   );
 
   return (
     <div>
-      <Breadcrumbs title={vendors?.category_names} links={breadcrumbLinks} />
+      <Breadcrumbs
+        title={vendorData?.user?.category_name}
+        links={breadcrumbLinks}
+      />
       <section className="tour-details-section section-padding">
         <div className="tour-details-area">
           <div className="tour-details-container">
@@ -232,7 +330,7 @@ const CategoryDetail = () => {
                   <div className="col-xl-8 col-lg-7">
                     <div className="details-heading">
                       <div className="d-flex flex-column">
-                        {location.state?.vendor?.image && (
+                        {vendorData?.user?.image && (
                           <div
                             style={{
                               width: "100%",
@@ -242,7 +340,7 @@ const CategoryDetail = () => {
                             }}
                           >
                             <img
-                              src={location.state.vendor.image}
+                              src={vendorData?.user?.image}
                               alt="Vendor Image"
                               style={{
                                 width: "100%",
@@ -254,8 +352,7 @@ const CategoryDetail = () => {
                         )}
 
                         <h4 className="title text-capitalize mt-4">
-                          {location.state?.vendor?.owner_name ||
-                            "Unknown Vendor"}
+                          {vendorData?.user?.owner_name}
                         </h4>
 
                         <div className="d-flex flex-wrap align-items-center gap-20 mt-8">
@@ -273,7 +370,7 @@ const CategoryDetail = () => {
                         </div>
                         <div>
                           <h4 className="title text-capitalize mt-2">
-                            {vendors?.category_names}
+                            {vendorData?.user?.category_name}
                           </h4>
                         </div>
                       </div>
@@ -281,7 +378,7 @@ const CategoryDetail = () => {
 
                     <div className="tour-details-content mt-15">
                       <p className="detail-text">
-                        {vendors?.short_description}
+                        {vendorData?.user?.short_description}
                       </p>
                     </div>
 
@@ -289,25 +386,29 @@ const CategoryDetail = () => {
                       <div className="d-flex align-items-end">
                         <h3 className="title">Estimated Price Range -</h3>
                         <h3 className="title fw-bold">
-                          ₹{vendors?.price_range}
+                          {vendorData?.user?.price_range
+                            ? `₹${vendorData.user.price_range}`
+                            : "Please contact for price"}
                         </h3>
                       </div>
                       <div className="rating">
                         <p className="detail-text">Experience Since -</p>
                         <p className="detail-text">
-                          {vendors?.experience_since}
+                          {vendorData?.user?.experience_since || "N/A"}
                         </p>
                       </div>
                     </div>
 
                     <div className="tour-details-content mt-10">
                       <h4 className="title">About</h4>
-                      <p className="detail-text">{vendors?.long_description}</p>
+                      <p className="detail-text">
+                        {vendorData?.user?.long_description}
+                      </p>
                     </div>
 
                     {/* GALLERY SECTION WITH TABS */}
                     {/* GALLERY SECTION WITH TABS */}
-                    {(imageItems.length > 0 || videoItems.length > 0) && (
+                    {(imageItems?.length > 0 || videoItems?.length > 0) && (
                       <div
                         className="tour-details-content mt-4"
                         ref={imageSectionRef}
@@ -315,27 +416,27 @@ const CategoryDetail = () => {
                         <h4 className="title mb-3">Gallery</h4>
 
                         {/* Tabs - Agar sirf ek hi type ka content hai to ek hi tab show hoga */}
-                        <div className="d-flex gap-3 mb-3">
-                          {imageItems.length > 0 && (
+                        <div className="d-flex gap-3 mb-3 mt-4">
+                          {imageItems?.length > 0 && (
                             <button
                               className={`btn ${
-                                activeTab === "images"
+                                activeTabs === "images"
                                   ? "btn-primary"
                                   : "btn-outline-primary"
-                              }`}
-                              onClick={() => setActiveTab("images")}
+                              } mb-4`}
+                              onClick={() => setActiveTabs("images")}
                             >
                               Images
                             </button>
                           )}
-                          {videoItems.length > 0 && (
+                          {videoItems?.length > 0 && (
                             <button
                               className={`btn ${
-                                activeTab === "videos"
+                                activeTabs === "videos"
                                   ? "btn-primary"
                                   : "btn-outline-primary"
-                              }`}
-                              onClick={() => setActiveTab("videos")}
+                              } mb-4`}
+                              onClick={() => setActiveTabs("videos")}
                             >
                               Videos
                             </button>
@@ -343,13 +444,13 @@ const CategoryDetail = () => {
                         </div>
 
                         {/* Images Tab */}
-                        {activeTab === "images" && imageItems.length > 0 && (
+                        {activeTabs === "images" && imageItems?.length > 0 && (
                           <>
                             <div className="row g-4">
-                              {visibleImages.map((item, i) => (
+                              {visibleImages?.map((item, i) => (
                                 <div className="col-lg-3 col-sm-6" key={i}>
                                   <div
-                                    className="shadow-sm"
+                                    className="shadow-sm mt-2"
                                     style={{
                                       height: "200px",
                                       overflow: "hidden",
@@ -372,7 +473,7 @@ const CategoryDetail = () => {
                               ))}
                             </div>
 
-                            {imageItems.length > 4 && (
+                            {imageItems?.length > 4 && (
                               <div className="text-center mt-3">
                                 <button
                                   className="btn btn-primary"
@@ -399,10 +500,10 @@ const CategoryDetail = () => {
                         )}
 
                         {/* Videos Tab */}
-                        {activeTab === "videos" && videoItems.length > 0 && (
+                        {activeTabs === "videos" && videoItems?.length > 0 && (
                           <>
                             <div className="row g-4">
-                              {visibleVideos.map((item, i) => (
+                              {visibleVideos?.map((item, i) => (
                                 <div className="col-lg-3 col-sm-6" key={i}>
                                   <div
                                     className="shadow-sm"
@@ -430,10 +531,10 @@ const CategoryDetail = () => {
                               ))}
                             </div>
 
-                            {videoItems.length > 4 && (
+                            {videoItems?.length > 4 && (
                               <div className="text-center mt-3">
                                 <button
-                                  className="btn btn-primary"
+                                  className="btn btn-primary "
                                   onClick={() => {
                                     if (showAllVideos) {
                                       setShowAllVideos(false);
@@ -468,13 +569,13 @@ const CategoryDetail = () => {
                       </div>
                     )}
 
-                    {availableLinks.length > 0 && (
+                    {availableLinks?.length > 0 && (
                       <div className="tour-details-content mt-10">
                         <h4 className="title">Social Media & Links</h4>
 
                         <div className="d-flex flex-wrap">
-                          {availableLinks.map(({ key, icon, color }) => {
-                            const link = vendors?.[key];
+                          {availableLinks?.map(({ key, icon, color }) => {
+                            const link = vendorData?.user?.[key];
                             const fullUrl = link.startsWith("http")
                               ? link
                               : `https://${link}`;
@@ -512,7 +613,7 @@ const CategoryDetail = () => {
                       </div>
                     )}
                   </div>
-                    
+
                   {/* SIDEBAR - Lead Form & Review Form */}
                   {/* SIDEBAR - Lead Form & Review Form */}
                   <div className="col-xl-4 col-lg-5">
@@ -638,46 +739,307 @@ const CategoryDetail = () => {
                       </div>
                     </div>
 
-                    <div className="date-travel-card mt-5">
-                      <h4 className="heading-card">Your Review</h4>
-
-                      <div className="date-time-dropdown d-flex align-items-center gap-2">
-                        <i className="ri-user-line fs-8" />
-                        <input
-                          type="text"
-                          name="name"
-                          value={reviewData.name}
-                          placeholder="Enter your name"
-                          className="form-control form-control-m border-0 shadow-none"
-                          onChange={(e) =>
-                            setReviewData((prev) => ({
-                              ...prev,
-                              [e.target.name]: e.target.value,
-                            }))
-                          }
-                        />
-                      </div>
-                      <div className="date-time-dropdown d-flex align-items-start gap-2 mt-2">
-                        <i className="ri-chat-3-line fs-8 mt-1" />
-                        <textarea
-                          name="message"
-                          value={reviewData.message}
-                          onChange={handleReviewChange}
-                          placeholder="Enter your review"
-                          className="form-control form-control-m border-0 shadow-none"
-                          rows="3"
-                        />
-                      </div>
-
-                      <div className="mt-30">
+                    <div className="date-travel-card mt-4">
+                      <div className="tabs d-flex gap-2 mb-3">
                         <button
-                          type="button"
-                          className="send-btn w-100"
-                          onClick={handleSubmitReview}
+                          className={`btn ${
+                            activeTab === "review"
+                              ? "btn-primary"
+                              : "btn-outline-primary"
+                          }`}
+                          onClick={() => setActiveTab("review")}
                         >
-                          Submit Review
+                          Review
+                        </button>
+                        <button
+                          className={`btn ${
+                            activeTab === "report"
+                              ? "btn-primary"
+                              : "btn-outline-primary"
+                          }`}
+                          onClick={() => setActiveTab("report")}
+                        >
+                          Report
                         </button>
                       </div>
+
+                      {activeTab === "review" && (
+                        <form onSubmit={handleSubmitReview}>
+                          {/* ⭐ Rating */}
+                          <div className="mb-3">
+                            <label className="fw-bold d-block">Rating:</label>
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <span
+                                key={star}
+                                style={{
+                                  cursor: "pointer",
+                                  color:
+                                    reviewForm.rating >= star ? "gold" : "gray",
+                                  fontSize: "40px",
+                                }}
+                                onClick={() =>
+                                  setReviewForm({ ...reviewForm, rating: star })
+                                }
+                              >
+                                ★
+                              </span>
+                            ))}
+                          </div>
+
+                          {/* Name */}
+                          <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
+                            <i className="ri-user-line fs-8" />
+                            <input
+                              type="text"
+                              placeholder="Name"
+                              value={reviewForm.name}
+                              className="form-control form-control-m border-0 shadow-none"
+                              onChange={(e) =>
+                                setReviewForm({
+                                  ...reviewForm,
+                                  name: e.target.value,
+                                })
+                              }
+                              required
+                            />
+                          </div>
+
+                          {/* Email */}
+                          <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
+                            <i className="ri-mail-line fs-8" />
+                            <input
+                              type="email"
+                              placeholder="Email"
+                              value={reviewForm.email}
+                              className="form-control form-control-m border-0 shadow-none"
+                              onChange={(e) =>
+                                setReviewForm({
+                                  ...reviewForm,
+                                  email: e.target.value,
+                                })
+                              }
+                              required
+                            />
+                          </div>
+
+                          {/* Phone */}
+                          <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
+                            <i className="ri-phone-line fs-8" />
+                            <input
+                              type="text"
+                              placeholder="Phone"
+                              value={reviewForm.phone}
+                              maxLength={10}
+                              className="form-control form-control-m border-0 shadow-none"
+                              onChange={(e) =>
+                                setReviewForm({
+                                  ...reviewForm,
+                                  phone: e.target.value,
+                                })
+                              }
+                              required
+                            />
+                          </div>
+
+                          {/* OTP Section */}
+                          <div className="mt-3">
+                            {!isOtpSent ? (
+                              <button
+                                type="button"
+                                className="btn btn-outline-primary w-100"
+                                onClick={() => sendOtp("review")}
+                              >
+                                Send OTP
+                              </button>
+                            ) : !isOtpVerified ? (
+                              <div className="d-flex gap-2">
+                                <input
+                                  type="text"
+                                  placeholder="Enter OTP"
+                                  value={otp}
+                                  className="form-control"
+                                  onChange={(e) => setOtp(e.target.value)}
+                                />
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={verifyOtp}
+                                >
+                                  Verify
+                                </button>
+                              </div>
+                            ) : (
+                              <p className="text-success fw-bold">
+                                ✅ OTP Verified
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Review Message */}
+                          <div className="date-time-dropdown d-flex align-items-start gap-2 mt-3">
+                            <i className="ri-chat-3-line fs-8 mt-1" />
+                            <textarea
+                              placeholder="Write your review"
+                              value={reviewForm.review}
+                              className="form-control form-control-m border-0 shadow-none"
+                              onChange={(e) =>
+                                setReviewForm({
+                                  ...reviewForm,
+                                  review: e.target.value,
+                                })
+                              }
+                              rows="3"
+                            />
+                          </div>
+
+                          <div className="mt-3">
+                            <button
+                              type="submit"
+                              className="send-btn w-100"
+                              disabled={!isOtpVerified}
+                            >
+                              Submit Review
+                            </button>
+                          </div>
+                        </form>
+                      )}
+
+                      {activeTab === "report" && (
+                        <form onSubmit={handleSubmitReport}>
+                          {/* Name */}
+                          <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
+                            <i className="ri-user-line fs-8" />
+                            <input
+                              type="text"
+                              placeholder="Name"
+                              value={reportForm.name}
+                              className="form-control form-control-m border-0 shadow-none"
+                              onChange={(e) =>
+                                setReportForm({
+                                  ...reportForm,
+                                  name: e.target.value,
+                                })
+                              }
+                              required
+                            />
+                          </div>
+
+                          {/* Phone */}
+                          <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
+                            <i className="ri-phone-line fs-8" />
+                            <input
+                              type="text"
+                              placeholder="Phone"
+                              value={reportForm.phone}
+                              maxLength={10}
+                              className="form-control form-control-m border-0 shadow-none"
+                              onChange={(e) =>
+                                setReportForm({
+                                  ...reportForm,
+                                  phone: e.target.value,
+                                })
+                              }
+                              required
+                            />
+                          </div>
+
+                          {/* OTP Section */}
+                          <div className="mt-3">
+                            {!isOtpSent ? (
+                              <button
+                                type="button"
+                                className="btn btn-outline-primary w-100"
+                                onClick={() => sendOtp("report")}
+                              >
+                                Send OTP
+                              </button>
+                            ) : !isOtpVerified ? (
+                              <div className="d-flex gap-2">
+                                <input
+                                  type="text"
+                                  placeholder="Enter OTP"
+                                  value={otp}
+                                  className="form-control"
+                                  onChange={(e) => setOtp(e.target.value)}
+                                />
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={verifyOtp}
+                                >
+                                  Verify
+                                </button>
+                              </div>
+                            ) : (
+                              <p className="text-success fw-bold">
+                                ✅ OTP Verified
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Issue Dropdown */}
+                          <div className="mt-3">
+                            <select
+                              value={reportForm.issue}
+                              onChange={(e) =>
+                                setReportForm({
+                                  ...reportForm,
+                                  issue: e.target.value,
+                                })
+                              }
+                              className="form-select"
+                              required
+                            >
+                              <option value="">Select Issue</option>
+                              <option value="Fake / Misleading Vendor Information">
+                                Fake / Misleading Vendor Information
+                              </option>
+                              <option value="Poor Service Quality">
+                                Poor Service Quality
+                              </option>
+                              <option value="Unresponsive Vendor">
+                                Unresponsive Vendor
+                              </option>
+                              <option value="Wrong / Misleading Pricing">
+                                Wrong / Misleading Pricing
+                              </option>
+                              <option value="Inappropriate / Restricted Category">
+                                Inappropriate / Restricted Category
+                              </option>
+                              <option value="Counterfeit / Fake Product">
+                                Counterfeit / Fake Product
+                              </option>
+                            </select>
+                          </div>
+
+                          {/* Description */}
+                          <div className="date-time-dropdown d-flex align-items-start gap-2 mt-3">
+                            <i className="ri-chat-3-line fs-8 mt-1" />
+                            <textarea
+                              placeholder="Description"
+                              value={reportForm.description}
+                              className="form-control form-control-m border-0 shadow-none"
+                              onChange={(e) =>
+                                setReportForm({
+                                  ...reportForm,
+                                  description: e.target.value,
+                                })
+                              }
+                              rows="3"
+                            />
+                          </div>
+
+                          <div className="mt-3">
+                            <button
+                              type="submit"
+                              className="send-btn w-100"
+                              disabled={!isOtpVerified}
+                            >
+                              Submit Report
+                            </button>
+                          </div>
+                        </form>
+                      )}
                     </div>
                   </div>
                 </div>

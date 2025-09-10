@@ -6,8 +6,8 @@ import { SubmitFeedback } from "../../Services/webService/Web";
 const Feedback = () => {
   const [feedbackData, setFeedbackData] = useState({
     name: "",
-    email: "",
     phone: "",
+    email: "",
     message: "",
   });
 
@@ -39,20 +39,20 @@ const Feedback = () => {
       return;
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      Swal.fire({
-        icon: "warning",
-        title: "Invalid Email",
-        text: "Please enter a valid email address.",
-      });
-      return;
-    }
-
     if (!/^\d{10}$/.test(phone)) {
       Swal.fire({
         icon: "warning",
         title: "Invalid Phone Number",
         text: "Phone number must be exactly 10 digits.",
+      });
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      Swal.fire({
+        icon: "warning",
+        title: "Invalid Email",
+        text: "Please enter a valid email address.",
       });
       return;
     }
@@ -97,9 +97,7 @@ const Feedback = () => {
             <div className="row justify-content-center">
               <div className="col-xl-7 col-lg-9">
                 <div className="contact-card">
-                  <h4 className="contact-heading">
-                    We Value Your Feedback
-                  </h4>
+                  <h4 className="contact-heading">We Value Your Feedback</h4>
                   <form onSubmit={handleSubmit} className="contact-form">
                     <div className="row g-4">
                       <div className="col-sm-6">
@@ -107,12 +105,31 @@ const Feedback = () => {
                           name="name"
                           value={feedbackData.name}
                           onChange={handleChange}
-                          className="custom-form"
+                          className="custom-form mt-2"
                           type="text"
                           placeholder="Enter your name"
                         />
                       </div>
-                      <div className="col-sm-6">
+
+                      <div className="col-sm-6 mt-2 ">
+                        <input
+                          name="phone"
+                          value={feedbackData.phone}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (/^\d{0,10}$/.test(value)) {
+                              setFeedbackData((prev) => ({
+                                ...prev,
+                                phone: value,
+                              }));
+                            }
+                          }}
+                          className="custom-form"
+                          type="text"
+                          placeholder="Your Phone"
+                        />
+                      </div>
+                      <div className="col-sm-12 mt-2">
                         <input
                           name="email"
                           value={feedbackData.email}
@@ -122,22 +139,7 @@ const Feedback = () => {
                           placeholder="Enter your email"
                         />
                       </div>
-                      <div className="col-sm-6">
-                        <input
-                          name="phone"
-                          value={feedbackData.phone}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            if (/^\d{0,10}$/.test(value)) {
-                              setFeedbackData((prev) => ({ ...prev, phone: value }));
-                            }
-                          }}
-                          className="custom-form"
-                          type="text"
-                          placeholder="Your Phone"
-                        />
-                      </div>
-                      <div className="col-sm-12">
+                      <div className="col-sm-12 mt-2">
                         <textarea
                           name="message"
                           value={feedbackData.message}

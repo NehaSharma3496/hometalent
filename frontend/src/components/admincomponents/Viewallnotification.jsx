@@ -16,32 +16,30 @@ export default function ViewAllNotification() {
   const [perPage, setPerPage] = useState(10);
   const [total, setTotal] = useState(0);
 
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      setLoading(true);
+      try {
+        let res;
+        if (role === "1") {
+          res = await GetAllAdminNotification(currentPage, perPage);
+        } else if (role === "2") {
+          res = await GetAllVendorNotification(userId, currentPage, perPage);
+        }
 
-useEffect(() => {
-  const fetchNotifications = async () => {
-    setLoading(true);
-    try {
-      let res;
-      if (role === "1") {
-        res = await GetAllAdminNotification(currentPage, perPage);
-      } else if (role === "2") {
-        res = await GetAllVendorNotification(userId, currentPage, perPage);
+        if (res?.status && res?.data) {
+          setNotifications(res.data);
+          setTotal(res.meta?.total || 0); // total records
+        }
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      if (res?.status && res?.data) {
-        setNotifications(res.data);
-        setTotal(res.meta?.total || 0);  // total records
-      }
-    } catch (err) {
-      console.error("Error fetching notifications:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchNotifications();
-}, [role, userId, currentPage, perPage]);
-
+    fetchNotifications();
+  }, [role, userId, currentPage, perPage]);
 
   const formatDateTime = (datetime) =>
     new Date(datetime).toLocaleString("en-IN", {
@@ -65,7 +63,6 @@ useEffect(() => {
       sortable: true,
       wrap: true,
       width: "250px",
-
     },
     {
       name: "Message",
@@ -83,8 +80,8 @@ useEffect(() => {
   return (
     <div className="page-content">
       {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4 p-2 mt-3 flex-nowrap">
-        <div className="d-flex align-items-center">
+      <div className="col-md-6 mb-3">
+        <div className="add-page-heading-div">
           <button
             onClick={() =>
               navigate(role === "1" ? "/admin/dashboard" : "/vendor/dashboard")
@@ -93,28 +90,27 @@ useEffect(() => {
           >
             <i className="fa fa-arrow-left"></i>
           </button>
-          <h5 className="page-heading mb-0">All Notifications</h5>
+          <h2 className="add-page-heading">All Notifications</h2>
         </div>
       </div>
 
       {/* Datatable */}
       <div className="card table-padding">
         <div className="card-body">
-       <Datatable
-  columns={columns}
-  data={notifications}
-  progressPending={loading}
-  pagination
-  paginationServer={true}   // ✅ ab server side pagination hoga
-  paginationPerPage={perPage}
-  paginationTotalRows={total}  // backend se meta.total use karo
-  onChangeRowsPerPage={(newPerPage, page) => {
-    setPerPage(newPerPage);
-    setCurrentPage(page);
-  }}
-  onChangePage={(page) => setCurrentPage(page)}
-/>
-
+          <Datatable
+            columns={columns}
+            data={notifications}
+            progressPending={loading}
+            pagination
+            paginationServer={true} // ✅ ab server side pagination hoga
+            paginationPerPage={perPage}
+            paginationTotalRows={total} // backend se meta.total use karo
+            onChangeRowsPerPage={(newPerPage, page) => {
+              setPerPage(newPerPage);
+              setCurrentPage(page);
+            }}
+            onChangePage={(page) => setCurrentPage(page)}
+          />
         </div>
       </div>
     </div>

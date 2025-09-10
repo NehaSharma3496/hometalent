@@ -3,11 +3,13 @@ import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Breadcrumbs from "../../components/websitecomponents/Breadcrumbs";
 import { GetAdminGallery } from "../../Services/webService/Web";
+import { useNavigate } from "react-router-dom";
 
 const Gallery = () => {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [gallery, setGallery] = useState([]);
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const userId = 1;
 
@@ -26,7 +28,6 @@ const Gallery = () => {
     fetchGallery();
   }, []);
 
-  // Lightbox only for images
   const imageSlides = gallery
     .filter((item) => item.file_type === "image")
     .map((item) => ({ src: item.file_path }));
@@ -68,8 +69,8 @@ const Gallery = () => {
                 <p className="text-danger fs-5">No images or videos found</p>
               </div>
             ) : (
-              gallery.map((item, i) => (
-                <div key={i} className="col-xl-3 col-lg-4 col-sm-6">
+              gallery?.map((item, i) => (
+                <div key={i} className="col-xl-3 col-lg-4 col-sm-6 mb-4">
                   <div className="package-card h-calc">
                     <div
                       className="package-img imgEffect4 thumbnail"
@@ -81,17 +82,23 @@ const Gallery = () => {
                           item.file_type === "image" ? "pointer" : "default",
                       }}
                       onClick={() => {
-                        // If admin stored source vendor inside admin_remarks, redirect to vendor profile on click
                         try {
                           if (item.admin_remarks) {
                             const meta = JSON.parse(item.admin_remarks);
                             if (meta?.source_vendor_id) {
-                              window.location.href = `/admin/vendordetails?vendorId=${meta.source_vendor_id}`;
+                              navigate(`/categorydetail/${meta.source_vendor_id}`, {
+                                state: { vendorId: meta.source_vendor_id }, 
+                              });
                               return;
                             }
                           }
-                        } catch (e) {}
-                        item.file_type === "image" && handleImageClick(i);
+                        } catch (e) {
+                          console.error("Error parsing admin_remarks:", e);
+                        }
+
+                        if (item.file_type === "image") {
+                          handleImageClick(i);
+                        }
                       }}
                     >
                       {item.file_type === "video" ? (

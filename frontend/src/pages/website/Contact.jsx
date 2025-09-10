@@ -18,79 +18,76 @@ const Contact = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const { name, email, phone, subject, message } = contactData;
+    const { name, email, phone, subject, message } = contactData;
 
-  if (!name || !email || !phone || !subject || !message) {
-  Swal.fire({
-    icon: "warning",
-    title: "Missing Fields",
-    text: "Please fill in all required fields.",
-  });
-  return;
-}
-
-if (!/^[A-Za-z\s]+$/.test(name)) {
-  Swal.fire({
-    icon: "warning",
-    title: "Invalid Name",
-    text: "Name must contain only alphabets.",
-  });
-  return;
-}
-
-
-if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-  Swal.fire({
-    icon: "warning",
-    title: "Invalid Email",
-    text: "Please enter a valid email address.",
-  });
-  return;
-}
-
-if (!/^\d{10}$/.test(phone)) {
-  Swal.fire({
-    icon: "warning",
-    title: "Invalid Phone Number",
-    text: "Phone number must be exactly 10 digits.",
-  });
-  return;
-}
-
-
-  try {
-    const res = await SubmitContactData(contactData);
-    if (res?.status === 200) {
+    if (!name || !email || !phone || !subject || !message) {
       Swal.fire({
-        icon: "success",
-        title: "Message Sent",
-        text: "Thank you for contacting us!",
+        icon: "warning",
+        title: "Missing Fields",
+        text: "Please fill in all required fields.",
       });
-      setContactData({
-        name: "",
-        email: "",
-        phone: "",
-        subject: "",
-        message: "",
+      return;
+    }
+
+    if (!/^[A-Za-z\s]+$/.test(name)) {
+      Swal.fire({
+        icon: "warning",
+        title: "Invalid Name",
+        text: "Name must contain only alphabets.",
       });
-    } else {
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      Swal.fire({
+        icon: "warning",
+        title: "Invalid Email",
+        text: "Please enter a valid email address.",
+      });
+      return;
+    }
+
+    if (!/^\d{10}$/.test(phone)) {
+      Swal.fire({
+        icon: "warning",
+        title: "Invalid Phone Number",
+        text: "Phone number must be exactly 10 digits.",
+      });
+      return;
+    }
+
+    try {
+      const res = await SubmitContactData(contactData);
+      if (res?.status === 200) {
+        Swal.fire({
+          icon: "success",
+          title: "Message Sent",
+          text: "Thank you for contacting us!",
+        });
+        setContactData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: res?.data?.message || "Failed to send message.",
+        });
+      }
+    } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "Failed",
-        text: res?.data?.message || "Failed to send message.",
+        title: "Error",
+        text: error?.message || "Something went wrong. Please try again.",
       });
     }
-  } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: error?.message || "Something went wrong. Please try again.",
-    });
-  }
-};
-
+  };
 
   const breadcrumbLinks = [
     { label: "Home", to: "/" },
@@ -111,7 +108,7 @@ if (!/^\d{10}$/.test(phone)) {
                   </h4>
                   <form onSubmit={handleSubmit} className="contact-form">
                     <div className="row g-4">
-                      <div className="col-sm-6">
+                      <div className="col-sm-6 mt-4">
                         <input
                           name="name"
                           value={contactData.name}
@@ -121,7 +118,7 @@ if (!/^\d{10}$/.test(phone)) {
                           placeholder="Enter your name"
                         />
                       </div>
-                      <div className="col-sm-6">
+                      <div className="col-sm-6 mt-4">
                         <input
                           name="email"
                           value={contactData.email}
@@ -131,23 +128,25 @@ if (!/^\d{10}$/.test(phone)) {
                           placeholder="Enter your email"
                         />
                       </div>
-                      <div className="col-sm-6">
+                      <div className="col-sm-6 mt-2">
                         <input
-  name="phone"
-  value={contactData.phone}
-  onChange={(e) => {
-    const value = e.target.value;
-    if (/^\d{0,10}$/.test(value)) {
-      setContactData((prev) => ({ ...prev, phone: value }));
-    }
-  }}
-  className="custom-form"
-  type="text"
-  placeholder="Your Phone"
-/>
-
+                          name="phone"
+                          value={contactData.phone}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (/^\d{0,10}$/.test(value)) {
+                              setContactData((prev) => ({
+                                ...prev,
+                                phone: value,
+                              }));
+                            }
+                          }}
+                          className="custom-form"
+                          type="text"
+                          placeholder="Your Phone"
+                        />
                       </div>
-                      <div className="col-sm-6">
+                      <div className="col-sm-6 mt-2">
                         <input
                           name="subject"
                           value={contactData.subject}
@@ -157,7 +156,7 @@ if (!/^\d{10}$/.test(phone)) {
                           placeholder="Select subject"
                         />
                       </div>
-                      <div className="col-sm-12">
+                      <div className="col-sm-12 mt-2">
                         <textarea
                           name="message"
                           value={contactData.message}
@@ -168,7 +167,7 @@ if (!/^\d{10}$/.test(phone)) {
                         />
                       </div>
                     </div>
-                    <div className="mt-40">
+                    <div className="mt-4">
                       <button type="submit" className="send-btn">
                         Send Message
                       </button>

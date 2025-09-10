@@ -234,14 +234,14 @@ const Home = () => {
                           style={{ width: "100%" }}
                           ref={dropdownRef}
                         >
-                        <input
-  type="text"
-  className="form-control custom-input-select cursor-pointer"
-  placeholder="Search City"
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-  onFocus={() => setShowDropdown(true)}
-/>
+                          <input
+                            type="text"
+                            className="form-control custom-input-select cursor-pointer"
+                            placeholder="Search City"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            onFocus={() => setShowDropdown(true)}
+                          />
 
                           {showDropdown && (
                             <div
@@ -259,7 +259,7 @@ const Home = () => {
                                 className="list-unstyled"
                                 style={{ columnCount: 3 }}
                               >
-                                {groupedFilteredData(statecity, search).map(
+                                {groupedFilteredData(statecity, search)?.map(
                                   (group) => (
                                     <li key={`group-${group.state.id}`}>
                                       <h6 className="text-danger mb-1 mt-2">
@@ -292,22 +292,25 @@ const Home = () => {
 
                       <div className="col-xl-5 col-lg-12">
                         <div className="destination-flex">
-                        <select
-  className="form-select custom-input-select"
-  value={selectedCategory}
-  onChange={(e) => setSelectedCategory(e.target.value)}
->
-  <option value="">Select Category</option>
-  {Array.isArray(categories) &&
-    categories?.map((cat) => {
-      const categoryId = cat.id || cat._id || cat.categoryId;
-      return (
-        <option key={categoryId} value={categoryId}>
-          {cat.name}
-        </option>
-      );
-    })}
-</select>
+                          <select
+                            className="form-select custom-input-select"
+                            value={selectedCategory}
+                            onChange={(e) =>
+                              setSelectedCategory(e.target.value)
+                            }
+                          >
+                            <option value="">Select Category</option>
+                            {Array.isArray(categories) &&
+                              categories?.map((cat) => {
+                                const categoryId =
+                                  cat.id || cat._id || cat.categoryId;
+                                return (
+                                  <option key={categoryId} value={categoryId}>
+                                    {cat.name}
+                                  </option>
+                                );
+                              })}
+                          </select>
                         </div>
                       </div>
                       <div className="col-xl-2 col-lg-3">
@@ -335,10 +338,9 @@ const Home = () => {
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-7">
               <div className="section-title text-center mx-auto position-relative">
-                <h4 className="blue-title">Explore top vendors by category</h4>
+                <h4 className="blue-title">Explore Talented Home Creators by Category</h4>
                 <span className="highlights">
-                  From wedding lawns and marriage gardens to photographers,
-                  bridal wear, makeup artists, and more — all with HomeTalent4u.
+                  From handmade crafts and artisanal products to personalized services and home-based skills—discover authentic local makers and providers
                 </span>
               </div>
             </div>
@@ -349,40 +351,25 @@ const Home = () => {
               ? categoryData
               : categoryData?.slice(0, 10)
             )?.map((category) => {
-              const imageSrc = `/assets/images/category/${category.name
-                .replace(/\s+/g, "-")
-                .toLowerCase()}.png`;
-
               return (
                 <div
                   className="grid-item"
-                  key={category._id || category.id || category.name}
+                  key={category.id || category._id || category.name}
                 >
                   <Link
                     to="/category"
-                    state={{ categoryId: category._id || category.id }}
+                    state={{ categoryId: category.id || category._id }}
                     className="category-banner"
                   >
                     <img
                       loading="lazy"
-                      src={`/assets/images/category/${category.name}.png`}
+                      src={category.image_url} // directly from API
                       alt={category.name}
-                      onError={(e1) => {
-                        const baseName = category.name;
-
-                        e1.target.onerror = (e2) => {
-                          e2.target.onerror = (e3) => {
-                            e3.target.onerror = (e4) => {
-                              e4.target.onerror = null;
-                              e4.target.src = `/assets/images/category/${baseName}.JPG`;
-                            };
-                            e3.target.src = `/assets/images/category/${baseName}.jpeg`;
-                          };
-                          e2.target.src = `/assets/images/category/${baseName}.jpg`;
-                        };
-                        e1.target.src = `/assets/images/category/${baseName}.png`;
-                      }}
                       className="your-class-name"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/assets/images/default-category.png"; // fallback image
+                      }}
                     />
 
                     <div className="category-content">
@@ -449,10 +436,9 @@ const Home = () => {
                   See Those Lovely Words From Clients
                 </h4>
                 <span className="highlights">
-                  At HomeTalent4U, every voice matters. Our community of
-                  passionate creators – from artisans and bakers to tutors and
-                  home entrepreneurs – inspires us every day. Here’s what our
-                  talented family has to say about their journey with us.
+                  Connecting Through Stories and Reviews Join the conversation
+                  and see the impact of HomeTalent4u through the eyes of our
+                  users.
                 </span>
               </div>
             </div>
@@ -558,12 +544,12 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="news-area section-padding2" ref={blogSectionRef}>
+      <section className="news-area section-padding2 mt-4" ref={blogSectionRef}>
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-7">
               <div className="section-title text-center mx-605 mx-auto position-relative mb-60">
-                <h4 className="blue-title pb-2">Blog & Articles</h4>
+                <h4 className="blue-title pb-2 mt-4">Blog & Articles</h4>
                 <span className="highlights">
                   At HomeTalent4U, we share tips, stories, and insights to help
                   you grow your creativity into success.
@@ -576,7 +562,7 @@ const Home = () => {
             {(showAllBlog ? blogdata : blogdata?.slice(0, 3))?.map(
               (item, index) => (
                 <div
-                  className="col-xl-4 col-lg-4 col-sm-6"
+                  className="col-xl-4 col-lg-4 col-sm-6 pb-3"
                   key={item.id || item._id || index}
                 >
                   <article className="news-card-two">

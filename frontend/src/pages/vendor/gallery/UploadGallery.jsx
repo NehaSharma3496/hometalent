@@ -87,8 +87,8 @@ const handleSubmit = async (e) => {
                 <label className="form-label fw-semibold mb-2">Preview</label>
                 <div className="row g-3 mb-3">
                   {images.map((img, i) => (
-                    <div className="col-6 col-md-3" key={i}>
-                      <div className="border rounded overflow-hidden shadow-sm">
+                    <div className="col-6 col-md-3 mt-4" key={i}>
+                      <div className="border rounded overflow-hidden shadow-sm mt-4 ">
                         <img
                           src={URL.createObjectURL(img)}
                           alt={`preview-${i}`}

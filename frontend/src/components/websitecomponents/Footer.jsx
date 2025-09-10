@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-
 const Footer = () => {
   return (
     <footer>
@@ -63,13 +62,13 @@ const Footer = () => {
                     <h4 className="title">HELP & SUPPORT</h4>
                     <ul className="listing">
                       <li className="single-lsit">
-                        <Link to="/about" >About</Link>
+                        <Link to="/about">About</Link>
                       </li>
                       {/* <li className="single-lsit">
                         <a href="news.html">Company</a>
                       </li> */}
                       <li className="single-lsit">
-                       <Link to="/contact">Contact</Link>
+                        <Link to="/contact">Contact</Link>
                       </li>
                       {/* <li className="single-lsit">
                         <a href="contact.html">Feedback</a>
@@ -78,10 +77,10 @@ const Footer = () => {
                         <Link to="/faq">FAQs</Link>
                       </li>
                       <li className="single-lsit">
-                           <Link to="/gallery">Gallery</Link>
+                        <Link to="/gallery">Gallery</Link>
                       </li>
                       <li className="single-lsit">
-                           <Link to="/feedback">Feedback</Link>
+                        <Link to="/feedback">Feedback</Link>
                       </li>
                     </ul>
                   </div>
@@ -95,7 +94,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="https://www.facebook.com">
                           <img
-                            src='../assets/images/footer/facebook.png'
+                            src="../assets/images/footer/facebook.png"
                             alt="facebook"
                           />
                         </a>
@@ -103,7 +102,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="https://www.twitter.com">
                           <img
-                            src='../assets/images/footer/twitter.png'
+                            src="../assets/images/footer/twitter.png"
                             alt="twitter"
                           />
                         </a>
@@ -111,7 +110,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="https://www.youtube.com">
                           <img
-                            src='../assets/images/footer/youtube.png'
+                            src="../assets/images/footer/youtube.png"
                             alt="youtube"
                           />
                         </a>
@@ -119,7 +118,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <a href="https://www.instagram.com">
                           <img
-                            src='../assets/images/footer/instagram.png'
+                            src="../assets/images/footer/instagram.png"
                             alt="instagram"
                           />
                         </a>
@@ -128,7 +127,10 @@ const Footer = () => {
                   </div>
                 </div>
                 <div className="footer-image float-lg-end ">
-                  <img src='../assets/images/footer/footer-img.png' alt="footer" />
+                  <img
+                    src="../assets/images/footer/footer-img.png"
+                    alt="footer"
+                  />
                 </div>
               </div>
             </div>
@@ -144,12 +146,11 @@ const Footer = () => {
                 <div className="d-flex justify-content-between gap-14 flex-wrap">
                   <p className="pera">
                     Copyright © <span className="current-year">2025</span>{" "}
-                    HomeTalent4u All Rights Reserved 
+                    HomeTalent4u All Rights Reserved
                   </p>
                   <div className="footer-menu d-flex gap-20">
                     <Link to="/termscondition">
-                      <p className="pera">
-                        Terms and conditions</p>
+                      <p className="pera">Terms and conditions</p>
                     </Link>
                     <Link to="/privacypolicy">
                       <p className="pera">Privacy policy</p>

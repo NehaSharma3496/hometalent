@@ -41,7 +41,7 @@ const WebRoutes = (
     <Route path="/reset-password/:token" element={<ResetPassword/>} />
     <Route path="/login" element={<Login/>}/>
     <Route path="/feedback" element={<Feedback/>} />
-
+<Route path="/categorydetail/:id" element={<CategoryDetail />} />
   </Route>
 );
 

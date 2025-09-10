@@ -46,9 +46,10 @@ export default function AllBlog() {
   const exportToExcel = () => {
     const exportData = filteredBlogs.map((blog, index) => ({
       "S.No": index + 1,
-      Title: blog.title,
-      "Short Description": blog.short_description,
-      Date: new Date(blog.createdAt).toLocaleDateString(),
+      Title: blog.title||"N/A",
+      "Short Description": blog.short_description||"N/A",
+      Status: blog.status === 1 ? "Active" : "Inactive",
+      Date: new Date(blog.createdAt).toLocaleDateString()||"N/A",
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -91,18 +92,18 @@ export default function AllBlog() {
     },
     {
       name: "Title",
-      selector: (row) => row.title,
+      selector: (row) => row.title || "-",
       width: "250px",
     },
     {
       name: "Short Description",
-      selector: (row) => row.short_description,
+      selector: (row) => row.short_description || "-",
       width: "450px",
       wrap: true,
     },
     {
       name: "Date",
-      selector: (row) => new Date(row.createdAt).toLocaleDateString(),
+      selector: (row) => new Date(row.createdAt).toLocaleDateString() || "-",
       width: "180px",
     },
     {
@@ -145,8 +146,9 @@ export default function AllBlog() {
 
               const confirm = await Swal.fire({
                 title: newStatus ? "Enable Blog?" : "Disable Blog?",
-                text: `Are you sure you want to ${newStatus ? "enable" : "disable"
-                  } this blog?`,
+                text: `Are you sure you want to ${
+                  newStatus ? "enable" : "disable"
+                } this blog?`,
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonText: newStatus ? "Yes, enable" : "Yes, disable",
@@ -200,7 +202,6 @@ export default function AllBlog() {
           </div>
         </div>
       </div>
-
 
       <div className="card table-padding">
         <div className="card-header">

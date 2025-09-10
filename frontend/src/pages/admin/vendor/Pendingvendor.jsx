@@ -89,7 +89,7 @@ export default function PendingVendor() {
       const token = localStorage.getItem("token");
       let fullList = [];
       let page = 1;
-      const limit = 100;
+      const limit = 1000000;
       let totalPages = 1;
 
       while (page <= totalPages) {
@@ -148,18 +148,22 @@ export default function PendingVendor() {
 
         return {
           "S.No": index + 1,
-          "Owner Name": row.owner_name || "",
-          Email: row.email || "",
+          "Owner Name": row.owner_name || "N/A",
+          Email: row.email || "N/A",
           "Category Names": categoryNames,
-          "Profile Name": row.profile_name || "",
-          "Phone Number": row.phone || "",
-          "Price Range": row.price_range || "",
-          "Short Description": row.short_description || "",
-          Image: row.image ? "Available" : "N/A",
-          "Pin Code": row.pin_code || "",
-          "Experience Since": row.experience_since || "",
-          Status: statusText,
+          "Phone Number": row.phone || "N/A",
+          "Price Range": row.price_range || "N/A",  
+          "Pin Code": row.pin_code || "N/A",
+          "Experience Since": row.experience_since || "N/A",
+           Approval_Status:
+          row.approval_status === 1
+            ? "Approved"
+            : row.approval_status === 2
+            ? "Rejected"
+            : "Pending",
+              Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
         };
+        
       });
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -236,13 +240,13 @@ export default function PendingVendor() {
     },
     {
       name: "Owner Name",
-      selector: (row) => row.owner_name,
+      selector: (row) => row.owner_name || "—",
       sortable: true,
       width: "100px",
     },
     {
       name: "Email",
-      selector: (row) => row.email,
+      selector: (row) => row.email || "—",
       sortable: true,
       width: "180px",
     },
@@ -259,22 +263,22 @@ export default function PendingVendor() {
     },
     {
       name: "Phone Number",
-      selector: (row) => row.phone,
+      selector: (row) => row.phone || "—",
       sortable: true,
     },
     {
       name: "Price Range",
-      selector: (row) => row.price_range,
+      selector: (row) => row.price_range || "—",
       sortable: true,
     },
     {
       name: "Pin Code",
-      selector: (row) => row.pin_code,
+      selector: (row) => row.pin_code || "—",
       sortable: true,
     },
     {
       name: "Experience Since",
-      selector: (row) => row.experience_since,
+      selector: (row) => row.experience_since || "—",
       sortable: true,
     },
     {

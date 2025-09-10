@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { GetCategories } from "../../../Services/admin/Admin";
 import { Link, useNavigate } from "react-router-dom";
-import Datatable from "../../../extracomponents/Datatable";
+import DataTable from "react-data-table-component";
 
 export default function CategoryList() {
   const [categories, setCategories] = useState([]);
@@ -66,7 +66,7 @@ export default function CategoryList() {
       <div className="card table-padding">
         <div className="row">
           <div className="col-md-12">
-            <Datatable columns={categoryColumns} data={categories} pagination />
+            <DataTable columns={categoryColumns} data={categories} pagination />
           </div>
         </div>
       </div>

@@ -6,7 +6,6 @@ import {
   GetCategories,
   GetVendorsByCategory,
 } from "../../../Services/webService/Web";
-import Loader from "../../../Utils/Loader";
 
 const Category = () => {
   const location = useLocation();
@@ -21,9 +20,9 @@ const Category = () => {
 
   const categoryId = location?.state?.categoryId;
   const cityId = location?.state?.cityId;
-  const categoryName = categories.find((cat) => cat.id === categoryId)?.name;
+  const categoryName = categories?.find((cat) => cat.id === categoryId)?.name;
   const cityName =
-    city.find((c) => c.type === "city" && c.id === cityId)?.name || "";
+    city?.find((c) => c.type === "city" && c.id === cityId)?.name || "";
 
   console.log("Category Id", categoryId);
   console.log("City Id ", cityId);
@@ -200,7 +199,7 @@ const Category = () => {
                               <Link
                                 to="/categorydetail"
                                 state={{
-                                  vendor: item,
+                                  vendorId: item.id, 
                                 }}
                               >
                                 <img
@@ -208,6 +207,7 @@ const Category = () => {
                                   alt={item.owner_name}
                                 />
                               </Link>
+
                               {/* <div className="rating-badge-car">
                                 <div className="rating">
                                   <i className="ri-star-s-fill" />
@@ -223,9 +223,7 @@ const Category = () => {
                               <h4 className="area-name">
                                 <Link
                                   to="/categorydetail"
-                                  state={{
-                                    vendor: item,
-                                  }}
+                                   state={{ vendorId: item.id }}
                                 >
                                   {item.owner_name}
                                 </Link>
@@ -245,13 +243,15 @@ const Category = () => {
                                 </div>
                               </div>
 
-                               <h4 className="area-name">
+                              <h1 className="area-name">
                                 <Link
                                   to="/categorydetail"
+                                  state={{ vendorId: item.id }}
+                                  className="truncate-2-lines mb-3"
                                 >
-                                  {item?.short_description}
+                                  {item?.long_description}
                                 </Link>
-                              </h4>
+                              </h1>
 
                               <div className="cart-footer d-flex flex-wrap justify-content-between">
                                 <div className="d-flex gap-6 align-items-center">
@@ -265,7 +265,7 @@ const Category = () => {
                                 <Link
                                   to="/categorydetail"
                                   state={{
-                                    vendor: item,
+                                    vendorId: item.id,
                                   }}
                                   className="browse-btn"
                                 >

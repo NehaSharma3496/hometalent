@@ -8,6 +8,8 @@ import {
   showPackage,
   AssignPackageToVendor,
 } from "../../../Services/admin/Admin";
+
+import { getVendorPackageHistory } from "../../../Services/vendor/Vendor";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 
@@ -24,6 +26,10 @@ export default function Allvendors() {
   const [pkgOptions, setPkgOptions] = useState([]);
   const [selectedPkgId, setSelectedPkgId] = useState(null);
   const [assignVendorId, setAssignVendorId] = useState(null);
+  const [vendorPackageStatus, setVendorPackageStatus] = useState({});
+  // const [vendorPackageStatus, setVendorPackageStatus] = useState({});
+  const [vendorPackageHistory, setVendorPackageHistory] = useState({});
+
 
   const fetchVendors = async (page, limit) => {
     setLoading(true);
@@ -82,23 +88,48 @@ export default function Allvendors() {
       const token = localStorage.getItem("token");
       const res = await showPackage(token, 1, 100);
       const activePkgs = (res?.data || []).filter((p) => Number(p.status) === 1);
+
       setPkgOptions(activePkgs);
       setAssignVendorId(vendorId);
       setSelectedPkgId(null);
+
+      // Fetch package history and mark active/inactive
+      const historyRes = await getVendorPackageHistory(token, vendorId);
+      let statusObj = {};
+      if (historyRes.status && historyRes.data.length > 0) {
+        historyRes.data.forEach((pkg) => {
+          const now = new Date();
+          const start = new Date(pkg.start_date);
+          const end = new Date(pkg.end_date);
+          const isActive = pkg.payment_status === "completed" && now >= start && now <= end;
+          statusObj[pkg.package_id] = isActive ? "Active" : "-";
+        });
+      }
+      setVendorPackageStatus(statusObj);
+
       setPkgModalOpen(true);
     } catch (e) {
-      Swal.fire("Error", "Failed to load packages", "error");
+      Swal.fire("Error", "Failed to load packages or history", "error");
     }
   };
 
+
   const submitAssignPackage = async () => {
     try {
-       setPkgModalOpen(false);
+      setPkgModalOpen(false);
       if (!assignVendorId || !selectedPkgId) {
-        return Swal.fire("Select Package", "Please select a package", "warning");
+        return Swal.fire(
+          "Select Package",
+          "Please select a package",
+          "warning"
+        );
       }
       const token = localStorage.getItem("token");
-      const res = await AssignPackageToVendor(token, assignVendorId, selectedPkgId);
+      const res = await AssignPackageToVendor(
+        token,
+        assignVendorId,
+        selectedPkgId
+      );
       if (res?.status) {
         await Swal.fire("Success", res.msg || "Package assigned", "success");
         setPkgModalOpen(false);
@@ -107,7 +138,11 @@ export default function Allvendors() {
         Swal.fire("Error", res?.msg || "Unable to assign package", "error");
       }
     } catch (e) {
-      Swal.fire("Error", e?.msg || e?.message || "Unable to assign package", "error");
+      Swal.fire(
+        "Error",
+        e?.msg || e?.message || "Unable to assign package",
+        "error"
+      );
     }
   };
 
@@ -120,20 +155,65 @@ export default function Allvendors() {
     setCurrentPage(1);
   };
 
+  const fetchVendorPackageHistory = async (vendorId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await getVendorPackageHistory(token, vendorId);
+
+      if (res.status && res.data.length > 0) {
+        let historyObj = {};
+        const now = new Date();
+
+        res.data.forEach((pkg) => {
+          const start = new Date(pkg.start_date);
+          const end = new Date(pkg.end_date);
+          const isActive =
+            pkg.payment_status === "completed" 
+
+          
+          historyObj[pkg.package_id] = isActive ? "Active" : "Inactive";
+        });
+
+        setVendorPackageHistory((prev) => ({
+          ...prev,
+          [vendorId]: historyObj,
+        }));
+      } else {
+        setVendorPackageHistory((prev) => ({
+          ...prev,
+          [vendorId]: {}, // No history found
+        }));
+      }
+    } catch (err) {
+      console.error("Error fetching vendor package history:", err);
+      setVendorPackageHistory((prev) => ({
+        ...prev,
+        [vendorId]: {},
+      }));
+    }
+  };
+
+
+  useEffect(() => {
+    vendors.forEach((vendor) => {
+      fetchVendorPackageHistory(vendor.id);
+    });
+  }, [vendors]);
+
   const filteredVendors = searchText
     ? allVendors.filter((v) => {
-        const lowerSearch = searchText.toLowerCase();
-        return (
-          v.owner_name?.toLowerCase().includes(lowerSearch) ||
-          v.email?.toLowerCase().includes(lowerSearch) ||
-          v.price_range.toLowerCase().includes(lowerSearch) ||
-          v.experience_since.toLowerCase().includes(lowerSearch) ||
-          v.phone?.toLowerCase().includes(lowerSearch) ||
-          (Array.isArray(v.category_names)
-            ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
-            : v.category_names?.toLowerCase().includes(lowerSearch))
-        );
-      })
+      const lowerSearch = searchText.toLowerCase();
+      return (
+        v.owner_name?.toLowerCase().includes(lowerSearch) ||
+        v.email?.toLowerCase().includes(lowerSearch) ||
+        v.price_range.toLowerCase().includes(lowerSearch) ||
+        v.experience_since.toLowerCase().includes(lowerSearch) ||
+        v.phone?.toLowerCase().includes(lowerSearch) ||
+        (Array.isArray(v.category_names)
+          ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
+          : v.category_names?.toLowerCase().includes(lowerSearch))
+      );
+    })
     : vendors;
 
   const exportToExcel = async () => {
@@ -142,7 +222,7 @@ export default function Allvendors() {
 
       let allVendors = [];
       let page = 1;
-      const limit = 100;
+      const limit = 1000000;
       let totalPages = 1;
 
       while (page <= totalPages) {
@@ -153,7 +233,7 @@ export default function Allvendors() {
         if (pagination) {
           totalPages = Math.ceil(pagination.total_records / limit);
         } else {
-          break; // fallback if pagination info missing
+          break; 
         }
 
         page++;
@@ -161,23 +241,23 @@ export default function Allvendors() {
 
       const exportData = allVendors.map((row, index) => ({
         "S.No": index + 1,
-        "Owner Name": row.owner_name || "",
-        Email: row.email || "",
+        "Owner Name": row.owner_name || "N/A",
+        Email: row.email || "N/A",
         "Category Name": Array.isArray(row.category_names)
           ? row.category_names.join(", ")
-          : row.category_names || "",
-        Phone: row.phone || "",
-        "Price Range": row.price_range || "",
-        "Short Description": row.short_description || "",
-        "Experience Since": row.experience_since || "",
-        Image: row.image ? "Available" : "N/A",
-        Status:
+          : row.category_names || "N/A",
+        Phone: row.phone || "N/A",
+        "Price Range": row.price_range || "N/A",
+        "Short Description": row.short_description || "N/A",
+        "Experience Since": row.experience_since || "N/A",
+        Status: row.status === 1 ? "Active" : "Inactive",
+        Approval_Status:
           row.approval_status === 1
             ? "Approved"
             : row.approval_status === 2
             ? "Rejected"
             : "Pending",
-        "Enable Status": row.status === 1 ? "Enabled" : "Disabled",
+            Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -261,13 +341,13 @@ export default function Allvendors() {
     },
     {
       name: "Owner Name",
-      selector: (row) => row.owner_name,
+      selector: (row) => row.owner_name || "—",
       sortable: true,
       width: "180px",
     },
     {
       name: "Email",
-      selector: (row) => row.email,
+      selector: (row) => row.email || "—",
       sortable: true,
       width: "250px",
     },
@@ -280,12 +360,12 @@ export default function Allvendors() {
       sortable: true,
       width: "170px",
     },
-    { name: "Phone", selector: (row) => row.phone },
-    { name: "Price Range", selector: (row) => row.price_range },
+    { name: "Phone", selector: (row) => row.phone || "—" },
+    { name: "Price Range", selector: (row) => row.price_range || "—" },
 
     {
       name: "Experience Since",
-      selector: (row) => row.experience_since,
+      selector: (row) => row.experience_since || "—",
     },
     {
       name: "Active Status",
@@ -518,12 +598,19 @@ export default function Allvendors() {
       </div>
 
       {pkgModalOpen && (
-        <div className="modal fade show" style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }}>
+        <div
+          className="modal fade show"
+          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+        >
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Assign Package</h5>
-                <button type="button" className="btn-close" onClick={() => setPkgModalOpen(false)} />
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setPkgModalOpen(false)}
+                />
               </div>
               <div className="modal-body">
                 {pkgOptions.length === 0 ? (
@@ -531,7 +618,10 @@ export default function Allvendors() {
                 ) : (
                   <div className="list-group">
                     {pkgOptions.map((p) => (
-                      <label key={p.id} className="list-group-item d-flex justify-content-between align-items-center">
+                      <label
+                        key={p.id}
+                        className="list-group-item d-flex justify-content-between align-items-center fs-6"
+                      >
                         <div>
                           <input
                             type="radio"
@@ -540,8 +630,28 @@ export default function Allvendors() {
                             checked={selectedPkgId === p.id}
                             onChange={() => setSelectedPkgId(p.id)}
                           />
-                          <span className="fw-semibold">{p.name}</span>
-                          <div className="small text-muted">₹{p.price} • {p.validity_in_months ? `${p.validity_in_months} months` : (p.days ? `${p.days} days` : 'N/A')}</div>
+                          <span className="fw-semibold fs-6">{p.name}</span>
+                          <div className="small text-muted fs-6">
+                            ₹{p.price} •{" "}
+                            {p.validity_in_months
+                              ? `${p.validity_in_months} months`
+                              : p.days
+                                ? `${p.days} days`
+                                : "N/A"}
+                          </div>
+                        </div>
+                        <div>
+                          <span
+                            className={`badge ${vendorPackageHistory[assignVendorId]?.[p.id] === "Active" ? "bg-success" :
+                                vendorPackageHistory[assignVendorId]?.[p.id] === "Inactive" ? "bg-danger" :
+                                  "bg-secondary"
+                              }`}
+                          >
+                            {vendorPackageHistory[assignVendorId]?.[p.id] || ""}
+                          </span>
+
+
+
                         </div>
                       </label>
                     ))}
@@ -549,13 +659,27 @@ export default function Allvendors() {
                 )}
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setPkgModalOpen(false)}>Close</button>
-                <button type="button" className="btn btn-primary" onClick={submitAssignPackage}>Assign</button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setPkgModalOpen(false)}
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  className={`btn btn-primary ${!selectedPkgId ? "disabled" : ""}`}
+                  onClick={submitAssignPackage}
+                  disabled={!selectedPkgId}
+                >
+                  Assign
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }

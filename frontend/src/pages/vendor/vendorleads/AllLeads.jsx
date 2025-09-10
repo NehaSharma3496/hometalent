@@ -95,13 +95,13 @@ export default function AllLeads() {
 
       const exportData = allLeads.map((lead, index) => ({
         "S.No": index + 1,
-        "Client Name": lead.name || "",
-        "Client Phone": lead.phone || "",
-        "Client Email": lead.email || "",
-        "Client Query": lead.query || "",
+        "Client Name": lead.name || "N/A",
+        "Client Phone": lead.phone || "N/A",
+        "Client Email": lead.email || "N/A",
+        "Client Query": lead.query || "N/A",
         Date: lead.createdAt
           ? new Date(lead.createdAt).toLocaleDateString()
-          : "",
+          : "N/A",
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -133,13 +133,13 @@ export default function AllLeads() {
 
   const filteredLeads = searchText
     ? allLeads.filter((lead) => {
-      const lowerSearch = searchText.toLowerCase();
-      return (
-        lead.name?.toLowerCase().includes(lowerSearch) ||
-        lead.email?.toLowerCase().includes(lowerSearch) ||
-        lead.phone?.toLowerCase().includes(lowerSearch)
-      );
-    })
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          lead.name?.toLowerCase().includes(lowerSearch) ||
+          lead.email?.toLowerCase().includes(lowerSearch) ||
+          lead.phone?.toLowerCase().includes(lowerSearch)
+        );
+      })
     : leads;
 
   const columns = [
@@ -149,17 +149,17 @@ export default function AllLeads() {
       width: "70px",
     },
     {
-      name: "Client Name",
+      name: "Client Name"||"-",
       selector: (row) => row.name,
       sortable: true,
     },
     {
-      name: " Client Phone",
+      name: " Client Phone"||"-",
       selector: (row) => row.phone,
       sortable: true,
     },
     {
-      name: "Client Email",
+      name: "Client Email" ||"-",
       selector: (row) => row.email,
       sortable: true,
     },
@@ -205,9 +205,8 @@ export default function AllLeads() {
       },
     },
 
-
     {
-      name: "Date",
+      name: "Date" ||"-",
       selector: (row) => new Date(row.createdAt).toLocaleDateString(),
       sortable: true,
     },
@@ -215,17 +214,20 @@ export default function AllLeads() {
 
   return (
     <div className="page-content">
-      <div className="d-flex justify-content-between align-items-center flex-wrap mb-3 p-2  rounded mt-4">
-        {/* Back + Heading on the left */}
-        <div className="d-flex align-items-center  mb-md-0 ">
-          <Link to="/vendor/dashboard" className="me-2">
-            <i className="fa-sharp fa-regular fa-arrow-left"></i>
-          </Link>
-          <h2 className="add-page-heading mb-0 fs-5">All Leads</h2>
+      {/* 🔹 Top Header Row */}
+      <div className="row align-items-center mb-3">
+        {/* Left side: Back + Heading */}
+        <div className="col-md-6">
+          <div className="add-page-heading-div">
+            <Link to="/vendor/dashboard">
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </Link>
+            <h2 className="add-page-heading">All Leads</h2>
+          </div>
         </div>
 
-        {/* Download Button on the right */}
-        <div className="d-flex align-items-center">
+        {/* Right side: Action buttons */}
+        <div className="col-md-6 text-end mt-2">
           <button className="btn btn-success me-2" onClick={exportToExcel}>
             <i className="fa-solid fa-file-excel me-1"></i>
             Download Excel
@@ -233,32 +235,33 @@ export default function AllLeads() {
         </div>
       </div>
 
-      <div className="card table-padding ">
-        {/* 🔍 Styled Search Bar */}
-        <div
-          className="d-flex align-items-center border rounded px-2 "
-          style={{ maxWidth: "250px" }}
-        >
-          <i className="ri-search-line me-2 mx-5 text-muted" />
-          <input
-            type="text"
-            className="form-control border-0 shadow-none"
-            placeholder="Search by client name..."
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-          />
-          {searchText && (
-            <button
-              className="btn btn-sm btn-light border-0"
-              onClick={() => setSearchText("")}
-            >
-              <i className="ri-close-line" />
-            </button>
-          )}
+      {/* 🔹 Table Section */}
+      <div className="card table-padding">
+        <div className="card-header">
+          <div className="col-md-4">
+            <div className="d-flex align-items-center border rounded px-2">
+              <i className="ri-search-line me-2 text-muted" />
+              <input
+                type="text"
+                className="form-control border-0 shadow-none"
+                placeholder="Search by client name..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+              {searchText && (
+                <button
+                  className="btn btn-sm btn-light border-0"
+                  onClick={() => setSearchText("")}
+                >
+                  <i className="ri-close-line" />
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="row">
-          <div className="col-md-12">
+          <div className="card-body">
             <Datatable
               columns={columns}
               data={filteredLeads}
@@ -271,28 +274,30 @@ export default function AllLeads() {
               onChangePage={handlePageChange}
             />
           </div>
-          <Modal show={showModal} onHide={() => setShowModal(false)}>
-            <Modal.Header closeButton>
-              <Modal.Title>Full Query</Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={{
-              maxHeight: "400px", 
-              overflowY: "auto",
-              wordWrap: "break-word",
-              whiteSpace: "pre-wrap" 
-            }}
-            >
-              {fullText}
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={() => setShowModal(false)}>
-                Close
-              </Button>
-            </Modal.Footer>
-          </Modal>
-
         </div>
       </div>
+
+      {/* 🔹 Full Query Modal */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Full Query</Modal.Title>
+        </Modal.Header>
+        <Modal.Body
+          style={{
+            maxHeight: "400px",
+            overflowY: "auto",
+            wordWrap: "break-word",
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {fullText}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

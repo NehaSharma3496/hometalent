@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { GetAllFeedBack } from "../../../Services/admin/Admin"; // adjust path if different
+import { GetAllFeedBack } from "../../../Services/admin/Admin";
 import { Link } from "react-router-dom";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
@@ -76,7 +76,7 @@ export default function AllFeedback() {
       let totalPages = 1;
 
       while (page <= totalPages) {
-        const res = await GetAllFeedBack(token, page, limit);
+        const res = await GetAllFeedBack(token);
 
         if (res?.data && res?.pagination?.total_records) {
           allContacts = [...allContacts, ...res.data];
@@ -104,14 +104,13 @@ export default function AllFeedback() {
 
       const formattedData = filteredData.map((item, index) => ({
         "S.No": index + 1,
-        Name: item.name || "",
-        Email: item.email || "",
-        Phone: item.phone || "",
-        Subject: item.subject || "",
-        Message: item.message || "",
+        Name: item.name || "N/A",
+        Email: item.email || "N/A",
+        Phone: item.phone || "N/A",
+        Message: item.message || "N/A",
         Date: item.createdAt
           ? new Date(item.createdAt).toLocaleDateString("en-GB")
-          : "-",
+          : "N/A",
       }));
 
       const XLSX = await import("xlsx");
@@ -161,21 +160,21 @@ export default function AllFeedback() {
     },
     {
       name: "Name",
-      selector: (row) => row?.name,
+      selector: (row) => row?.name || "—",
       sortable: true,
       width: "150px",
 
     },
     {
       name: "Email",
-      selector: (row) => row?.email,
+      selector: (row) => row?.email || "—",
       sortable: true,
       width: "300px",
 
     },
     {
       name: "Phone",
-      selector: (row) => row?.phone,
+      selector: (row) => row?.phone || "—",
       sortable: true,
     },
     {
@@ -184,7 +183,7 @@ export default function AllFeedback() {
       cell: (row) => {
         if (!row?.message) return "—";
     
-        const maxLength = 50; // number of letters to show
+        const maxLength = 50;
         const shortText =
           row.message.length > maxLength
             ? row.message.substring(0, maxLength) + "..."
@@ -239,7 +238,7 @@ export default function AllFeedback() {
             <Link to="/admin/dashboard">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
-            <h2 className="add-page-heading ">All Enquiries</h2>
+            <h2 className="add-page-heading ">All Feedback</h2>
           </div>
 
           <div className="text-end">
@@ -291,7 +290,7 @@ export default function AllFeedback() {
           </div>
           <Modal show={showModal} onHide={() => setShowModal(false)}>
             <Modal.Header closeButton>
-              <Modal.Title>Full Query</Modal.Title>
+              <Modal.Title>Full Message</Modal.Title>
             </Modal.Header>
             <Modal.Body style={{
               maxHeight: "400px", 

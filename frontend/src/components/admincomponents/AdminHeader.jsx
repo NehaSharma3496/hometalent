@@ -163,35 +163,34 @@ export default function AdminHeader() {
             <div className="col-3">
               <div className="right-header">
                 <div className="position-relative">
-                  <div className="notification-button-container">
-                    <button
-                      className="btn p-0 setting-link position-relative notification-button"
-                      onClick={() => setIsOpen(!isOpen)}
-                      style={{ background: "none", border: "none" }}
-                    >
-                      <i className="fa-solid fa-bell text-primary fs-4 mt-2"></i>
-                      {unreadCount > 0 && (
-                        <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
-                          {unreadCount}
-                        </span>
-                      )}
-                    </button>
-                  </div>
+                  {/* 🔔 Notification Button */}
+                  <button
+                    className="btn btn-light border-0 shadow-sm rounded-circle p-2 position-relative"
+                    onClick={() => setIsOpen(!isOpen)}
+                  >
+                    <i className="fa-solid fa-bell text-primary fs-5"></i>
+                    {unreadCount > 0 && (
+                      <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
 
                   {isOpen && (
                     <>
                       {/* Overlay */}
                       <div
-                        className="position-fixed  top-0 start-0 "
+                        className="position-fixed top-0 start-0 w-100 h-100"
                         style={{ zIndex: 1040 }}
                         onClick={() => setIsOpen(false)}
                       ></div>
 
+                      {/* Dropdown */}
                       <div
-                        className="notification-dropdown-container bg-white shadow-lg rounded-3 border"
+                        className="card shadow border-0 rounded-3"
                         style={{
                           position: "fixed",
-                          top: "80px",
+                          top: "70px",
                           right: "20px",
                           width: "350px",
                           maxHeight: "400px",
@@ -200,57 +199,57 @@ export default function AdminHeader() {
                         }}
                       >
                         {/* Header */}
-                        <div className="d-flex justify-content-between align-items-center p-2 border-bottom bg-white shadow-sm rounded-top">
-                          <h6 className="mb-0 fw-semibold fs-6 text-primary d-flex align-items-center">
-                            <i className="bi bi-bell-fill me-2 text-warning"></i>{" "}
+                        <div className="card-header bg-white d-flex justify-content-between align-items-center">
+                          <h6 className="mb-0 fw-semibold text-primary d-flex align-items-center">
+                            <i className="fa-solid fa-bell me-2 text-warning"></i>
                             Notifications
                           </h6>
                           <button
-                            className="btn btn-sm rounded-circle border-0"
+                            className="btn btn-sm btn-light border-0"
                             onClick={() => setIsOpen(false)}
-                            aria-label="Close"
                           >
-                            <i className="bi bi-x-lg"></i>
+                            <i className="fa-solid fa-xmark"></i>
                           </button>
                         </div>
 
                         {/* Notification List */}
-                        <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                        {/* Notification List */}
+                        <div
+                          className="card-body p-2"
+                          style={{ maxHeight: "300px", overflowY: "auto" }}
+                        >
                           {displayedNotifications.length === 0 ? (
-                            <p className="text-center text-muted p-2">
+                            <p className="text-center text-muted m-0">
                               No notifications
                             </p>
                           ) : (
                             displayedNotifications.map((notification) => (
                               <div
                                 key={notification.id}
-                                className={`p-2 border-bottom rounded-2 mb-1 notification-item ${
+                                className={`p-2 mb-1 rounded ${
                                   notification.isRead
-                                    ? "bg-white"
-                                    : "bg-primary-subtle border-start border-3 border-primary"
+                                    ? "bg-primary-subtle border border-primary" 
+                                    : "bg-white border" 
                                 }`}
-                                style={{
-                                  cursor: "pointer",
-                                  transition: "0.3s",
-                                }}
+                                style={{ cursor: "pointer" }}
                                 onClick={() =>
                                   handleNotificationClick(notification.id)
                                 }
                               >
                                 <h6
-                                  className={`mb-1 fw-bold d-flex align-items-center ${
+                                  className={`mb-1 fw-semibold d-flex align-items-center ${
                                     notification.isRead
-                                      ? "text-secondary"
-                                      : "text-primary"
+                                      ? "text-primary"
+                                      : "text-secondary"
                                   }`}
                                   style={{ fontSize: "0.9rem" }}
                                 >
-                                  <i className="bi bi-info-circle-fill me-1"></i>
+                                  <i className="fa-solid fa-circle-info me-1"></i>
                                   {notification?.data?.message}
                                 </h6>
                                 <small
                                   className="text-muted fst-italic"
-                                  style={{ fontSize: "0.7rem" }}
+                                  style={{ fontSize: "0.75rem" }}
                                 >
                                   {new Date(
                                     notification.timestamp
@@ -262,17 +261,12 @@ export default function AdminHeader() {
                         </div>
 
                         {/* Footer */}
-                        <div className="p-2 bg-white text-center border-top">
+                        <div className="card-footer bg-white text-center">
                           <button
-                            className="btn btn-sm w-100 rounded fw-semibold text-white"
-                            style={{
-                              background:
-                                "linear-gradient(135deg, #4e54c8, #8f94fb)",
-                              fontSize: "0.8rem",
-                            }}
+                            className="btn btn-sm btn-success w-100 fw-semibold"
                             onClick={() => {
                               handleViewAll();
-                              setIsOpen(false); // close dropdown on View All
+                              setIsOpen(false);
                             }}
                           >
                             View All
@@ -297,7 +291,7 @@ export default function AdminHeader() {
                         src={
                           role === "2" && profileImage
                             ? profileImage
-                            : currentRole.defaultImage
+                            : currentRole?.defaultImage
                         }
                         className="user-img"
                         alt="Profile"
@@ -345,7 +339,7 @@ export default function AdminHeader() {
 
       <aside id="sidebar">
         <ul className="sidebar-nav">
-          {MenuData.map((item, idx) => (
+          {MenuData?.map((item, idx) => (
             <li
               key={idx}
               className={`nav-item ${item.children ? "menu-dropdown" : ""}`}
