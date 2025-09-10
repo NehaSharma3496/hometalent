@@ -1672,8 +1672,8 @@ exports.sendotp = async (req, res) => {
       username: "hometalent",
       pass: "$4J@K2pj",
       senderid: "CEGANO",
-      message: message,
-      dest_mobileno: req.phone,
+      message: message, 
+      dest_mobileno: req.body.phone,
       msgtype: "TXT",
       response: "Y",
       dlttempid: "1707175612278037393"
