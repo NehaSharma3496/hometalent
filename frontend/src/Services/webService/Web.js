@@ -69,10 +69,9 @@ export async function SubmitContactData(data) {
 
 export async function GetVendorsByCategory(token, categoryId, cityId) {
   try {
- 
-    const catId = categoryId || ''; 
+    const catId = categoryId || "";
 
-    const cityQuery = cityId ? `?city_id=${cityId}` : '';
+    const cityQuery = cityId ? `?city_id=${cityId}` : "";
 
     const res = await axios.get(
       `${Config.base_url}front/vendors-by-category/${catId}${cityQuery}`,
@@ -88,14 +87,6 @@ export async function GetVendorsByCategory(token, categoryId, cityId) {
   }
 }
 
-export async function SubmitReview(data) {
-  try {
-    const response = await axios.post(`${Config.base_url}review`, data);
-    return response?.data;
-  } catch (error) {
-    return error;
-  }
-}
 
 export async function GetAllApprovedReview(token) {
   try {
@@ -115,7 +106,10 @@ export async function GetAllApprovedReview(token) {
 
 export async function SubmitFeedback(data) {
   try {
-    const response = await axios.post(`${Config.base_url}client/feedback`, data);
+    const response = await axios.post(
+      `${Config.base_url}client/feedback`,
+      data
+    );
     return response?.data;
   } catch (error) {
     return error;
@@ -125,6 +119,32 @@ export async function SubmitFeedback(data) {
 export async function VerifyOtp(data) {
   try {
     const response = await axios.post(`${Config.base_url}admin/sendotp`, data);
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+export async function SubmitReview(data) {
+  try {
+    const response = await axios.post(`${Config.base_url}review`, data);
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function SubmitReport(data) {
+  try {
+    const response = await axios.post(`${Config.base_url}report`, data);
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function Submitotp(data) {
+  try {
+    const response = await axios.post(`${Config.base_url}api/send-otp-review`, data);
     return response?.data;
   } catch (error) {
     return error;
