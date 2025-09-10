@@ -29,127 +29,124 @@ const CategoryDetail = () => {
 
   const [activeTab, setActiveTab] = useState("review");
   const [reviewForm, setReviewForm] = useState({
-    vendor_id: vendorId, 
+    vendor_id: vendorId,
     name: "",
     email: "",
     phone: "",
-    reason: "",
+    message: "",
     rating: 0,
   });
   const [reportForm, setReportForm] = useState({
     vendor_id: vendorId,
     name: "",
     phone: "",
-    issue: "",
     reason: "",
   });
 
   // ====== OTP STATES ======
-const [otp, setOtp] = useState("");
-const [isOtpSent, setIsOtpSent] = useState(false);
-const [isOtpVerified, setIsOtpVerified] = useState(false);
-const [serverOtp, setServerOtp] = useState(""); // 🔹 backend से आएगा
-const [otpMessage, setOtpMessage] = useState("");
+  const [otp, setOtp] = useState("");
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [serverOtp, setServerOtp] = useState(""); // 🔹 backend से आएगा
+  const [otpMessage, setOtpMessage] = useState("");
 
-// ====== SEND OTP ======
-const sendOtp = async (type) => {
-  try {
-    const phone = type === "review" ? reviewForm.phone : reportForm.phone;
+  // ====== SEND OTP ======
+  const sendOtp = async (type) => {
+    try {
+      const phone = type === "review" ? reviewForm.phone : reportForm.phone;
 
-    if (!/^\d{10}$/.test(phone)) {
-      Swal.fire("Invalid!", "Enter a valid 10-digit phone number.", "error");
+      if (!/^\d{10}$/.test(phone)) {
+        Swal.fire("Invalid!", "Enter a valid 10-digit phone number.", "error");
+        return;
+      }
+
+      const res = await Submitotp({ phone, type });
+
+      if (res?.status) {
+        // अगर पहले से verified है
+        if (res.message?.toLowerCase().includes("already verified")) {
+          setIsOtpVerified(true);
+          setOtpMessage("✅ Mobile already verified");
+          Swal.fire("Info", "Mobile already verified", "info");
+        } else {
+          setIsOtpSent(true);
+          setServerOtp(res.otp); // 🔹 backend से OTP save करेंगे
+          setOtpMessage("OTP sent successfully!");
+          Swal.fire("Success", "OTP sent to your mobile", "success");
+        }
+      } else {
+        Swal.fire("Failed!", res?.message || "OTP not sent", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "Something went wrong while sending OTP", "error");
+    }
+  };
+
+  // ====== VERIFY OTP ======
+  const verifyOtp = () => {
+    if (otp == serverOtp) {
+      setIsOtpVerified(true);
+      setOtpMessage("✅ OTP Verified");
+      Swal.fire("Verified!", "Mobile number verified successfully", "success");
+    } else {
+      Swal.fire("Invalid OTP", "Please enter correct OTP", "error");
+    }
+  };
+
+  // ====== HANDLE REVIEW SUBMIT ======
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+
+    if (!isOtpVerified) {
+      Swal.fire("OTP Required", "Please verify your mobile number", "warning");
       return;
     }
 
-    const res = await Submitotp({ phone, type });
-
+    const res = await SubmitReview(reviewForm);
     if (res?.status) {
-      // अगर पहले से verified है
-      if (res.message?.toLowerCase().includes("already verified")) {
-        setIsOtpVerified(true);
-        setOtpMessage("✅ Mobile already verified");
-        Swal.fire("Info", "Mobile already verified", "info");
-      } else {
-        setIsOtpSent(true);
-        setServerOtp(res.otp); // 🔹 backend से OTP save करेंगे
-        setOtpMessage("OTP sent successfully!");
-        Swal.fire("Success", "OTP sent to your mobile", "success");
-      }
+      Swal.fire("Success!", "Review submitted successfully!", "success");
+      setReviewForm({
+        vendor_id: vendorId,
+        name: "",
+        email: "",
+        phone: "",
+        message: "",
+        rating: 0,
+      });
+      setIsOtpSent(false);
+      setIsOtpVerified(false);
+      setOtp("");
     } else {
-      Swal.fire("Failed!", res?.message || "OTP not sent", "error");
+      Swal.fire("Failed!", res?.message || "Unable to submit review", "error");
     }
-  } catch (err) {
-    console.error(err);
-    Swal.fire("Error", "Something went wrong while sending OTP", "error");
-  }
-};
+  };
 
-// ====== VERIFY OTP ======
-const verifyOtp = () => {
-  if (otp == serverOtp) {
-    setIsOtpVerified(true);
-    setOtpMessage("✅ OTP Verified");
-    Swal.fire("Verified!", "Mobile number verified successfully", "success");
-  } else {
-    Swal.fire("Invalid OTP", "Please enter correct OTP", "error");
-  }
-};
+  // ====== HANDLE REPORT SUBMIT ======
+  const handleSubmitReport = async (e) => {
+    e.preventDefault();
 
-// ====== HANDLE REVIEW SUBMIT ======
-const handleSubmitReview = async (e) => {
-  e.preventDefault();
+    if (!isOtpVerified) {
+      Swal.fire("OTP Required", "Please verify your mobile number", "warning");
+      return;
+    }
 
-  if (!isOtpVerified) {
-    Swal.fire("OTP Required", "Please verify your mobile number", "warning");
-    return;
-  }
-
-  const res = await SubmitReview(reviewForm);
-  if (res?.status) {
-    Swal.fire("Success!", "Review submitted successfully!", "success");
-    setReviewForm({
-      name: "",
-      email: "",
-      phone: "",
-      rating: 0,
-      review: "",
-      vendor_id: vendorId,
-    });
-    setIsOtpSent(false);
-    setIsOtpVerified(false);
-    setOtp("");
-  } else {
-    Swal.fire("Failed!", res?.message || "Unable to submit review", "error");
-  }
-};
-
-// ====== HANDLE REPORT SUBMIT ======
-const handleSubmitReport = async (e) => {
-  e.preventDefault();
-
-  if (!isOtpVerified) {
-    Swal.fire("OTP Required", "Please verify your mobile number", "warning");
-    return;
-  }
-
-  const res = await SubmitReport(reportForm);
-  if (res?.status) {
-    Swal.fire("Success!", "Report submitted successfully!", "success");
-    setReportForm({
-      name: "",
-      phone: "",
-      description: "",
-      issue: "",
-      vendor_id: vendorId,
-    });
-    setIsOtpSent(false);
-    setIsOtpVerified(false);
-    setOtp("");
-  } else {
-    Swal.fire("Failed!", res?.message || "Unable to submit report", "error");
-  }
-};
-
+    const res = await SubmitReport(reportForm);
+    if (res?.status) {
+      Swal.fire("Success!", "Report submitted successfully!", "success");
+      setReportForm({
+        name: "",
+        phone: "",
+        reason: "",
+        vendor_id: vendorId,
+      });
+      setIsOtpSent(false);
+      setIsOtpVerified(false);
+      setOtp("");
+    } else {
+      Swal.fire("Failed!", res?.message || "Unable to submit report", "error");
+    }
+  };
 
   const fetchVendorDetails = async () => {
     try {
@@ -880,12 +877,12 @@ const handleSubmitReport = async (e) => {
                             <i className="ri-chat-3-line fs-8 mt-1" />
                             <textarea
                               placeholder="Write your review"
-                              value={reviewForm.review}
+                              value={reviewForm.message}
                               className="form-control form-control-m border-0 shadow-none"
                               onChange={(e) =>
                                 setReviewForm({
                                   ...reviewForm,
-                                  review: e.target.value,
+                                  message: e.target.value,
                                 })
                               }
                               rows="3"
@@ -980,11 +977,11 @@ const handleSubmitReport = async (e) => {
                           {/* Issue Dropdown */}
                           <div className="mt-3">
                             <select
-                              value={reportForm.issue}
+                              value={reportForm.reason}
                               onChange={(e) =>
                                 setReportForm({
                                   ...reportForm,
-                                  issue: e.target.value,
+                                  reason: e.target.value,
                                 })
                               }
                               className="form-select"
@@ -1010,23 +1007,6 @@ const handleSubmitReport = async (e) => {
                                 Counterfeit / Fake Product
                               </option>
                             </select>
-                          </div>
-
-                          {/* Description */}
-                          <div className="date-time-dropdown d-flex align-items-start gap-2 mt-3">
-                            <i className="ri-chat-3-line fs-8 mt-1" />
-                            <textarea
-                              placeholder="Description"
-                              value={reportForm.description}
-                              className="form-control form-control-m border-0 shadow-none"
-                              onChange={(e) =>
-                                setReportForm({
-                                  ...reportForm,
-                                  description: e.target.value,
-                                })
-                              }
-                              rows="3"
-                            />
                           </div>
 
                           <div className="mt-3">
