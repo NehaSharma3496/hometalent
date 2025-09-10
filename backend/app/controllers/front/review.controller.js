@@ -90,12 +90,12 @@ exports.getActiveApprovedReviews = async (req, res) => {
 
 exports.createReport = async (req, res) => {
   try {
-    const { vendor_id, name, email, phone, reason } = req.body;
+    const { vendor_id, name, phone, reason } = req.body;
     if (!name || !reason) {
       return res.status(400).json({ status: false, message: 'Name and reason are required' });
     }
    
-    const report = await Report.create({ vendor_id, name, email, phone, reason });
+    const report = await Report.create({ vendor_id, name, phone, reason });
     // Emit and persist admin notification
     try {
       socketManager.reviewSubmitted({ id: report.id, name: report.name, reason: report.reason });
