@@ -41,8 +41,8 @@ exports.submitContactUs = async (req, res) => {
 exports.submitLead = async (req, res) => {
   try {
     const { vendor_id, name, phone, email, query } = req.body;
-    if (!vendor_id || !name || !phone || !email) {
-      return res.status(400).json({ status: false, msg: 'vendor_id, name, phone, and email are required' });
+    if (!vendor_id || !name || !phone) {
+      return res.status(400).json({ status: false, msg: 'vendor_id, name, phone are required' });
     }
     // Store the lead
     const lead = await ClientLead.create({ vendor_id, name, phone, email, query });

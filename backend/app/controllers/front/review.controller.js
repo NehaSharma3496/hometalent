@@ -1,17 +1,21 @@
-const { Review, Notification }  = require('../../models');
+const { Review, Notification, Report, User }  = require('../../models');
 const socketManager = require('../../socket/socketManager');
+const fetch = require("node-fetch");
 
 // Create a review
 exports.createReview = async (req, res) => {
   try {
-    const { name, message, rating } = req.body;
+    const { vendor_id, name, email, phone, message, rating } = req.body;
 
     if (!name || !message) {
       return res.status(400).json({ status: false, message: 'Name and message are required' });
     }
-
-    const review = await Review.create({ name, message, rating });
-
+    
+    const checkphone = phone ? await Review.findOne({ where: { phone } }) : null;
+    if (checkphone) {
+      return res.status(400).json({ status: false, message: 'You have already submitted a review with this phone number' });
+    }
+    const review = await Review.create({ vendor_id, name, email, phone, message, rating });
     // Emit and persist admin notification
     try {
       socketManager.reviewSubmitted({ id: review.id, name: review.name, message: review.message });
@@ -58,7 +62,9 @@ exports.approveOrRejectReview = async (req, res) => {
 // Get all reviews (admin view)
 exports.getAllReviews = async (req, res) => {
   try {
-    const reviews = await Review.findAll({ order: [['createdAt', 'DESC']] });
+    const reviews = await Review.findAll({ order: [['createdAt', 'DESC']]
+      , include: [{ model: User, as: 'User', attributes: ['profile_name'] }]
+     });
     return res.status(200).json({ status: true, data: reviews });
   } catch (error) {
     return res.status(500).json({ status: false, message: 'Error fetching reviews', error: error.message });
@@ -81,3 +87,85 @@ exports.getActiveApprovedReviews = async (req, res) => {
     return res.status(500).json({ status: false, message: 'Error fetching reviews', error: error.message });
   }
 };
+
+exports.createReport = async (req, res) => {
+  try {
+    const { vendor_id, name, email, phone, reason } = req.body;
+    if (!name || !reason) {
+      return res.status(400).json({ status: false, message: 'Name and reason are required' });
+    }
+   
+    const report = await Report.create({ vendor_id, name, email, phone, reason });
+    // Emit and persist admin notification
+    try {
+      socketManager.reviewSubmitted({ id: report.id, name: report.name, reason: report.reason });
+      await Notification.create({
+        user_id: null,
+        user_type: 'admin',
+        type: 'report_submitted',
+        title: 'New Report',
+        message: 'New report has been received.',
+        metadata: { id: report.id }
+      });
+    } catch (e) { console.error('Failed to notify/persist report submission:', e.message); }
+
+    return res.status(201).json({ status: true, message: 'Report submitted successfully', data: report });
+  } catch (error) {
+    return res.status(500).json({ status: false, message: 'Error submitting report', error: error.message });
+  }
+};
+
+exports.getAllReports = async (req, res) => {
+  try {
+    const reports = await Report.findAll({ order: [['createdAt', 'DESC']],
+       include: [{ model: User, as: 'User', attributes: ['profile_name'] }]  });
+    return res.status(200).json({ status: true, data: reports });
+  } catch (error) {
+    return res.status(500).json({ status: false, message: 'Error fetching reports', error: error.message });
+  } 
+};
+
+function generateOtp() {
+  return Math.floor(1000 + Math.random() * 9000); // ensures 4 digits
+}
+
+exports.sendotpreview = async (req, res) => {
+  try {
+    if(req.type == 'review'){
+      const checkphone = await Review.findOne({ where: { phone: req.phone } });
+      if (checkphone) {
+        return res.status(400).json({ status: false, msg: "Already verify" });
+      }
+    }else{
+      const checkphone = await Report.findOne({ where: { phone: req.phone } });
+      if (checkphone) {
+        return res.status(400).json({ status: false, msg: "Already verify" });
+      }
+    }
+    
+    let otp = generateOtp();
+    const message = `Cegano Technology: Your OTP is ${otp}. Please enter this code to complete your login or signup. Do not share this code with anyone.`;
+    const url = new URL("http://smsjust.com/sms/user/urlsms.php");
+    url.search = new URLSearchParams({
+      username: "hometalent",
+      pass: "$4J@K2pj",
+      senderid: "CEGANO",
+      message: message,
+      dest_mobileno: req.phone,
+      msgtype: "TXT",
+      response: "Y",
+      dlttempid: "1707175612278037393"
+    });
+
+    const response = await fetch(url);
+    const text = await response.text();
+    return res.json({ status: true, msg: "otp send successfully", otp: otp });
+  } catch (error) {
+    return res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+
+
+
+

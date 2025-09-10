@@ -15,6 +15,7 @@ const Blog = require('./Blog');
 const Review = require('./Review'); // Import the Review model
 const Notification = require('./Notification');
 const FeedBack = require('./FeedBack');
+const Report = require('./report');
 const models = {
     User: User,
     Role: Role,
@@ -33,6 +34,7 @@ const models = {
     Review:Review,
     Notification: Notification,
     FeedBack: FeedBack,
+    Report: Report
 };
 
 Object.keys(models).forEach(modelName => {

@@ -1,10 +1,25 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db.config');
   const Review = sequelize.define('Review', {
+    vendor_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: true, 
+        validate: {
+            isEmail: true, 
+        },
+    },
+    phone: {
+        type: DataTypes.STRING,
+        allowNull: true, 
+    }, 
     message: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -40,9 +55,7 @@ const sequelize = require('../config/db.config');
 );
 
 Review.associate = (models) => {
-    // Define associations here if needed
-    // For example, if you have a User model and want to associate it with Blog:
-    // Blog.belongsTo(models.User, { foreignKey: 'user_id', as: 'author' });
+    Review.belongsTo(models.User, { foreignKey: 'vendor_id'});
 }
 
 module.exports = Review;
