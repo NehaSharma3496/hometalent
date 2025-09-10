@@ -36,12 +36,6 @@ const CategoryDetail = () => {
     message: "",
     rating: 0,
   });
-  const [reportForm, setReportForm] = useState({
-    vendor_id: vendorId,
-    name: "",
-    phone: "",
-    reason: "",
-  });
 
   // ====== OTP STATES ======
   const [otp, setOtp] = useState("");
@@ -63,19 +57,20 @@ const CategoryDetail = () => {
       const res = await Submitotp({ phone, type });
 
       if (res?.status) {
-        // अगर पहले से verified है
-        if (res.message?.toLowerCase().includes("already verified")) {
-          setIsOtpVerified(true);
-          setOtpMessage("✅ Mobile already verified");
+        // ✅ Normal OTP aaya
+        setIsOtpSent(true);
+        setServerOtp(res.otp);
+        setIsOtpVerified(false);
+        Swal.fire("Success", "OTP sent to your mobile", "success");
+      } else {
+        // ✅ Already verify case
+        if (res?.msg?.toLowerCase().includes("already verify")) {
+          setIsOtpVerified(true); // Direct verified
+          setIsOtpSent(false); // OTP ka UI hide karne ke liye
           Swal.fire("Info", "Mobile already verified", "info");
         } else {
-          setIsOtpSent(true);
-          setServerOtp(res.otp); // 🔹 backend से OTP save करेंगे
-          setOtpMessage("OTP sent successfully!");
-          Swal.fire("Success", "OTP sent to your mobile", "success");
+          Swal.fire("Failed!", res?.msg || "OTP not sent", "error");
         }
-      } else {
-        Swal.fire("Failed!", res?.message || "OTP not sent", "error");
       }
     } catch (err) {
       console.error(err);
@@ -123,8 +118,25 @@ const CategoryDetail = () => {
   };
 
   // ====== HANDLE REPORT SUBMIT ======
+
+  const [reportForm, setReportForm] = useState({
+    vendor_id: vendorId,
+    name: "",
+    phone: "",
+    reason: "",
+  });
+
   const handleSubmitReport = async (e) => {
     e.preventDefault();
+
+    if (!reportForm.name || !reportForm.phone || !reportForm.reason) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing Fields",
+        text: "Please fill in all required fields.",
+      });
+      return;
+    }
 
     if (!isOtpVerified) {
       Swal.fire("OTP Required", "Please verify your mobile number", "warning");
@@ -194,19 +206,9 @@ const CategoryDetail = () => {
     query: "",
   });
 
-  const [reviewData, setReviewData] = useState({
-    name: "",
-    message: "",
-  });
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLeadData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleReviewChange = (e) => {
-    const { name, value } = e.target;
-    setReviewData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async () => {
@@ -784,6 +786,7 @@ const CategoryDetail = () => {
                           </div>
 
                           {/* Name */}
+                          {/* Name */}
                           <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
                             <i className="ri-user-line fs-8" />
                             <input
@@ -791,12 +794,16 @@ const CategoryDetail = () => {
                               placeholder="Name"
                               value={reviewForm.name}
                               className="form-control form-control-m border-0 shadow-none"
-                              onChange={(e) =>
-                                setReviewForm({
-                                  ...reviewForm,
-                                  name: e.target.value,
-                                })
-                              }
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                // ✅ Sirf alphabets aur space allow
+                                if (/^[a-zA-Z\s]*$/.test(value)) {
+                                  setReviewForm({
+                                    ...reviewForm,
+                                    name: value,
+                                  });
+                                }
+                              }}
                               required
                             />
                           </div>
@@ -828,12 +835,13 @@ const CategoryDetail = () => {
                               value={reviewForm.phone}
                               maxLength={10}
                               className="form-control form-control-m border-0 shadow-none"
-                              onChange={(e) =>
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, ""); // ✅ Sirf digits allow
                                 setReviewForm({
                                   ...reviewForm,
-                                  phone: e.target.value,
-                                })
-                              }
+                                  phone: value,
+                                });
+                              }}
                               required
                             />
                           </div>
@@ -911,12 +919,16 @@ const CategoryDetail = () => {
                               placeholder="Name"
                               value={reportForm.name}
                               className="form-control form-control-m border-0 shadow-none"
-                              onChange={(e) =>
-                                setReportForm({
-                                  ...reportForm,
-                                  name: e.target.value,
-                                })
-                              }
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                // Sirf alphabets aur space allow
+                                if (/^[a-zA-Z\s]*$/.test(value)) {
+                                  setReportForm({
+                                    ...reportForm,
+                                    name: value,
+                                  });
+                                }
+                              }}
                               required
                             />
                           </div>
@@ -930,19 +942,27 @@ const CategoryDetail = () => {
                               value={reportForm.phone}
                               maxLength={10}
                               className="form-control form-control-m border-0 shadow-none"
-                              onChange={(e) =>
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, ""); // sirf digits
                                 setReportForm({
                                   ...reportForm,
-                                  phone: e.target.value,
-                                })
-                              }
+                                  phone: value,
+                                });
+                              }}
                               required
                             />
                           </div>
 
                           {/* OTP Section */}
+
+                          {/* OTP Section */}
                           <div className="mt-3">
-                            {!isOtpSent ? (
+                            {/* Agar already verified hai to OTP ka UI hide ho jayega */}
+                            {isOtpVerified ? (
+                              <p className="text-success fw-bold">
+                                ✅ Mobile Verified
+                              </p>
+                            ) : !isOtpSent ? (
                               <button
                                 type="button"
                                 className="btn btn-outline-primary w-100"
@@ -950,7 +970,7 @@ const CategoryDetail = () => {
                               >
                                 Send OTP
                               </button>
-                            ) : !isOtpVerified ? (
+                            ) : (
                               <div className="d-flex gap-2">
                                 <input
                                   type="text"
@@ -967,10 +987,6 @@ const CategoryDetail = () => {
                                   Verify
                                 </button>
                               </div>
-                            ) : (
-                              <p className="text-success fw-bold">
-                                ✅ OTP Verified
-                              </p>
                             )}
                           </div>
 
@@ -1013,7 +1029,7 @@ const CategoryDetail = () => {
                             <button
                               type="submit"
                               className="send-btn w-100"
-                              disabled={!isOtpVerified}
+                              disabled={!isOtpVerified} // ✅ sirf tab active jab OTP verified ya already verified ho
                             >
                               Submit Report
                             </button>
