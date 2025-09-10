@@ -9,12 +9,23 @@ import {
   GetStates,
   GetCities,
 } from "../../../Services/vendor/Vendor";
+import { VerifyOtp } from "../../../Services/webService/Web";
 
 export default function AddVendor() {
   const [categoryData, setCategoryData] = useState([]);
   const [statesData, setStatesData] = useState([]);
   const [cityData, setCityData] = useState([]);
   const [selectedStateId, setSelectedStateId] = useState("");
+  const [phoneVerificationState, setPhoneVerificationState] = useState({
+    isVerified: false,
+    showVerifyButton: false,
+    showOtpInput: false,
+    otp: "",
+    sentOtp: "",
+    phoneNumber: "",
+    loading: false,
+  });
+
   const token = localStorage.getItem("token");
 
   const initialValues = {
@@ -37,7 +48,7 @@ export default function AddVendor() {
     linkedin_link: "",
     youtube_link: "",
     website_link: "",
-    image: null, // Changed from 'images' to 'image'
+    image: null,
     terms: false,
   };
 
@@ -50,12 +61,174 @@ export default function AddVendor() {
       .required("Pin Code is required"),
     phone: Yup.string()
       .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
-      .required("Phone No is required"),
+      .required("Phone No is required")
+      .test("phone-verified", "Phone number must be verified", () =>
+        phoneVerificationState.isVerified ? true : false
+      ),
     email: Yup.string().email("Invalid email").required("Email is required"),
     category: Yup.string().required("Category is required"),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
     longDesc: Yup.string().required("Large Description is required"),
+    otherCategory: Yup.string().when("category", {
+      is: (val) => {
+        const selected = categoryData.find((cat) => cat.value === val);
+        return selected?.label?.toLowerCase() === "other";
+      },
+      then: (schema) => schema.required("Other Category Name is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   });
+
+  const handlePhoneInput = (e, setFieldValue, setFieldTouched, touched) => {
+    const inputValue = e.target.value;
+    const numericValue = inputValue.replace(/[^0-9]/g, "").slice(0, 10);
+
+    setFieldValue("phone", numericValue);
+
+    if (!touched.phone) {
+      setFieldTouched("phone", true);
+    }
+
+    setPhoneVerificationState((prev) => ({
+      ...prev,
+      isVerified: numericValue !== prev.phoneNumber ? false : prev.isVerified,
+      showVerifyButton: numericValue.length === 10,
+      showOtpInput:
+        numericValue !== prev.phoneNumber ? false : prev.showOtpInput,
+      otp: numericValue !== prev.phoneNumber ? "" : prev.otp,
+      sentOtp: numericValue !== prev.phoneNumber ? "" : prev.sentOtp,
+      phoneNumber: numericValue,
+    }));
+  };
+
+  const handleOtpInput = (e) => {
+    const inputValue = e.target.value;
+    const numericValue = inputValue.replace(/[^0-9]/g, "").slice(0, 4);
+
+    setPhoneVerificationState((prev) => ({
+      ...prev,
+      otp: numericValue,
+    }));
+  };
+
+  const handleSendOtp = async (phoneValue) => {
+    if (!phoneValue || phoneValue.length !== 10) {
+      Swal.fire("Error", "Please enter a valid 10-digit phone number", "error");
+      return;
+    }
+    try {
+      setPhoneVerificationState((prev) => ({
+        ...prev,
+        loading: true,
+      }));
+
+      const res = await VerifyOtp({ phone: phoneValue });
+
+      if (res?.status) {
+        setPhoneVerificationState((prev) => ({
+          ...prev,
+          showOtpInput: true,
+          sentOtp: res?.otp || "",
+          loading: false,
+        }));
+        Swal.fire("Success", "OTP sent successfully to your phone!", "success");
+      } else {
+        setPhoneVerificationState((prev) => ({
+          ...prev,
+          loading: false,
+        }));
+        Swal.fire("Error", res?.msg || "Failed to send OTP", "error");
+      }
+    } catch (err) {
+      console.error("OTP send error:", err);
+      setPhoneVerificationState((prev) => ({
+        ...prev,
+        loading: false,
+      }));
+      Swal.fire("Error", "Failed to send OTP. Please try again.", "error");
+    }
+  };
+
+  const handleVerifyOtp = () => {
+    const otpValue = phoneVerificationState.otp;
+
+    if (!otpValue || otpValue.length !== 4) {
+      Swal.fire("Error", "Please enter a valid 4-digit OTP", "error");
+      return;
+    }
+
+    if (otpValue === phoneVerificationState.sentOtp.toString()) {
+      setPhoneVerificationState((prev) => ({
+        ...prev,
+        isVerified: true,
+        showOtpInput: false,
+      }));
+      Swal.fire("Success", "Phone number verified successfully!", "success");
+    } else {
+      Swal.fire("Error", "Invalid OTP. Please try again.", "error");
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (!/[0-9]/.test(e.key) && !["Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  const CustomPhoneComponent = ({ values, errors, touched, setFieldValue, setFieldTouched }) => (
+    <>
+      <label className="form-label">Phone No*</label>
+      <div className="input-group mb-2">
+        <input
+          type="text"
+          className={`form-control ${touched.phone && errors.phone ? "is-invalid" : ""}`}
+          value={values.phone || ""}
+          onChange={(e) => handlePhoneInput(e, setFieldValue, setFieldTouched, touched)}
+          placeholder="Enter 10-digit phone number"
+          maxLength="10"
+          autoComplete="tel"
+        />
+        {phoneVerificationState.showVerifyButton && !phoneVerificationState.isVerified && (
+          <button
+            type="button"
+            className="btn btn-outline-primary"
+            onClick={() => handleSendOtp(values.phone)}
+            disabled={phoneVerificationState.showOtpInput || phoneVerificationState.loading}
+          >
+            {phoneVerificationState.loading ? "Sending..." : phoneVerificationState.showOtpInput ? "OTP Sent" : "Send OTP"}
+          </button>
+        )}
+      </div>
+      {phoneVerificationState.showOtpInput && (
+        <div className="input-group mb-2">
+          <input
+            type="text"
+            className="form-control"
+            value={phoneVerificationState.otp || ""}
+            onChange={handleOtpInput}
+            onKeyPress={handleKeyPress}
+            placeholder="Enter 4-digit OTP"
+            maxLength="4"
+            autoComplete="one-time-code"
+          />
+          <button
+            type="button"
+            className="btn btn-success"
+            onClick={handleVerifyOtp}
+            disabled={phoneVerificationState.otp.length !== 4}
+          >
+            Verify OTP
+          </button>
+        </div>
+      )}
+      {phoneVerificationState.isVerified && (
+        <div className="alert alert-success p-2 mt-2" role="alert">
+          <small>✓ Phone number verified successfully!</small>
+        </div>
+      )}
+      {touched.phone && errors.phone && <div className="text-danger small mt-1">{errors.phone}</div>}
+    </>
+  );
 
   const fields = [
     {
@@ -68,14 +241,14 @@ export default function AddVendor() {
       name: "profileName",
       label: "Profile Name",
       type: "text",
-      colClass: "col-md-4 ",
+      colClass: "col-md-4",
     },
     {
       name: "state",
       label: "State*",
       type: "select",
       options: statesData,
-      colClass: "col-md-4 ",
+      colClass: "col-md-4",
       onChange: (e) => setSelectedStateId(e.target.value),
     },
     {
@@ -83,38 +256,39 @@ export default function AddVendor() {
       label: "City*",
       type: "select",
       options: cityData,
-      colClass: "col-md-4 ",
+      colClass: "col-md-4",
     },
     {
       name: "pin",
       label: "Pin Code*",
       type: "text",
-      colClass: "col-md-4 ",
+      colClass: "col-md-4",
     },
     {
       name: "phone",
       label: "Phone No*",
-      type: "text",
-      colClass: "col-md-4 ",
+      type: "custom",
+      colClass: "col-md-4",
+      customComponent: CustomPhoneComponent,
     },
     {
       name: "email",
       label: "Email*",
       type: "email",
-      colClass: "col-md-4 ",
+      colClass: "col-md-4",
     },
     {
       name: "priceRange",
       label: "Price Range",
       type: "text",
-      colClass: "col-md-4 ",
+      colClass: "col-md-4",
     },
     {
       name: "category",
       label: "Category*",
       type: "select",
-      options: [...categoryData],
-      colClass: "col-md-4 ",
+      options: categoryData,
+      colClass: "col-md-4",
     },
     {
       name: "otherCategory",
@@ -122,9 +296,7 @@ export default function AddVendor() {
       type: "text",
       colClass: "col-md-6 mb-3",
       showWhen: (values) => {
-        const selected = categoryData.find(
-          (cat) => cat.value === values.category
-        );
+        const selected = categoryData.find((cat) => cat.value === values.category);
         return selected?.label?.toLowerCase() === "other";
       },
       placeholder: "Enter category name",
@@ -133,63 +305,63 @@ export default function AddVendor() {
       name: "experience",
       label: "Experience Since",
       type: "text",
-      colClass: "col-md-6 ",
+      colClass: "col-md-4",
     },
     {
       name: "shortDesc",
       label: "Short Description",
       type: "text",
-      colClass: "col-md-12 ",
+      colClass: "col-md-12",
     },
     {
       name: "longDesc",
       label: "Full Description*",
       type: "textarea",
-      colClass: "col-md-12 ",
+      colClass: "col-md-12",
     },
     {
       name: "facebook_link",
       label: "Facebook Link",
       type: "text",
-      colClass: "col-md-6 ",
+      colClass: "col-md-6",
     },
     {
       name: "instagram_link",
       label: "Instagram Link",
       type: "text",
-      colClass: "col-md-6 ",
+      colClass: "col-md-6",
     },
     {
       name: "twitter_link",
       label: "Twitter Link",
       type: "text",
-      colClass: "col-md-6 ",
+      colClass: "col-md-6",
     },
     {
       name: "linkedin_link",
       label: "LinkedIn Link",
       type: "text",
-      colClass: "col-md-6 ",
+      colClass: "col-md-6",
     },
     {
       name: "youtube_link",
       label: "YouTube Link",
       type: "text",
-      colClass: "col-md-6 ",
+      colClass: "col-md-6",
     },
     {
       name: "website_link",
       label: "Website Link",
       type: "text",
-      colClass: "col-md-6 ",
+      colClass: "col-md-6",
     },
     {
       name: "image",
       label: "Image",
       type: "file",
-      colClass: "col-md-6 ",
+      colClass: "col-md-6",
       accept: "image/*",
-      multiple: false, // Single file only
+      multiple: false,
     },
     {
       name: "terms",
@@ -203,16 +375,17 @@ export default function AddVendor() {
         </>
       ),
       type: "checkbox",
-      colClass: "col-md-12 ",
+      colClass: "col-md-12",
     },
   ];
 
   const onSubmit = async (values) => {
-    try {
-      // Debug: Check form values
-      console.log("Form submitted with values:", values);
-      console.log("Image value:", values.image);
+    if (!phoneVerificationState.isVerified) {
+      Swal.fire("Error", "Please verify your phone number before submitting", "error");
+      return;
+    }
 
+    try {
       const formData = new FormData();
       formData.append("owner_name", values.ownerName);
       formData.append("profile_name", values.profileName);
@@ -233,9 +406,7 @@ export default function AddVendor() {
       formData.append("youtube_link", values.youtube_link || "");
       formData.append("website_link", values.website_link || "");
 
-      const selectedCat = categoryData.find(
-        (cat) => cat.value === values.category
-      );
+      const selectedCat = categoryData.find((cat) => cat.value === values.category);
 
       if (selectedCat?.label?.toLowerCase() === "other") {
         formData.append("category_id", selectedCat.value);
@@ -244,68 +415,31 @@ export default function AddVendor() {
         formData.append("category_id", values.category);
       }
 
-      // Handle image upload with proper validation
       if (values.image) {
-        console.log("Processing image file:", {
-          name: values.image.name,
-          size: values.image.size,
-          type: values.image.type
-        });
-
-        const allowedTypes = [
-          "image/jpeg",
-          "image/png",
-          "image/jpg",
-          "image/webp",
-          "image/gif"
-        ];
-
-        // Validate file type
+        const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp", "image/gif"];
         if (!allowedTypes.includes(values.image.type)) {
-          console.log("Invalid file type:", values.image.type);
           Swal.fire("Error", "Only image files (JPEG, PNG, JPG, WEBP, GIF) are allowed", "error");
           return;
         }
-
-        // Validate file size (max 5MB)
-        const maxSize = 5 * 1024 * 1024; // 5MB
+        const maxSize = 5 * 1024 * 1024;
         if (values.image.size > maxSize) {
-          console.log("File too large:", values.image.size);
           Swal.fire("Error", "File size must be less than 5MB", "error");
           return;
         }
-
         formData.append("image", values.image);
-        console.log("Image added to FormData successfully");
-      } else {
-        console.log("No image selected");
       }
 
-      // Debug: Log FormData contents
-      console.log("FormData contents:");
-      for (let [key, value] of formData.entries()) {
-        console.log(key + ":", value);
-      }
-
-      console.log("Calling VendorRegister API...");
       const res = await VendorRegister(formData);
-      console.log("API Response:", res);
-
       if (res?.data?.status) {
-        Swal.fire("Success", res?.data?.msg || "Vendor added successfully!", "success").then(() => {
+        Swal.fire("Success", res.data.msg || "Vendor added successfully!", "success").then(() => {
           window.location.reload();
         });
       } else {
-        Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+        Swal.fire("Error", res.data.msg || "Something went wrong", "error");
       }
     } catch (err) {
       console.error("API ERROR:", err);
-      console.error("Error details:", err?.response?.data);
-      Swal.fire(
-        "Error",
-        err?.response?.data?.msg || "Something went wrong",
-        "error"
-      );
+      Swal.fire("Error", err?.response?.data?.msg || "Something went wrong", "error");
     }
   };
 
