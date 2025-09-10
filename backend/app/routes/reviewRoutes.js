@@ -14,5 +14,7 @@ router.get('/reviews', reviewController.getAllReviews);
 router.get('/reviews/active-approved', reviewController.getActiveApprovedReviews);
 router.post('/report', reviewController.createReport);
 router.get('/reports', reviewController.getAllReports);
+router.post('/send-otp-review', reviewController.sendotpreview);
+
 
 module.exports = router;
