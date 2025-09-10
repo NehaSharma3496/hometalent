@@ -83,6 +83,7 @@ export default function ProfileUpdateRequests() {
         Phone: row.vendor?.phone || "N/A",
         Status:
           row.status?.charAt(0).toUpperCase() + row.status?.slice(1) || "N/A",
+          Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);

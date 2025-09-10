@@ -5,7 +5,7 @@ import {
   GetCategories,
   GetApproveVendor,
 } from "../../../Services/admin/Admin";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 
@@ -86,7 +86,7 @@ export default function RejectedVendors() {
 
       let allVendors = [];
       let page = 1;
-      const limit = 100;
+      const limit = 1000000;
       let totalPages = 1;
 
       // Fetch all paginated rejected vendors
@@ -119,16 +119,19 @@ export default function RejectedVendors() {
 
         return {
           "S.No": index + 1,
-          "Owner Name": row.owner_name || "",
-          Email: row.email || "",
+          "Owner Name": row.owner_name || "N/A",
+          Email: row.email || "N/A",
           "Category Names": categoryNames,
-          "Profile Name": row.profile_name || "",
-          "Phone Number": row.phone || "",
-          "Price Range": row.price_range || "",
-          "Short Description": row.short_description || "",
-          Image: row.image ? "Available" : "N/A",
-          "Pin Code": row.pin_code || "",
-          "Experience Since": row.experience_since || "",
+          "Phone Number": row.phone || "N/A",
+          "Price Range": row.price_range || "N/A",
+          "Pin Code": row.pin_code || "N/A",
+          "Experience Since": row.experience_since || "N/A",
+          Approval_Status:
+            row.approval_status === 1
+              ? "Approved"
+              : row.approval_status === 2
+              ? "Rejected"
+              : "Pending"
         };
       });
 
@@ -224,13 +227,13 @@ export default function RejectedVendors() {
     },
     {
       name: "Owner Name",
-      selector: (row) => row.owner_name,
+      selector: (row) => row.owner_name || "—",
       sortable: true,
       width: "150px",
     },
     {
       name: "Email",
-      selector: (row) => row.email,
+      selector: (row) => row.email || "—",
       sortable: true,
       width: "200px",
     },
@@ -246,22 +249,22 @@ export default function RejectedVendors() {
     },
     {
       name: "Phone Number",
-      selector: (row) => row.phone,
+      selector: (row) => row.phone || "—",
       sortable: true,
     },
     {
       name: "Price Range",
-      selector: (row) => row.price_range,
+      selector: (row) => row.price_range || "—",
       sortable: true,
     },
     {
       name: "Pin Code",
-      selector: (row) => row.pin_code,
+      selector: (row) => row.pin_code || "—",
       sortable: true,
     },
     {
       name: "Experience Since",
-      selector: (row) => row.experience_since,
+      selector: (row) => row.experience_since || "—",
       sortable: true,
     },
     {

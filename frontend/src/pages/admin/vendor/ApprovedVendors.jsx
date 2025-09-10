@@ -55,7 +55,7 @@ export default function ApprovedVendors() {
 
       let allVendors = [];
       let page = 1;
-      const limit = 100;
+      const limit = 1000000;
       let totalPages = 1;
 
       while (page <= totalPages) {
@@ -79,15 +79,14 @@ export default function ApprovedVendors() {
 
       const exportData = allVendors.map((row, index) => ({
         "S.No": index + 1,
-        "Owner Name": row.owner_name || "",
-        Email: row.email || "",
+        "Owner Name": row.owner_name || "N/A",
+        Email: row.email || "N/A",
         Categories: Array.isArray(row.category_names)
           ? row.category_names.join(", ")
-          : row.category_names || "",
-        Phone: row.phone || "",
-        "Price Range": row.price_range || "",
-        Experience: row.experience_since || "",
-        Image: row.image ? "Available" : "N/A",
+          : row.category_names || "N/A",
+        Phone: row.phone || "N/A",
+        "Price Range": row.price_range || "N/A",
+        Experience: row.experience_since || "N/A",
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -160,26 +159,26 @@ export default function ApprovedVendors() {
     },
     {
       name: "Owner Name",
-      selector: (row) => row.owner_name,
+      selector: (row) => row.owner_name || "—",
       sortable: true,
       width: "150px",
     },
     {
       name: "Email",
-      selector: (row) => row.email,
+      selector: (row) => row.email || "—",
       sortable: true,
       width: "230px",
     },
     {
       name: "Categories",
-      selector: (row) => row.category_names.join(", "),
+      selector: (row) => row.category_names.join(", ") || "—",
       sortable: false,
     },
-    { name: "Phone", selector: (row) => row.phone, sortable: true },
-    { name: "Price Range", selector: (row) => row.price_range, sortable: true },
+    { name: "Phone", selector: (row) => row.phone || "—", sortable: true },
+    { name: "Price Range", selector: (row) => row.price_range || "—", sortable: true },
     {
       name: "Experience",
-      selector: (row) => row.experience_since,
+      selector: (row) => row.experience_since || "—",
       sortable: true,
     },
   ];

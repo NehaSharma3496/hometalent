@@ -105,14 +105,14 @@ export default function AllEnquiries() {
 
       const formattedData = filteredData.map((item, index) => ({
         "S.No": index + 1,
-        Name: item.name || "",
-        Email: item.email || "",
-        Phone: item.phone || "",
-        Subject: item.subject || "",
-        Message: item.message || "",
+        Name: item.name || "N/A",
+        Email: item.email || "N/A",
+        Phone: item.phone || "N/A",
+        Subject: item.subject || "N/A",
+        Message: item.message || "N/A",
         Date: item.createdAt
           ? new Date(item.createdAt).toLocaleDateString("en-GB")
-          : "-",
+          : "N/A",
       }));
 
       const XLSX = await import("xlsx");
@@ -162,26 +162,26 @@ export default function AllEnquiries() {
     },
     {
       name: "Name",
-      selector: (row) => row?.name,
+      selector: (row) => row?.name || "—",
       sortable: true,
       width: "150px",
 
     },
     {
       name: "Email",
-      selector: (row) => row?.email,
+      selector: (row) => row?.email || "—",
       sortable: true,
       width: "300px",
 
     },
     {
       name: "Phone",
-      selector: (row) => row?.phone,
+      selector: (row) => row?.phone || "—",
       sortable: true,
     },
     {
       name: "Subject",
-      selector: (row) => row?.subject,
+      selector: (row) => row?.subject || "—",
       sortable: true,
     },
     {

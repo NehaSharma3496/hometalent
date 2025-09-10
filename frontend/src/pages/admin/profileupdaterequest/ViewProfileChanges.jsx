@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import Datatable from "../../../extracomponents/Datatable";
+import DataTable from "react-data-table-component";
 import {
   ProcessProfileUpdateRequest,
   GetProfileUpdateRequestsBlogs,
@@ -247,7 +247,7 @@ export default function ViewProfileChanges() {
       </div>
 
       <div className="card p-3">
-        <Datatable
+        <DataTable
           columns={columns}
           data={comparisonRows}
           noDataComponent={

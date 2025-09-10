@@ -125,7 +125,7 @@ export default function BlockedVendors() {
 
       let allVendors = [];
       let page = 1;
-      const limit = 100;
+      const limit = 1000000;
       let totalPages = 1;
 
       while (page <= totalPages) {
@@ -155,23 +155,21 @@ export default function BlockedVendors() {
 
         return {
           "S.No": index + 1,
-          "Owner Name": row.owner_name || "",
-          Email: row.email || "",
+          "Owner Name": row.owner_name || "N/A",
+          Email: row.email || "N/A",
           "Category Names": categoryNames,
-          "Profile Name": row.profile_name || "",
-          "Phone Number": row.phone || "",
-          "Price Range": row.price_range || "",
-          "Short Description": row.short_description || "",
-          Image: row.image ? "Available" : "N/A",
-          "Pin Code": row.pin_code || "",
-          "Experience Since": row.experience_since || "",
+          "Phone Number": row.phone || "N/A",
+          "Price Range": row.price_range || "N/A",
+          "Pin Code": row.pin_code || "N/A",
+          "Experience Since": row.experience_since || "N/A",
+          "Status": row.status === 1 ? "Active" : "Inactive",
         };
       });
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Blocked Vendors");
-      XLSX.writeFile(workbook, "Blocked_Vendor_List.xlsx");
+      XLSX.writeFile(workbook, "Inactive_Vendor_List.xlsx");
     } catch (err) {
       console.error("Error exporting blocked vendors:", err);
       Swal.fire("Error", "Failed to export blocked vendors", "error");
@@ -226,13 +224,13 @@ export default function BlockedVendors() {
     },
     {
       name: "Owner Name",
-      selector: (row) => row.owner_name,
+      selector: (row) => row.owner_name  || "—",
       sortable: true,
       width: "130px",
     },
     {
       name: "Email",
-      selector: (row) => row.email,
+      selector: (row) => row.email|| "—",
       sortable: true,
       width: "180px",
     },
@@ -249,22 +247,22 @@ export default function BlockedVendors() {
     },
     {
       name: "Phone Number",
-      selector: (row) => row.phone,
+      selector: (row) => row.phone || "—",
       sortable: true,
     },
     {
       name: "Price Range",
-      selector: (row) => row.price_range,
+      selector: (row) => row.price_range || "—",
       sortable: true,
     },
     {
       name: "Pin Code",
-      selector: (row) => row.pin_code,
+      selector: (row) => row.pin_code || "—",
       sortable: true,
     },
     {
       name: "Experience Since",
-      selector: (row) => row.experience_since,
+      selector: (row) => row.experience_since || "—",
       sortable: true,
     },
     {

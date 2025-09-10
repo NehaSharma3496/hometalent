@@ -2,14 +2,17 @@ import React, { useState, useMemo } from "react";
 import DataTable from "react-data-table-component";
 import * as XLSX from "xlsx";
 
-const Datatable = ({ columns, data, title = "Data Table" }) => {
+const Datatable = ({ columns, data, currentPage, setCurrentPage, perPage, setPerPage }) => {
   const [filterText, setFilterText] = useState("");
 
   // Filtered data based on search
   const filteredData = useMemo(() => {
-    return data.filter(item =>
-      columns.some(col => {
-        const value = item[col.selector];
+    return data.filter((item) =>
+      columns.some((col) => {
+        let value =
+          typeof col.selector === "function"
+            ? col.selector(item)
+            : item[col.selector];
         return value
           ? value.toString().toLowerCase().includes(filterText.toLowerCase())
           : false;
@@ -19,10 +22,22 @@ const Datatable = ({ columns, data, title = "Data Table" }) => {
 
   // Export filtered data to Excel
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(filteredData);
+    const exportData = filteredData.map((row) => {
+      const newRow = {};
+      columns.forEach((col) => {
+        let value =
+          typeof col.selector === "function"
+            ? col.selector(row)
+            : row[col.selector];
+        newRow[col.name] = value;
+      });
+      return newRow;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-    XLSX.writeFile(workbook, `${title}.xlsx`);
+    XLSX.writeFile(workbook, `Sheet.xlsx`);
   };
 
   return (
@@ -33,7 +48,7 @@ const Datatable = ({ columns, data, title = "Data Table" }) => {
           type="text"
           placeholder="Search..."
           value={filterText}
-          onChange={e => setFilterText(e.target.value)}
+          onChange={(e) => setFilterText(e.target.value)}
           className="form-control w-25"
         />
         <button className="btn btn-success" onClick={exportToExcel}>
@@ -43,13 +58,16 @@ const Datatable = ({ columns, data, title = "Data Table" }) => {
 
       {/* Data Table */}
       <DataTable
-        title={title}
         columns={columns}
         data={filteredData}
         pagination
         highlightOnHover
-        pointerOnHover
         responsive
+        paginationPerPage={perPage}
+        paginationDefaultPage={currentPage}
+        paginationRowsPerPageOptions={[5, 10, 20, 50, 100]}
+        onChangePage={(page) => setCurrentPage(page)}
+        onChangeRowsPerPage={(newPerPage) => setPerPage(newPerPage)}
       />
     </div>
   );

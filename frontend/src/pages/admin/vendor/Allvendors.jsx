@@ -158,7 +158,7 @@ export default function Allvendors() {
 
       let allVendors = [];
       let page = 1;
-      const limit = 100;
+      const limit = 1000000;
       let totalPages = 1;
 
       while (page <= totalPages) {
@@ -177,23 +177,22 @@ export default function Allvendors() {
 
       const exportData = allVendors.map((row, index) => ({
         "S.No": index + 1,
-        "Owner Name": row.owner_name || "",
-        Email: row.email || "",
+        "Owner Name": row.owner_name || "N/A",
+        Email: row.email || "N/A",
         "Category Name": Array.isArray(row.category_names)
           ? row.category_names.join(", ")
-          : row.category_names || "",
-        Phone: row.phone || "",
-        "Price Range": row.price_range || "",
-        "Short Description": row.short_description || "",
-        "Experience Since": row.experience_since || "",
-        Image: row.image ? "Available" : "N/A",
-        Status:
+          : row.category_names || "N/A",
+        Phone: row.phone || "N/A",
+        "Price Range": row.price_range || "N/A",
+        "Short Description": row.short_description || "N/A",
+        "Experience Since": row.experience_since || "N/A",
+        Status: row.status === 1 ? "Active" : "Inactive",
+        Approval_Status:
           row.approval_status === 1
             ? "Approved"
             : row.approval_status === 2
             ? "Rejected"
             : "Pending",
-        "Enable Status": row.status === 1 ? "Enabled" : "Disabled",
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -277,13 +276,13 @@ export default function Allvendors() {
     },
     {
       name: "Owner Name",
-      selector: (row) => row.owner_name,
+      selector: (row) => row.owner_name || "—",
       sortable: true,
       width: "180px",
     },
     {
       name: "Email",
-      selector: (row) => row.email,
+      selector: (row) => row.email || "—",
       sortable: true,
       width: "250px",
     },
@@ -296,12 +295,12 @@ export default function Allvendors() {
       sortable: true,
       width: "170px",
     },
-    { name: "Phone", selector: (row) => row.phone },
-    { name: "Price Range", selector: (row) => row.price_range },
+    { name: "Phone", selector: (row) => row.phone || "—" },
+    { name: "Price Range", selector: (row) => row.price_range || "—" },
 
     {
       name: "Experience Since",
-      selector: (row) => row.experience_since,
+      selector: (row) => row.experience_since || "—",
     },
     {
       name: "Active Status",

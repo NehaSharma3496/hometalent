@@ -83,7 +83,7 @@ export default function ActiveVendor() {
 
       let allVendors = [];
       let page = 1;
-      const limit = 100;
+      const limit = 1000000;
       let totalPages = 1;
 
       while (page <= totalPages) {
@@ -111,16 +111,12 @@ export default function ActiveVendor() {
 
         return {
           "S.No": index + 1,
-          "Owner Name": row.owner_name || "",
-          Email: row.email || "",
+          "Owner Name": row.owner_name || "N/A",
+          Email: row.email || "N/A",
           "Category Names": categoryNames,
-          "Profile Name": row.profile_name || "",
-          "Phone Number": row.phone || "",
-          "Price Range": row.price_range || "",
-          "Short Description": row.short_description || "",
-          Image: row.image ? "Available" : "N/A",
-          "Pin Code": row.pin_code || "",
-          "Experience Since": row.experience_since || "",
+          "Phone Number": row.phone || "N/A",
+          "Price Range": row.price_range || "N/A",
+          "Experience Since": row.experience_since || "N/A",
         };
       });
 
@@ -180,12 +176,12 @@ export default function ActiveVendor() {
     },
     {
       name: "Owner Name",
-      selector: (row) => row.owner_name,
+      selector: (row) => row.owner_name || "—",
       sortable: true,
     },
     {
       name: "Email",
-      selector: (row) => row.email,
+      selector: (row) => row.email || "—",
       sortable: true,
     },
     {
@@ -200,17 +196,17 @@ export default function ActiveVendor() {
     },
     {
       name: "Phone Number",
-      selector: (row) => row.phone,
+      selector: (row) => row.phone || "—",
       sortable: true,
     },
     {
       name: "Price Range",
-      selector: (row) => row.price_range,
+      selector: (row) => row.price_range || "—",
       sortable: true,
     },
     {
       name: "Experience Since",
-      selector: (row) => row.experience_since,
+      selector: (row) => row.experience_since || "—",
       sortable: true,
     },
   ];

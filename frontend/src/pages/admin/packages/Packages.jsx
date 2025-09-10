@@ -84,22 +84,23 @@ export default function Packages() {
         return Swal.fire("No Data", "No packages found to export", "info");
       }
 
-   const exportData = allPackages.map((pkg, index) => ({
-  "S.No": index + 1,
-  Name: pkg.name || "N/A",
-  Description: pkg.description || "N/A",
-  "Price (₹)": `₹${pkg.price}`,
-  Validity: pkg.validity_in_months
-    ? `${pkg.validity_in_months} Month${pkg.validity_in_months > 1 ? "s" : ""}`
-    : pkg.days
-    ? `${pkg.days} Day${pkg.days > 1 ? "s" : ""}`
-    : "N/A",
-  Features: pkg.features,
-  Status: pkg.status === 1 ? "Active" : "Inactive",
-  "Created At": new Date(pkg.createdAt).toLocaleDateString(),
-  "Updated At": new Date(pkg.updatedAt).toLocaleDateString(),
-}));
-
+      const exportData = allPackages.map((pkg, index) => ({
+        "S.No": index + 1,
+        Name: pkg.name || "N/A",
+        Description: pkg.description || "N/A",
+        "Price (₹)": `₹${pkg.price}`,
+        Validity: pkg.validity_in_months
+          ? `${pkg.validity_in_months} Month${
+              pkg.validity_in_months > 1 ? "s" : ""
+            }`
+          : pkg.days
+          ? `${pkg.days} Day${pkg.days > 1 ? "s" : ""}`
+          : "N/A",
+        Features: pkg.features,
+        Status: pkg.status === 1 ? "Active" : "Inactive",
+        "Created At": new Date(pkg.createdAt).toLocaleDateString(),
+        "Updated At": new Date(pkg.updatedAt).toLocaleDateString(),
+      }));
 
       const XLSX = await import("xlsx");
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -196,31 +197,33 @@ export default function Packages() {
     },
     {
       name: "Name",
-      selector: (row) => row.name,
+      selector: (row) => row.name || "-",
       sortable: true,
     },
     {
       name: "Description",
-      selector: (row) => row.description,
+      selector: (row) => row.description || "-",
       sortable: false,
     },
     {
       name: "Price (₹)",
-      selector: (row) => `₹${row.price}`,
+      selector: (row) => `₹${row.price || "-"}`,
       sortable: true,
     },
-   {
-  name: "Validity",
-  selector: (row) => {
-    if (row.validity_in_months) {
-      return `${row.validity_in_months} Month${row.validity_in_months > 1 ? "s" : ""}`;
-    } else if (row.days) {
-      return `${row.days} Day${row.days > 1 ? "s" : ""}`;
-    }
-    return "N/A";
-  },
-  sortable: true,
-},
+    {
+      name: "Validity",
+      selector: (row) => {
+        if (row.validity_in_months) {
+          return `${row.validity_in_months} Month${
+            row.validity_in_months > 1 ? "s" : ""
+          }`;
+        } else if (row.days) {
+          return `${row.days} Day${row.days > 1 ? "s" : ""}`;
+        }
+        return "N/A";
+      },
+      sortable: true,
+    },
 
     {
       name: "Features",

@@ -81,12 +81,12 @@ export default function AllLeads() {
 
       const exportData = allLeads.map((lead, index) => ({
         "S.No": index + 1,
-        "Vendor Name": lead.vendor?.owner_name || "-",
-        "Vendor Phone": lead.vendor?.phone || "-",
-        "Client Name": lead.name || "-",
-        "Client Phone": lead.phone || "-",
-        "Client Email": lead.email || "-",
-        "Client Query": lead.query || "-",
+        "Vendor Name": lead.vendor?.owner_name || "N/A",
+        "Vendor Phone": lead.vendor?.phone || "N/A",
+        "Client Name": lead.name || "N/A",
+        "Client Phone": lead.phone || "N/A",
+        "Client Email": lead.email || "N/A",
+        "Client Query": lead.query || "N/A",
         Date: new Date(lead.createdAt).toLocaleDateString(),
       }));
 
@@ -132,15 +132,15 @@ export default function AllLeads() {
 
   const filteredLeads = searchText
     ? allLeads.filter((lead) => {
-      const lowerSearch = searchText.toLowerCase();
-      return (
-        lead.owner_name?.toLowerCase().includes(lowerSearch) ||
-        lead.vendor?.phone?.toLowerCase().includes(lowerSearch) ||
-        lead.name?.toLowerCase().includes(lowerSearch) ||
-        lead.email?.toLowerCase().includes(lowerSearch) ||
-        lead.phone?.toLowerCase().includes(lowerSearch)
-      );
-    })
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          lead.owner_name?.toLowerCase().includes(lowerSearch) ||
+          lead.vendor?.phone?.toLowerCase().includes(lowerSearch) ||
+          lead.name?.toLowerCase().includes(lowerSearch) ||
+          lead.email?.toLowerCase().includes(lowerSearch) ||
+          lead.phone?.toLowerCase().includes(lowerSearch)
+        );
+      })
     : leads;
 
   const columns = [
@@ -151,27 +151,27 @@ export default function AllLeads() {
     },
     {
       name: "Vendor Name",
-      selector: (row) => row.vendor?.owner_name,
+      selector: (row) => row.vendor?.owner_name || "—",
       sortable: true,
     },
     {
       name: "Vendor Phone",
-      selector: (row) => row.vendor?.phone,
+      selector: (row) => row.vendor?.phone || "—",
       sortable: true,
     },
     {
       name: "Client Name",
-      selector: (row) => row?.name,
+      selector: (row) => row?.name || "—",
       sortable: true,
     },
     {
-      name: " Client Phone",
-      selector: (row) => row?.phone,
+      name: "Client Phone",
+      selector: (row) => row?.phone || "—",
       sortable: true,
     },
     {
       name: "Client Email",
-      selector: (row) => row?.email,
+      selector: (row) => row?.email || "—",
       sortable: true,
       width: "200px",
     },
@@ -217,7 +217,7 @@ export default function AllLeads() {
         );
       },
     },
-    
+
     {
       name: "Date",
       selector: (row) => new Date(row?.createdAt).toLocaleDateString(),
@@ -242,7 +242,6 @@ export default function AllLeads() {
           </button>
         </div>
       </div>
-
 
       <div className="card table-padding">
         <div
@@ -284,12 +283,13 @@ export default function AllLeads() {
             <Modal.Header closeButton>
               <Modal.Title>Full Message</Modal.Title>
             </Modal.Header>
-            <Modal.Body style={{
-              maxHeight: "400px", 
-              overflowY: "auto",
-              wordWrap: "break-word",
-              whiteSpace: "pre-wrap" 
-            }}
+            <Modal.Body
+              style={{
+                maxHeight: "400px",
+                overflowY: "auto",
+                wordWrap: "break-word",
+                whiteSpace: "pre-wrap",
+              }}
             >
               {fullText}
             </Modal.Body>
