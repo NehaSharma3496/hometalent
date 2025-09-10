@@ -144,7 +144,7 @@ export async function SubmitReport(data) {
 
 export async function Submitotp(data) {
   try {
-    const response = await axios.post(`${Config.base_url}api/send-otp-review`, data);
+    const response = await axios.post(`${Config.base_url}send-otp-review`, data);
     return response?.data;
   } catch (error) {
     return error;

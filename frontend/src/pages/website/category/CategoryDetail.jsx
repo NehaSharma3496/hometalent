@@ -44,50 +44,112 @@ const CategoryDetail = () => {
     vendor_id: vendorId,
   });
 
-  const [otp, setOtp] = useState("");
-  const [isOtpSent, setIsOtpSent] = useState(false);
-  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  // ====== OTP STATES ======
+const [otp, setOtp] = useState("");
+const [isOtpSent, setIsOtpSent] = useState(false);
+const [isOtpVerified, setIsOtpVerified] = useState(false);
+const [serverOtp, setServerOtp] = useState(""); // 🔹 backend से आएगा
+const [otpMessage, setOtpMessage] = useState("");
 
-  const sendOtp = async (type) => {
-    try {
-      const res = await Submitotp({
-        phone: type === "review" ? reviewForm.phone : reportForm.phone,
-        type, // 'review' or 'report'
-      });
-      if (res?.status) {
+// ====== SEND OTP ======
+const sendOtp = async (type) => {
+  try {
+    const phone = type === "review" ? reviewForm.phone : reportForm.phone;
+
+    if (!/^\d{10}$/.test(phone)) {
+      Swal.fire("Invalid!", "Enter a valid 10-digit phone number.", "error");
+      return;
+    }
+
+    const res = await Submitotp({ phone, type });
+
+    if (res?.status) {
+      // अगर पहले से verified है
+      if (res.message?.toLowerCase().includes("already verified")) {
+        setIsOtpVerified(true);
+        setOtpMessage("✅ Mobile already verified");
+        Swal.fire("Info", "Mobile already verified", "info");
+      } else {
         setIsOtpSent(true);
-        alert("OTP Sent");
+        setServerOtp(res.otp); // 🔹 backend से OTP save करेंगे
+        setOtpMessage("OTP sent successfully!");
+        Swal.fire("Success", "OTP sent to your mobile", "success");
       }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const verifyOtp = () => {
-    // फिलहाल आप OTP verify server से नहीं कर रहे तो सिर्फ frontend पर mock कर सकते हो
-    if (otp === "1234") {
-      setIsOtpVerified(true);
-      alert("OTP Verified");
     } else {
-      alert("Invalid OTP");
+      Swal.fire("Failed!", res?.message || "OTP not sent", "error");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error", "Something went wrong while sending OTP", "error");
+  }
+};
 
-  const handleSubmitReview = async (e) => {
-    e.preventDefault();
-    const res = await SubmitReview(reviewForm);
-    if (res?.status) {
-      alert("Review submitted!");
-    }
-  };
+// ====== VERIFY OTP ======
+const verifyOtp = () => {
+  if (otp === serverOtp) {
+    setIsOtpVerified(true);
+    setOtpMessage("✅ OTP Verified");
+    Swal.fire("Verified!", "Mobile number verified successfully", "success");
+  } else {
+    Swal.fire("Invalid OTP", "Please enter correct OTP", "error");
+  }
+};
 
-  const handleSubmitReport = async (e) => {
-    e.preventDefault();
-    const res = await SubmitReport(reportForm);
-    if (res?.status) {
-      alert("Report submitted!");
-    }
-  };
+// ====== HANDLE REVIEW SUBMIT ======
+const handleSubmitReview = async (e) => {
+  e.preventDefault();
+
+  if (!isOtpVerified) {
+    Swal.fire("OTP Required", "Please verify your mobile number", "warning");
+    return;
+  }
+
+  const res = await SubmitReview(reviewForm);
+  if (res?.status) {
+    Swal.fire("Success!", "Review submitted successfully!", "success");
+    setReviewForm({
+      name: "",
+      email: "",
+      phone: "",
+      rating: 0,
+      review: "",
+      vendor_id: vendorId,
+    });
+    setIsOtpSent(false);
+    setIsOtpVerified(false);
+    setOtp("");
+  } else {
+    Swal.fire("Failed!", res?.message || "Unable to submit review", "error");
+  }
+};
+
+// ====== HANDLE REPORT SUBMIT ======
+const handleSubmitReport = async (e) => {
+  e.preventDefault();
+
+  if (!isOtpVerified) {
+    Swal.fire("OTP Required", "Please verify your mobile number", "warning");
+    return;
+  }
+
+  const res = await SubmitReport(reportForm);
+  if (res?.status) {
+    Swal.fire("Success!", "Report submitted successfully!", "success");
+    setReportForm({
+      name: "",
+      phone: "",
+      description: "",
+      issue: "",
+      vendor_id: vendorId,
+    });
+    setIsOtpSent(false);
+    setIsOtpVerified(false);
+    setOtp("");
+  } else {
+    Swal.fire("Failed!", res?.message || "Unable to submit report", "error");
+  }
+};
+
 
   const fetchVendorDetails = async () => {
     try {
