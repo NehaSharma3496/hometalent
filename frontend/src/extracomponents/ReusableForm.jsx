@@ -2,21 +2,20 @@ import React from "react";
 import { Formik, Form, Field, ErrorMessage, FormikConsumer } from "formik";
 import Select from "react-select";
 
-const renderField = (field, form, values) => {
+const renderField = (field, formikProps, values) => {
+  const { errors, touched, setFieldValue, setFieldTouched } = formikProps;
+  
   // Handle custom components (like phone verification)
   if (field.type === "custom" && field.customComponent) {
-    const CustomComponent = field.customComponent;
-    return (
-      <CustomComponent
-        values={values}
-        setFieldValue={form.setFieldValue}
-        setFieldTouched={form.setFieldTouched}
-        touched={form.touched}
-        errors={form.errors}
-        // Pass the entire form object for more flexibility
-        form={form}
-      />
-    );
+    // Pass all necessary formik props to custom component
+    return field.customComponent({
+      values,
+      errors,
+      touched,
+      setFieldValue,
+      setFieldTouched,
+      ...formikProps
+    });
   }
 
   switch (field.type) {
@@ -242,8 +241,8 @@ const ReusableForm = ({
         >
           {fields.map((field) => (
             <FormikConsumer key={field.name}>
-              {({ values }) =>
-                !field.showWhen || field.showWhen(values) ? (
+              {(formikConsumerProps) =>
+                !field.showWhen || field.showWhen(formikConsumerProps.values) ? (
                   <div className={field.colClass || "col-12"}>
                     <div className="form-group">
                       {/* Don't show label for custom components as they handle their own labels */}
@@ -257,7 +256,7 @@ const ReusableForm = ({
                             {field.label}
                           </label>
                         )}
-                      {renderField(field, formikProps, values)}
+                      {renderField(field, formikConsumerProps, formikConsumerProps.values)}
                       {/* Only show ErrorMessage for non-custom components */}
                       {field.type !== "custom" && (
                         <ErrorMessage

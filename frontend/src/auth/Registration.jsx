@@ -24,6 +24,7 @@ const Registration = () => {
     otp: "",
     sentOtp: "", 
     phoneNumber: "",
+    loading: false,
   });
 
   const token = localStorage.getItem("token");
@@ -80,30 +81,17 @@ const Registration = () => {
     }),
   });
 
- const PhoneVerificationComponent = ({
-  values,
-  setFieldValue,
-  setFieldTouched,
-  touched,
-  errors,
-  form, // Complete form object passed from ReusableForm
-  phoneVerificationState,
-  setPhoneVerificationState,
-}) => {
-  const fieldName = "phone";
-  
-  const handlePhoneInput = (e) => {
+  // Phone verification handlers
+  const handlePhoneInput = (e, setFieldValue, setFieldTouched, touched) => {
     const inputValue = e.target.value;
-    
-    // Only allow numbers and limit to 10 digits
     const numericValue = inputValue.replace(/[^0-9]/g, '').slice(0, 10);
     
     // Update Formik field value
-    setFieldValue(fieldName, numericValue);
+    setFieldValue("phone", numericValue);
     
     // Mark field as touched
-    if (!touched[fieldName]) {
-      setFieldTouched(fieldName, true);
+    if (!touched.phone) {
+      setFieldTouched("phone", true);
     }
     
     // Update phone verification state
@@ -128,8 +116,7 @@ const Registration = () => {
     }));
   };
 
-  const handleSendOtp = async () => {
-    const phoneValue = values[fieldName];
+  const handleSendOtp = async (phoneValue) => {
     if (!phoneValue || phoneValue.length !== 10) {
       Swal.fire("Error", "Please enter a valid 10-digit phone number", "error");
       return;
@@ -196,7 +183,8 @@ const Registration = () => {
     }
   };
 
-  return (
+  // Custom phone component as a function
+  const CustomPhoneComponent = ({ values, errors, touched, setFieldValue, setFieldTouched }) => (
     <>
       <label className="contact-label mb-2 fs-6 fw-semibold">Phone No*</label>
       
@@ -204,22 +192,21 @@ const Registration = () => {
         <input
           type="text"
           className={`form-control contact-input ${
-            touched[fieldName] && errors[fieldName] ? 'is-invalid' : ''
+            touched.phone && errors.phone ? 'is-invalid' : ''
           }`}
-          value={values[fieldName] || ''}
-          onChange={handlePhoneInput}
-          onKeyPress={handleKeyPress}
+          value={values.phone || ''}
+          onChange={(e) => handlePhoneInput(e, setFieldValue, setFieldTouched, touched)}
           placeholder="Enter 10-digit phone number"
           maxLength="10"
           autoComplete="tel"
         />
-        
+      
         {phoneVerificationState.showVerifyButton &&
           !phoneVerificationState.isVerified && (
             <button 
               type="button" 
               className="btn btn-outline-primary"
-              onClick={handleSendOtp}
+              onClick={() => handleSendOtp(values.phone)}
               disabled={phoneVerificationState.showOtpInput || phoneVerificationState.loading}
               style={{ whiteSpace: 'nowrap' }}
             >
@@ -259,24 +246,24 @@ const Registration = () => {
       )}
 
       {/* Show validation errors */}
-      {touched[fieldName] && errors[fieldName] && (
+      {touched.phone && errors.phone && (
         <div className="text-danger small mt-1">
-          {errors[fieldName]}
+          {errors.phone}
         </div>
       )}
 
       {/* Show warning if phone number is complete but not verified */}
       {!phoneVerificationState.isVerified && 
-       values[fieldName] && 
-       values[fieldName].length === 10 && 
-       !errors[fieldName] && (
+       values.phone && 
+       values.phone.length === 10 && 
+       !errors.phone && (
         <div className="text-warning mt-1">
           <small>⚠️ Please verify your phone number before submitting</small>
         </div>
       )}
     </>
   );
-};
+
   // Enhanced fields array with custom phone field
   const fields = [
     {
@@ -312,20 +299,14 @@ const Registration = () => {
       type: "text",
       colClass: "col-md-4 mb-3",
       maxLength: 6,
-       numeric: true,
+      numeric: true,
     },
     {
       name: "phone",
       label: "Phone No*",
       type: "custom",
       colClass: "col-md-4 mb-3",
-      customComponent: (props) => (
-        <PhoneVerificationComponent
-          {...props}
-          phoneVerificationState={phoneVerificationState}
-          setPhoneVerificationState={setPhoneVerificationState}
-        />
-      ),
+      customComponent: CustomPhoneComponent,
     },
     {
       name: "email",
