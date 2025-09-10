@@ -131,7 +131,8 @@ export default function RejectedVendors() {
               ? "Approved"
               : row.approval_status === 2
               ? "Rejected"
-              : "Pending"
+              : "Pending",
+                Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
         };
       });
 

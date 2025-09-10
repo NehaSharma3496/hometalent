@@ -163,6 +163,7 @@ export default function BlockedVendors() {
           "Pin Code": row.pin_code || "N/A",
           "Experience Since": row.experience_since || "N/A",
           "Status": row.status === 1 ? "Active" : "Inactive",
+            Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
         };
       });
 

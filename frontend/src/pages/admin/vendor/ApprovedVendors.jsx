@@ -87,6 +87,7 @@ export default function ApprovedVendors() {
         Phone: row.phone || "N/A",
         "Price Range": row.price_range || "N/A",
         Experience: row.experience_since || "N/A",
+          Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);

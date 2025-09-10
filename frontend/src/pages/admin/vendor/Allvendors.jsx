@@ -169,7 +169,7 @@ export default function Allvendors() {
         if (pagination) {
           totalPages = Math.ceil(pagination.total_records / limit);
         } else {
-          break; // fallback if pagination info missing
+          break; 
         }
 
         page++;
@@ -193,6 +193,7 @@ export default function Allvendors() {
             : row.approval_status === 2
             ? "Rejected"
             : "Pending",
+              Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);

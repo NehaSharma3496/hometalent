@@ -95,13 +95,13 @@ export default function AllLeads() {
 
       const exportData = allLeads.map((lead, index) => ({
         "S.No": index + 1,
-        "Client Name": lead.name || "",
-        "Client Phone": lead.phone || "",
-        "Client Email": lead.email || "",
-        "Client Query": lead.query || "",
+        "Client Name": lead.name || "N/A",
+        "Client Phone": lead.phone || "N/A",
+        "Client Email": lead.email || "N/A",
+        "Client Query": lead.query || "N/A",
         Date: lead.createdAt
           ? new Date(lead.createdAt).toLocaleDateString()
-          : "",
+          : "N/A",
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -149,17 +149,17 @@ export default function AllLeads() {
       width: "70px",
     },
     {
-      name: "Client Name",
+      name: "Client Name"||"-",
       selector: (row) => row.name,
       sortable: true,
     },
     {
-      name: " Client Phone",
+      name: " Client Phone"||"-",
       selector: (row) => row.phone,
       sortable: true,
     },
     {
-      name: "Client Email",
+      name: "Client Email" ||"-",
       selector: (row) => row.email,
       sortable: true,
     },
@@ -206,7 +206,7 @@ export default function AllLeads() {
     },
 
     {
-      name: "Date",
+      name: "Date" ||"-",
       selector: (row) => new Date(row.createdAt).toLocaleDateString(),
       sortable: true,
     },

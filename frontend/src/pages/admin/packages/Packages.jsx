@@ -88,7 +88,7 @@ export default function Packages() {
         "S.No": index + 1,
         Name: pkg.name || "N/A",
         Description: pkg.description || "N/A",
-        "Price (₹)": `₹${pkg.price}`,
+        "Price (₹)": `₹${pkg.price}`||"0",
         Validity: pkg.validity_in_months
           ? `${pkg.validity_in_months} Month${
               pkg.validity_in_months > 1 ? "s" : ""
@@ -100,6 +100,7 @@ export default function Packages() {
         Status: pkg.status === 1 ? "Active" : "Inactive",
         "Created At": new Date(pkg.createdAt).toLocaleDateString(),
         "Updated At": new Date(pkg.updatedAt).toLocaleDateString(),
+          Date: new Date(pkg.createdAt).toLocaleDateString() || "N/A",
       }));
 
       const XLSX = await import("xlsx");

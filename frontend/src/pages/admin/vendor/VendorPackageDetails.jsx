@@ -191,16 +191,19 @@ export default function VendorPackageDetails() {
 
   // 📌 Excel export (all data, with search applied)
   const exportToExcel = () => {
-    const dataToExport = (
-      searchText ? allPackagesForSearch : allPackagesForSearch
-    ).map((pkg, index) => ({
+   const dataToExport = (
+    searchText ? allPackagesForSearch : allPackagesForSearch
+  )
+    // sirf completed payment wale hi record lenge
+    .filter(pkg => pkg?.payment_status === "completed")
+    .map((pkg, index) => ({
       "S.No": index + 1,
       "Package Name": pkg?.Package?.name || "N/A",
-      Price: pkg?.Package?.price || "",
-      "Start Date": formatDate(pkg.start_date),
-      "End Date": formatDate(pkg.end_date),
-      Status: pkg.status,
+      "Start Date": formatDate(pkg.start_date) || "N/A",
+      "End Date": formatDate(pkg.end_date) || "N/A",
+      Price: pkg?.Package?.price || "N/A",
       "Payment Status": pkg.payment_status || "N/A",
+      Status: pkg.status || "N/A",
       "Payment Date": pkg?.createdAt ? formatDate(pkg.createdAt) : "N/A",
       "Extended Days": extensionMap[pkg?.Package?.name] || "—",
     }));
@@ -244,7 +247,10 @@ export default function VendorPackageDetails() {
         </span>
       ),
     },
-
+ {
+      name: "Payment Date",
+      selector: (row) => (row?.createdAt ? formatDate(row.createdAt) : "-"),
+    },
     {
       name: "Extended Days",
       selector: (row) => extensionMap[row.id] || "—", // row.id = subscriptionId
@@ -343,7 +349,7 @@ export default function VendorPackageDetails() {
         </div>
         <div className="col-md-6 text-end">
           <button
-            className="btn btn-primary btn-sm me-2"
+            className="btn btn-success me-2"
             onClick={exportToExcel}
           >
             <i className="fa fa-file-excel me-1"></i> Download Packages

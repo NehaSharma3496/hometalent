@@ -117,6 +117,7 @@ export default function ActiveVendor() {
           "Phone Number": row.phone || "N/A",
           "Price Range": row.price_range || "N/A",
           "Experience Since": row.experience_since || "N/A",
+            Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
         };
       });
 

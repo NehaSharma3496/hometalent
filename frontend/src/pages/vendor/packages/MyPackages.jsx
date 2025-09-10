@@ -134,28 +134,28 @@ export default function MyPackages() {
     },
     {
       name: "Package Name",
-      selector: (row) => row?.Package?.name || "N/A",
+      selector: (row) => row?.Package?.name || "-",
       sortable: true,
     },
     {
       name: "Start Date",
-      selector: (row) => formatDate(row.start_date),
+      selector: (row) => formatDate(row.start_date) || "-",
     },
     {
       name: "End Date",
-      selector: (row) => formatDate(row.end_date),
+      selector: (row) => formatDate(row.end_date) || "-",
     },
     {
       name: "Amount",
-      selector: (row) => `₹${row?.Package?.price || "0"}`,
+      selector: (row) => `₹${row?.Package?.price || "-"}`,
     },
     {
       name: "Payment Status",
-      selector: (row) => row?.payment_status || "N/A",
+      selector: (row) => row?.payment_status || "-",
     },
     {
       name: "Payment Date",
-      selector: (row) => (row?.createdAt ? formatDate(row.createdAt) : "N/A"),
+      selector: (row) => (row?.createdAt ? formatDate(row.createdAt) : "-"),
     },
     {
       name: "Status",
@@ -197,17 +197,22 @@ export default function MyPackages() {
       }
 
       const today = new Date();
-      const exportData = all.map((pkg, index) => ({
-        "S.No": index + 1,
-        "Package Name": pkg?.Package?.name || "",
-        Price: pkg?.Package?.price || "",
-        "Start Date": formatDate(pkg.start_date),
-        "End Date": formatDate(pkg.end_date),
-        Status: new Date(pkg.end_date) >= today ? "Active" : "Expired",
-        "Payment Status": pkg?.payment_status || "",
-        "Payment Date": pkg?.createdAt ? formatDate(pkg.createdAt) : "",
-        "Extended Days": extensionMap[pkg?.id] || "—",
-      }));
+
+      // Filter packages with completed payment
+      const exportData = all
+        .filter((pkg) => pkg?.payment_status === "completed")
+        .map((pkg, index) => ({
+          "S.No": index + 1,
+          "Package Name": pkg?.Package?.name || "N/A",
+          "Start Date": formatDate(pkg.start_date) || "N/A",
+          "End Date": formatDate(pkg.end_date) || "N/A",
+          Price: pkg?.Package?.price || "N/A",
+          "Payment Status": "Completed",
+          "Payment Date": pkg?.createdAt ? formatDate(pkg.createdAt) : "N/A",
+          Status: new Date(pkg.end_date) >= today ? "Active" : "Expired",
+          "Extended Days": extensionMap[pkg?.id] || "N/A",
+            Date: new Date(pkg.createdAt).toLocaleDateString() || "N/A",
+        }));
 
       const ws = XLSX.utils.json_to_sheet(exportData);
       const wb = XLSX.utils.book_new();

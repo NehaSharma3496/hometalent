@@ -161,7 +161,9 @@ export default function PendingVendor() {
             : row.approval_status === 2
             ? "Rejected"
             : "Pending",
+              Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
         };
+        
       });
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);

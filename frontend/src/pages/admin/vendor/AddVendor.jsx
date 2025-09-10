@@ -74,7 +74,7 @@ export default function AddVendor() {
         const selected = categoryData.find((cat) => cat.value === val);
         return selected?.label?.toLowerCase() === "other";
       },
-      then: (schema) => schema.required("Other Category Name is required"),
+      then: (schema) => schema.required("Category Name is required"),
       otherwise: (schema) => schema.notRequired(),
     }),
   });
@@ -292,7 +292,7 @@ export default function AddVendor() {
     },
     {
       name: "otherCategory",
-      label: "Other Category Name",
+      label: "Category Name",
       type: "text",
       colClass: "col-md-6 mb-3",
       showWhen: (values) => {
