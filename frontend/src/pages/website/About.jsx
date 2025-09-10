@@ -37,8 +37,8 @@ const navigate=useNavigate();
             </div>
           </div>
           <div className="row g-4">
-            <div className="col-xl-6 col-lg-6">
-              <div className="section-title mx-430 mb-30 w-md-100">
+            <div className="col-xl-6 col-lg-6" style={{marginBottom:"40px"}}>
+              <div className="section-title mx-430 mb-30 w-md-100" >
                 {/* <span className="highlights fancy-font font-400">About Us</span> */}
                 {/* <h4 className="title">
              Empowering Local Talent, Connecting Communitie

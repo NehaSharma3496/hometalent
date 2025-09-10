@@ -26,6 +26,10 @@ export default function Allvendors() {
   const [pkgOptions, setPkgOptions] = useState([]);
   const [selectedPkgId, setSelectedPkgId] = useState(null);
   const [assignVendorId, setAssignVendorId] = useState(null);
+  const [vendorPackageStatus, setVendorPackageStatus] = useState({});
+  // const [vendorPackageStatus, setVendorPackageStatus] = useState({});
+  const [vendorPackageHistory, setVendorPackageHistory] = useState({});
+
 
   const fetchVendors = async (page, limit) => {
     setLoading(true);
@@ -83,17 +87,32 @@ export default function Allvendors() {
     try {
       const token = localStorage.getItem("token");
       const res = await showPackage(token, 1, 100);
-      const activePkgs = (res?.data || []).filter(
-        (p) => Number(p.status) === 1
-      );
+      const activePkgs = (res?.data || []).filter((p) => Number(p.status) === 1);
+
       setPkgOptions(activePkgs);
       setAssignVendorId(vendorId);
       setSelectedPkgId(null);
+
+      // Fetch package history and mark active/inactive
+      const historyRes = await getVendorPackageHistory(token, vendorId);
+      let statusObj = {};
+      if (historyRes.status && historyRes.data.length > 0) {
+        historyRes.data.forEach((pkg) => {
+          const now = new Date();
+          const start = new Date(pkg.start_date);
+          const end = new Date(pkg.end_date);
+          const isActive = pkg.payment_status === "completed" && now >= start && now <= end;
+          statusObj[pkg.package_id] = isActive ? "Active" : "-";
+        });
+      }
+      setVendorPackageStatus(statusObj);
+
       setPkgModalOpen(true);
     } catch (e) {
-      Swal.fire("Error", "Failed to load packages", "error");
+      Swal.fire("Error", "Failed to load packages or history", "error");
     }
   };
+
 
   const submitAssignPackage = async () => {
     try {
@@ -136,20 +155,65 @@ export default function Allvendors() {
     setCurrentPage(1);
   };
 
+  const fetchVendorPackageHistory = async (vendorId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await getVendorPackageHistory(token, vendorId);
+
+      if (res.status && res.data.length > 0) {
+        let historyObj = {};
+        const now = new Date();
+
+        res.data.forEach((pkg) => {
+          const start = new Date(pkg.start_date);
+          const end = new Date(pkg.end_date);
+          const isActive =
+            pkg.payment_status === "completed" 
+
+          
+          historyObj[pkg.package_id] = isActive ? "Active" : "Inactive";
+        });
+
+        setVendorPackageHistory((prev) => ({
+          ...prev,
+          [vendorId]: historyObj,
+        }));
+      } else {
+        setVendorPackageHistory((prev) => ({
+          ...prev,
+          [vendorId]: {}, // No history found
+        }));
+      }
+    } catch (err) {
+      console.error("Error fetching vendor package history:", err);
+      setVendorPackageHistory((prev) => ({
+        ...prev,
+        [vendorId]: {},
+      }));
+    }
+  };
+
+
+  useEffect(() => {
+    vendors.forEach((vendor) => {
+      fetchVendorPackageHistory(vendor.id);
+    });
+  }, [vendors]);
+
   const filteredVendors = searchText
     ? allVendors.filter((v) => {
-        const lowerSearch = searchText.toLowerCase();
-        return (
-          v.owner_name?.toLowerCase().includes(lowerSearch) ||
-          v.email?.toLowerCase().includes(lowerSearch) ||
-          v.price_range.toLowerCase().includes(lowerSearch) ||
-          v.experience_since.toLowerCase().includes(lowerSearch) ||
-          v.phone?.toLowerCase().includes(lowerSearch) ||
-          (Array.isArray(v.category_names)
-            ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
-            : v.category_names?.toLowerCase().includes(lowerSearch))
-        );
-      })
+      const lowerSearch = searchText.toLowerCase();
+      return (
+        v.owner_name?.toLowerCase().includes(lowerSearch) ||
+        v.email?.toLowerCase().includes(lowerSearch) ||
+        v.price_range.toLowerCase().includes(lowerSearch) ||
+        v.experience_since.toLowerCase().includes(lowerSearch) ||
+        v.phone?.toLowerCase().includes(lowerSearch) ||
+        (Array.isArray(v.category_names)
+          ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
+          : v.category_names?.toLowerCase().includes(lowerSearch))
+      );
+    })
     : vendors;
 
   const exportToExcel = async () => {
@@ -191,8 +255,8 @@ export default function Allvendors() {
           row.approval_status === 1
             ? "Approved"
             : row.approval_status === 2
-            ? "Rejected"
-            : "Pending",
+              ? "Rejected"
+              : "Pending",
         "Enable Status": row.status === 1 ? "Enabled" : "Disabled",
       }));
 
@@ -572,9 +636,22 @@ export default function Allvendors() {
                             {p.validity_in_months
                               ? `${p.validity_in_months} months`
                               : p.days
-                              ? `${p.days} days`
-                              : "N/A"}
+                                ? `${p.days} days`
+                                : "N/A"}
                           </div>
+                        </div>
+                        <div>
+                          <span
+                            className={`badge ${vendorPackageHistory[assignVendorId]?.[p.id] === "Active" ? "bg-success" :
+                                vendorPackageHistory[assignVendorId]?.[p.id] === "Inactive" ? "bg-danger" :
+                                  "bg-secondary"
+                              }`}
+                          >
+                            {vendorPackageHistory[assignVendorId]?.[p.id] || ""}
+                          </span>
+
+
+
                         </div>
                       </label>
                     ))}
@@ -591,8 +668,9 @@ export default function Allvendors() {
                 </button>
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className={`btn btn-primary ${!selectedPkgId ? "disabled" : ""}`}
                   onClick={submitAssignPackage}
+                  disabled={!selectedPkgId}
                 >
                   Assign
                 </button>
@@ -601,6 +679,7 @@ export default function Allvendors() {
           </div>
         </div>
       )}
+
     </div>
   );
 }
