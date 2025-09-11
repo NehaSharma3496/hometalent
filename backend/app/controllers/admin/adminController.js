@@ -1617,7 +1617,7 @@ exports.insertcategoryimages = async (req, res) => {
 
         const mimeType = mime.lookup(filePath);
 
-        const imageUrl = `${baseUrl}/${file}`;
+        const imageUrl = `${baseUrl}/media/category/${file}`;
         
         await category.update({ image_url: imageUrl });
       } else {
@@ -1672,8 +1672,8 @@ exports.sendotp = async (req, res) => {
       username: "hometalent",
       pass: "$4J@K2pj",
       senderid: "CEGANO",
-      message: message,
-      dest_mobileno: req.phone,
+      message: message, 
+      dest_mobileno: req.body.phone,
       msgtype: "TXT",
       response: "Y",
       dlttempid: "1707175612278037393"
