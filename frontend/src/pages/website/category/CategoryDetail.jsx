@@ -43,7 +43,7 @@ const CategoryDetail = () => {
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const [serverOtp, setServerOtp] = useState(""); // 🔹 backend से आएगा
   const [otpMessage, setOtpMessage] = useState("");
-
+  console.log("isOtpVerified", isOtpVerified)
   // ====== SEND OTP ======
   const sendOtp = async (type) => {
     try {
@@ -63,10 +63,10 @@ const CategoryDetail = () => {
         setIsOtpVerified(false);
         Swal.fire("Success", "OTP sent to your mobile", "success");
       } else {
-        // ✅ Already verify case
+
         if (res?.msg?.toLowerCase().includes("already verify")) {
-          setIsOtpVerified(true); // Direct verified
-          setIsOtpSent(false); // OTP ka UI hide karne ke liye
+          setIsOtpVerified(true);
+          setIsOtpSent(false);
           Swal.fire("Info", "Mobile already verified", "info");
         } else {
           Swal.fire("Failed!", res?.msg || "OTP not sent", "error");
@@ -97,23 +97,43 @@ const CategoryDetail = () => {
       Swal.fire("OTP Required", "Please verify your mobile number", "warning");
       return;
     }
+    if (!reviewForm.rating || reviewForm.rating < 1) {
+      Swal.fire("Rating Required", "Please select a rating before submitting.", "warning");
+      return;
+    }
 
-    const res = await SubmitReview(reviewForm);
-    if (res?.status) {
-      Swal.fire("Success!", "Review submitted successfully!", "success");
-      setReviewForm({
-        vendor_id: vendorId,
-        name: "",
-        email: "",
-        phone: "",
-        message: "",
-        rating: 0,
-      });
-      setIsOtpSent(false);
-      setIsOtpVerified(false);
-      setOtp("");
-    } else {
-      Swal.fire("Failed!", res?.message || "Unable to submit review", "error");
+    try {
+      const res = await SubmitReview(reviewForm);
+      console.log("res", res)
+      if (res?.status) {
+
+
+        Swal.fire("Success!", "Review submitted successfully!", "success");
+        setReviewForm({
+          vendor_id: vendorId,
+          name: "",
+          email: "",
+          phone: "",
+          message: "",
+          rating: 0,
+        });
+        setIsOtpSent(false);
+        setIsOtpVerified(false);
+        setOtp("");
+      } else {
+
+        if (
+          res?.message &&
+          res.message.toLowerCase().includes("already submitted")
+        ) {
+          Swal.fire("Error!", res.message, "error");
+        } else {
+          Swal.fire("Failed!", res?.message || "Unable to submit review", "error");
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Something went wrong while submitting the review", "error");
     }
   };
 
@@ -418,11 +438,10 @@ const CategoryDetail = () => {
                         <div className="d-flex gap-3 mb-3 mt-4">
                           {imageItems?.length > 0 && (
                             <button
-                              className={`btn ${
-                                activeTabs === "images"
-                                  ? "btn-primary"
-                                  : "btn-outline-primary"
-                              } mb-4`}
+                              className={`btn ${activeTabs === "images"
+                                ? "btn-primary"
+                                : "btn-outline-primary"
+                                } mb-4`}
                               onClick={() => setActiveTabs("images")}
                             >
                               Images
@@ -430,11 +449,10 @@ const CategoryDetail = () => {
                           )}
                           {videoItems?.length > 0 && (
                             <button
-                              className={`btn ${
-                                activeTabs === "videos"
-                                  ? "btn-primary"
-                                  : "btn-outline-primary"
-                              } mb-4`}
+                              className={`btn ${activeTabs === "videos"
+                                ? "btn-primary"
+                                : "btn-outline-primary"
+                                } mb-4`}
                               onClick={() => setActiveTabs("videos")}
                             >
                               Videos
@@ -741,21 +759,19 @@ const CategoryDetail = () => {
                     <div className="date-travel-card mt-4">
                       <div className="tabs d-flex gap-2 mb-3">
                         <button
-                          className={`btn ${
-                            activeTab === "review"
-                              ? "btn-primary"
-                              : "btn-outline-primary"
-                          }`}
+                          className={`btn ${activeTab === "review"
+                            ? "btn-primary"
+                            : "btn-outline-primary"
+                            }`}
                           onClick={() => setActiveTab("review")}
                         >
                           Review
                         </button>
                         <button
-                          className={`btn ${
-                            activeTab === "report"
-                              ? "btn-primary"
-                              : "btn-outline-primary"
-                          }`}
+                          className={`btn ${activeTab === "report"
+                            ? "btn-primary"
+                            : "btn-outline-primary"
+                            }`}
                           onClick={() => setActiveTab("report")}
                         >
                           Report
@@ -765,7 +781,7 @@ const CategoryDetail = () => {
                       {activeTab === "review" && (
                         <form onSubmit={handleSubmitReview}>
                           {/* ⭐ Rating */}
-                          <div className="mb-3">
+                          <div className="mb-3 required">
                             <label className="fw-bold d-block">Rating:</label>
                             {[1, 2, 3, 4, 5].map((star) => (
                               <span
@@ -848,15 +864,17 @@ const CategoryDetail = () => {
 
                           {/* OTP Section */}
                           <div className="mt-3">
-                            {!isOtpSent ? (
+                            {isOtpVerified ? (
+                              <p className="text-success fw-bold">✅ Mobile Verified</p>
+                            ) : !isOtpSent ? (
                               <button
                                 type="button"
                                 className="btn btn-outline-primary w-100"
-                                onClick={() => sendOtp("review")}
+                                onClick={() => sendOtp("review")} // ✅ "review" ya jo bhi form ho
                               >
                                 Send OTP
                               </button>
-                            ) : !isOtpVerified ? (
+                            ) : (
                               <div className="d-flex gap-2">
                                 <input
                                   type="text"
@@ -873,12 +891,10 @@ const CategoryDetail = () => {
                                   Verify
                                 </button>
                               </div>
-                            ) : (
-                              <p className="text-success fw-bold">
-                                ✅ OTP Verified
-                              </p>
                             )}
                           </div>
+
+
 
                           {/* Review Message */}
                           <div className="date-time-dropdown d-flex align-items-start gap-2 mt-3">
@@ -957,7 +973,7 @@ const CategoryDetail = () => {
 
                           {/* OTP Section */}
                           <div className="mt-3">
-                            {/* Agar already verified hai to OTP ka UI hide ho jayega */}
+
                             {isOtpVerified ? (
                               <p className="text-success fw-bold">
                                 ✅ Mobile Verified
@@ -970,24 +986,25 @@ const CategoryDetail = () => {
                               >
                                 Send OTP
                               </button>
-                            ) : (
-                              <div className="d-flex gap-2">
-                                <input
-                                  type="text"
-                                  placeholder="Enter OTP"
-                                  value={otp}
-                                  className="form-control"
-                                  onChange={(e) => setOtp(e.target.value)}
-                                />
-                                <button
-                                  type="button"
-                                  className="btn btn-primary"
-                                  onClick={verifyOtp}
-                                >
-                                  Verify
-                                </button>
-                              </div>
-                            )}
+                            ) :
+                              (
+                                <div className="d-flex gap-2">
+                                  <input
+                                    type="text"
+                                    placeholder="Enter OTP"
+                                    value={otp}
+                                    className="form-control"
+                                    onChange={(e) => setOtp(e.target.value)}
+                                  />
+                                  <button
+                                    type="button"
+                                    className="btn btn-primary"
+                                    onClick={verifyOtp}
+                                  >
+                                    Verify
+                                  </button>
+                                </div>
+                              )}
                           </div>
 
                           {/* Issue Dropdown */}

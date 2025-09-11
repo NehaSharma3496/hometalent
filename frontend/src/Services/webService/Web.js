@@ -129,7 +129,7 @@ export async function SubmitReview(data) {
     const response = await axios.post(`${Config.base_url}review`, data);
     return response?.data;
   } catch (error) {
-    return error;
+    return error?.response?.data;
   }
 }
 
@@ -145,6 +145,22 @@ export async function SubmitReport(data) {
 export async function Submitotp(data) {
   try {
     const response = await axios.post(`${Config.base_url}send-otp-review`, data);
+    return response?.data;
+  } catch (error) {
+    return error.response.data;
+  }
+}
+
+export async function GetReport(token){
+   try {
+    const response = await axios.get(
+      `${Config.base_url}reports`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error;

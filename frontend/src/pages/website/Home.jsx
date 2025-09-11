@@ -494,7 +494,7 @@ const Home = () => {
                     </div>
                     <div className="ms-3">
                       <h5
-                        className="mb-0"
+                        className="mb-1"
                         style={{
                           fontWeight: 600,
                           fontSize: "1.1rem",
@@ -503,6 +503,21 @@ const Home = () => {
                       >
                         {item.name}
                       </h5>
+
+                      {/* Star Rating After Name */}
+                      <div>
+                        {[...Array(5)].map((_, starIndex) => (
+                          <i
+                            key={starIndex}
+                            className={`ri-star-${starIndex < item.rating ? "fill" : "line"}`}
+                            style={{
+                              color: "#FFC107",
+                              fontSize: "1rem",
+                              marginRight: "2px",
+                            }}
+                          ></i>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
@@ -541,6 +556,7 @@ const Home = () => {
               </div>
             ))}
           </Slider>
+
         </div>
       </section>
 

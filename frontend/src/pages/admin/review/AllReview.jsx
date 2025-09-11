@@ -98,10 +98,29 @@ export default function AllReviews() {
       width: "60px",
     },
     {
-      name: "Reviewer",
+      name: "Name",
       selector: (row) => row.name || "N/A",
     },
+ {
+      name: "Email",
+      selector: (row) => row.email || "N/A",
+      width: "250px",
 
+    },
+    {
+      name: "Phone",
+      selector: (row) => row.phone || "N/A",
+      width: "150px",
+
+    },
+    {
+      name: "Ratings",
+      selector: (row) => row.rating|| "N/A",
+    },
+       {
+      name: "Vendor Name",
+      selector: (row) => row.User?.owner_name|| "N/A",
+    },
     {
       name: "Review",
       sortable: true,

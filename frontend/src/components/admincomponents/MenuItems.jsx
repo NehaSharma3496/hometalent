@@ -125,13 +125,18 @@ export const MenuItems = {
     },
     {
       icon: "fa-solid fa-star",
-      label: "Review",
+      label: "Review/Report",
       link: "/admin/review/allreview",
       children: [
         {
           icon: "fa-solid fa-star-half-stroke",
           label: "All Review",
           link: "/admin/review/allreview",
+        },
+         {
+          icon: "fa-solid fa-star-half-stroke",
+          label: "All Report",
+          link: "/admin/review/allreport",
         },
       ],
     },

@@ -35,6 +35,7 @@ import ChangePassword from "../pages/admin/forgotpassword/ChangePasword";
 import ExtendPackageHistory from "../pages/admin/vendor/ExtendPackageHistory";
 import AllReview from "../pages/admin/review/AllReview";
 import AllFeedBack from "../pages/admin/enquiries&leads/AllFeedback";
+import AllReport from "../pages/admin/review/AllReport";
 
 const AdminRoutes = (
   <Route path="/admin" element={<AdminLayout />}>
@@ -86,6 +87,7 @@ const AdminRoutes = (
     <Route path="extendpackagehistory" element={<ExtendPackageHistory />} />
     <Route path="review/allreview" element={<AllReview />} />
     <Route path="enquiries/allfeedback" element={<AllFeedBack />} />
+    <Route path="review/allreport" element={<AllReport/>}/>
   </Route>
 );
 
