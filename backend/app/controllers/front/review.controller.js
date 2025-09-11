@@ -63,7 +63,7 @@ exports.approveOrRejectReview = async (req, res) => {
 exports.getAllReviews = async (req, res) => {
   try {
     const reviews = await Review.findAll({ order: [['createdAt', 'DESC']]
-      , include: [{ model: User, as: 'User', attributes: ['profile_name'] }]
+      , include: [{ model: User, as: 'User', attributes: ['owner_name'] }]
      });
     return res.status(200).json({ status: true, data: reviews });
   } catch (error) {
@@ -118,7 +118,7 @@ exports.createReport = async (req, res) => {
 exports.getAllReports = async (req, res) => {
   try {
     const reports = await Report.findAll({ order: [['createdAt', 'DESC']],
-       include: [{ model: User, as: 'User', attributes: ['profile_name'] }]  });
+       include: [{ model: User, as: 'User', attributes: ['owner_name'] }]  });
     return res.status(200).json({ status: true, data: reports });
   } catch (error) {
     return res.status(500).json({ status: false, message: 'Error fetching reports', error: error.message });
