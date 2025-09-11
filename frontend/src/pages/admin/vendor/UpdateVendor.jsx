@@ -85,6 +85,20 @@ export default function UpdateVendor() {
       colClass: "col-md-4 mb-3",
     },
     {
+      name: "other_category",
+      label: "Category Name*",
+      type: "text",
+      colClass: "col-md-6 mb-3",
+      showWhen: (values) => {
+        const selected = categoryData?.find(
+          (cat) => cat.value === values.category_id
+        );
+        return selected?.label?.toLowerCase() === "other";
+      },
+      placeholder: "Enter category name",
+    },
+
+    {
       name: "experience_since",
       label: "Experience Since",
       type: "text",
@@ -138,13 +152,23 @@ export default function UpdateVendor() {
       type: "text",
       colClass: "col-md-6 mb-3",
     },
-    { name: "image", label: "Image", type: "file", colClass: "col-md-6 mb-3" },
+    {
+      name: "image",
+      label: "Image",
+      type: "file",
+      colClass: "col-md-6 mb-3",
+      accept: "image/*",
+    },
   ];
 
   const onSubmit = async (values) => {
     // If state changed from initial and user hasn't manually touched city -> block
     if (values.state_id !== initialValues.state_id && !cityTouched) {
-      Swal.fire("Validation Error", "Please select a city for the new state", "warning");
+      Swal.fire(
+        "Validation Error",
+        "Please select a city for the new state",
+        "warning"
+      );
       return;
     }
 
@@ -181,7 +205,16 @@ export default function UpdateVendor() {
 
       for (const key in values) {
         if (key === "category_id") {
-          formData.append(key, values[key]);
+          const selectedCat = categoryData?.find(
+            (cat) => cat.value === values.category_id
+          );
+
+          if (selectedCat?.label?.toLowerCase() === "other") {
+            formData.append("category_id", selectedCat.value);
+            formData.append("category_name", values.other_category || "");
+          } else {
+            formData.append("category_id", values.category_id);
+          }
         } else if (key === "image" && values[key]?.length > 0) {
           formData.append("image", values[key][0]);
         } else {
@@ -224,8 +257,12 @@ export default function UpdateVendor() {
 
         const vendor = vendorRes.data.user;
 
-        setCategoryData(cat.data.map((x) => ({ value: x.id.toString(), label: x.name })));
-        setStatesData(st.data.map((x) => ({ value: x.id.toString(), label: x.name })));
+        setCategoryData(
+          cat.data.map((x) => ({ value: x.id.toString(), label: x.name }))
+        );
+        setStatesData(
+          st.data.map((x) => ({ value: x.id.toString(), label: x.name }))
+        );
         setSelectedStateId(vendor.state_id?.toString());
 
         setInitialValues({
@@ -239,6 +276,7 @@ export default function UpdateVendor() {
           price_range: vendor.price_range || "",
           short_description: vendor.short_description || "",
           category_id: vendor.category_id?.toString() || "",
+          other_category: vendor.category_name || "",
           experience_since: vendor.experience_since || "",
           long_description: vendor.long_description || "",
           facebook_link: vendor.facebook_link || "",
@@ -264,7 +302,10 @@ export default function UpdateVendor() {
       try {
         const res = await GetCities(token, selectedStateId);
         // FIXED: Remove the manual placeholder - let ReusableForm handle it
-        const mapped = res.data.map((x) => ({ value: x.id.toString(), label: x.name }));
+        const mapped = res.data.map((x) => ({
+          value: x.id.toString(),
+          label: x.name,
+        }));
         setCityData(mapped); // Don't add placeholder here
         // don't mark cityTouched true here — user must pick manually
         setCityTouched(false);
@@ -275,7 +316,8 @@ export default function UpdateVendor() {
     fetchCities();
   }, [selectedStateId]);
 
-  if (!initialValues) return <div className="text-center py-5">Loading Profile Data...</div>;
+  if (!initialValues)
+    return <div className="text-center py-5">Loading Profile Data...</div>;
 
   return (
     <div className="page-content container-fluid">

@@ -22,9 +22,9 @@ export default function AddPackage() {
   const validationSchema = Yup.object({
     name: Yup.string().required("Package Name is required"),
     description: Yup.string().required("Description is required"),
-   price: Yup.number()
-  .required("Price is required")
-  .min(0, "Price cannot be negative"),
+    price: Yup.number()
+      .required("Price is required")
+      .min(0, "Price cannot be negative"),
 
     validity_type: Yup.string().required("Validity type is required"),
     validity_in_months: Yup.number().when("validity_type", {
@@ -103,42 +103,49 @@ export default function AddPackage() {
       colClass: "col-md-12 custom-field",
     },
   ];
+  const onSubmit = async (values) => {
+    try {
+      // ✅ Custom check for free package with months
+      if (Number(values.price) === 0 && values.validity_type === "months") {
+        Swal.fire(
+          "Error",
+          "Free package must be created with Days validity, not Months.",
+          "error"
+        );
+        return; // ❌ Abort submit
+      }
 
- const onSubmit = async (values) => {
-  try {
-    const payload = {
-      name: values.name,
-      description: values.description,
-      price: values.price,
-      features: values.features,
-      status: 1, // agar default active rakhna ho
-      validity_in_months:
-        values.validity_type === "months" ? values.validity_in_months : null,
-      days:
-        values.validity_type === "days" ? values.validity_in_days : null,
-    };
+      const payload = {
+        name: values.name,
+        description: values.description,
+        price: values.price,
+        features: values.features,
+        status: 1, // agar default active rakhna ho
+        validity_in_months:
+          values.validity_type === "months" ? values.validity_in_months : null,
+        days: values.validity_type === "days" ? values.validity_in_days : null,
+      };
 
-    const res = await CreatePackage(payload, token);
+      const res = await CreatePackage(payload, token);
 
-    if (res?.status === true) {
-      Swal.fire("Success", res?.msg || "Package created!", "success").then(
-        () => {
-          window.location.reload();
-        }
+      if (res?.status === true) {
+        Swal.fire("Success", res?.msg || "Package created!", "success").then(
+          () => {
+            window.location.reload();
+          }
+        );
+      } else {
+        Swal.fire("Error", res?.msg || "Something went wrong", "error");
+      }
+    } catch (err) {
+      console.error("API ERROR:", err);
+      Swal.fire(
+        "Error",
+        err?.response?.data?.msg || "Something went wrong",
+        "error"
       );
-    } else {
-      Swal.fire("Error", res?.msg || "Something went wrong", "error");
     }
-  } catch (err) {
-    console.error("API ERROR:", err);
-    Swal.fire(
-      "Error",
-      err?.response?.data?.msg || "Something went wrong",
-      "error"
-    );
-  }
-};
-
+  };
 
   return (
     <div className="page-content">

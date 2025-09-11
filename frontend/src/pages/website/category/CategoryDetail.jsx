@@ -38,51 +38,134 @@ const CategoryDetail = () => {
   });
 
   // ====== OTP STATES ======
-  const [otp, setOtp] = useState("");
-  const [isOtpSent, setIsOtpSent] = useState(false);
-  const [isOtpVerified, setIsOtpVerified] = useState(false);
-  const [serverOtp, setServerOtp] = useState(""); // 🔹 backend से आएगा
-  const [otpMessage, setOtpMessage] = useState("");
-  console.log("isOtpVerified", isOtpVerified)
-  // ====== SEND OTP ======
-  const sendOtp = async (type) => {
-    try {
-      const phone = type === "review" ? reviewForm.phone : reportForm.phone;
+  // const [otp, setOtp] = useState("");
+  // const [isOtpSent, setIsOtpSent] = useState(false);
+  // const [isOtpVerified, setIsOtpVerified] = useState(false);
+  // const [serverOtp, setServerOtp] = useState(""); // 🔹 backend से आएगा
+  // const [otpMessage, setOtpMessage] = useState("");
+  // console.log("isOtpVerified", isOtpVerified)
 
-      if (!/^\d{10}$/.test(phone)) {
+  // ===== Review OTP States =====
+  const [reviewOtp, setReviewOtp] = useState("");
+  const [isReviewOtpSent, setIsReviewOtpSent] = useState(false);
+  const [isReviewOtpVerified, setIsReviewOtpVerified] = useState(false);
+  const [reviewServerOtp, setReviewServerOtp] = useState("");
+
+  // ===== Report OTP States =====
+  const [reportOtp, setReportOtp] = useState("");
+  const [isReportOtpSent, setIsReportOtpSent] = useState(false);
+  const [isReportOtpVerified, setIsReportOtpVerified] = useState(false);
+  const [reportServerOtp, setReportServerOtp] = useState("");
+
+  // ====== SEND OTP ======
+  // const sendOtp = async (type) => {
+  //   try {
+  //     const phone = type === "review" ? reviewForm.phone : reportForm.phone;
+
+  //     if (!/^\d{10}$/.test(phone)) {
+  //       Swal.fire("Invalid!", "Enter a valid 10-digit phone number.", "error");
+  //       return;
+  //     }
+
+  //     const res = await Submitotp({ phone, type });
+
+  //     if (res?.status) {
+  //       // ✅ Normal OTP aaya
+  //       setIsOtpSent(true);
+  //       setServerOtp(res.otp);
+  //       setIsOtpVerified(false);
+  //       Swal.fire("Success", "OTP sent to your mobile", "success");
+  //     } else {
+
+  //       if (res?.msg?.toLowerCase().includes("already verify")) {
+  //         setIsOtpVerified(true);
+  //         setIsOtpSent(false);
+  //         Swal.fire("Info", "Mobile already verified", "info");
+  //       } else {
+  //         Swal.fire("Failed!", res?.msg || "OTP not sent", "error");
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     Swal.fire("Error", "Something went wrong while sending OTP", "error");
+  //   }
+  // };
+
+  // ====== SEND OTP (Review) ======
+  const sendReviewOtp = async () => {
+    try {
+      if (!/^\d{10}$/.test(reviewForm.phone)) {
         Swal.fire("Invalid!", "Enter a valid 10-digit phone number.", "error");
         return;
       }
-
-      const res = await Submitotp({ phone, type });
-
+      const res = await Submitotp({ phone: reviewForm.phone, type: "review" });
       if (res?.status) {
-        // ✅ Normal OTP aaya
-        setIsOtpSent(true);
-        setServerOtp(res.otp);
-        setIsOtpVerified(false);
+        setIsReviewOtpSent(true);
+        setReviewServerOtp(res.otp);
+        setIsReviewOtpVerified(false);
         Swal.fire("Success", "OTP sent to your mobile", "success");
+      } else if (res?.msg?.toLowerCase().includes("already verify")) {
+        setIsReviewOtpVerified(true);
+        setIsReviewOtpSent(false);
+        Swal.fire("Info", "Mobile already verified", "info");
       } else {
-
-        if (res?.msg?.toLowerCase().includes("already verify")) {
-          setIsOtpVerified(true);
-          setIsOtpSent(false);
-          Swal.fire("Info", "Mobile already verified", "info");
-        } else {
-          Swal.fire("Failed!", res?.msg || "OTP not sent", "error");
-        }
+        Swal.fire("Failed!", res?.msg || "OTP not sent", "error");
       }
     } catch (err) {
-      console.error(err);
+      Swal.fire("Error", "Something went wrong while sending OTP", "error");
+    }
+  };
+
+  // ====== SEND OTP (Report) ======
+  const sendReportOtp = async () => {
+    try {
+      if (!/^\d{10}$/.test(reportForm.phone)) {
+        Swal.fire("Invalid!", "Enter a valid 10-digit phone number.", "error");
+        return;
+      }
+      const res = await Submitotp({ phone: reportForm.phone, type: "report" });
+      if (res?.status) {
+        setIsReportOtpSent(true);
+        setReportServerOtp(res.otp);
+        setIsReportOtpVerified(false);
+        Swal.fire("Success", "OTP sent to your mobile", "success");
+      } else if (res?.msg?.toLowerCase().includes("already verify")) {
+        setIsReportOtpVerified(true);
+        setIsReportOtpSent(false);
+        Swal.fire("Info", "Mobile already verified", "info");
+      } else {
+        Swal.fire("Failed!", res?.msg || "OTP not sent", "error");
+      }
+    } catch (err) {
       Swal.fire("Error", "Something went wrong while sending OTP", "error");
     }
   };
 
   // ====== VERIFY OTP ======
-  const verifyOtp = () => {
-    if (otp == serverOtp) {
-      setIsOtpVerified(true);
-      setOtpMessage("✅ OTP Verified");
+  // const verifyOtp = () => {
+  //   if (otp == serverOtp) {
+  //     setIsOtpVerified(true);
+  //     setOtpMessage("✅ OTP Verified");
+  //     Swal.fire("Verified!", "Mobile number verified successfully", "success");
+  //   } else {
+  //     Swal.fire("Invalid OTP", "Please enter correct OTP", "error");
+  //   }
+  // };
+
+  // ====== VERIFY REVIEW OTP ======
+  const verifyReviewOtp = () => {
+    if (reviewOtp == reviewServerOtp) {
+      setIsReviewOtpVerified(true);
+      Swal.fire("Verified!", "Mobile number verified successfully", "success");
+    } else {
+      Swal.fire("Invalid OTP", "Please enter correct OTP", "error");
+    }
+  };
+
+  // ====== VERIFY REPORT OTP ======
+  const verifyReportOtp = () => {
+    if (reportOtp == reportServerOtp) {
+      setIsReportOtpVerified(true);
       Swal.fire("Verified!", "Mobile number verified successfully", "success");
     } else {
       Swal.fire("Invalid OTP", "Please enter correct OTP", "error");
@@ -93,21 +176,32 @@ const CategoryDetail = () => {
   const handleSubmitReview = async (e) => {
     e.preventDefault();
 
-    if (!isOtpVerified) {
-      Swal.fire("OTP Required", "Please verify your mobile number", "warning");
+    // 🔹 Check if any field is empty
+    if (
+      !reviewForm.name ||
+      !reviewForm.email ||
+      !reviewForm.phone ||
+      !reviewForm.message ||
+      !reviewForm.rating
+    ) {
+      Swal.fire("Error", "All fields are mandatory", "warning");
       return;
     }
-    if (!reviewForm.rating || reviewForm.rating < 1) {
-      Swal.fire("Rating Required", "Please select a rating before submitting.", "warning");
+
+    // 🔹 Check OTP Verification
+    // if (!isOtpVerified) {
+    //   Swal.fire("OTP Required", "Please verify your mobile number", "warning");
+    //   return;
+    // }
+
+    if (!isReviewOtpVerified) {
+      Swal.fire("OTP Required", "Please verify your mobile number", "warning");
       return;
     }
 
     try {
       const res = await SubmitReview(reviewForm);
-      console.log("res", res)
       if (res?.status) {
-
-
         Swal.fire("Success!", "Review submitted successfully!", "success");
         setReviewForm({
           vendor_id: vendorId,
@@ -117,26 +211,25 @@ const CategoryDetail = () => {
           message: "",
           rating: 0,
         });
-        setIsOtpSent(false);
-        setIsOtpVerified(false);
-        setOtp("");
+        setIsReviewOtpSent(false);
+        setIsReviewOtpVerified(false);
+        setReviewOtp("");
       } else {
-
-        if (
-          res?.message &&
-          res.message.toLowerCase().includes("already submitted")
-        ) {
-          Swal.fire("Error!", res.message, "error");
-        } else {
-          Swal.fire("Failed!", res?.message || "Unable to submit review", "error");
-        }
+        Swal.fire(
+          "Failed!",
+          res?.message || "Unable to submit review",
+          "error"
+        );
       }
     } catch (error) {
       console.error(error);
-      Swal.fire("Error", "Something went wrong while submitting the review", "error");
+      Swal.fire(
+        "Error",
+        "Something went wrong while submitting the review",
+        "error"
+      );
     }
   };
-
   // ====== HANDLE REPORT SUBMIT ======
 
   const [reportForm, setReportForm] = useState({
@@ -149,34 +242,50 @@ const CategoryDetail = () => {
   const handleSubmitReport = async (e) => {
     e.preventDefault();
 
-    if (!reportForm.name || !reportForm.phone || !reportForm.reason) {
-      Swal.fire({
-        icon: "warning",
-        title: "Missing Fields",
-        text: "Please fill in all required fields.",
-      });
-      return;
-    }
+    // 🔹 Check if any field is empty
+    // if (!reportForm.name || !reportForm.phone || !reportForm.reason) {
+    //   Swal.fire("Error", "All fields are mandatory", "warning");
+    //   return;
+    // }
 
-    if (!isOtpVerified) {
+    // 🔹 Check OTP Verification
+    // if (!isOtpVerified) {
+    //   Swal.fire("OTP Required", "Please verify your mobile number", "warning");
+    //   return;
+    // }
+
+    if (!isReportOtpVerified) {
       Swal.fire("OTP Required", "Please verify your mobile number", "warning");
       return;
     }
 
-    const res = await SubmitReport(reportForm);
-    if (res?.status) {
-      Swal.fire("Success!", "Report submitted successfully!", "success");
-      setReportForm({
-        name: "",
-        phone: "",
-        reason: "",
-        vendor_id: vendorId,
-      });
-      setIsOtpSent(false);
-      setIsOtpVerified(false);
-      setOtp("");
-    } else {
-      Swal.fire("Failed!", res?.message || "Unable to submit report", "error");
+    try {
+      const res = await SubmitReport(reportForm);
+      if (res?.status) {
+        Swal.fire("Success!", "Report submitted successfully!", "success");
+        setReportForm({
+          vendor_id: vendorId,
+          name: "",
+          phone: "",
+          reason: "",
+        });
+        setIsReportOtpSent(false);
+        setIsReportOtpVerified(false);
+        setReportOtp("");
+      } else {
+        Swal.fire(
+          "Failed!",
+          res?.message || "Unable to submit report",
+          "error"
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire(
+        "Error",
+        "Something went wrong while submitting the report",
+        "error"
+      );
     }
   };
 
@@ -438,10 +547,11 @@ const CategoryDetail = () => {
                         <div className="d-flex gap-3 mb-3 mt-4">
                           {imageItems?.length > 0 && (
                             <button
-                              className={`btn ${activeTabs === "images"
-                                ? "btn-primary"
-                                : "btn-outline-primary"
-                                } mb-4`}
+                              className={`btn ${
+                                activeTabs === "images"
+                                  ? "btn-primary"
+                                  : "btn-outline-primary"
+                              } mb-4`}
                               onClick={() => setActiveTabs("images")}
                             >
                               Images
@@ -449,10 +559,11 @@ const CategoryDetail = () => {
                           )}
                           {videoItems?.length > 0 && (
                             <button
-                              className={`btn ${activeTabs === "videos"
-                                ? "btn-primary"
-                                : "btn-outline-primary"
-                                } mb-4`}
+                              className={`btn ${
+                                activeTabs === "videos"
+                                  ? "btn-primary"
+                                  : "btn-outline-primary"
+                              } mb-4`}
                               onClick={() => setActiveTabs("videos")}
                             >
                               Videos
@@ -759,19 +870,21 @@ const CategoryDetail = () => {
                     <div className="date-travel-card mt-4">
                       <div className="tabs d-flex gap-2 mb-3">
                         <button
-                          className={`btn ${activeTab === "review"
-                            ? "btn-primary"
-                            : "btn-outline-primary"
-                            }`}
+                          className={`btn ${
+                            activeTab === "review"
+                              ? "btn-primary"
+                              : "btn-outline-primary"
+                          }`}
                           onClick={() => setActiveTab("review")}
                         >
                           Review
                         </button>
                         <button
-                          className={`btn ${activeTab === "report"
-                            ? "btn-primary"
-                            : "btn-outline-primary"
-                            }`}
+                          className={`btn ${
+                            activeTab === "report"
+                              ? "btn-primary"
+                              : "btn-outline-primary"
+                          }`}
                           onClick={() => setActiveTab("report")}
                         >
                           Report
@@ -864,13 +977,15 @@ const CategoryDetail = () => {
 
                           {/* OTP Section */}
                           <div className="mt-3">
-                            {isOtpVerified ? (
-                              <p className="text-success fw-bold">✅ Mobile Verified</p>
-                            ) : !isOtpSent ? (
+                            {isReviewOtpVerified ? (
+                              <p className="text-success fw-bold">
+                                ✅ Mobile Verified
+                              </p>
+                            ) : !isReviewOtpSent ? (
                               <button
                                 type="button"
                                 className="btn btn-outline-primary w-100"
-                                onClick={() => sendOtp("review")} // ✅ "review" ya jo bhi form ho
+                                onClick={sendReviewOtp} // function defined separately
                               >
                                 Send OTP
                               </button>
@@ -879,22 +994,20 @@ const CategoryDetail = () => {
                                 <input
                                   type="text"
                                   placeholder="Enter OTP"
-                                  value={otp}
+                                  value={reviewOtp}
                                   className="form-control"
-                                  onChange={(e) => setOtp(e.target.value)}
+                                  onChange={(e) => setReviewOtp(e.target.value)}
                                 />
                                 <button
                                   type="button"
                                   className="btn btn-primary"
-                                  onClick={verifyOtp}
+                                  onClick={verifyReviewOtp}
                                 >
                                   Verify
                                 </button>
                               </div>
                             )}
                           </div>
-
-
 
                           {/* Review Message */}
                           <div className="date-time-dropdown d-flex align-items-start gap-2 mt-3">
@@ -917,7 +1030,7 @@ const CategoryDetail = () => {
                             <button
                               type="submit"
                               className="send-btn w-100"
-                              disabled={!isOtpVerified}
+                              // disabled={!isOtpVerified}
                             >
                               Submit Review
                             </button>
@@ -973,38 +1086,36 @@ const CategoryDetail = () => {
 
                           {/* OTP Section */}
                           <div className="mt-3">
-
-                            {isOtpVerified ? (
+                            {isReportOtpVerified ? (
                               <p className="text-success fw-bold">
                                 ✅ Mobile Verified
                               </p>
-                            ) : !isOtpSent ? (
+                            ) : !isReportOtpSent ? (
                               <button
                                 type="button"
                                 className="btn btn-outline-primary w-100"
-                                onClick={() => sendOtp("report")}
+                                onClick={sendReportOtp} // function defined separately
                               >
                                 Send OTP
                               </button>
-                            ) :
-                              (
-                                <div className="d-flex gap-2">
-                                  <input
-                                    type="text"
-                                    placeholder="Enter OTP"
-                                    value={otp}
-                                    className="form-control"
-                                    onChange={(e) => setOtp(e.target.value)}
-                                  />
-                                  <button
-                                    type="button"
-                                    className="btn btn-primary"
-                                    onClick={verifyOtp}
-                                  >
-                                    Verify
-                                  </button>
-                                </div>
-                              )}
+                            ) : (
+                              <div className="d-flex gap-2">
+                                <input
+                                  type="text"
+                                  placeholder="Enter OTP"
+                                  value={reportOtp}
+                                  className="form-control"
+                                  onChange={(e) => setReportOtp(e.target.value)}
+                                />
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={verifyReportOtp}
+                                >
+                                  Verify
+                                </button>
+                              </div>
+                            )}
                           </div>
 
                           {/* Issue Dropdown */}
@@ -1046,7 +1157,7 @@ const CategoryDetail = () => {
                             <button
                               type="submit"
                               className="send-btn w-100"
-                              disabled={!isOtpVerified} // ✅ sirf tab active jab OTP verified ya already verified ho
+                              // disabled={!isOtpVerified} // ✅ sirf tab active jab OTP verified ya already verified ho
                             >
                               Submit Report
                             </button>

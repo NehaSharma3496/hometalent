@@ -88,7 +88,7 @@ export default function VendorDetails() {
     { label: "Price Range", value: vendor.price_range, icon: "fas fa-inr" },
     { label: "Experience Since", value: vendor.experience_since, icon: "fas fa-calendar-alt" },
     { label: "Pin Code", value: vendor.pin_code, icon: "fas fa-map-marker-alt" },
-    { label: "Category Name", value: getCategoryNames(vendor.category_id), icon: "fas fa-tags" },
+    { label: "Category Name", value:vendor.category_name , icon: "fas fa-tags" },
   ];
 
   return (

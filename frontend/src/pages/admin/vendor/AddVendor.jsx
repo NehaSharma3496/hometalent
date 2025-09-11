@@ -35,6 +35,7 @@ export default function AddVendor() {
     city: "",
     pin: "",
     phone: "",
+     isPhoneVerified: false,
     email: "",
     priceRange: "",
     shortDesc: "",
@@ -53,31 +54,30 @@ export default function AddVendor() {
   };
 
   const validationSchema = Yup.object({
-    ownerName: Yup.string().required("Owner Name is required"),
-    state: Yup.string().required("State is required"),
-    city: Yup.string().required("City is required"),
-    pin: Yup.string()
-      .matches(/^\d{6}$/, "Pin code must be exactly 6 digits")
-      .required("Pin Code is required"),
-    phone: Yup.string()
-      .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
-      .required("Phone No is required")
-      .test("phone-verified", "Phone number must be verified", () =>
-        phoneVerificationState.isVerified ? true : false
-      ),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    category: Yup.string().required("Category is required"),
-    terms: Yup.boolean().oneOf([true], "You must accept terms"),
-    longDesc: Yup.string().required("Large Description is required"),
-    otherCategory: Yup.string().when("category", {
-      is: (val) => {
-        const selected = categoryData.find((cat) => cat.value === val);
-        return selected?.label?.toLowerCase() === "other";
-      },
-      then: (schema) => schema.required("Category Name is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-  });
+  ownerName: Yup.string().required("Owner Name is required"),
+  state: Yup.string().required("State is required"),
+  city: Yup.string().required("City is required"),
+  pin: Yup.string()
+    .matches(/^\d{6}$/, "Pin code must be exactly 6 digits")
+    .required("Pin Code is required"),
+  phone: Yup.string()
+    .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
+    .required("Phone No is required"),
+  isPhoneVerified: Yup.boolean().oneOf([true], "Phone number must be verified"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+  category: Yup.string().required("Category is required"),
+  otherCategory: Yup.string().when("category", {
+    is: (val) => {
+      const selected = categoryData?.find((cat) => cat.value === val);
+      return selected?.label?.toLowerCase() === "other";
+    },
+    then: (schema) => schema.required("Please enter category name"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+  terms: Yup.boolean().oneOf([true], "You must accept terms"),
+  longDesc: Yup.string().required("Large Description is required"),
+});
+
 
   const handlePhoneInput = (e, setFieldValue, setFieldTouched, touched) => {
     const inputValue = e.target.value;
@@ -149,25 +149,30 @@ export default function AddVendor() {
     }
   };
 
-  const handleVerifyOtp = () => {
-    const otpValue = phoneVerificationState.otp;
+ // pehle sirf () tha
+const handleVerifyOtp = (setFieldValue) => {
+  const otpValue = phoneVerificationState.otp;
 
-    if (!otpValue || otpValue.length !== 4) {
-      Swal.fire("Error", "Please enter a valid 4-digit OTP", "error");
-      return;
-    }
+  if (!otpValue || otpValue.length !== 4) {
+    Swal.fire("Error", "Please enter a valid 4-digit OTP", "error");
+    return;
+  }
 
-    if (otpValue === phoneVerificationState.sentOtp.toString()) {
-      setPhoneVerificationState((prev) => ({
-        ...prev,
-        isVerified: true,
-        showOtpInput: false,
-      }));
-      Swal.fire("Success", "Phone number verified successfully!", "success");
-    } else {
-      Swal.fire("Error", "Invalid OTP. Please try again.", "error");
-    }
-  };
+  if (otpValue === phoneVerificationState.sentOtp.toString()) {
+    setPhoneVerificationState((prev) => ({
+      ...prev,
+      isVerified: true,
+      showOtpInput: false,
+    }));
+
+    // yaha se Formik me value set karenge
+    setFieldValue("isPhoneVerified", true); 
+
+    Swal.fire("Success", "Phone number verified successfully!", "success");
+  } else {
+    Swal.fire("Error", "Invalid OTP. Please try again.", "error");
+  }
+};
 
   const handleKeyPress = (e) => {
     if (!/[0-9]/.test(e.key) && !["Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight"].includes(e.key)) {
@@ -214,7 +219,7 @@ export default function AddVendor() {
           <button
             type="button"
             className="btn btn-success"
-            onClick={handleVerifyOtp}
+            onClick={() => handleVerifyOtp(setFieldValue)}
             disabled={phoneVerificationState.otp.length !== 4}
           >
             Verify OTP
@@ -292,7 +297,7 @@ export default function AddVendor() {
     },
     {
       name: "otherCategory",
-      label: "Category Name",
+      label: "Category Name*",
       type: "text",
       colClass: "col-md-6 mb-3",
       showWhen: (values) => {
