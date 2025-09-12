@@ -7,6 +7,7 @@ import {
   SubmitReview,
   SubmitReport,
   Submitotp,
+  GetReviewCount,
 } from "../../../Services/webService/Web";
 import { GetGallery, GetVendorDetails } from "../../../Services/vendor/Vendor";
 import Swal from "sweetalert2";
@@ -26,6 +27,18 @@ const CategoryDetail = () => {
   const [cityName, setCityName] = useState("");
   const imageSectionRef = React.useRef(null);
   const [vendorData, setVendorData] = useState(null);
+  const token = localStorage.getItem("token");
+
+  const [reviewcount, setReviewCount] = useState("");
+
+  const fetchreviewcount = async () => {
+    try {
+      const res = await GetReviewCount(token, vendorId);
+      setReviewCount(res?.data);
+    } catch (error) {
+      console.error("Error fetching review count", error);
+    }
+  };
 
   const [activeTab, setActiveTab] = useState("review");
   const [reviewForm, setReviewForm] = useState({
@@ -36,62 +49,16 @@ const CategoryDetail = () => {
     message: "",
     rating: 0,
   });
-
-  // ====== OTP STATES ======
-  // const [otp, setOtp] = useState("");
-  // const [isOtpSent, setIsOtpSent] = useState(false);
-  // const [isOtpVerified, setIsOtpVerified] = useState(false);
-  // const [serverOtp, setServerOtp] = useState(""); // 🔹 backend से आएगा
-  // const [otpMessage, setOtpMessage] = useState("");
-  // console.log("isOtpVerified", isOtpVerified)
-
-  // ===== Review OTP States =====
   const [reviewOtp, setReviewOtp] = useState("");
   const [isReviewOtpSent, setIsReviewOtpSent] = useState(false);
   const [isReviewOtpVerified, setIsReviewOtpVerified] = useState(false);
   const [reviewServerOtp, setReviewServerOtp] = useState("");
 
-  // ===== Report OTP States =====
   const [reportOtp, setReportOtp] = useState("");
   const [isReportOtpSent, setIsReportOtpSent] = useState(false);
   const [isReportOtpVerified, setIsReportOtpVerified] = useState(false);
   const [reportServerOtp, setReportServerOtp] = useState("");
 
-  // ====== SEND OTP ======
-  // const sendOtp = async (type) => {
-  //   try {
-  //     const phone = type === "review" ? reviewForm.phone : reportForm.phone;
-
-  //     if (!/^\d{10}$/.test(phone)) {
-  //       Swal.fire("Invalid!", "Enter a valid 10-digit phone number.", "error");
-  //       return;
-  //     }
-
-  //     const res = await Submitotp({ phone, type });
-
-  //     if (res?.status) {
-  //       // ✅ Normal OTP aaya
-  //       setIsOtpSent(true);
-  //       setServerOtp(res.otp);
-  //       setIsOtpVerified(false);
-  //       Swal.fire("Success", "OTP sent to your mobile", "success");
-  //     } else {
-
-  //       if (res?.msg?.toLowerCase().includes("already verify")) {
-  //         setIsOtpVerified(true);
-  //         setIsOtpSent(false);
-  //         Swal.fire("Info", "Mobile already verified", "info");
-  //       } else {
-  //         Swal.fire("Failed!", res?.msg || "OTP not sent", "error");
-  //       }
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     Swal.fire("Error", "Something went wrong while sending OTP", "error");
-  //   }
-  // };
-
-  // ====== SEND OTP (Review) ======
   const sendReviewOtp = async () => {
     try {
       if (!/^\d{10}$/.test(reviewForm.phone)) {
@@ -116,7 +83,6 @@ const CategoryDetail = () => {
     }
   };
 
-  // ====== SEND OTP (Report) ======
   const sendReportOtp = async () => {
     try {
       if (!/^\d{10}$/.test(reportForm.phone)) {
@@ -141,18 +107,6 @@ const CategoryDetail = () => {
     }
   };
 
-  // ====== VERIFY OTP ======
-  // const verifyOtp = () => {
-  //   if (otp == serverOtp) {
-  //     setIsOtpVerified(true);
-  //     setOtpMessage("✅ OTP Verified");
-  //     Swal.fire("Verified!", "Mobile number verified successfully", "success");
-  //   } else {
-  //     Swal.fire("Invalid OTP", "Please enter correct OTP", "error");
-  //   }
-  // };
-
-  // ====== VERIFY REVIEW OTP ======
   const verifyReviewOtp = () => {
     if (reviewOtp == reviewServerOtp) {
       setIsReviewOtpVerified(true);
@@ -162,7 +116,6 @@ const CategoryDetail = () => {
     }
   };
 
-  // ====== VERIFY REPORT OTP ======
   const verifyReportOtp = () => {
     if (reportOtp == reportServerOtp) {
       setIsReportOtpVerified(true);
@@ -172,11 +125,9 @@ const CategoryDetail = () => {
     }
   };
 
-  // ====== HANDLE REVIEW SUBMIT ======
   const handleSubmitReview = async (e) => {
     e.preventDefault();
 
-    // 🔹 Check if any field is empty
     if (
       !reviewForm.name ||
       !reviewForm.email ||
@@ -187,12 +138,6 @@ const CategoryDetail = () => {
       Swal.fire("Error", "All fields are mandatory", "warning");
       return;
     }
-
-    // 🔹 Check OTP Verification
-    // if (!isOtpVerified) {
-    //   Swal.fire("OTP Required", "Please verify your mobile number", "warning");
-    //   return;
-    // }
 
     if (!isReviewOtpVerified) {
       Swal.fire("OTP Required", "Please verify your mobile number", "warning");
@@ -230,7 +175,6 @@ const CategoryDetail = () => {
       );
     }
   };
-  // ====== HANDLE REPORT SUBMIT ======
 
   const [reportForm, setReportForm] = useState({
     vendor_id: vendorId,
@@ -241,18 +185,6 @@ const CategoryDetail = () => {
 
   const handleSubmitReport = async (e) => {
     e.preventDefault();
-
-    // 🔹 Check if any field is empty
-    // if (!reportForm.name || !reportForm.phone || !reportForm.reason) {
-    //   Swal.fire("Error", "All fields are mandatory", "warning");
-    //   return;
-    // }
-
-    // 🔹 Check OTP Verification
-    // if (!isOtpVerified) {
-    //   Swal.fire("OTP Required", "Please verify your mobile number", "warning");
-    //   return;
-    // }
 
     if (!isReportOtpVerified) {
       Swal.fire("OTP Required", "Please verify your mobile number", "warning");
@@ -303,6 +235,7 @@ const CategoryDetail = () => {
 
   useEffect(() => {
     fetchVendorDetails();
+    fetchreviewcount();
   }, [vendorId]);
 
   console.log("Vendor Data:", vendorData);
@@ -415,7 +348,6 @@ const CategoryDetail = () => {
     if (vendorId) fetchGalleryImages();
   }, [vendorId]);
 
-  // separate images & videos
   const imageItems = galleryImages.filter((item) => item.file_type === "image");
   const videoItems = galleryImages.filter((item) => item.file_type === "video");
 
@@ -426,7 +358,6 @@ const CategoryDetail = () => {
     setOpen(true);
   };
 
-  // visible items with View More
   const visibleImages = showAllImages ? imageItems : imageItems.slice(0, 4);
   const visibleVideos = showAllVideos ? videoItems : videoItems.slice(0, 4);
 
@@ -479,9 +410,28 @@ const CategoryDetail = () => {
                           </div>
                         )}
 
-                        <h4 className="title text-capitalize mt-4">
-                          {vendorData?.user?.owner_name}
-                        </h4>
+                        <h4 className="title text-capitalize mt-4 d-flex align-items-center gap-2">
+  {vendorData?.user?.owner_name}
+
+  {/* Rating stars + count */}
+  {reviewcount && (
+    <div className="d-flex align-items-center" style={{ fontSize: "14px" }}>
+      {/* Stars */}
+      {[...Array(5)].map((_, i) => (
+        <i
+          key={i}
+          className={`ri-star${i < Math.round(reviewcount?.average) ? "-fill" : "-line"}`}
+          style={{ color: "#FFD700", marginLeft: "2px" }}
+        />
+      ))}
+      {/* Count */}
+      <span style={{ marginLeft: "6px", color: "#555" }}>
+        ({reviewcount?.total || 0})
+      </span>
+    </div>
+  )}
+</h4>
+
 
                         <div className="d-flex flex-wrap align-items-center gap-20 mt-8">
                           <div className="location d-flex align-items-center ">
@@ -534,8 +484,6 @@ const CategoryDetail = () => {
                       </p>
                     </div>
 
-                    {/* GALLERY SECTION WITH TABS */}
-                    {/* GALLERY SECTION WITH TABS */}
                     {(imageItems?.length > 0 || videoItems?.length > 0) && (
                       <div
                         className="tour-details-content mt-4"
@@ -543,7 +491,6 @@ const CategoryDetail = () => {
                       >
                         <h4 className="title mb-3">Gallery</h4>
 
-                        {/* Tabs - Agar sirf ek hi type ka content hai to ek hi tab show hoga */}
                         <div className="d-flex gap-3 mb-3 mt-4">
                           {imageItems?.length > 0 && (
                             <button
@@ -571,7 +518,6 @@ const CategoryDetail = () => {
                           )}
                         </div>
 
-                        {/* Images Tab */}
                         {activeTabs === "images" && imageItems?.length > 0 && (
                           <>
                             <div className="row g-4">
@@ -627,7 +573,6 @@ const CategoryDetail = () => {
                           </>
                         )}
 
-                        {/* Videos Tab */}
                         {activeTabs === "videos" && videoItems?.length > 0 && (
                           <>
                             <div className="row g-4">
@@ -685,7 +630,6 @@ const CategoryDetail = () => {
                           </>
                         )}
 
-                        {/* Lightbox for Images */}
                         {open && (
                           <Lightbox
                             open={open}
@@ -742,8 +686,6 @@ const CategoryDetail = () => {
                     )}
                   </div>
 
-                  {/* SIDEBAR - Lead Form & Review Form */}
-                  {/* SIDEBAR - Lead Form & Review Form */}
                   <div className="col-xl-4 col-lg-5">
                     <div className="date-travel-card ">
                       <h4 className="heading-card">Get In Touch</h4>
@@ -811,7 +753,6 @@ const CategoryDetail = () => {
                         />
                       </div>
 
-                      {/* ✅ Terms & Conditions Checkbox */}
                       <div className="custom-terms mt-3">
                         <input
                           type="checkbox"
@@ -893,7 +834,6 @@ const CategoryDetail = () => {
 
                       {activeTab === "review" && (
                         <form onSubmit={handleSubmitReview}>
-                          {/* ⭐ Rating */}
                           <div className="mb-3 required">
                             <label className="fw-bold d-block">Rating:</label>
                             {[1, 2, 3, 4, 5].map((star) => (
@@ -914,8 +854,6 @@ const CategoryDetail = () => {
                             ))}
                           </div>
 
-                          {/* Name */}
-                          {/* Name */}
                           <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
                             <i className="ri-user-line fs-8" />
                             <input
@@ -925,7 +863,6 @@ const CategoryDetail = () => {
                               className="form-control form-control-m border-0 shadow-none"
                               onChange={(e) => {
                                 const value = e.target.value;
-                                // ✅ Sirf alphabets aur space allow
                                 if (/^[a-zA-Z\s]*$/.test(value)) {
                                   setReviewForm({
                                     ...reviewForm,
@@ -937,7 +874,6 @@ const CategoryDetail = () => {
                             />
                           </div>
 
-                          {/* Email */}
                           <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
                             <i className="ri-mail-line fs-8" />
                             <input
@@ -955,7 +891,6 @@ const CategoryDetail = () => {
                             />
                           </div>
 
-                          {/* Phone */}
                           <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
                             <i className="ri-phone-line fs-8" />
                             <input
@@ -965,7 +900,7 @@ const CategoryDetail = () => {
                               maxLength={10}
                               className="form-control form-control-m border-0 shadow-none"
                               onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, ""); // ✅ Sirf digits allow
+                                const value = e.target.value.replace(/\D/g, "");
                                 setReviewForm({
                                   ...reviewForm,
                                   phone: value,
@@ -975,7 +910,6 @@ const CategoryDetail = () => {
                             />
                           </div>
 
-                          {/* OTP Section */}
                           <div className="mt-3">
                             {isReviewOtpVerified ? (
                               <p className="text-success fw-bold">
@@ -985,7 +919,7 @@ const CategoryDetail = () => {
                               <button
                                 type="button"
                                 className="btn btn-outline-primary w-100"
-                                onClick={sendReviewOtp} // function defined separately
+                                onClick={sendReviewOtp}
                               >
                                 Send OTP
                               </button>
@@ -1009,7 +943,6 @@ const CategoryDetail = () => {
                             )}
                           </div>
 
-                          {/* Review Message */}
                           <div className="date-time-dropdown d-flex align-items-start gap-2 mt-3">
                             <i className="ri-chat-3-line fs-8 mt-1" />
                             <textarea
@@ -1027,11 +960,7 @@ const CategoryDetail = () => {
                           </div>
 
                           <div className="mt-3">
-                            <button
-                              type="submit"
-                              className="send-btn w-100"
-                              // disabled={!isOtpVerified}
-                            >
+                            <button type="submit" className="send-btn w-100">
                               Submit Review
                             </button>
                           </div>

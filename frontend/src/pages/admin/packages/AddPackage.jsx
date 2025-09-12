@@ -23,7 +23,9 @@ export default function AddPackage() {
     name: Yup.string().required("Package Name is required"),
     description: Yup.string().required("Description is required"),
     price: Yup.number()
+      .typeError("Price must be a number")
       .required("Price is required")
+      .integer("Price must be an integer") // ⬅️ सिर्फ integer allow
       .min(0, "Price cannot be negative"),
 
     validity_type: Yup.string().required("Validity type is required"),
@@ -59,6 +61,12 @@ export default function AddPackage() {
       label: "Price (₹)*",
       type: "number",
       colClass: "col-md-6 custom-field",
+      step: "1", // ⬅️ decimal disable
+      onKeyDown: (e) => {
+        if (e.key === "." || e.key === "e" || e.key === "E") {
+          e.preventDefault(); // ⬅️ रोक दिया decimal aur exponential input
+        }
+      },
     },
     {
       name: "validity_type",
@@ -109,7 +117,7 @@ export default function AddPackage() {
       if (Number(values.price) === 0 && values.validity_type === "months") {
         Swal.fire(
           "Error",
-          "Free package must be created with Days validity, not Months.",
+          "Free package (0) Rs must be created with Days validity, not Months.",
           "error"
         );
         return; // ❌ Abort submit

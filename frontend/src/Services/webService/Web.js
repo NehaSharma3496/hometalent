@@ -87,7 +87,6 @@ export async function GetVendorsByCategory(token, categoryId, cityId) {
   }
 }
 
-
 export async function GetAllApprovedReview(token) {
   try {
     const response = await axios.get(
@@ -144,23 +143,36 @@ export async function SubmitReport(data) {
 
 export async function Submitotp(data) {
   try {
-    const response = await axios.post(`${Config.base_url}send-otp-review`, data);
+    const response = await axios.post(
+      `${Config.base_url}send-otp-review`,
+      data
+    );
     return response?.data;
   } catch (error) {
     return error.response.data;
   }
 }
 
-export async function GetReport(token){
-   try {
-    const response = await axios.get(
-      `${Config.base_url}reports`,
-      {
-        headers: {
-          Authorization: `${token}`,
-        },
-      }
-    );
+export async function GetReport(token) {
+  try {
+    const response = await axios.get(`${Config.base_url}reports`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function GetReviewCount(token, vendorId) {
+  try {
+    const response = await axios.get(`${Config.base_url}vendor/rating_average/${vendorId}`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
     return response?.data;
   } catch (error) {
     return error;
