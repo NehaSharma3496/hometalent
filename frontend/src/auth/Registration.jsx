@@ -27,6 +27,13 @@ const Registration = () => {
     loading: false,
   });
 
+  const [isOtpSent, setIsOtpSent] = useState(false);
+
+  const handleSendOtpClick = (phone) => {
+    handleSendOtp(phone);
+    setIsOtpSent(true);
+  };
+
   const token = localStorage.getItem("token");
 
   const initialValues = {
@@ -54,52 +61,52 @@ const Registration = () => {
     terms: false,
   };
 
-  const [otpTimer, setOtpTimer] = useState(0); 
+  const [otpTimer, setOtpTimer] = useState(0);
 
   useEffect(() => {
-  let interval;
-  if (otpTimer > 0) {
-    interval = setInterval(() => {
-      setOtpTimer((prev) => prev - 1);
-    }, 1000);
-  } else {
-    clearInterval(interval);
-  }
-  return () => clearInterval(interval);
-}, [otpTimer]);
-
-
+    let interval;
+    if (otpTimer > 0) {
+      interval = setInterval(() => {
+        setOtpTimer((prev) => prev - 1);
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [otpTimer]);
 
   // Enhanced validation schema with phone verification
-const validationSchema = Yup.object({
-  ownerName: Yup.string().required("Owner Name is required"),
-  state: Yup.string().required("State is required"),
-  city: Yup.string().required("City is required"),
-  pin: Yup.string()
-    .matches(/^\d{6}$/, "Pin code must be exactly 6 digits")
-    .required("Pin Code is required"),
-  phone: Yup.string()
-    .matches(/^[0-9]{10}$/, "Phone number must be exactly 10 digits")
-    .required("Phone No is required"),
-  isPhoneVerified: Yup.boolean()
-    .oneOf([true], "Phone number must be verified"),
+  const validationSchema = Yup.object({
+    ownerName: Yup.string().required("Owner Name is required"),
+    state: Yup.string().required("State is required"),
+    city: Yup.string().required("City is required"),
+    pin: Yup.string()
+      .matches(/^\d{6}$/, "Pin code must be exactly 6 digits")
+      .required("Pin Code is required"),
+    phone: Yup.string()
+      .matches(/^[0-9]{10}$/, "Phone number must be exactly 10 digits")
+      .required("Phone No is required"),
+    isPhoneVerified: Yup.boolean().oneOf(
+      [true],
+      "Phone number must be verified"
+    ),
 
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  category: Yup.string().required("Category is required"),
-  otherCategory: Yup.string().when("category", {
-    is: (val) => {
-      return (
-        categoryData?.find((cat) => cat.value === val)?.label?.toLowerCase() ===
-        "other"
-      );
-    },
-    then: (schema) => schema.required("Please enter category name"),
-    otherwise: (schema) => schema.notRequired(),
-  }),
-  terms: Yup.boolean().oneOf([true], "You must accept terms"),
-  longDesc: Yup.string().required("Large Description is required"),
-});
-
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    category: Yup.string().required("Category is required"),
+    otherCategory: Yup.string().when("category", {
+      is: (val) => {
+        return (
+          categoryData
+            ?.find((cat) => cat.value === val)
+            ?.label?.toLowerCase() === "other"
+        );
+      },
+      then: (schema) => schema.required("Please enter category name"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    terms: Yup.boolean().oneOf([true], "You must accept terms"),
+    longDesc: Yup.string().required("Large Description is required"),
+  });
 
   // Phone verification handlers
   const handlePhoneInput = (e, setFieldValue, setFieldTouched, touched) => {
@@ -137,39 +144,37 @@ const validationSchema = Yup.object({
     }));
   };
 
-
-const handleSendOtp = async (phoneValue) => {
-  if (!phoneValue || phoneValue.length !== 10) {
-    Swal.fire("Error", "Please enter a valid 10-digit phone number", "error");
-    return;
-  }
-
-  try {
-    setPhoneVerificationState((prev) => ({ ...prev, loading: true }));
-
-    const res = await VerifyOtp({ phone: phoneValue });
-
-    if (res?.status) {
-      setPhoneVerificationState((prev) => ({
-        ...prev,
-        showOtpInput: true,
-        sentOtp: res?.otp || "",
-        loading: false,
-        isVerified: false,
-      }));
-      setOtpTimer(60); // start 1 minute countdown
-      Swal.fire("Success", "OTP sent successfully!", "success");
-    } else {
-      setPhoneVerificationState((prev) => ({ ...prev, loading: false }));
-      Swal.fire("Error", res?.msg || "Failed to send OTP", "error");
+  const handleSendOtp = async (phoneValue) => {
+    if (!phoneValue || phoneValue.length !== 10) {
+      Swal.fire("Error", "Please enter a valid 10-digit phone number", "error");
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    setPhoneVerificationState((prev) => ({ ...prev, loading: false }));
-    Swal.fire("Error", "Failed to send OTP. Please try again.", "error");
-  }
-};
 
+    try {
+      setPhoneVerificationState((prev) => ({ ...prev, loading: true }));
+
+      const res = await VerifyOtp({ phone: phoneValue });
+
+      if (res?.status) {
+        setPhoneVerificationState((prev) => ({
+          ...prev,
+          showOtpInput: true,
+          sentOtp: res?.otp || "",
+          loading: false,
+          isVerified: false,
+        }));
+        setOtpTimer(60); // start 1 minute countdown
+        Swal.fire("Success", "OTP sent successfully!", "success");
+      } else {
+        setPhoneVerificationState((prev) => ({ ...prev, loading: false }));
+        Swal.fire("Error", res?.msg || "Failed to send OTP", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      setPhoneVerificationState((prev) => ({ ...prev, loading: false }));
+      Swal.fire("Error", "Failed to send OTP. Please try again.", "error");
+    }
+  };
 
   // const handleSendOtp = async (phoneValue) => {
   //   if (!phoneValue || phoneValue.length !== 10) {
@@ -292,26 +297,26 @@ const handleSendOtp = async (phoneValue) => {
             </button>
           )} */}
 
-{phoneVerificationState.showVerifyButton &&
- !phoneVerificationState.isVerified && (
-  <>
-    <button
-      type="button"
-      className="btn btn-outline-primary"
-      onClick={() => handleSendOtp(values.phone)}
-      disabled={otpTimer > 0 || phoneVerificationState.loading}
-      style={{ whiteSpace: "nowrap" }}
-    >
-      {phoneVerificationState.loading
-        ? "Sending..."
-        : otpTimer > 0
-        ? `Resend OTP in ${otpTimer}s`
-        : "Resend OTP"}
-    </button>
-  </>
-)}
-
-
+        {phoneVerificationState.showVerifyButton &&
+          !phoneVerificationState.isVerified && (
+            <>
+              <button
+                type="button"
+                className="btn btn-outline-primary"
+                onClick={() => handleSendOtpClick(values.phone)}
+                disabled={otpTimer > 0 || phoneVerificationState.loading}
+                style={{ whiteSpace: "nowrap" }}
+              >
+                {phoneVerificationState.loading
+                  ? "Sending..."
+                  : !isOtpSent
+                  ? "Send OTP"
+                  : otpTimer > 0
+                  ? `Resend OTP in ${otpTimer}s`
+                  : "Resend OTP"}
+              </button>
+            </>
+          )}
       </div>
 
       {phoneVerificationState.showOtpInput && (
