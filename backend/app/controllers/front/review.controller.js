@@ -11,7 +11,7 @@ exports.createReview = async (req, res) => {
       return res.status(400).json({ status: false, message: 'Name and message are required' });
     }
     
-    const checkphone = phone ? await Review.findOne({ where: { phone } }) : null;
+    const checkphone = phone ? await Review.findOne({ where: { phone, vendor_id } }) : null;
     if (checkphone) {
       return res.status(400).json({ status: false, message: 'You have already submitted a review with this phone number' });
     }

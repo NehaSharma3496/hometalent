@@ -92,36 +92,14 @@ exports.getAdminGallery = async (req, res) => {
       });
     }
 
-    // const gallery = await Gallery.findAll({
-    //   where: { 
-    //     user_id: admin_id,
-    //     status: 'approved' // Only show approved items for admin
-    //   },
-    //   order: [['sort_order', 'ASC'], ['createdAt', 'DESC']]
-    // });
-    
     const gallery = await Gallery.findAll({
-  where: {
-    user_id: admin_id,
-    status: "approved",
-    [Op.or]: [
-      { admin_remark: null }, // agar null hai to le aao
-      where(
-        // JSON se source_vendor_id nikalna
-        fn("JSON_EXTRACT", col("admin_remark"), "$.source_vendor_id"),
-        {
-          [Op.in]: Sequelize.literal(
-            "(SELECT id FROM users WHERE status = 1)"
-          )
-        }
-      )
-    ]
-  },
-  order: [
-    ["sort_order", "ASC"],
-    ["createdAt", "DESC"]
-  ]
-});
+      where: { 
+        user_id: admin_id,
+        status: 'approved' // Only show approved items for admin
+      },
+      order: [['sort_order', 'ASC'], ['createdAt', 'DESC']]
+    });
+
 
     return res.json({ 
       status: true, 
