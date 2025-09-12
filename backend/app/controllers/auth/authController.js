@@ -208,8 +208,8 @@ exports.forgotPassword = async (req, res) => {
     const message = `
   <h3>Click the link below to reset your HomeTalent password:</h3>
   <p>
-    <a href="${resetLink}" target="_blank" style="color: #1a73e8; text-decoration: none;">
-      Reset Password
+    <a class="btn-primary" href="${resetLink}" target="_blank" style="color: #1a73e8; text-decoration: none;">
+      Click Here
     </a>
   </p>
   <br/>
