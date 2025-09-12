@@ -167,6 +167,7 @@ export async function GetReport(token) {
 }
 
 export async function GetReviewCount(token, vendorId) {
+  console.log("Token vendorId",token,vendorId)
   try {
     const response = await axios.get(`${Config.base_url}vendor/rating_average/${vendorId}`, {
       headers: {

@@ -34,11 +34,14 @@ const CategoryDetail = () => {
   const fetchreviewcount = async () => {
     try {
       const res = await GetReviewCount(token, vendorId);
-      setReviewCount(res?.data);
+      setReviewCount(res?.averageRating);
+      console.log("Review Count", res )
     } catch (error) {
       console.error("Error fetching review count", error);
     }
   };
+  console.log("Review",reviewcount)
+
 
   const [activeTab, setActiveTab] = useState("review");
   const [reviewForm, setReviewForm] = useState({
@@ -414,22 +417,46 @@ const CategoryDetail = () => {
   {vendorData?.user?.owner_name}
 
   {/* Rating stars + count */}
-  {reviewcount && (
-    <div className="d-flex align-items-center" style={{ fontSize: "14px" }}>
-      {/* Stars */}
-      {[...Array(5)].map((_, i) => (
-        <i
-          key={i}
-          className={`ri-star${i < Math.round(reviewcount?.average) ? "-fill" : "-line"}`}
-          style={{ color: "#FFD700", marginLeft: "2px" }}
-        />
-      ))}
-      {/* Count */}
-      <span style={{ marginLeft: "6px", color: "#555" }}>
-        ({reviewcount?.total || 0})
-      </span>
-    </div>
-  )}
+{reviewcount && (
+  <div className="d-flex align-items-center" style={{ fontSize: "24px" }}>
+    {[...Array(5)].map((_, i) => {
+      const rating = parseFloat(reviewcount?.averageRating) || 0;
+      const fullStars = Math.floor(rating); // pura number part
+      const hasHalfStar = rating - fullStars >= 0.25 && rating - fullStars < 0.75; // half star ke liye
+      const isFullStar = rating - i >= 1; // pure star ke liye
+
+      if (isFullStar) {
+        return (
+          <i
+            key={i}
+            className="ri-star-fill"
+            style={{ color: "#FFD700", marginLeft: "2px" }}
+          />
+        );
+      } else if (i === fullStars && hasHalfStar) {
+        return (
+          <i
+            key={i}
+            className="ri-star-half-fill"
+            style={{ color: "#FFD700", marginLeft: "2px" }}
+          />
+        );
+      } else {
+        return (
+          <i
+            key={i}
+            className="ri-star-line"
+            style={{ color: "#FFD700", marginLeft: "2px" }}
+          />
+        );
+      }
+    })}
+
+    
+  </div>
+)}
+
+
 </h4>
 
 
