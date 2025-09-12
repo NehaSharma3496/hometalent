@@ -15,4 +15,5 @@ router.post('/profile-update-request', uploadMedia, vendorController.requestProf
 router.get('/profile-update-status', vendorController.getProfileUpdateStatus);
 router.post('/subscribe-package', vendorController.subscribePackage);
 router.post('/dashboard-counts', vendorController.getDashboardCounts);
+router.get('/rating_average/:vendor_id', vendorController.vendoraverageRating);
 module.exports = router;

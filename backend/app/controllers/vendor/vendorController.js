@@ -9,6 +9,7 @@ const {
   Log,
   ClientLead,
   Notification,
+  Review
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 const socketManager = require('../../socket/socketManager');
@@ -553,3 +554,30 @@ exports.getDashboardCounts = async (req, res) => {
     res.status(500).json({ status: false, msg: error.message });
   }
 };
+
+exports.vendoraverageRating = async (req, res) => {
+  try {
+    console.log(req.params.vendor_id);
+    const vendor_id = parseInt(req.params.vendor_id, 10) || parseInt(req.query.vendor_id, 10);
+    if (!vendor_id) {
+      return res.status(400).json({ status: false, msg: 'vendor_id is required' });
+    }
+    
+    const reviews = await Review.findAll({
+      where: {
+        vendor_id:req.params.vendor_id,
+      }
+    });
+
+    if (reviews.length === 0) {
+      return res.json({ status: true, averageRating: 0 });
+    }
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    const averageRating = totalRating / reviews.length;
+    return res.json({ status: true, averageRating: parseFloat(averageRating.toFixed(2)) });
+  } catch (error) {
+    return res.json({ status: false, message: 'Error calculating average rating', error: error.message });
+  }
+};
+
+
