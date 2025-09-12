@@ -2,7 +2,6 @@ const { Blog } = require('../../models');
 
 exports.createBlog = async (req, res) => {
   try {
-    console.log("and file:", req.files);
     
     const { title, short_description, long_description } = req.body;
 
