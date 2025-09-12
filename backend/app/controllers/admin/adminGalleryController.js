@@ -2,7 +2,7 @@ const { User, Gallery, VendorPackageSubscription, Package, Notification, Categor
 const fs = require('fs');
 const path = require('path');
 const socketManager = require('../../socket/socketManager');
-const { Op } = require('sequelize');
+const { Op, fn, col, where, literal } = require('sequelize');
 
 // Upload admin gallery files (no approval needed)
 exports.uploadAdminGalleryFiles = async (req, res) => {
@@ -86,27 +86,50 @@ exports.getAdminGallery = async (req, res) => {
     const { admin_id } = req.query;
     
     if (!admin_id) {
-      return res.status(400).json({ 
+      return res.json({ 
         status: false, 
         msg: 'admin_id is required' 
       });
     }
 
+    // const gallery = await Gallery.findAll({
+    //   where: { 
+    //     user_id: admin_id,
+    //     status: 'approved' // Only show approved items for admin
+    //   },
+    //   order: [['sort_order', 'ASC'], ['createdAt', 'DESC']]
+    // });
+    
     const gallery = await Gallery.findAll({
-      where: { 
-        user_id: admin_id,
-        status: 'approved' // Only show approved items for admin
-      },
-      order: [['sort_order', 'ASC'], ['createdAt', 'DESC']]
-    });
+  where: {
+    user_id: admin_id,
+    status: "approved",
+    [Op.or]: [
+      { admin_remark: null }, // agar null hai to le aao
+      where(
+        // JSON se source_vendor_id nikalna
+        fn("JSON_EXTRACT", col("admin_remark"), "$.source_vendor_id"),
+        {
+          [Op.in]: Sequelize.literal(
+            "(SELECT id FROM users WHERE status = 1)"
+          )
+        }
+      )
+    ]
+  },
+  order: [
+    ["sort_order", "ASC"],
+    ["createdAt", "DESC"]
+  ]
+});
 
-    res.json({ 
+    return res.json({ 
       status: true, 
       data: gallery 
     });
 
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
