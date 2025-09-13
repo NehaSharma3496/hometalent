@@ -8,6 +8,9 @@ const socketManager = require('../../socket/socketManager');
 const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID ;
 const CASHFREE_SECRET_KEY = process.env.CASHFREE_SECRET_KEY;
 const CASHFREE_API_ENDPOINT = 'https://sandbox.cashfree.com/pg';
+const CASHFREE_API_ENDPOINT_TEST = 'https://sandbox.cashfree.com/pg';
+const CASHFREE_API_ENDPOINT_LIVE = 'https://api.cashfree.com/pg';
+
 
 // Generate unique order ID 
 function generateOrderId() {
@@ -135,7 +138,7 @@ exports.createPaymentOrder = async (req, res) => {
     };
 
     // Create payment session with Cashfree
-    const cashfreeResponse = await fetch(`${CASHFREE_API_ENDPOINT}/links`, {
+    const cashfreeResponse = await fetch(`${CASHFREE_API_ENDPOINT_TEST}/links`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -469,7 +472,7 @@ exports.getPaymentStatus = async (req, res) => {
 
     // Query Cashfree for payment status
     // const cashfreeResponse = await fetch(`${CASHFREE_API_ENDPOINT}/orders/${order_id}`, {
-    const cashfreeResponse = await fetch(`${CASHFREE_API_ENDPOINT}/links/${order_id}/orders`, {
+    const cashfreeResponse = await fetch(`${CASHFREE_API_ENDPOINT_TEST}/links/${order_id}/orders`, {
       method: 'GET',
       headers: {
         'x-client-id': CASHFREE_APP_ID,
@@ -581,7 +584,7 @@ exports.refundPayment = async (req, res) => {
       refund_note: refund_note || 'Refund processed'
     };
 
-    const cashfreeResponse = await fetch(`${CASHFREE_API_ENDPOINT}/orders/${order_id}/refunds`, {
+    const cashfreeResponse = await fetch(`${CASHFREE_API_ENDPOINT_TEST}/orders/${order_id}/refunds`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
