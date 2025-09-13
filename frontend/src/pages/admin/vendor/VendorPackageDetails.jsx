@@ -239,14 +239,20 @@ export default function VendorPackageDetails() {
 
     { name: "Amount", selector: (row) => `₹${row?.Package?.price || "0"}` },
     { name: "Payment Status", selector: (row) => row?.payment_status || "N/A" },
-    {
-      name: "Status",
-      cell: (row) => (
-        <span>
-          {row.payment_status === "completed" ? "Active" : "Inactive"}
-        </span>
-      ),
-    },
+ {
+  name: "Status",
+  cell: (row) => {
+    if (row.payment_status !== "completed") return null; // pending/inactive skip
+
+    return new Date(row.end_date) < new Date() ? (
+      <span style={{ color: "red" }}>Expired</span>
+    ) : (
+      <span style={{ color: "green" }}>Active</span>
+    );
+  },
+},
+
+
  {
       name: "Payment Date",
       selector: (row) => (row?.createdAt ? formatDate(row.createdAt) : "-"),
@@ -320,13 +326,13 @@ export default function VendorPackageDetails() {
     },
   ];
 
-  const filteredData = searchText
-    ? allPackagesForSearch
-        .filter((pkg) =>
-          pkg?.Package?.name?.toLowerCase().includes(searchText.toLowerCase())
-        )
-        .filter((pkg) => pkg.payment_status === "completed")
-    : paginatedPackages.filter((pkg) => pkg.payment_status === "completed");
+ const filteredData = searchText
+  ? allPackagesForSearch
+      .filter((pkg) =>
+        pkg?.Package?.name?.toLowerCase().includes(searchText.toLowerCase())
+      )
+      .filter((pkg) => pkg.payment_status === "completed")
+  : paginatedPackages.filter((pkg) => pkg.payment_status === "completed");
 
   useEffect(() => {
     if (token && vendorId) {

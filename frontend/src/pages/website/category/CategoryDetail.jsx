@@ -10,6 +10,7 @@ import {
   GetReviewCount,
 } from "../../../Services/webService/Web";
 import { GetGallery, GetVendorDetails } from "../../../Services/vendor/Vendor";
+import { GetActiveVendors } from "../../../Services/admin/Admin";
 import Swal from "sweetalert2";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
