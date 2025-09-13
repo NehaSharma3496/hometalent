@@ -29,7 +29,7 @@ exports.listAllVendors = async (req, res) => {
 
     const { count, rows: vendors } = await User.findAndCountAll({
       where: { role_id: 2 },
-      order: [["createdAt", "DESC"]],
+      order: [["createdAt", "DESC"]], 
       raw: true,
       limit,
       offset,
