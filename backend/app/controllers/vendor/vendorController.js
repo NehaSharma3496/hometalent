@@ -458,6 +458,7 @@ exports.getPackageHistory = async (req, res) => {
     const where = { vendor_id };
     if (payment_status) where.payment_status = payment_status;
     if (package_id) where.package_id = package_id;
+    where.payment_status = { [Op.eq]: 'completed' }; // exclude pending
     const { count, rows } = await VendorPackageSubscription.findAndCountAll({
       where,
       include: [
