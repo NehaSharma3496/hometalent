@@ -369,13 +369,13 @@ const Registration = () => {
   const fields = [
     {
       name: "ownerName",
-      label: "Owner Name*",
+      label: "Profile Name*",
       type: "text",
       colClass: "col-md-4 mb-3",
     },
     {
       name: "profileName",
-      label: "Profile Name",
+      label: "Owner Name",
       type: "text",
       colClass: "col-md-4 mb-3",
     },

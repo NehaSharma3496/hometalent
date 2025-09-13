@@ -29,13 +29,13 @@ export default function UpdateProfile() {
   const fields = [
     {
       name: "owner_name",
-      label: "Owner Name",
+      label: "Profile Name",
       type: "text",
       colClass: "col-md-4 ",
     },
     {
       name: "profile_name",
-      label: "Profile Name",
+      label: "Owner Name",
       type: "text",
       colClass: "col-md-4 ",
     },
