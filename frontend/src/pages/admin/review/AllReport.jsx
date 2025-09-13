@@ -41,24 +41,24 @@ export default function AllReport() {
     },
     {
       name: "Name",
-      selector: (row) => row.name || "N/A",
+      selector: (row) => row?.name || "N/A",
       width: "150px",
 
     },
     {
       name: "Phone",
-      selector: (row) => row.phone || "N/A",
+      selector: (row) => row?.phone || "N/A",
       width: "150px",
 
     },
     {
       name: "Reason",
-      selector: (row) => row.reason || "N/A",
+      selector: (row) => row?.reason || "N/A",
       width: "300px",
     },
     {
       name: "Vendor Name",
-      selector: (row) => row.User.owner_name || "N/A",
+      selector: (row) => row?.User?.owner_name || "N/A",
       width: "300px",
     },
     {
@@ -91,7 +91,7 @@ export default function AllReport() {
         </div>
         <Modal show={showModal} onHide={() => setShowModal(false)}>
           <Modal.Header closeButton>
-            <Modal.Title>Full Query</Modal.Title>
+            <Modal.Title>Full Message</Modal.Title>
           </Modal.Header>
           <Modal.Body style={{
             maxHeight: "400px",

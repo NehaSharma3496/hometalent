@@ -90,7 +90,7 @@ const Header = () => {
                               <li className="single-list">
                                 <Link
                                   to="/"
-                                  className={`single ${
+                                  className={`single  ${
                                     location.pathname === "/"
                                       ? "link-active"
                                       : ""

@@ -99,27 +99,27 @@ export default function AllReviews() {
     },
     {
       name: "Name",
-      selector: (row) => row.name || "N/A",
+      selector: (row) => row?.name || "N/A",
     },
  {
       name: "Email",
-      selector: (row) => row.email || "N/A",
+      selector: (row) => row?.email || "N/A",
       width: "250px",
 
     },
     {
       name: "Phone",
-      selector: (row) => row.phone || "N/A",
+      selector: (row) => row?.phone || "N/A",
       width: "150px",
 
     },
     {
       name: "Ratings",
-      selector: (row) => row.rating|| "N/A",
+      selector: (row) => row?.rating|| "N/A",
     },
        {
       name: "Vendor Name",
-      selector: (row) => row.User?.owner_name|| "N/A",
+      selector: (row) => row?.User?.owner_name|| "N/A",
     },
     {
       name: "Review",
@@ -247,7 +247,7 @@ export default function AllReviews() {
         </div>
         <Modal show={showModal} onHide={() => setShowModal(false)}>
           <Modal.Header closeButton>
-            <Modal.Title>Full Query</Modal.Title>
+            <Modal.Title>Full Message</Modal.Title>
           </Modal.Header>
           <Modal.Body style={{
             maxHeight: "400px",
