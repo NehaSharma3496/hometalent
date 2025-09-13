@@ -6933,3 +6933,16 @@ div#searchs ul li:not(:last-child) {
   padding-left: 0 !important;
 }
 
+.logo-circle {
+  width: 40px;
+  height: 40px;
+  background-color: #007bff; /* अपनी पसंद का रंग */
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+}
+

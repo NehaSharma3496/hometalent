@@ -312,7 +312,7 @@ useEffect(() => {
                         src={
                           role === "2" && profileImage
                             ? profileImage
-                            : currentRole?.defaultImage
+                            :"https://cdn-icons-png.flaticon.com/512/149/149071.png"
                         }
                         className="user-img"
                         alt="Profile"
