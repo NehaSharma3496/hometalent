@@ -158,14 +158,24 @@ export default function MyPackages() {
       selector: (row) => (row?.createdAt ? formatDate(row.createdAt) : "-"),
     },
     {
-      name: "Status",
-      selector: (row) => row.status,
-      cell: (row) => (
-        <span>
-          {row.payment_status === "completed" ? "Active" : "Inactive"}
-        </span>
-      ),
-    },
+  name: "Status",
+  selector: (row) => row.status,
+  cell: (row) => {
+    if (row.payment_status !== "completed") {
+      return <span style={{ color: "gray" }}>Inactive</span>;
+    }
+
+    const today = new Date();
+    const endDate = new Date(row.end_date);
+
+    if (endDate >= today) {
+      return <span style={{ color: "green" }}>Active</span>;
+    } else {
+      return <span style={{ color: "red" }}>Expired</span>;
+    }
+  },
+},
+
     {
       name: "Extended Days",
       selector: (row) => extensionMap[row.id] || "—",
