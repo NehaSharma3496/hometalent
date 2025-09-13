@@ -3,7 +3,7 @@ const { commonEmail } = require("../../helper/commonEmail");
 const fs = require('fs');
 const path = require('path');
 const socketManager = require('../../socket/socketManager');
-
+const { Op, fn, col, where, literal } = require('sequelize');
 // Upload gallery files (vendor)
 exports.uploadGalleryFiles = async (req, res) => {
   try {
@@ -105,25 +105,44 @@ exports.getUserGallery = async (req, res) => {
       whereClause.status = status;
     }
 
-    const gallery = await Gallery.findAll({
-      where: whereClause,
-      order: [['sort_order', 'ASC'], ['createdAt', 'DESC']],
-      include: [
-        {
-          model: User,
-          as: 'admin',
-          attributes: ['id', 'owner_name', 'profile_name']
-        }
-      ]
-    });
+   const gallery = await Gallery.findAll({
+     where: {
+       ...whereClause,
+       [Op.or]: [
+         { admin_remarks: null }, // NULL remarks
+         // Plain string (not JSON)
+         where(fn("JSON_VALID", col("admin_remarks")), 0),
+         // JSON but only active vendor
+         where(
+           literal(
+             "CAST(JSON_UNQUOTE(JSON_EXTRACT(`admin_remarks`, '$.source_vendor_id')) AS UNSIGNED)"
+           ),
+           {
+             [Op.in]: literal("(SELECT id FROM users WHERE status = 1)")
+           }
+         )
+       ]
+     },
+     order: [
+       ["sort_order", "ASC"],
+       ["createdAt", "DESC"]
+     ],
+     include: [
+       {
+         model: User,
+         as: "admin",
+         attributes: ["id", "owner_name", "profile_name"]
+       }
+     ]
+   });
 
-    res.json({ 
+    return res.json({ 
       status: true, 
       data: gallery 
     });
 
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 

@@ -64,7 +64,7 @@ exports.requestProfileUpdate = async (req, res) => {
     // Only allow certain fields to be updated
     const allowedFields = [
       'owner_name', 'profile_name', 'state_id', 'city_id', 'pin_code',
-      'phone', 'email', 'price_range', 'short_description', 'category_id',
+      'phone', 'email', 'price_range', 'short_description', 'category_id', 'category_name',
       'experience_since', 'long_description', 'facebook_link', 'instagram_link',
       'twitter_link', 'linkedin_link', 'youtube_link', 'website_link', 'image'
     ];
