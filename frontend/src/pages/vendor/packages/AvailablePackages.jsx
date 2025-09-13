@@ -298,27 +298,34 @@ const VendorPackages = () => {
       width: "150px",
     },
 
-    {
-      name: "Status",
-      cell: (row) => {
-        const isSubscribed = subscribedPackageIds.some(
-          (item) =>
-            item?.package_id === row.id && item?.payment_status === "completed"
-        );
-        return (
-          <div
-            className="d-flex justify-content-center align-items-center"
-            style={{ height: "40px", width: "100%" }}
-          >
-            <span className={`fs-6 ${isSubscribed ? "badge bg-success" : "-"}`}>
-              {isSubscribed ? "Active" : "-"}
-            </span>
-          </div>
-        );
-      },
-      sortable: false,
-      width: "155px",
-    },
+   {
+  name: "Status",
+  cell: (row) => {
+    const today = new Date();
+
+    const isSubscribed = subscribedPackageIds.some(
+      (item) =>
+        item?.package_id === row.id &&
+        item?.payment_status === "completed" &&
+        new Date(item?.end_date) >= today
+    );
+
+    return (
+    <div
+  className="d-flex justify-content-center align-items-center"
+  style={{ height: "40px", width: "100%" }}
+>
+  <span className="fs-6">
+    {isSubscribed ? "Active" : "-"}
+  </span>
+</div>
+
+    );
+  },
+  sortable: false,
+  width: "155px",
+}
+
   ];
 
   return (
