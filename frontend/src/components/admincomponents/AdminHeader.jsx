@@ -136,6 +136,27 @@ export default function AdminHeader() {
   const displayedNotifications =
     notifications.length > 0 ? notifications : storedNotifications;
 
+
+useEffect(() => {
+  if (window.innerWidth > 576) return; 
+  const links = document.querySelectorAll(".sidebar-link");
+
+  const handleClick = () => {
+    document.body.classList.add("sidebar-toggle");
+  };
+
+  links.forEach(link => {
+    link.addEventListener("click", handleClick);
+  });
+
+  return () => {
+    links.forEach(link => {
+      link.removeEventListener("click", handleClick);
+    });
+  };
+}, []);
+
+
   return (
     <>
       <header className="header">
@@ -360,7 +381,7 @@ export default function AdminHeader() {
                   <ul className="sub-menu dropdown-menu">
                     {item.children.map((child, cIdx) => (
                       <li key={cIdx}>
-                        <Link to={child.link}>
+                        <Link to={child.link} className="sidebar-link">
                           <i className={child.icon}></i>
                           <span>{child.label}</span>
                         </Link>
@@ -369,7 +390,7 @@ export default function AdminHeader() {
                   </ul>
                 </>
               ) : (
-                <Link to={item.link}>
+                <Link to={item.link} className="sidebar-link">
                   <i className={item.icon}></i>
                   <span>{item.label}</span>
                 </Link>
