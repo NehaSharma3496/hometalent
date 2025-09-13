@@ -75,7 +75,7 @@ const CategoryDetail = () => {
         setIsReviewOtpSent(true);
         setReviewServerOtp(res.otp);
         setIsReviewOtpVerified(false);
-        Swal.fire("Success", "OTP sent to your mobile", "success");
+        Swal.fire("Success", "Verification code sent via Cegano Technology Enter the OTP to continue.", "success");
       } else if (res?.msg?.toLowerCase().includes("already verify")) {
         setIsReviewOtpVerified(true);
         setIsReviewOtpSent(false);
@@ -99,7 +99,7 @@ const CategoryDetail = () => {
         setIsReportOtpSent(true);
         setReportServerOtp(res.otp);
         setIsReportOtpVerified(false);
-        Swal.fire("Success", "OTP sent to your mobile", "success");
+        Swal.fire("Success", "Verification code sent via Cegano Technology Enter the OTP to continue.", "success");
       } else if (res?.msg?.toLowerCase().includes("already verify")) {
         setIsReportOtpVerified(true);
         setIsReportOtpSent(false);
