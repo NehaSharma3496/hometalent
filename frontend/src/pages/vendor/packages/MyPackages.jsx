@@ -211,7 +211,7 @@ export default function MyPackages() {
           "Payment Date": pkg?.createdAt ? formatDate(pkg.createdAt) : "N/A",
           Status: new Date(pkg.end_date) >= today ? "Active" : "Expired",
           "Extended Days": extensionMap[pkg?.id] || "N/A",
-          Date: new Date(pkg.createdAt).toLocaleDateString() || "N/A",
+            Date: new Date(pkg.createdAt).toLocaleDateString() || "N/A",
         }));
 
       const ws = XLSX.utils.json_to_sheet(exportData);
