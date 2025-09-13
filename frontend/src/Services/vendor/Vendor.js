@@ -317,12 +317,13 @@ export const subscribeToPackage = async (payload, token) => {
 export const getVendorPackageHistory = async (
   token,
   vendorId,
+   payment_status,
   page = 1,
   limit = 10
 ) => {
   try {
     const response = await axios.get(
-      `${Config.base_url}vendor/package-history?vendor_id=${vendorId}&page=${page}&limit=${limit}`,
+      `${Config.base_url}vendor/package-history?vendor_id=${vendorId}&page=${page}&limit=${limit}& payment_status=${ payment_status}`,
       {
         headers: {
           Authorization: token,

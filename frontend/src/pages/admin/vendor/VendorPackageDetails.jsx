@@ -29,6 +29,7 @@ export default function VendorPackageDetails() {
   const token = localStorage.getItem("token");
   const location = useLocation();
   const vendorId = location.state?.vendorId;
+  const payment_status="completed";
 
   const formatDate = (dateStr) =>
     new Date(dateStr).toLocaleDateString("en-IN", {
@@ -43,7 +44,7 @@ export default function VendorPackageDetails() {
   const fetchPaginatedPackages = async (page, limit) => {
     setLoading(true);
     try {
-      const res = await getVendorPackageHistory(token, vendorId, page, limit);
+      const res = await getVendorPackageHistory(token, vendorId,  payment_status,page, limit);
       if (res?.data && res?.pagination) {
         const enriched = res.data.map((pkg) => ({
           ...pkg,
