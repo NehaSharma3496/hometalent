@@ -560,7 +560,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="news-area section-padding2 mt-4" ref={blogSectionRef}>
+      <section className="news-area section-padding2" ref={blogSectionRef}>
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-7">
