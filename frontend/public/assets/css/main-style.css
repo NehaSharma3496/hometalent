@@ -17198,7 +17198,7 @@ input[type="number"] {
 }
 
 .card {
-  /* padding: 24px 24px 24px 24px; */
+  padding: 24px 24px 24px 24px;
   border-radius: 6px;
   border: 1px solid var(--primary-border);
   background: var(--white);
