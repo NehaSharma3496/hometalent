@@ -27,6 +27,8 @@ const CategoryDetail = () => {
   const [cityName, setCityName] = useState("");
   const imageSectionRef = React.useRef(null);
   const [vendorData, setVendorData] = useState(null);
+  const [vendorNotFound, setVendorNotFound] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const token = localStorage.getItem("token");
 
   const [reviewcount, setReviewCount] = useState("");
@@ -234,20 +236,56 @@ const CategoryDetail = () => {
 
   const fetchVendorDetails = async () => {
     try {
+      setIsLoading(true);
       const token = localStorage.getItem("token");
       const res = await GetVendorDetails(token, vendorId);
-      setVendorData(res?.data);
+      
+      // Check if vendor exists and is active
+      if (res?.data && res?.data?.user) {
+        // Check vendor status - adjust these conditions based on your API response
+        const isVendorActive = res.data.user.is_active === 1 || 
+                              res.data.user.is_active === true || 
+                              res.data.user.status === 'active' ||
+                              res.data.user.status === 1 ||
+                              res.data.user.active === 1 ||
+                              res.data.user.active === true;
+
+        if (isVendorActive) {
+          setVendorData(res.data);
+          setVendorNotFound(false);
+        } else {
+          setVendorData(null);
+          setVendorNotFound(true);
+        }
+      } else {
+        setVendorData(null);
+        setVendorNotFound(true);
+      }
     } catch (error) {
       console.error("Vendor details fetch error", error);
+      setVendorData(null);
+      setVendorNotFound(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   console.log("Vendor data ", vendorData);
 
   useEffect(() => {
-    fetchVendorDetails();
-    fetchreviewcount();
+    if (vendorId) {
+      fetchVendorDetails();
+    } else {
+      setVendorNotFound(true);
+      setIsLoading(false);
+    }
   }, [vendorId]);
+
+  useEffect(() => {
+    if (vendorData && !vendorNotFound) {
+      fetchreviewcount();
+    }
+  }, [vendorData, vendorNotFound]);
 
   console.log("Vendor Data:", vendorData);
 
@@ -288,7 +326,6 @@ const CategoryDetail = () => {
     if (
       !leadData.name ||
       !leadData.phone ||
-      // !leadData.email ||
       !leadData.query
     ) {
       Swal.fire({
@@ -340,7 +377,7 @@ const CategoryDetail = () => {
 
   const breadcrumbLinks = [
     { label: "Home", to: "/" },
-    { label: vendorData?.user?.category_name, to: "#" },
+    { label: vendorData?.user?.category_name || "Category", to: "#" },
   ];
 
   useEffect(() => {
@@ -356,8 +393,8 @@ const CategoryDetail = () => {
       }
     };
 
-    if (vendorId) fetchGalleryImages();
-  }, [vendorId]);
+    if (vendorId && !vendorNotFound) fetchGalleryImages();
+  }, [vendorId, vendorNotFound]);
 
   const imageItems = galleryImages.filter((item) => item.file_type === "image");
   const videoItems = galleryImages.filter((item) => item.file_type === "video");
@@ -384,6 +421,76 @@ const CategoryDetail = () => {
     (item) =>
       vendorData?.user?.[item.key] && vendorData.user[item.key].trim() !== ""
   );
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div>
+        <Breadcrumbs
+          title="Loading..."
+          links={[{ label: "Home", to: "/" }, { label: "Loading...", to: "#" }]}
+        />
+        <section className="tour-details-section section-padding">
+          <div className="container">
+            <div className="row justify-content-center">
+              <div className="col-md-6 text-center">
+                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "400px" }}>
+                  <div>
+                    <div className="spinner-border text-primary mb-3" role="status" style={{ width: "3rem", height: "3rem" }}>
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <h4 className="text-muted">Loading vendor details...</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  // Show "No vendor found" message if vendor doesn't exist or is inactive
+  if (vendorNotFound || !vendorData) {
+    return (
+      <div>
+        <Breadcrumbs
+          title="Vendor Not Found"
+          links={[{ label: "Home", to: "/" }, { label: "Vendor Not Found", to: "#" }]}
+        />
+        <section className="tour-details-section section-padding">
+          <div className="container">
+            <div className="row justify-content-center">
+              <div className="col-md-8 col-lg-6">
+                <div className="text-center" style={{ minHeight: "500px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                  <div className="mb-4">
+                    <i className="ri-error-warning-line" style={{ fontSize: "120px", color: "#ff6b6b" }}></i>
+                  </div>
+                  <h2 className="text-danger mb-3 fw-bold">Vendor Not Found</h2>
+                  <p className="text-muted mb-4 lead">
+                    Sorry, the vendor you're looking for is not available or has been deactivated.
+                  </p>
+                  <div className="d-flex gap-3 justify-content-center">
+                    <a href="/" className="btn btn-primary btn-lg px-4">
+                      <i className="ri-home-line me-2"></i>
+                      Back to Home
+                    </a>
+                    <button 
+                      onClick={() => window.history.back()} 
+                      className="btn btn-outline-secondary btn-lg px-4"
+                    >
+                      <i className="ri-arrow-left-line me-2"></i>
+                      Go Back
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -421,38 +528,36 @@ const CategoryDetail = () => {
                           </div>
                         )}
 
-                      <h4 className="title text-capitalize mt-4 d-flex align-items-center gap-60">
-  {vendorData?.user?.owner_name}
+                        <h4 className="title text-capitalize mt-4 d-flex align-items-center gap-60">
+                          {vendorData?.user?.owner_name}
 
-  {reviewcount && (
-    <div
-      className="d-flex align-items-center justify-content-center"
-      style={{
-        backgroundColor: "#28a745", 
-        // borderRadius: "6px",
-        padding: "4px 10px",
-        marginLeft: "220px",
-        fontSize: "14px",
-        color: "#fff",
-        fontWeight: "600",
-      }}
-    >
-        <i
-    className="ri-star-fill"
-    style={{
-      color: "#FFD700", // Golden star
-      fontSize: "18px",
-      marginRight: "6px",
-    }}
-  />
-      {parseFloat(reviewcount).toFixed(1)}{" "}
-      
-      <span style={{ fontWeight: "400", marginLeft: "2px" }}>
-      </span>
-    </div>
-  )}
-</h4>
-
+                          {reviewcount && (
+                            <div
+                              className="d-flex align-items-center justify-content-center"
+                              style={{
+                                backgroundColor: "#2278b6",
+                                padding: "4px 10px",
+                                marginLeft: "220px",
+                                fontSize: "14px",
+                                color: "#fff",
+                                fontWeight: "600",
+                              }}
+                            >
+                              <i
+                                className="ri-star-fill"
+                                style={{
+                                  color: "#FFD700",
+                                  fontSize: "18px",
+                                  marginRight: "6px",
+                                }}
+                              />
+                              {parseFloat(reviewcount).toFixed(1)}{" "}
+                              <span
+                                style={{ fontWeight: "400", marginLeft: "2px" }}
+                              ></span>
+                            </div>
+                          )}
+                        </h4>
 
                         <div className="d-flex flex-wrap align-items-center gap-20 mt-8">
                           <div className="location d-flex align-items-center ">
@@ -475,11 +580,11 @@ const CategoryDetail = () => {
                       </div>
                     </div>
 
-                    <div className="tour-details-content mt-15">
+                    {/* <div className="tour-details-content mt-15">
                       <p className="detail-text">
                         {vendorData?.user?.short_description}
                       </p>
-                    </div>
+                    </div> */}
 
                     <div className="price-review ">
                       <div className="d-flex align-items-end">
@@ -711,7 +816,7 @@ const CategoryDetail = () => {
                     <div className="date-travel-card ">
                       <h4 className="heading-card">Get In Touch</h4>
 
-                      <div className="date-time-dropdown d-flex align-items-center gap  -2">
+                      <div className="date-time-dropdown d-flex align-items-center gap-2">
                         <i className="ri-user-line fs-8" />
                         <input
                           type="text"
@@ -879,7 +984,7 @@ const CategoryDetail = () => {
                             <i className="ri-user-line fs-8" />
                             <input
                               type="text"
-                              placeholder="Name"
+                              placeholder="Enter your name"
                               value={reviewForm.name}
                               className="form-control form-control-m border-0 shadow-none"
                               onChange={(e) => {
@@ -899,7 +1004,7 @@ const CategoryDetail = () => {
                             <i className="ri-mail-line fs-8" />
                             <input
                               type="email"
-                              placeholder="Email"
+                              placeholder="Enter your email"
                               value={reviewForm.email}
                               className="form-control form-control-m border-0 shadow-none"
                               onChange={(e) =>
@@ -916,7 +1021,7 @@ const CategoryDetail = () => {
                             <i className="ri-phone-line fs-8" />
                             <input
                               type="text"
-                              placeholder="Phone"
+                              placeholder="Enter your mobile number"
                               value={reviewForm.phone}
                               maxLength={10}
                               className="form-control form-control-m border-0 shadow-none"
@@ -928,6 +1033,7 @@ const CategoryDetail = () => {
                                 });
                               }}
                               required
+                              disabled={isReviewOtpVerified}
                             />
                           </div>
 
@@ -967,7 +1073,7 @@ const CategoryDetail = () => {
                           <div className="date-time-dropdown d-flex align-items-start gap-2 mt-3">
                             <i className="ri-chat-3-line fs-8 mt-1" />
                             <textarea
-                              placeholder="Write your review"
+                              placeholder="Enter your message or query"
                               value={reviewForm.message}
                               className="form-control form-control-m border-0 shadow-none"
                               onChange={(e) =>
@@ -990,17 +1096,15 @@ const CategoryDetail = () => {
 
                       {activeTab === "report" && (
                         <form onSubmit={handleSubmitReport}>
-                          {/* Name */}
                           <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
                             <i className="ri-user-line fs-8" />
                             <input
                               type="text"
-                              placeholder="Name"
+                              placeholder="Enter your name"
                               value={reportForm.name}
                               className="form-control form-control-m border-0 shadow-none"
                               onChange={(e) => {
                                 const value = e.target.value;
-                                // Sirf alphabets aur space allow
                                 if (/^[a-zA-Z\s]*$/.test(value)) {
                                   setReportForm({
                                     ...reportForm,
@@ -1012,29 +1116,26 @@ const CategoryDetail = () => {
                             />
                           </div>
 
-                          {/* Phone */}
                           <div className="date-time-dropdown d-flex align-items-center gap-2 mt-2">
                             <i className="ri-phone-line fs-8" />
                             <input
                               type="text"
-                              placeholder="Phone"
+                              placeholder="Enter your mobile number"
                               value={reportForm.phone}
                               maxLength={10}
                               className="form-control form-control-m border-0 shadow-none"
                               onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, ""); // sirf digits
+                                const value = e.target.value.replace(/\D/g, "");
                                 setReportForm({
                                   ...reportForm,
                                   phone: value,
                                 });
                               }}
                               required
+                              disabled={isReportOtpVerified}
                             />
                           </div>
 
-                          {/* OTP Section */}
-
-                          {/* OTP Section */}
                           <div className="mt-3">
                             {isReportOtpVerified ? (
                               <p className="text-success fw-bold">
@@ -1044,7 +1145,7 @@ const CategoryDetail = () => {
                               <button
                                 type="button"
                                 className="btn btn-outline-primary w-100"
-                                onClick={sendReportOtp} // function defined separately
+                                onClick={sendReportOtp}
                               >
                                 Send OTP
                               </button>
@@ -1068,7 +1169,6 @@ const CategoryDetail = () => {
                             )}
                           </div>
 
-                          {/* Issue Dropdown */}
                           <div className="mt-3">
                             <select
                               value={reportForm.reason}
@@ -1107,7 +1207,6 @@ const CategoryDetail = () => {
                             <button
                               type="submit"
                               className="send-btn w-100"
-                              // disabled={!isOtpVerified} // ✅ sirf tab active jab OTP verified ya already verified ho
                             >
                               Submit Report
                             </button>

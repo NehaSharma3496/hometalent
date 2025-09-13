@@ -51,11 +51,14 @@ const ForgotPassword = () => {
           <div className="col-xl-5 col-lg-6 col-md-8 col-sm-10">
             <div className="login-card">
               <div className="logo mb-40 text-center">
-                <img
-                  src="../assets/images/logo/logo.png"
-                  alt="logo"
-                  className="changeLogo w-25"
-                />
+                <Link to="/">
+                  <img
+                    src="../assets/images//logo/logo.png"
+                    width="100"
+                    alt="logo"
+                    className="changeLogo"
+                  />
+                </Link>
               </div>
               <h4 className="text-center mb-4">Forgot Password</h4>
               <Formik
@@ -65,7 +68,9 @@ const ForgotPassword = () => {
               >
                 <Form>
                   <div className="form-group mb-5">
-                    <label className="mb-3" htmlFor="email">Email</label>
+                    <label className="mb-3" htmlFor="email">
+                      Email
+                    </label>
                     <Field
                       type="email"
                       name="email"

@@ -385,12 +385,12 @@ export default function AddVendor() {
       type: "text",
       colClass: "col-md-4",
     },
-    {
-      name: "shortDesc",
-      label: "Short Description",
-      type: "text",
-      colClass: "col-md-12",
-    },
+    // {
+    //   name: "shortDesc",
+    //   label: "Short Description",
+    //   type: "text",
+    //   colClass: "col-md-12",
+    // },
     {
       name: "longDesc",
       label: "Full Description*",

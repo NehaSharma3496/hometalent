@@ -104,12 +104,12 @@ export default function UpdateVendor() {
       type: "text",
       colClass: "col-md-4 mb-3",
     },
-    {
-      name: "short_description",
-      label: "Short Description",
-      type: "text",
-      colClass: "col-12 mb-3",
-    },
+    // {
+    //   name: "short_description",
+    //   label: "Short Description",
+    //   type: "text",
+    //   colClass: "col-12 mb-3",
+    // },
     {
       name: "long_description",
       label: "Long Description",

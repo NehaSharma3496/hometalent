@@ -447,12 +447,12 @@ const Registration = () => {
       type: "text",
       colClass: "col-md-4 mb-3",
     },
-    {
-      name: "shortDesc",
-      label: "Short Description",
-      type: "text",
-      colClass: "col-12 mb-3",
-    },
+    // {
+    //   name: "shortDesc",
+    //   label: "Short Description",
+    //   type: "text",
+    //   colClass: "col-12 mb-3",
+    // },
     {
       name: "longDesc",
       label: "Large Description*",
@@ -508,7 +508,7 @@ const Registration = () => {
       label: (
         <>
           I accept{" "}
-          <Link to="/termscondition" target="_self" rel="noopener noreferrer">
+          <Link to="/termscondition" target="_blank" rel="noopener noreferrer">
             Terms & Conditions
           </Link>
           *

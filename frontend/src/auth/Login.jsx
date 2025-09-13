@@ -86,11 +86,14 @@ const Login = () => {
           <div className="col-xl-5 col-lg-6 col-md-8 col-sm-10">
             <div className="login-card">
               <div className="logo mb-40 text-center">
-                <img
-                  src="../assets/images/logo/logo.png"
-                  alt="logo"
-                  className="changeLogo w-25"
-                />
+                <Link to="/">
+                  <img
+                    src="../assets/images//logo/logo.png"
+                    width="100"
+                    alt="logo"
+                    className="changeLogo"
+                  />
+                </Link>
               </div>
 
               <Formik

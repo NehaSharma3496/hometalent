@@ -30,7 +30,6 @@ export default function Allvendors() {
   // const [vendorPackageStatus, setVendorPackageStatus] = useState({});
   const [vendorPackageHistory, setVendorPackageHistory] = useState({});
 
-
   const fetchVendors = async (page, limit) => {
     setLoading(true);
     try {
@@ -87,7 +86,9 @@ export default function Allvendors() {
     try {
       const token = localStorage.getItem("token");
       const res = await showPackage(token, 1, 100);
-      const activePkgs = (res?.data || []).filter((p) => Number(p.status) === 1);
+      const activePkgs = (res?.data || []).filter(
+        (p) => Number(p.status) === 1
+      );
 
       setPkgOptions(activePkgs);
       setAssignVendorId(vendorId);
@@ -101,7 +102,8 @@ export default function Allvendors() {
           const now = new Date();
           const start = new Date(pkg.start_date);
           const end = new Date(pkg.end_date);
-          const isActive = pkg.payment_status === "completed" && now >= start && now <= end;
+          const isActive =
+            pkg.payment_status === "completed" && now >= start && now <= end;
           statusObj[pkg.package_id] = isActive ? "Active" : "-";
         });
       }
@@ -112,7 +114,6 @@ export default function Allvendors() {
       Swal.fire("Error", "Failed to load packages or history", "error");
     }
   };
-
 
   const submitAssignPackage = async () => {
     try {
@@ -167,10 +168,8 @@ export default function Allvendors() {
         res.data.forEach((pkg) => {
           const start = new Date(pkg.start_date);
           const end = new Date(pkg.end_date);
-          const isActive =
-            pkg.payment_status === "completed" 
+          const isActive = pkg.payment_status === "completed";
 
-          
           historyObj[pkg.package_id] = isActive ? "Active" : "Inactive";
         });
 
@@ -193,7 +192,6 @@ export default function Allvendors() {
     }
   };
 
-
   useEffect(() => {
     vendors.forEach((vendor) => {
       fetchVendorPackageHistory(vendor.id);
@@ -202,18 +200,18 @@ export default function Allvendors() {
 
   const filteredVendors = searchText
     ? allVendors.filter((v) => {
-      const lowerSearch = searchText.toLowerCase();
-      return (
-        v.owner_name?.toLowerCase().includes(lowerSearch) ||
-        v.email?.toLowerCase().includes(lowerSearch) ||
-        v.price_range.toLowerCase().includes(lowerSearch) ||
-        v.experience_since.toLowerCase().includes(lowerSearch) ||
-        v.phone?.toLowerCase().includes(lowerSearch) ||
-        (Array.isArray(v.category_names)
-          ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
-          : v.category_names?.toLowerCase().includes(lowerSearch))
-      );
-    })
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          v.owner_name?.toLowerCase().includes(lowerSearch) ||
+          v.email?.toLowerCase().includes(lowerSearch) ||
+          v.price_range.toLowerCase().includes(lowerSearch) ||
+          v.experience_since.toLowerCase().includes(lowerSearch) ||
+          v.phone?.toLowerCase().includes(lowerSearch) ||
+          (Array.isArray(v.category_names)
+            ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
+            : v.category_names?.toLowerCase().includes(lowerSearch))
+        );
+      })
     : vendors;
 
   const exportToExcel = async () => {
@@ -233,7 +231,7 @@ export default function Allvendors() {
         if (pagination) {
           totalPages = Math.ceil(pagination.total_records / limit);
         } else {
-          break; 
+          break;
         }
 
         page++;
@@ -257,7 +255,7 @@ export default function Allvendors() {
             : row.approval_status === 2
             ? "Rejected"
             : "Pending",
-            Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
+        Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -597,27 +595,31 @@ export default function Allvendors() {
         </div>
       </div>
 
-      {pkgModalOpen && (
-        <div
-          className="modal fade show"
-          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Assign Package</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setPkgModalOpen(false)}
-                />
-              </div>
-              <div className="modal-body">
-                {pkgOptions.length === 0 ? (
+     {pkgModalOpen && (
+  <div
+    className="modal fade show"
+    style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+    onClick={() => setPkgModalOpen(false)}  // backdrop click se band hoga
+  >
+    <div
+      className="modal-dialog"
+      onClick={(e) => e.stopPropagation()} // andar click se band na ho
+    >
+      <div className="modal-content">
+        <div className="modal-header">
+          <h5 className="modal-title">Assign Package</h5>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setPkgModalOpen(false)}
+          />
+        </div>
+        <div className="modal-body">
+           {pkgOptions.length === 0 ? (
                   <p>No active packages found.</p>
                 ) : (
                   <div className="list-group">
-                    {pkgOptions.map((p) => (
+                    {pkgOptions?.map((p) => (
                       <label
                         key={p.id}
                         className="list-group-item d-flex justify-content-between align-items-center fs-6"
@@ -636,49 +638,52 @@ export default function Allvendors() {
                             {p.validity_in_months
                               ? `${p.validity_in_months} months`
                               : p.days
-                                ? `${p.days} days`
-                                : "N/A"}
+                              ? `${p.days} days`
+                              : "N/A"}
                           </div>
                         </div>
                         <div>
                           <span
-                            className={`badge ${vendorPackageHistory[assignVendorId]?.[p.id] === "Active" ? "bg-success" :
-                                vendorPackageHistory[assignVendorId]?.[p.id] === "Inactive" ? "bg-danger" :
-                                  "bg-secondary"
-                              }`}
+                            className={`badge ${
+                              vendorPackageHistory[assignVendorId]?.[p.id] ===
+                              "Active"
+                                ? "bg-success"
+                                : vendorPackageHistory[assignVendorId]?.[
+                                    p.id
+                                  ] === "Inactive"
+                                ? "bg-danger"
+                                : "bg-secondary"
+                            }`}
                           >
                             {vendorPackageHistory[assignVendorId]?.[p.id] || ""}
                           </span>
-
-
-
                         </div>
                       </label>
                     ))}
                   </div>
                 )}
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setPkgModalOpen(false)}
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  className={`btn btn-primary ${!selectedPkgId ? "disabled" : ""}`}
-                  onClick={submitAssignPackage}
-                  disabled={!selectedPkgId}
-                >
-                  Assign
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
-      )}
+        <div className="modal-footer">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => setPkgModalOpen(false)}
+          >
+            Close
+          </button>
+          <button
+            type="button"
+            className={`btn btn-primary ${!selectedPkgId ? "disabled" : ""}`}
+            onClick={submitAssignPackage}
+            disabled={!selectedPkgId}
+          >
+            Assign
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
     </div>
   );

@@ -140,20 +140,20 @@ export default function MyProfile() {
           </div>
 
           {/* About Section */}
-          {(vendor.short_description || vendor.long_description) && (
+          {(vendor.long_description) && (
             <div className="mt-4">
               <h5 className="mb-3">
                 <i className="fas fa-file-alt text-info me-2"></i> About
               </h5>
               <div className="row">
-                {vendor.short_description && (
+                {/* {vendor.short_description && (
                   <div className="col-md-6 col-12 mb-3">
                     <div className="bg-light p-3 rounded-3 h-100">
                       <h6 className="text-primary">Short Description</h6>
                       <p className="mb-0">{vendor.short_description}</p>
                     </div>
                   </div>
-                )}
+                )} */}
                 {vendor.long_description && (
                   <div className="col-md-6 col-12 mb-3">
                     <div className="bg-light p-3 rounded-3 h-100 position-relative">
