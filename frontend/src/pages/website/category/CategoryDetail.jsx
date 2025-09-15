@@ -240,16 +240,16 @@ const CategoryDetail = () => {
       setIsLoading(true);
       const token = localStorage.getItem("token");
       const res = await GetVendorDetails(token, vendorId);
-      
+
       // Check if vendor exists and is active
       if (res?.data && res?.data?.user) {
         // Check vendor status - adjust these conditions based on your API response
-        const isVendorActive = res.data.user.is_active === 1 || 
-                              res.data.user.is_active === true || 
-                              res.data.user.status === 'active' ||
-                              res.data.user.status === 1 ||
-                              res.data.user.active === 1 ||
-                              res.data.user.active === true;
+        const isVendorActive = res.data.user.is_active === 1 ||
+          res.data.user.is_active === true ||
+          res.data.user.status === 'active' ||
+          res.data.user.status === 1 ||
+          res.data.user.active === 1 ||
+          res.data.user.active === true;
 
         if (isVendorActive) {
           setVendorData(res.data);
@@ -476,8 +476,8 @@ const CategoryDetail = () => {
                       <i className="ri-home-line me-2"></i>
                       Back to Home
                     </a>
-                    <button 
-                      onClick={() => window.history.back()} 
+                    <button
+                      onClick={() => window.history.back()}
                       className="btn btn-outline-secondary btn-lg px-4"
                     >
                       <i className="ri-arrow-left-line me-2"></i>
@@ -621,11 +621,10 @@ const CategoryDetail = () => {
                         <div className="d-flex gap-3 mb-3 mt-4">
                           {imageItems?.length > 0 && (
                             <button
-                              className={`btn ${
-                                activeTabs === "images"
+                              className={`btn ${activeTabs === "images"
                                   ? "btn-primary"
                                   : "btn-outline-primary"
-                              } mb-4`}
+                                } mb-4`}
                               onClick={() => setActiveTabs("images")}
                             >
                               Images
@@ -633,11 +632,10 @@ const CategoryDetail = () => {
                           )}
                           {videoItems?.length > 0 && (
                             <button
-                              className={`btn ${
-                                activeTabs === "videos"
+                              className={`btn ${activeTabs === "videos"
                                   ? "btn-primary"
                                   : "btn-outline-primary"
-                              } mb-4`}
+                                } mb-4`}
                               onClick={() => setActiveTabs("videos")}
                             >
                               Videos
@@ -938,21 +936,19 @@ const CategoryDetail = () => {
                     <div className="date-travel-card mt-4">
                       <div className="tabs d-flex gap-2 mb-3">
                         <button
-                          className={`btn ${
-                            activeTab === "review"
+                          className={`btn ${activeTab === "review"
                               ? "btn-primary"
                               : "btn-outline-primary"
-                          }`}
+                            }`}
                           onClick={() => setActiveTab("review")}
                         >
                           Review
                         </button>
                         <button
-                          className={`btn ${
-                            activeTab === "report"
+                          className={`btn ${activeTab === "report"
                               ? "btn-primary"
                               : "btn-outline-primary"
-                          }`}
+                            }`}
                           onClick={() => setActiveTab("report")}
                         >
                           Report
