@@ -44,6 +44,7 @@
       #daedef 0%,
       rgba(218, 237, 239, 0) 98.91%);
 }
+
 /* body{
   overflow-x: hidden;
 } */
@@ -16033,9 +16034,9 @@ object {
     font-size: 20px;
   }
 
-    .main-website {
-        padding-top: 54px;
-    }
+  .main-website {
+    padding-top: 54px;
+  }
 
   .header-area-three .top-menu-wrapper {
     display: none !important;
@@ -17981,7 +17982,8 @@ input[type="number"] {
   color: var(--secondary-color);
 }
 
-.btn-primary, .nav-tabs .nav-link.active {
+.btn-primary,
+.nav-tabs .nav-link.active {
   background-color: var(--primary-color);
   border: 1px solid transparent;
   padding: 9px 20px;
@@ -18004,6 +18006,7 @@ input[type="number"] {
   border: 1px solid var(--primary-color);
   color: var(--primary-color);
 }
+
 .date-travel-card .btn-primary:hover {
   -webkit-transition: 0.3s;
   transition: 0.3s;
@@ -21027,6 +21030,7 @@ button.applyBtn.btn.btn-sm.btn-primary {
 
 .header-area-three .main-menu .listing .single-list .single.active>.single {
   color: var(--primary-color);
+  
 }
 
 .header-area-three .main-menu .listing .single-list .link-active {
@@ -21055,15 +21059,14 @@ button.applyBtn.btn.btn-sm.btn-primary {
   /* background-color: var(--blue); */
   background-color: #2278b6;
   color: white;
-
+  /* padding: 2px; */
+  border-radius: 5px;
 }
 
 .header-area-three .main-menu .listing .single-list:hover>.single::after {
   bottom: -24px;
   content: "";
   opacity: 1;
-
-
   right: auto;
   position: absolute;
   left: 0;
@@ -21361,7 +21364,7 @@ button.applyBtn.btn.btn-sm.btn-primary {
 
 @media (max-width: 576px) {
   .footer-wrapper .footer-area {
-     padding: 30px 0 0 0;
+    padding: 30px 0 0 0;
   }
 }
 
@@ -21370,7 +21373,7 @@ button.applyBtn.btn.btn-sm.btn-primary {
   font-size: 16px;
   margin-bottom: 31px;
   line-height: 1.5;
-  
+
 }
 
 .footer-wrapper .footer-area .footer-tittle .title {
@@ -37276,9 +37279,11 @@ td .user .thumb {
 
 
 }
+
 .mobile-sidebar {
-    width: 70vw;
+  width: 70vw;
 }
+
 .mobile-header {
   /* position: sticky; */
   top: 0;
@@ -37288,13 +37293,16 @@ td .user .thumb {
 }
 
 .main-content {
-  margin-top: 60px; /* or padding-top if preferred */
+  margin-top: 60px;
+  /* or padding-top if preferred */
 }
-.news-area
-{
-  position:relative;
+
+.news-area {
+  position: relative;
 }
-.slick-dots, .slick-prev, .slick-next
-{
-  position:unset !important;
+
+.slick-dots,
+.slick-prev,
+.slick-next {
+  position: unset !important;
 }
