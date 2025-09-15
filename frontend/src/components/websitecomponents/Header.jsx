@@ -357,7 +357,7 @@ const Header = () => {
                 onClick={closeMobileMenu}
               >
                 <i className="ri-article-line"></i>
-                Blog
+                Blogs
               </Link>
             </li>
 
