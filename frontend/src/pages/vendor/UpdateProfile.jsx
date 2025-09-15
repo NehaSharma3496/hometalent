@@ -22,8 +22,128 @@ export default function UpdateProfile() {
   const token = localStorage.getItem("token");
   const vendorId = localStorage.getItem("userId");
 
+  // Enhanced validation schema with all fields
   const validationSchema = Yup.object().shape({
-    state_id: Yup.string().required("State is required"),
+    owner_name: Yup.string()
+      .required("Profile Name is required")
+      .min(2, "Profile Name must be at least 2 characters")
+      .max(50, "Profile Name must not exceed 50 characters")
+      .matches(/^[a-zA-Z\s]+$/, "Profile Name can only contain letters and spaces"),
+    
+    // profile_name: Yup.string()
+    //   .required("Owner Name is required")
+    //   .min(2, "Owner Name must be at least 2 characters")
+    //   .max(50, "Owner Name must not exceed 50 characters")
+    //   .matches(/^[a-zA-Z\s]+$/, "Owner Name can only contain letters and spaces"),
+    
+    phone: Yup.string()
+      .required("Phone number is required")
+      .matches(/^[6-9]\d{9}$/, "Please enter a valid 10-digit Indian mobile number"),
+    
+    email: Yup.string()
+      .required("Email is required")
+      .email("Please enter a valid email address"),
+    
+    state_id: Yup.string()
+      .required("State is required"),
+    
+    city_id: Yup.string()
+      .required("City is required"),
+    
+    pin_code: Yup.string()
+      .required("Pin Code is required")
+      .matches(/^\d{6}$/, "Pin Code must be exactly 6 digits"),
+    
+    // price_range: Yup.string()
+    //   .required("Price Range is required")
+    //   .min(3, "Please provide a meaningful price range"),
+    
+    category_id: Yup.string()
+      .required("Category is required"),
+    
+    // Conditional validation for other_category
+    other_category: Yup.string().when('category_id', {
+      is: (categoryId) => {
+        // Check if the selected category is "Other"
+        const selectedCategory = categoryData?.find(cat => cat.value === categoryId);
+        return selectedCategory?.label?.toLowerCase() === 'other';
+      },
+      then: (schema) => schema
+        .required("Category Name is required")
+        .min(2, "Category Name must be at least 2 characters")
+        .max(50, "Category Name must not exceed 50 characters"),
+      otherwise: (schema) => schema.notRequired()
+    }),
+    
+    // experience_since: Yup.string()
+    //   .required("Experience Since is required")
+    //   .matches(/^\d{4}$/, "Please enter a valid 4-digit year")
+    //   .test('valid-year', 'Experience year cannot be in the future', function(value) {
+    //     if (!value) return true;
+    //     const currentYear = new Date().getFullYear();
+    //     const experienceYear = parseInt(value);
+    //     return experienceYear <= currentYear && experienceYear >= 1950;
+    //   }),
+    
+    long_description: Yup.string()
+      .required("Long Description is required")
+      .min(50, "Long Description must be at least 50 characters")
+      .max(1000, "Long Description must not exceed 1000 characters"),
+    
+    // Optional social media links with URL validation
+    facebook_link: Yup.string()
+      .nullable()
+      .test('facebook-url', 'Please enter a valid Facebook URL', function(value) {
+        if (!value || value.trim() === '') return true; // Allow empty
+        return Yup.string().url().isValidSync(value) && /facebook\.com/.test(value);
+      }),
+    
+    instagram_link: Yup.string()
+      .nullable()
+      .test('instagram-url', 'Please enter a valid Instagram URL', function(value) {
+        if (!value || value.trim() === '') return true; // Allow empty
+        return Yup.string().url().isValidSync(value) && /instagram\.com/.test(value);
+      }),
+    
+    twitter_link: Yup.string()
+      .nullable()
+      .test('twitter-url', 'Please enter a valid Twitter/X URL', function(value) {
+        if (!value || value.trim() === '') return true; // Allow empty
+        return Yup.string().url().isValidSync(value) && /(twitter\.com|x\.com)/.test(value);
+      }),
+    
+    linkedin_link: Yup.string()
+      .nullable()
+      .test('linkedin-url', 'Please enter a valid LinkedIn URL', function(value) {
+        if (!value || value.trim() === '') return true; // Allow empty
+        return Yup.string().url().isValidSync(value) && /linkedin\.com/.test(value);
+      }),
+    
+    youtube_link: Yup.string()
+      .nullable()
+      .test('youtube-url', 'Please enter a valid YouTube URL', function(value) {
+        if (!value || value.trim() === '') return true; // Allow empty
+        return Yup.string().url().isValidSync(value) && /youtube\.com/.test(value);
+      }),
+    
+    website_link: Yup.string()
+      .nullable()
+      .test('website-url', 'Please enter a valid URL', function(value) {
+        if (!value || value.trim() === '') return true; // Allow empty
+        return Yup.string().url().isValidSync(value);
+      }),
+    
+    // Image validation (optional)
+    image: Yup.mixed()
+      .nullable()
+      .test('file-size', 'File size must be less than 5MB', function(value) {
+        if (!value || !value[0]) return true;
+        return value[0].size <= 5 * 1024 * 1024; // 5MB limit
+      })
+      .test('file-type', 'Only image files are allowed', function(value) {
+        if (!value || !value[0]) return true;
+        return ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].includes(value[0].type);
+      })
   });
 
   const fields = [
@@ -32,15 +152,30 @@ export default function UpdateProfile() {
       label: "Profile Name",
       type: "text",
       colClass: "col-md-4 ",
+      required: true,
     },
     {
       name: "profile_name",
       label: "Owner Name",
       type: "text",
       colClass: "col-md-4 ",
+      required: true,
     },
-    { name: "phone", label: "Phone", type: "text", colClass: "col-md-4 " },
-    { name: "email", label: "Email", type: "email", colClass: "col-md-4 " },
+    { 
+      name: "phone", 
+      label: "Phone", 
+      type: "text", 
+      colClass: "col-md-4 ",
+      required: true,
+      placeholder: "Enter 10-digit mobile number"
+    },
+    { 
+      name: "email", 
+      label: "Email", 
+      type: "email", 
+      colClass: "col-md-4 ",
+      required: true,
+    },
     {
       name: "state_id",
       label: "State",
@@ -51,6 +186,7 @@ export default function UpdateProfile() {
         setCityTouched(false);
       },
       colClass: "col-md-4 ",
+      required: true,
     },
     {
       name: "city_id",
@@ -59,18 +195,23 @@ export default function UpdateProfile() {
       options: cityData,
       onChange: () => setCityTouched(true),
       colClass: "col-md-4 ",
+      required: true,
     },
     {
       name: "pin_code",
       label: "Pin Code",
       type: "text",
       colClass: "col-md-4 mb-3",
+      required: true,
+      placeholder: "Enter 6-digit pin code"
     },
     {
       name: "price_range",
       label: "Price Range",
       type: "text",
       colClass: "col-md-4 ",
+      required: true,
+      placeholder: ""
     },
     {
       name: "category_id",
@@ -78,6 +219,7 @@ export default function UpdateProfile() {
       type: "select",
       options: categoryData,
       colClass: "col-md-4 ",
+      required: true,
     },
     {
       name: "other_category",
@@ -90,66 +232,70 @@ export default function UpdateProfile() {
         );
         return selected?.label?.toLowerCase() === "other";
       },
-      placeholder: "Enter category name",
+      placeholder: "",
+      required: true, // This will be conditionally required via Yup validation
     },
-
     {
       name: "experience_since",
       label: "Experience Since",
       type: "text",
       colClass: "col-md-4 mb-3",
+      required: true,
+      
     },
-    // {
-    //   name: "short_description",
-    //   label: "Short Description",
-    //   type: "text",
-    //   colClass: "col-12 ",
-    // },
     {
       name: "long_description",
       label: "Long Description",
       type: "textarea",
       colClass: "col-12 ",
+      required: true,
+      placeholder: "Describe your services in detail (minimum 50 characters)"
     },
     {
       name: "facebook_link",
       label: "Facebook Link",
       type: "text",
       colClass: "col-md-6 mb-3",
+      placeholder: "https://facebook.com/yourpage"
     },
     {
       name: "instagram_link",
       label: "Instagram Link",
       type: "text",
       colClass: "col-md-6 ",
+      placeholder: "https://instagram.com/youraccount"
     },
     {
       name: "twitter_link",
       label: "Twitter Link",
       type: "text",
       colClass: "col-md-6 ",
+      placeholder: "https://twitter.com/youraccount"
     },
     {
       name: "linkedin_link",
       label: "LinkedIn Link",
       type: "text",
       colClass: "col-md-6 ",
+      placeholder: "https://linkedin.com/in/yourprofile"
     },
     {
       name: "youtube_link",
       label: "YouTube Link",
       type: "text",
       colClass: "col-md-6 ",
+      placeholder: "https://youtube.com/yourchannel"
     },
     {
       name: "website_link",
       label: "Website Link",
       type: "text",
       colClass: "col-md-6 ",
+      placeholder: "https://yourwebsite.com"
     },
     {
       name: "image",
-      label: "Image",
+      label: "Profile Image",
       type: "file",
       colClass: "col-md-6 mb-3",
       accept: "image/*",
@@ -157,6 +303,17 @@ export default function UpdateProfile() {
   ];
 
   const onSubmit = async (values) => {
+    // Check if category is "Other" and other_category is provided
+    const selectedCat = categoryData?.find((cat) => cat.value === values.category_id);
+    if (selectedCat?.label?.toLowerCase() === "other" && !values.other_category?.trim()) {
+      Swal.fire(
+        "Validation Error",
+        "Please provide a category name when 'Other' is selected",
+        "warning"
+      );
+      return;
+    }
+
     if (values.state_id !== initialValues.state_id && !cityTouched) {
       Swal.fire(
         "Validation Error",
@@ -207,7 +364,7 @@ export default function UpdateProfile() {
           }
         } else if (key === "image" && values[key]?.length > 0) {
           formData.append("image", values[key][0]);
-        } else {
+        } else if (key !== "other_category") { // Don't append other_category separately
           formData.append(key, values[key]);
         }
       }
@@ -266,7 +423,7 @@ export default function UpdateProfile() {
           price_range: vendor.price_range || "",
           short_description: vendor.short_description || "",
           category_id: vendor.category_id?.toString() || "",
-          other_category: vendor.category_name || "",
+          other_category:   "",
           experience_since: vendor.experience_since || "",
           long_description: vendor.long_description || "",
           facebook_link: vendor.facebook_link || "",
@@ -290,12 +447,11 @@ export default function UpdateProfile() {
     const fetchCities = async () => {
       try {
         const res = await GetCities(token, selectedStateId);
-        // FIXED: Remove the manual placeholder - let ReusableForm handle it
         const mapped = res.data.map((x) => ({
           value: x.id.toString(),
           label: x.name,
         }));
-        setCityData(mapped); // Don't add placeholder here
+        setCityData(mapped);
         setCityTouched(false);
       } catch (err) {
         console.log("City fetch error", err);

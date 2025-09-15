@@ -22,7 +22,7 @@ const Footer = () => {
                               width="20"
                               height="20"
                             />
-                            137, Gopur Square, Ahilya Nagar, Indore.
+                            Indore (M.P.), India
                           </div>
                         </a>
                       </li>
@@ -35,7 +35,7 @@ const Footer = () => {
                               width="20"
                               height="20"
                             />
-                            +92 (8800) 68 - 8960
+                           (+91) 9893545348
                           </div>
                         </a>
                       </li>
@@ -48,7 +48,7 @@ const Footer = () => {
                               width="20"
                               height="20"
                             />
-                            example@gmail.com
+                           info@hometalent4u.com
                           </div>
                         </a>
                       </li>
@@ -95,7 +95,7 @@ const Footer = () => {
                     <h4 className="title">FOLLOW US ON</h4>
                     <ul className="listing d-flex gap-8">
                       <li className="single-lsit">
-                        <a href="https://www.facebook.com">
+                        <a href="https://www.facebook.com/share/1CkQq5n3t9/">
                           <img
                             src="../assets/images/footer/facebook.png"
                             alt="facebook"
@@ -103,7 +103,7 @@ const Footer = () => {
                         </a>
                       </li>
                       <li className="single-lsit">
-                        <a href="https://www.twitter.com">
+                        <a href="https://x.com/hometalent4u">
                           <img
                             src="../assets/images/footer/twitter.png"
                             alt="twitter"
@@ -111,7 +111,7 @@ const Footer = () => {
                         </a>
                       </li>
                       <li className="single-lsit">
-                        <a href="https://www.youtube.com">
+                        <a href="https://www.youtube.com/@hometalent4u">
                           <img
                             src="../assets/images/footer/youtube.png"
                             alt="youtube"
@@ -119,7 +119,7 @@ const Footer = () => {
                         </a>
                       </li>
                       <li className="single-lsit">
-                        <a href="https://www.instagram.com">
+                        <a href="https://www.instagram.com/hometalent4u/">
                           <img
                             src="../assets/images/footer/instagram.png"
                             alt="instagram"
@@ -129,7 +129,7 @@ const Footer = () => {
                     </ul>
                   </div>
                 </div>
-                <div className="footer-image float-lg-end ">
+                <div className="footer-image float-lg-end mt-3 ">
                   <img
                     src="../assets/images/footer/footer-img.png"
                     alt="footer"

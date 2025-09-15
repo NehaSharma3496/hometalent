@@ -471,19 +471,24 @@ const CategoryDetail = () => {
                   <p className="text-muted mb-4 lead">
                     Sorry, the vendor you're looking for is not available or has been deactivated.
                   </p>
-                  <div className="d-flex gap-3 justify-content-center">
-                    <a href="/" className="btn btn-primary btn-lg px-4">
-                      <i className="ri-home-line me-2"></i>
-                      Back to Home
+                  <div className="d-flex flex-column flex-sm-row gap-4 justify-content-center align-items-center mt-4">
+                    <a
+                      href="/"
+                      className="btn btn-primary d-flex align-items-center gap-4 py-3 px-4 "
+                    >
+                      <i className="ri-home-line fs-5"></i>
+                      <span>Back to Home</span>
                     </a>
+
                     <button
                       onClick={() => window.history.back()}
-                      className="btn btn-outline-secondary btn-lg px-4"
+                      className="btn btn-outline-secondary d-flex align-items-center gap-2 py-2 px-4"
                     >
-                      <i className="ri-arrow-left-line me-2"></i>
-                      Go Back
+                      <i className="ri-arrow-left-line fs-5"></i>
+                      <span>Go Back</span>
                     </button>
                   </div>
+
                 </div>
               </div>
             </div>
@@ -622,8 +627,8 @@ const CategoryDetail = () => {
                           {imageItems?.length > 0 && (
                             <button
                               className={`btn ${activeTabs === "images"
-                                  ? "btn-primary"
-                                  : "btn-outline-primary"
+                                ? "btn-primary"
+                                : "btn-outline-primary"
                                 } mb-4`}
                               onClick={() => setActiveTabs("images")}
                             >
@@ -633,8 +638,8 @@ const CategoryDetail = () => {
                           {videoItems?.length > 0 && (
                             <button
                               className={`btn ${activeTabs === "videos"
-                                  ? "btn-primary"
-                                  : "btn-outline-primary"
+                                ? "btn-primary"
+                                : "btn-outline-primary"
                                 } mb-4`}
                               onClick={() => setActiveTabs("videos")}
                             >
@@ -937,8 +942,8 @@ const CategoryDetail = () => {
                       <div className="tabs d-flex gap-2 mb-3">
                         <button
                           className={`btn ${activeTab === "review"
-                              ? "btn-primary"
-                              : "btn-outline-primary"
+                            ? "btn-primary"
+                            : "btn-outline-primary"
                             }`}
                           onClick={() => setActiveTab("review")}
                         >
@@ -946,8 +951,8 @@ const CategoryDetail = () => {
                         </button>
                         <button
                           className={`btn ${activeTab === "report"
-                              ? "btn-primary"
-                              : "btn-outline-primary"
+                            ? "btn-primary"
+                            : "btn-outline-primary"
                             }`}
                           onClick={() => setActiveTab("report")}
                         >
