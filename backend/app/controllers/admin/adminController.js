@@ -12,6 +12,7 @@ const {
   Review,
   Notification,
   FeedBack,
+  City,
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 const socketManager = require('../../socket/socketManager');
@@ -27,14 +28,20 @@ exports.listAllVendors = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    const { count, rows: vendors } = await User.findAndCountAll({
+    const { count, rows } = await User.findAndCountAll({
+      include: [
+        { model : City, attributes: ['id', 'name'] }
+      ],
       where: { role_id: 2 },
       order: [["createdAt", "DESC"]], 
       raw: true,
       limit,
       offset,
     });
-
+const vendors = rows.map(v => ({
+  ...v,
+  City: { id: v['City.id'], name: v['City.name'] }
+}));
     // Get all unique category IDs
     const categoryIds = [
       ...new Set(
@@ -70,7 +77,7 @@ exports.listAllVendors = async (req, res) => {
 
     const totalPages = Math.ceil(count / limit);
 
-    res.json({
+    return res.json({
       status: true,
       data: enrichedVendors,
       pagination: {
@@ -83,7 +90,7 @@ exports.listAllVendors = async (req, res) => {
       },
     });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
