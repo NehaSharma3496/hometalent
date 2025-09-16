@@ -230,13 +230,13 @@ const Home = () => {
                     <div className="row g-4 justify-content-center">
                       <div className="col-xl-5 col-lg-6 col-md-6 col-sm-12 ">
                         <div
-                          className="position-relative"
+                          className="position-relative "
                           style={{ width: "100%" }}
                           ref={dropdownRef}
                         >
                           <input
                             type="text"
-                            className="form-control custom-input-select cursor-pointer"
+                            className="form-control custom-input-select cursor-pointer "
                             placeholder="Search City"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -245,13 +245,12 @@ const Home = () => {
 
                           {showDropdown && (
                             <div
-                              className="border bg-white p-3 pt-3 shadow position-absolute"
+                              className="border bg-white p-3 pt-3 shadow position-absolute dropdown-container"
                               style={{
                                 maxHeight: "400px",
                                 overflowY: "auto",
                                 zIndex: 10,
-                                width: "600px", // only matches the input width
-                                marginTop: "2px", // small gap below input
+                                marginTop: "2px",
                                 left: 0,
                               }}
                             >
@@ -313,7 +312,7 @@ const Home = () => {
                           </select>
                         </div>
                       </div>
-                      <div className="col-xl-2 col-lg-3">
+                      <div className="col-xl-2 col-lg-3 ">
                         <div className="sign-btn text-right">
                           <button
                             className="btn-primary w-100 text-center d-block"

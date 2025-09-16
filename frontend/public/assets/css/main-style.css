@@ -16287,8 +16287,8 @@ object {
 }
 
 .section-padding2 {
-  padding-top: 100px;
-  padding-bottom: 50px;
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 @media (max-width: 991px) {
@@ -20993,6 +20993,7 @@ button.applyBtn.btn.btn-sm.btn-primary {
 @media (max-width: 1399px) {
   .header-area-three .main-menu .listing .single-list:not(:last-child) {
     margin-right: 0px;
+    padding: 0px 0px;
   }
 }
 
@@ -21018,7 +21019,7 @@ button.applyBtn.btn.btn-sm.btn-primary {
 
 @media (max-width: 1199px) {
   .header-area-three .main-menu .listing .single-list .single {
-    padding: 32px 12px;
+    padding: 10px 15px;
   }
 }
 
@@ -37305,4 +37306,27 @@ td .user .thumb {
 .slick-prev,
 .slick-next {
   position: unset !important;
+}
+
+
+@media (max-width: 1024px) {
+
+  .row.g-4.justify-content-center {
+    display: flex;
+    flex-wrap: nowrap;   
+    gap: 12px;            
+    align-items: center;
+  }
+
+  
+  .row.g-4.justify-content-center > div {
+    flex: 1;
+  }
+
+
+  .row.g-4.justify-content-center .sign-btn {
+    flex: 0 0 160px; 
+  }
+
+
 }
