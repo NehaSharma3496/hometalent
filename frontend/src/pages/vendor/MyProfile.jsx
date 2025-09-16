@@ -123,11 +123,11 @@ export default function MyProfile() {
         {/* Contact Information */}
         <div className="card-body p-3 p-md-4">
           <h5 className="mb-3">
-            <i className="fas fa-info-circle text-primary me-2"></i> Contact Information
+            <i className="fas fa-info-circle text-primary me-2 mb-2"></i> Contact Information
           </h5>
           <div className="row g-3">
             {profileFields.map(({ label, value, icon }, i) => (
-              <div key={i} className="col-lg-6 col-12">
+              <div key={i} className="col-lg-6 col-12 mb-2">
                 <div className="p-3 border rounded-3 bg-light h-100 w-100">
                   <div className="d-flex align-items-center mb-2">
                     <i className={`${icon} text-primary me-2`}></i>

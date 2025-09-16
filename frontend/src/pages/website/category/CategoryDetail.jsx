@@ -543,7 +543,7 @@ const CategoryDetail = () => {
                               style={{
                                 backgroundColor: "#2278b6",
                                 padding: "4px 10px",
-                                marginLeft: "220px",
+                                marginLeft: "200px",
                                 fontSize: "14px",
                                 color: "#fff",
                                 fontWeight: "600",

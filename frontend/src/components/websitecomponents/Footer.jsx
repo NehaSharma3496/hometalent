@@ -14,7 +14,7 @@ const Footer = () => {
                     <h4 className="title">GET IN TOUCH</h4>
                     <ul className="listing">
                       <li className="single-lsit">
-                        <a href="#">
+                        <a href="https://www.google.com/maps/place/Indore,+Madhya+Pradesh,+India" target="_blank">
                           <div className="d-flex gap-12 align-items-center">
                             <img
                               src="../assets/images/footer/map.png"
@@ -27,7 +27,7 @@ const Footer = () => {
                         </a>
                       </li>
                       <li className="single-lsit">
-                        <a href="#">
+                         <a href="Mob:+919893545348">
                           <div className="d-flex gap-12 align-items-center">
                             <img
                               src="../assets/images/footer/phone.png"
@@ -40,7 +40,7 @@ const Footer = () => {
                         </a>
                       </li>
                       <li className="single-lsit">
-                        <a href="#">
+                          <a href="mailto:info@hometalent4u.com">
                           <div className="d-flex gap-12 align-items-center">
                             <img
                               src="../assets/images/footer/email.png"

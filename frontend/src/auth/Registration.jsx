@@ -265,9 +265,8 @@ const Registration = () => {
       <div className="input-group mb-2">
         <input
           type="text"
-          className={`form-control contact-input ${
-            touched.phone && errors.phone ? "is-invalid" : ""
-          }`}
+          className={`form-control contact-input ${touched.phone && errors.phone ? "is-invalid" : ""
+            }`}
           value={values.phone || ""}
           onChange={(e) =>
             handlePhoneInput(e, setFieldValue, setFieldTouched, touched)
@@ -310,10 +309,10 @@ const Registration = () => {
                 {phoneVerificationState.loading
                   ? "Sending..."
                   : !isOtpSent
-                  ? "Send OTP"
-                  : otpTimer > 0
-                  ? `Resend OTP in ${otpTimer}s`
-                  : "Resend OTP"}
+                    ? "Send OTP"
+                    : otpTimer > 0
+                      ? `Resend OTP in ${otpTimer}s`
+                      : "Resend OTP"}
               </button>
             </>
           )}
@@ -365,7 +364,6 @@ const Registration = () => {
     </>
   );
 
-  // Enhanced fields array with custom phone field
   const fields = [
     {
       name: "ownerName",
@@ -379,6 +377,7 @@ const Registration = () => {
       type: "text",
       colClass: "col-md-4 mb-3",
     },
+
     {
       name: "state",
       label: "State*",
@@ -387,6 +386,7 @@ const Registration = () => {
       onChange: (e) => setSelectedStateId(e.target.value),
       colClass: "col-md-4 mb-3",
     },
+
     {
       name: "city",
       label: "City*",
@@ -416,12 +416,6 @@ const Registration = () => {
       colClass: "col-md-4 mb-3",
     },
     {
-      name: "priceRange",
-      label: "Estimated Price Range",
-      type: "text",
-      colClass: "col-md-4 mb-3",
-    },
-    {
       name: "category",
       label: "Category*",
       type: "select",
@@ -442,22 +436,23 @@ const Registration = () => {
       placeholder: "Enter category name",
     },
     {
-      name: "experience",
-      label: "Experience Since",
-      type: "text",
-      colClass: "col-md-4 mb-3",
-    },
-    // {
-    //   name: "shortDesc",
-    //   label: "Short Description",
-    //   type: "text",
-    //   colClass: "col-12 mb-3",
-    // },
-    {
       name: "longDesc",
       label: "Large Description*",
       type: "textarea",
       colClass: "col-12 mb-3",
+    },
+
+    {
+      name: "priceRange",
+      label: "Estimated Price Range",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "experience",
+      label: "Experience Since",
+      type: "text",
+      colClass: "col-md-4 mb-3",
     },
     {
       name: "facebook_link",
@@ -517,7 +512,168 @@ const Registration = () => {
       type: "checkbox",
       colClass: "col-md-12 mb-3",
     },
-  ];
+
+  ]
+
+
+  // Enhanced fields array with custom phone field
+  // const fields = [
+  //   {
+  //     name: "ownerName",
+  //     label: "Profile Name*",
+  //     type: "text",
+  //     colClass: "col-md-4 mb-3",
+  //   },
+
+  //   {
+  //     name: "profileName",
+  //     label: "Owner Name",
+  //     type: "text",
+  //     colClass: "col-md-4 mb-3",
+  //   },
+
+  //   {
+  //     name: "state",
+  //     label: "State*",
+  //     type: "select",
+  //     options: statesData,
+  //     onChange: (e) => setSelectedStateId(e.target.value),
+  //     colClass: "col-md-4 mb-3",
+  //   },
+  //   {
+  //     name: "city",
+  //     label: "City*",
+  //     type: "select",
+  //     options: cityData,
+  //     colClass: "col-md-4 mb-3",
+  //   },
+  //   {
+  //     name: "pin",
+  //     label: "Pin Code*",
+  //     type: "text",
+  //     colClass: "col-md-4 mb-3",
+  //     maxLength: 6,
+  //     numeric: true,
+  //   },
+  //   {
+  //     name: "phone",
+  //     label: "Phone No*",
+  //     type: "custom",
+  //     colClass: "col-md-4 mb-3",
+  //     customComponent: CustomPhoneComponent,
+  //   },
+  //   {
+  //     name: "email",
+  //     label: "Email*",
+  //     type: "email",
+  //     colClass: "col-md-4 mb-3",
+  //   },
+  //   {
+  //     name: "priceRange",
+  //     label: "Estimated Price Range",
+  //     type: "text",
+  //     colClass: "col-md-4 mb-3",
+  //   },
+  //   {
+  //     name: "category",
+  //     label: "Category*",
+  //     type: "select",
+  //     colClass: "col-md-6 mb-3",
+  //     options: categoryData,
+  //   },
+  //   {
+  //     name: "otherCategory",
+  //     label: "Category Name*",
+  //     type: "text",
+  //     colClass: "col-md-6 mb-3",
+  //     showWhen: (values) => {
+  //       const selected = categoryData?.find(
+  //         (cat) => cat.value === values.category
+  //       );
+  //       return selected?.label?.toLowerCase() === "other";
+  //     },
+  //     placeholder: "Enter category name",
+  //   },
+  //   {
+  //     name: "experience",
+  //     label: "Experience Since",
+  //     type: "text",
+  //     colClass: "col-md-4 mb-3",
+  //   },
+  //   // {
+  //   //   name: "shortDesc",
+  //   //   label: "Short Description",
+  //   //   type: "text",
+  //   //   colClass: "col-12 mb-3",
+  //   // },
+  //   {
+  //     name: "longDesc",
+  //     label: "Large Description*",
+  //     type: "textarea",
+  //     colClass: "col-12 mb-3",
+  //   },
+  //   {
+  //     name: "facebook_link",
+  //     label: "Facebook Link",
+  //     type: "text",
+  //     colClass: "col-md-6 mb-3",
+  //   },
+  //   {
+  //     name: "instagram_link",
+  //     label: "Instagram Link",
+  //     type: "text",
+  //     colClass: "col-md-6 mb-3",
+  //   },
+  //   {
+  //     name: "twitter_link",
+  //     label: "Twitter Link",
+  //     type: "text",
+  //     colClass: "col-md-6 mb-3",
+  //   },
+  //   {
+  //     name: "linkedin_link",
+  //     label: "LinkedIn Link",
+  //     type: "text",
+  //     colClass: "col-md-6 mb-3",
+  //   },
+  //   {
+  //     name: "youtube_link",
+  //     label: "YouTube Link",
+  //     type: "text",
+  //     colClass: "col-md-6 mb-3",
+  //   },
+  //   {
+  //     name: "website_link",
+  //     label: "Website Link",
+  //     type: "text",
+  //     colClass: "col-md-6 mb-3",
+  //   },
+  //   {
+  //     name: "image",
+  //     label: "Image",
+  //     type: "file",
+  //     colClass: "col-md-6 mb-3",
+  //     accept: "image/*",
+  //     multiple: false,
+  //   },
+  //   {
+  //     name: "terms",
+  //     label: (
+  //       <>
+  //         I accept{" "}
+  //         <Link to="/termscondition" target="_blank" rel="noopener noreferrer">
+  //           Terms & Conditions
+  //         </Link>
+  //         *
+  //       </>
+  //     ),
+  //     type: "checkbox",
+  //     colClass: "col-md-12 mb-3",
+  //   },
+  // ];
+
+
+
 
   const onSubmit = async (values) => {
     // Check if phone is verified before submission

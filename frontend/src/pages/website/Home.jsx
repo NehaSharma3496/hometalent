@@ -564,7 +564,7 @@ const Home = () => {
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-7">
               <div className="section-title text-center mx-605 mx-auto position-relative mb-60">
-                <h4 className="blue-title pb-2 mt-4">Blog & Articles</h4>
+                <h4 className="blue-title pb-2 mt-4">Blog & HomeTalent4U</h4>
                 <span className="highlights">
                   At HomeTalent4U, we share tips, stories, and insights to help
                   you grow your creativity into success.
@@ -610,7 +610,7 @@ const Home = () => {
                         </div>
                         <span className="px-5">|</span>
                         <div className="category-name">
-                          <span className=" text-primary">Home Talent</span>
+                          <span className=" text-primary">HomeTalent4U</span>
                         </div>
                       </div>
                       <h4 className="title mb-2">
