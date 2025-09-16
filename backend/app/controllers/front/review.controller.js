@@ -13,7 +13,7 @@ exports.createReview = async (req, res) => {
     
     const checkphone = phone ? await Review.findOne({ where: { phone, vendor_id } }) : null;
     if (checkphone) {
-      return res.status(400).json({ status: false, message: 'You have already submitted a review with this phone number' });
+      return res.status(400).json({ status: false, message: 'You have already submitted a review to this vendor' });
     }
     const review = await Review.create({ vendor_id, name, email, phone, message, rating });
     // Emit and persist admin notification

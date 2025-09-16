@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import MenuItems from "../admincomponents/MenuItems.jsx";
@@ -136,6 +136,52 @@ export default function AdminHeader() {
   const displayedNotifications =
     notifications.length > 0 ? notifications : storedNotifications;
 
+
+  useEffect(() => {
+    if (window.innerWidth > 576) return;
+    const links = document.querySelectorAll(".sidebar-link");
+
+    const handleClick = () => {
+      document.body.classList.add("sidebar-toggle");
+    };
+
+    links.forEach(link => {
+      link.addEventListener("click", handleClick);
+    });
+
+    return () => {
+      links.forEach(link => {
+        link.removeEventListener("click", handleClick);
+      });
+    };
+  }, []);
+
+  const sidebarRef = useRef(null);
+
+  useEffect(() => {
+
+
+    const handleClickOutside = (e) => {
+
+      if (window.innerWidth > 576) return;
+
+      const sidebar = document.getElementById("sidebar");
+      const clickedInsideSidebar = sidebar?.contains(e.target);
+      const clickedToggleBtn = document
+        .querySelector(".toggle-sidebar-btn")
+        ?.contains(e.target);
+      if (!clickedInsideSidebar && !clickedToggleBtn) {
+        document.body.classList.toggle("sidebar-toggle");
+      }
+
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+
+
   return (
     <>
       <header className="header">
@@ -226,22 +272,20 @@ export default function AdminHeader() {
                             displayedNotifications.map((notification) => (
                               <div
                                 key={notification.id}
-                                className={`p-2 mb-1 rounded ${
-                                  notification.isRead
-                                    ? "bg-primary-subtle border border-primary" 
-                                    : "bg-white border" 
-                                }`}
+                                className={`p-2 mb-1 rounded ${notification.isRead
+                                  ? "bg-primary-subtle border border-primary"
+                                  : "bg-white border"
+                                  }`}
                                 style={{ cursor: "pointer" }}
                                 onClick={() =>
                                   handleNotificationClick(notification.id)
                                 }
                               >
                                 <h6
-                                  className={`mb-1 fw-semibold d-flex align-items-center ${
-                                    notification.isRead
-                                      ? "text-primary"
-                                      : "text-secondary"
-                                  }`}
+                                  className={`mb-1 fw-semibold d-flex align-items-center ${notification.isRead
+                                    ? "text-primary"
+                                    : "text-secondary"
+                                    }`}
                                   style={{ fontSize: "0.9rem" }}
                                 >
                                   <i className="fa-solid fa-circle-info me-1"></i>
@@ -291,7 +335,7 @@ export default function AdminHeader() {
                         src={
                           role === "2" && profileImage
                             ? profileImage
-                            : currentRole?.defaultImage
+                            : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
                         }
                         className="user-img"
                         alt="Profile"
@@ -360,7 +404,7 @@ export default function AdminHeader() {
                   <ul className="sub-menu dropdown-menu">
                     {item.children.map((child, cIdx) => (
                       <li key={cIdx}>
-                        <Link to={child.link}>
+                        <Link to={child.link} className="sidebar-link">
                           <i className={child.icon}></i>
                           <span>{child.label}</span>
                         </Link>
@@ -369,7 +413,7 @@ export default function AdminHeader() {
                   </ul>
                 </>
               ) : (
-                <Link to={item.link}>
+                <Link to={item.link} className="sidebar-link">
                   <i className={item.icon}></i>
                   <span>{item.label}</span>
                 </Link>

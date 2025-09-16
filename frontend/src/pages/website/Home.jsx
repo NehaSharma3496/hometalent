@@ -230,13 +230,13 @@ const Home = () => {
                     <div className="row g-4 justify-content-center">
                       <div className="col-xl-5 col-lg-6 col-md-6 col-sm-12 ">
                         <div
-                          className="position-relative"
+                          className="position-relative "
                           style={{ width: "100%" }}
                           ref={dropdownRef}
                         >
                           <input
                             type="text"
-                            className="form-control custom-input-select cursor-pointer"
+                            className="form-control custom-input-select cursor-pointer "
                             placeholder="Search City"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -245,13 +245,12 @@ const Home = () => {
 
                           {showDropdown && (
                             <div
-                              className="border bg-white p-3 pt-3 shadow position-absolute"
+                              className="border bg-white p-3 pt-3 shadow position-absolute dropdown-container"
                               style={{
                                 maxHeight: "400px",
                                 overflowY: "auto",
                                 zIndex: 10,
-                                width: "600px", // only matches the input width
-                                marginTop: "2px", // small gap below input
+                                marginTop: "2px",
                                 left: 0,
                               }}
                             >
@@ -313,7 +312,7 @@ const Home = () => {
                           </select>
                         </div>
                       </div>
-                      <div className="col-xl-2 col-lg-3">
+                      <div className="col-xl-2 col-lg-3 ">
                         <div className="sign-btn text-right">
                           <button
                             className="btn-primary w-100 text-center d-block"
@@ -560,12 +559,12 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="news-area section-padding2 mt-4" ref={blogSectionRef}>
+      <section className="news-area section-padding2" ref={blogSectionRef}>
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-7">
               <div className="section-title text-center mx-605 mx-auto position-relative mb-60">
-                <h4 className="blue-title pb-2 mt-4">Blog & Articles</h4>
+                <h4 className="blue-title pb-2 mt-4">Blog & HomeTalent4U</h4>
                 <span className="highlights">
                   At HomeTalent4U, we share tips, stories, and insights to help
                   you grow your creativity into success.
@@ -611,7 +610,7 @@ const Home = () => {
                         </div>
                         <span className="px-5">|</span>
                         <div className="category-name">
-                          <span className=" text-primary">Home Talent</span>
+                          <span className=" text-primary">HomeTalent4U</span>
                         </div>
                       </div>
                       <h4 className="title mb-2">

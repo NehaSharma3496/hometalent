@@ -10,6 +10,7 @@ import {
   GetReviewCount,
 } from "../../../Services/webService/Web";
 import { GetGallery, GetVendorDetails } from "../../../Services/vendor/Vendor";
+import { GetActiveVendors } from "../../../Services/admin/Admin";
 import Swal from "sweetalert2";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
@@ -74,7 +75,7 @@ const CategoryDetail = () => {
         setIsReviewOtpSent(true);
         setReviewServerOtp(res.otp);
         setIsReviewOtpVerified(false);
-        Swal.fire("Success", "OTP sent to your mobile", "success");
+        Swal.fire("Success", "Verification code sent via Cegano Technology Enter the OTP to continue.", "success");
       } else if (res?.msg?.toLowerCase().includes("already verify")) {
         setIsReviewOtpVerified(true);
         setIsReviewOtpSent(false);
@@ -98,7 +99,7 @@ const CategoryDetail = () => {
         setIsReportOtpSent(true);
         setReportServerOtp(res.otp);
         setIsReportOtpVerified(false);
-        Swal.fire("Success", "OTP sent to your mobile", "success");
+        Swal.fire("Success", "Verification code sent via Cegano Technology Enter the OTP to continue.", "success");
       } else if (res?.msg?.toLowerCase().includes("already verify")) {
         setIsReportOtpVerified(true);
         setIsReportOtpSent(false);
@@ -239,16 +240,16 @@ const CategoryDetail = () => {
       setIsLoading(true);
       const token = localStorage.getItem("token");
       const res = await GetVendorDetails(token, vendorId);
-      
+
       // Check if vendor exists and is active
       if (res?.data && res?.data?.user) {
         // Check vendor status - adjust these conditions based on your API response
-        const isVendorActive = res.data.user.is_active === 1 || 
-                              res.data.user.is_active === true || 
-                              res.data.user.status === 'active' ||
-                              res.data.user.status === 1 ||
-                              res.data.user.active === 1 ||
-                              res.data.user.active === true;
+        const isVendorActive = res.data.user.is_active === 1 ||
+          res.data.user.is_active === true ||
+          res.data.user.status === 'active' ||
+          res.data.user.status === 1 ||
+          res.data.user.active === 1 ||
+          res.data.user.active === true;
 
         if (isVendorActive) {
           setVendorData(res.data);
@@ -470,19 +471,24 @@ const CategoryDetail = () => {
                   <p className="text-muted mb-4 lead">
                     Sorry, the vendor you're looking for is not available or has been deactivated.
                   </p>
-                  <div className="d-flex gap-3 justify-content-center">
-                    <a href="/" className="btn btn-primary btn-lg px-4">
-                      <i className="ri-home-line me-2"></i>
-                      Back to Home
-                    </a>
-                    <button 
-                      onClick={() => window.history.back()} 
-                      className="btn btn-outline-secondary btn-lg px-4"
+                  <div className="d-flex flex-column flex-sm-row gap-4 justify-content-center align-items-center mt-4">
+                    <a
+                      href="/"
+                      className="btn btn-primary d-flex align-items-center gap-4 py-3 px-4 "
                     >
-                      <i className="ri-arrow-left-line me-2"></i>
-                      Go Back
+                      <i className="ri-home-line fs-5"></i>
+                      <span>Back to Home</span>
+                    </a>
+
+                    <button
+                      onClick={() => window.history.back()}
+                      className="btn btn-outline-secondary d-flex align-items-center gap-2 py-2 px-4"
+                    >
+                      <i className="ri-arrow-left-line fs-5"></i>
+                      <span>Go Back</span>
                     </button>
                   </div>
+
                 </div>
               </div>
             </div>
@@ -537,7 +543,7 @@ const CategoryDetail = () => {
                               style={{
                                 backgroundColor: "#2278b6",
                                 padding: "4px 10px",
-                                marginLeft: "220px",
+                                marginLeft: "200px",
                                 fontSize: "14px",
                                 color: "#fff",
                                 fontWeight: "600",
@@ -620,11 +626,10 @@ const CategoryDetail = () => {
                         <div className="d-flex gap-3 mb-3 mt-4">
                           {imageItems?.length > 0 && (
                             <button
-                              className={`btn ${
-                                activeTabs === "images"
-                                  ? "btn-primary"
-                                  : "btn-outline-primary"
-                              } mb-4`}
+                              className={`btn ${activeTabs === "images"
+                                ? "btn-primary"
+                                : "btn-outline-primary"
+                                } mb-4`}
                               onClick={() => setActiveTabs("images")}
                             >
                               Images
@@ -632,11 +637,10 @@ const CategoryDetail = () => {
                           )}
                           {videoItems?.length > 0 && (
                             <button
-                              className={`btn ${
-                                activeTabs === "videos"
-                                  ? "btn-primary"
-                                  : "btn-outline-primary"
-                              } mb-4`}
+                              className={`btn ${activeTabs === "videos"
+                                ? "btn-primary"
+                                : "btn-outline-primary"
+                                } mb-4`}
                               onClick={() => setActiveTabs("videos")}
                             >
                               Videos
@@ -674,7 +678,7 @@ const CategoryDetail = () => {
                             </div>
 
                             {imageItems?.length > 4 && (
-                              <div className="text-center mt-3">
+                              <div className="text-center mt-3 mb-3">
                                 <button
                                   className="btn btn-primary"
                                   onClick={() => {
@@ -937,21 +941,19 @@ const CategoryDetail = () => {
                     <div className="date-travel-card mt-4">
                       <div className="tabs d-flex gap-2 mb-3">
                         <button
-                          className={`btn ${
-                            activeTab === "review"
-                              ? "btn-primary"
-                              : "btn-outline-primary"
-                          }`}
+                          className={`btn ${activeTab === "review"
+                            ? "btn-primary"
+                            : "btn-outline-primary"
+                            }`}
                           onClick={() => setActiveTab("review")}
                         >
                           Review
                         </button>
                         <button
-                          className={`btn ${
-                            activeTab === "report"
-                              ? "btn-primary"
-                              : "btn-outline-primary"
-                          }`}
+                          className={`btn ${activeTab === "report"
+                            ? "btn-primary"
+                            : "btn-outline-primary"
+                            }`}
                           onClick={() => setActiveTab("report")}
                         >
                           Report

@@ -307,13 +307,13 @@ export default function AddVendor() {
   const fields = [
     {
       name: "ownerName",
-      label: "Owner Name*",
+      label: "Profile Name*",
       type: "text",
       colClass: "col-md-4",
     },
     {
       name: "profileName",
-      label: "Profile Name",
+      label: "Owner Name",
       type: "text",
       colClass: "col-md-4",
     },

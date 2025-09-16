@@ -322,7 +322,7 @@ export const getVendorPackageHistory = async (
 ) => {
   try {
     const response = await axios.get(
-      `${Config.base_url}vendor/package-history?vendor_id=${vendorId}&page=${page}&limit=${limit}`,
+      `${Config.base_url}vendor/package-history?vendor_id=${vendorId}&page=${page}&limit=${limit}}`,
       {
         headers: {
           Authorization: token,

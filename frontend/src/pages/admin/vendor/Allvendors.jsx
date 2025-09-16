@@ -157,40 +157,42 @@ export default function Allvendors() {
   };
 
   const fetchVendorPackageHistory = async (vendorId) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await getVendorPackageHistory(token, vendorId);
+  try {
+    const token = localStorage.getItem("token");
+    const res = await getVendorPackageHistory(token, vendorId);
 
-      if (res.status && res.data.length > 0) {
-        let historyObj = {};
-        const now = new Date();
+    if (res.status && res.data.length > 0) {
+      let historyObj = {};
+      const now = new Date();
 
-        res.data.forEach((pkg) => {
-          const start = new Date(pkg.start_date);
-          const end = new Date(pkg.end_date);
-          const isActive = pkg.payment_status === "completed";
+      res.data.forEach((pkg) => {
+        const end = new Date(pkg.end_date);
 
-          historyObj[pkg.package_id] = isActive ? "Active" : "Inactive";
-        });
+        // Sirf tab add karo jab active ho
+        if (pkg.payment_status === "completed" && end >= now) {
+          historyObj[pkg.package_id] = "Active";
+        }
+      });
 
-        setVendorPackageHistory((prev) => ({
-          ...prev,
-          [vendorId]: historyObj,
-        }));
-      } else {
-        setVendorPackageHistory((prev) => ({
-          ...prev,
-          [vendorId]: {}, // No history found
-        }));
-      }
-    } catch (err) {
-      console.error("Error fetching vendor package history:", err);
       setVendorPackageHistory((prev) => ({
         ...prev,
-        [vendorId]: {},
+        [vendorId]: historyObj,
+      }));
+    } else {
+      setVendorPackageHistory((prev) => ({
+        ...prev,
+        [vendorId]: {}, // No history found
       }));
     }
-  };
+  } catch (err) {
+    console.error("Error fetching vendor package history:", err);
+    setVendorPackageHistory((prev) => ({
+      ...prev,
+      [vendorId]: {},
+    }));
+  }
+};
+
 
   useEffect(() => {
     vendors.forEach((vendor) => {
@@ -595,27 +597,27 @@ export default function Allvendors() {
         </div>
       </div>
 
-     {pkgModalOpen && (
-  <div
-    className="modal fade show"
-    style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-    onClick={() => setPkgModalOpen(false)}  // backdrop click se band hoga
-  >
-    <div
-      className="modal-dialog"
-      onClick={(e) => e.stopPropagation()} // andar click se band na ho
-    >
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title">Assign Package</h5>
-          <button
-            type="button"
-            className="btn-close"
-            onClick={() => setPkgModalOpen(false)}
-          />
-        </div>
-        <div className="modal-body">
-           {pkgOptions.length === 0 ? (
+      {pkgModalOpen && (
+        <div
+          className="modal fade show"
+          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+          onClick={() => setPkgModalOpen(false)} // backdrop click se band hoga
+        >
+          <div
+            className="modal-dialog"
+            onClick={(e) => e.stopPropagation()} // andar click se band na ho
+          >
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Assign Package</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setPkgModalOpen(false)}
+                />
+              </div>
+              <div className="modal-body">
+                {pkgOptions.length === 0 ? (
                   <p>No active packages found.</p>
                 ) : (
                   <div className="list-group">
@@ -662,29 +664,30 @@ export default function Allvendors() {
                     ))}
                   </div>
                 )}
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setPkgModalOpen(false)}
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  className={`btn btn-primary ${
+                    !selectedPkgId ? "disabled" : ""
+                  }`}
+                  onClick={submitAssignPackage}
+                  disabled={!selectedPkgId}
+                >
+                  Assign
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => setPkgModalOpen(false)}
-          >
-            Close
-          </button>
-          <button
-            type="button"
-            className={`btn btn-primary ${!selectedPkgId ? "disabled" : ""}`}
-            onClick={submitAssignPackage}
-            disabled={!selectedPkgId}
-          >
-            Assign
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
+      )}
     </div>
   );
 }

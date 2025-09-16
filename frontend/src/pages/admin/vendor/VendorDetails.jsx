@@ -110,10 +110,10 @@ export default function VendorDetails() {
             <div className="col-auto">
               <div className="position-relative">
                 <img
-                  src={vendor.image || "/no-image.png"}
+                  src={vendor.image || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
                   alt="Vendor"
                   className="rounded-circle border border-3 border-white shadow"
-                  style={{ width: "120px", height: "120px", objectFit: "cover" }}
+                  style={{ width: "80px", height: "80px", objectFit: "cover" }}
                 />
               </div>
             </div>

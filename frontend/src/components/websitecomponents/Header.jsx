@@ -90,11 +90,10 @@ const Header = () => {
                               <li className="single-list">
                                 <Link
                                   to="/"
-                                  className={`single  ${
-                                    location.pathname === "/"
-                                      ? "link-active"
-                                      : ""
-                                  }`}
+                                  className={`single  ${location.pathname === "/"
+                                    ? "link-active"
+                                    : ""
+                                    }`}
                                 >
                                   Home
                                 </Link>
@@ -103,29 +102,26 @@ const Header = () => {
                               <li className="single-list">
                                 <Link
                                   to="/about"
-                                  className={`single ${
-                                    location.pathname === "/about"
-                                      ? "link-active"
-                                      : ""
-                                  }`}
+                                  className={`single ${location.pathname === "/about"
+                                    ? "link-active"
+                                    : ""
+                                    }`}
                                 >
                                   About
                                 </Link>
                               </li>
 
                               <li
-                                className={`single-list dropdown-container ${
-                                  open ? "submenu-open" : ""
-                                }`}
+                                className={`single-list dropdown-container ${open ? "submenu-open" : ""
+                                  }`}
                                 tabIndex={0}
                                 onBlur={() => setOpen(false)}
                               >
                                 <div
-                                  className={`single dropdown-trigger font-normal ${
-                                    location.pathname.startsWith("/category")
-                                      ? "link-active"
-                                      : ""
-                                  }`}
+                                  className={`single dropdown-trigger font-normal ${location.pathname.startsWith("/category")
+                                    ? "link-active"
+                                    : ""
+                                    }`}
                                   onClick={(e) => {
                                     e.preventDefault();
                                     setOpen(!open);
@@ -133,9 +129,8 @@ const Header = () => {
                                 >
                                   Category
                                   <i
-                                    className={`ri-arrow-down-s-line ${
-                                      open ? "rotate" : ""
-                                    }`}
+                                    className={`ri-arrow-down-s-line ${open ? "rotate" : ""
+                                      }`}
                                   />
                                 </div>
 
@@ -183,11 +178,10 @@ const Header = () => {
                               <li className="single-list">
                                 <Link
                                   to="/blog"
-                                  className={`single ${
-                                    location.pathname.startsWith("/blog")
-                                      ? "link-active"
-                                      : ""
-                                  }`}
+                                  className={`single ${location.pathname.startsWith("/blog")
+                                    ? "link-active"
+                                    : ""
+                                    }`}
                                 >
                                   Blogs
                                 </Link>
@@ -196,11 +190,10 @@ const Header = () => {
                               <li className="single-list">
                                 <Link
                                   to="/gallery"
-                                  className={`single ${
-                                    location.pathname === "/gallery"
-                                      ? "link-active"
-                                      : ""
-                                  }`}
+                                  className={`single ${location.pathname === "/gallery"
+                                    ? "link-active"
+                                    : ""
+                                    }`}
                                 >
                                   Gallery
                                 </Link>
@@ -209,11 +202,10 @@ const Header = () => {
                               <li className="single-list">
                                 <Link
                                   to="/contact"
-                                  className={`single ${
-                                    location.pathname === "/contact"
-                                      ? "link-active"
-                                      : ""
-                                  }`}
+                                  className={`single ${location.pathname === "/contact"
+                                    ? "link-active"
+                                    : ""
+                                    }`}
                                 >
                                   Contact us
                                 </Link>
@@ -232,7 +224,7 @@ const Header = () => {
                       </div>
                       <div className="sign-btn">
                         <Link to="/registration" className="btn-primary">
-                         Vendor Registration
+                          Vendor Registration
                         </Link>
                       </div>
                     </div>
@@ -243,9 +235,9 @@ const Header = () => {
           </div>
 
           {/* Mobile Header */}
-          <div className="mobile-header d-block d-lg-none">
+          <div className="mobile-header header-top header-sticky sticky-bar d-block d-lg-none">
             <div className="container-fluid">
-              <div className="mobile-header-content d-flex align-items-center justify-content-between py-3 px-3">
+              <div className="mobile-header-content d-flex align-items-center justify-content-between py-5 ">
                 <div className="logo">
                   <Link to="/" onClick={closeMobileMenu}>
                     <img
@@ -291,7 +283,7 @@ const Header = () => {
         </div>
       </header>
 
-    
+
       {mobileOpen && (
         <div className="mobile-overlay" onClick={closeMobileMenu}></div>
       )}
@@ -365,7 +357,7 @@ const Header = () => {
                 onClick={closeMobileMenu}
               >
                 <i className="ri-article-line"></i>
-                Blog
+                Blogs
               </Link>
             </li>
 
@@ -404,7 +396,7 @@ const Header = () => {
                 onClick={closeMobileMenu}
               >
                 <i className="ri-user-add-line"></i>
-                Sign Up
+                Vendor Registration
               </Link>
             </div>
           </div>
@@ -522,14 +514,7 @@ const Header = () => {
         }
 
         /* Mobile Header Styles */
-        .mobile-header {
-          position: sticky;
-          top: 0;
-          background: #fff;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          z-index: 1000;
-          height: 60px;
-        }
+
 
         /* Hamburger Button */
         .hamburger-btn {
@@ -607,13 +592,18 @@ const Header = () => {
         }
 
         /* Sidebar Header */
-        .sidebar-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 20px;
-          border-bottom: 1px solid #eee;
-        }
+   .sidebar-header {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
 
         .close-btn {
           background: none;
@@ -637,7 +627,7 @@ const Header = () => {
 
         /* Sidebar Navigation */
         .sidebar-nav {
-          padding: 20px 0;
+          padding: 6px 0;
         }
 
         .mobile-menu-list {
@@ -692,20 +682,19 @@ const Header = () => {
           transform: rotate(180deg);
         }
         .submenu {
-          max-height: 0;
-          overflow: hidden;
-          transition: max-height 0.3s ease;
-          background: #f8f9fa;
-          list-style: none;
-          margin: 0;
-          padding: 0;
-
-          display: grid;
-          grid-template-columns: repeat(2, 1fr); /* 2 items per row */
-          gap: 5px; /* Less space between items for smaller look */
-         
-          font-size: 13px; /* Smaller text */
-        }
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: #f8f9fa;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+    font-size: 13px;
+    padding-left: 15px;
+}
 
         padding: 4px 6px; /* Smaller padding for each item */
         .submenu li {
@@ -795,17 +784,17 @@ const Header = () => {
         }
 
         /* Responsive adjustments */
-        @media (max-width: 480px) {
-          .mobile-sidebar {
-            width: 100%;
-            right: -100%;
-          }
-        }
+        // @media (max-width: 480px) {
+        //   .mobile-sidebar {
+        //     width: 100%;
+        //     right: -100%;
+        //   }
+        // }
 
-        @media (max-width: 375px) {
-          .mobile-sidebar {
-            width: 100vw;
-          }
+        // @media (max-width: 375px) {
+        //   .mobile-sidebar {
+        //     width: 100vw;
+        //   }
         }
       `}</style>
     </>
