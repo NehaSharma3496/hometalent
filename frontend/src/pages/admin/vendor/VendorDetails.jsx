@@ -76,12 +76,12 @@ export default function VendorDetails() {
     },
     {
       label: "State",
-      value: vendor.state_name,
+      value: vendor.State.name,
       icon: "fas fa-map",
     },
     {
       label: "City",
-      value: vendor.city_name,
+      value: vendor.City.name,
       icon: "fas fa-city",
     },
   ];
@@ -145,32 +145,33 @@ export default function VendorDetails() {
           </div> */}
 
           <div className="position-absolute top-0 end-0 p-3 d-flex flex-column gap-2">
-            <Link
-              to="/admin/vendor/vendorpackagedetails"
-              className="btn btn-outline-primary btn-sm shadow-sm"
-              state={{ vendorId: vendorId }}
-            >
-              <i className="fas fa-box-open me-1"></i>
-              Vendor Packages
-            </Link>
+  <Link
+    to="/admin/vendor/vendorpackagedetails"
+    className="btn btn-outline-primary btn-sm shadow-sm"
+    state={{ vendorId: vendorId }}
+  >
+    <i className="fas fa-box-open me-1"></i>
+    Vendor Packages
+  </Link>
 
-            <Link
-              to={`/admin/galleryUpdates/vendorgallery/${vendorId}`}
-              className="btn btn-outline-success btn-sm shadow-sm"
-            >
-              <i className="fas fa-images me-1"></i>
-              Gallery
-            </Link>
+  <Link
+    to={`/admin/galleryUpdates/vendorgallery/${vendorId}`}
+    className="btn btn-outline-primary btn-sm shadow-sm"
+  >
+    <i className="fas fa-images me-1"></i>
+    Gallery
+  </Link>
 
-            <Link
-              to={`/admin/review/vendorallleads/${vendorId}`}
-              className="btn btn-outline-info btn-sm shadow-sm"
-              state={{ vendorId: vendorId }}
-            >
-              <i className="fas fa-user-friends me-1"></i>
-              Leads
-            </Link>
-          </div>
+  <Link
+    to={`/admin/review/vendorallleads/${vendorId}`}
+    className="btn btn-outline-primary btn-sm shadow-sm"
+    state={{ vendorId: vendorId }}
+  >
+    <i className="fas fa-user-friends me-1"></i>
+    Leads
+  </Link>
+</div>
+
         </div>
 
         <div className="card-body p-4">

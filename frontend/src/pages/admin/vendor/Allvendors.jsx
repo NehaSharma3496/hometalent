@@ -232,6 +232,7 @@ export default function Allvendors() {
       // v.experience_since?.toLowerCase().includes(lowerSearch) ||
       v.phone?.toLowerCase().includes(lowerSearch) ||
       v.City.name?.toLowerCase().includes(lowerSearch) ||
+      v.State.name?.toLowerCase().includes(lowerSearch) ||
       (Array.isArray(v.category_names)
         ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
         : v.category_names?.toLowerCase().includes(lowerSearch));
@@ -707,33 +708,41 @@ export default function Allvendors() {
 
           {/* Date Filter */}
           <div className="d-flex align-items-center gap-2">
-            <input
-              type="date"
-              className="form-control form-control-sm shadow-sm border-primary rounded"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-            <span className="fw-semibold text-secondary">to</span>
-            <input
-              type="date"
-              className="form-control form-control-sm shadow-sm border-primary rounded"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-            {(startDate || endDate) && (
-              <button
-                className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 rounded"
-                style={{ height: "31px", lineHeight: "1", padding: "0 10px" }}
-                onClick={() => {
-                  setStartDate("");
-                  setEndDate("");
-                }}
-              >
-                <i className="fas fa-times"></i>
-                <span className="d-none d-md-inline">Clear</span>
-              </button>
-            )}
-          </div>
+  <input
+    type={startDate ? "date" : "text"}
+    className="form-control form-control-sm shadow-sm border rounded"
+    placeholder="From"
+    value={startDate}
+    onFocus={(e) => (e.target.type = "date")}
+    onBlur={(e) => !startDate && (e.target.type = "text")}
+    onChange={(e) => setStartDate(e.target.value)}
+  />
+
+  <input
+    type={endDate ? "date" : "text"}
+    className="form-control form-control-sm shadow-sm border rounded"
+    placeholder="To"
+    value={endDate}
+    onFocus={(e) => (e.target.type = "date")}
+    onBlur={(e) => !endDate && (e.target.type = "text")}
+    onChange={(e) => setEndDate(e.target.value)}
+  />
+
+  {(startDate || endDate) && (
+    <button
+      className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 rounded"
+      style={{ height: "31px", lineHeight: "1", padding: "0 10px" }}
+      onClick={() => {
+        setStartDate("");
+        setEndDate("");
+      }}
+    >
+      <i className="fas fa-times"></i>
+      <span className="d-none d-md-inline">Clear</span>
+    </button>
+  )}
+</div>
+
         </div>
 
         <div className="row ">

@@ -141,7 +141,7 @@ export default function SponsoredRankUpdate() {
           <input
             type="text"
             className="form-control border-0 shadow-none"
-            placeholder="Search by vendor name, email, or phone..."
+            placeholder="Search by vendor name"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
