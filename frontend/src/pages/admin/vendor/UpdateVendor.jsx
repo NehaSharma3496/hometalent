@@ -259,42 +259,42 @@ export default function UpdateVendor() {
       label: "Facebook Link",
       type: "text",
       colClass: "col-md-6 mb-3",
-      placeholder: "https://facebook.com/yourpage"
+      // placeholder: "https://facebook.com/yourpage"
     },
     {
       name: "instagram_link",
       label: "Instagram Link",
       type: "text",
       colClass: "col-md-6 mb-3",
-      placeholder: "https://instagram.com/youraccount"
+      // placeholder: "https://instagram.com/youraccount"
     },
     {
       name: "twitter_link",
       label: "Twitter Link",
       type: "text",
       colClass: "col-md-6 mb-3",
-      placeholder: "https://twitter.com/youraccount"
+      // placeholder: "https://twitter.com/youraccount"
     },
     {
       name: "linkedin_link",
       label: "LinkedIn Link",
       type: "text",
       colClass: "col-md-6 mb-3",
-      placeholder: "https://linkedin.com/in/yourprofile"
+      // placeholder: "https://linkedin.com/in/yourprofile"
     },
     {
       name: "youtube_link",
       label: "YouTube Link",
       type: "text",
       colClass: "col-md-6 mb-3",
-      placeholder: "https://youtube.com/yourchannel"
+      // placeholder: "https://youtube.com/yourchannel"
     },
     {
       name: "website_link",
       label: "Website Link",
       type: "text",
       colClass: "col-md-6 mb-3",
-      placeholder: "https://yourwebsite.com"
+      // placeholder: "https://yourwebsite.com"
     },
     {
       name: "image",
@@ -431,7 +431,7 @@ export default function UpdateVendor() {
           price_range: vendor.price_range || "",
           short_description: vendor.short_description || "",
           category_id: vendor.category_id?.toString() || "",
-          other_category: "",
+          other_category: vendor.category_name || "",
           experience_since: vendor.experience_since || "",
           long_description: vendor.long_description || "",
           facebook_link: vendor.facebook_link || "",

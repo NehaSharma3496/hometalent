@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, Link, useNavigate } from "react-router-dom";
-import { GetVendorDetails, GetCategories } from "../../../Services/vendor/Vendor";
+import { useLocation, Link } from "react-router-dom";
+import { GetVendorDetails } from "../../../Services/vendor/Vendor";
 
 export default function VendorDetails() {
   const location = useLocation();
-  const navigate = useNavigate();
   const [vendor, setVendor] = useState(null);
-  const [categories, setCategories] = useState([]);
   const token = localStorage.getItem("token");
   const vendorId = location.state?.vendorId;
+  const [showImage, setShowImage] = useState(false);
 
   const fetchVendor = async () => {
     try {
@@ -25,35 +24,9 @@ export default function VendorDetails() {
     }
   };
 
-  const fetchCategories = async () => {
-    try {
-      const res = await GetCategories(token);
-      if (res?.data) {
-        setCategories(res.data);
-      }
-    } catch (error) {
-      console.log("Error fetching categories:", error);
-    }
-  };
-
-  const getCategoryNames = (ids) => {
-    if (!ids || categories.length === 0) return "Not provided";
-
-    const idArray = String(ids).split(","); // vendor.category_id could be comma separated
-    const names = idArray
-      .map((id) => {
-        const cat = categories.find((c) => String(c.id) === String(id.trim()));
-        return cat ? cat.name : null;
-      })
-      .filter(Boolean);
-
-    return names.length > 0 ? names.join(", ") : "Not provided";
-  };
-
   useEffect(() => {
     if (token && vendorId) {
       fetchVendor();
-      fetchCategories();
     }
   }, [vendorId, token]);
 
@@ -86,9 +59,31 @@ export default function VendorDetails() {
     { label: "Email", value: vendor.email, icon: "fas fa-envelope" },
     { label: "Phone", value: vendor.phone, icon: "fas fa-phone" },
     { label: "Price Range", value: vendor.price_range, icon: "fas fa-inr" },
-    { label: "Experience Since", value: vendor.experience_since, icon: "fas fa-calendar-alt" },
-    { label: "Pin Code", value: vendor.pin_code, icon: "fas fa-map-marker-alt" },
-    { label: "Category Name", value:vendor.category_name , icon: "fas fa-tags" },
+    {
+      label: "Experience Since",
+      value: vendor.experience_since,
+      icon: "fas fa-calendar-alt",
+    },
+    {
+      label: "Pin Code",
+      value: vendor.pin_code,
+      icon: "fas fa-map-marker-alt",
+    },
+    {
+      label: "Category Name",
+      value: vendor.category_name,
+      icon: "fas fa-tags",
+    },
+    {
+      label: "State",
+      value: vendor.state_name,
+      icon: "fas fa-map",
+    },
+    {
+      label: "City",
+      value: vendor.city_name,
+      icon: "fas fa-city",
+    },
   ];
 
   return (
@@ -110,18 +105,24 @@ export default function VendorDetails() {
             <div className="col-auto">
               <div className="position-relative">
                 <img
-                  src={vendor.image || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
+                  src={
+                    vendor.image ||
+                    "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                  }
                   alt="Vendor"
                   className="rounded-circle border border-3 border-white shadow"
                   style={{ width: "80px", height: "80px", objectFit: "cover" }}
+                  onClick={() => setShowImage(true)}
                 />
               </div>
             </div>
             <div className="col">
-              <h3 className="mb-2 fw-bold">{vendor.owner_name}</h3>
+              <h3 className="mb-2 fs-4 fw-bold">{vendor.owner_name}</h3>
               <div className="d-flex align-items-center gap-3 mb-2">
                 {vendor.profile_name && (
-                  <span className="badge bg-primary">{vendor.profile_name}</span>
+                  <span className="badge bg-primary">
+                    {vendor.profile_name}
+                  </span>
                 )}
                 {vendor.experience_since && (
                   <span>
@@ -132,7 +133,7 @@ export default function VendorDetails() {
               </div>
             </div>
           </div>
-          <div className="position-absolute top-0 end-0 p-3">
+          {/* <div className="position-absolute top-0 end-0 p-3">
             <Link
               to="/admin/vendor/vendorpackagedetails"
               className="btn btn-outline-primary btn-sm shadow-sm"
@@ -141,19 +142,47 @@ export default function VendorDetails() {
               <i className="fas fa-box-open me-1"></i>
               Vendor Packages
             </Link>
+          </div> */}
+
+          <div className="position-absolute top-0 end-0 p-3 d-flex flex-column gap-2">
+            <Link
+              to="/admin/vendor/vendorpackagedetails"
+              className="btn btn-outline-primary btn-sm shadow-sm"
+              state={{ vendorId: vendorId }}
+            >
+              <i className="fas fa-box-open me-1"></i>
+              Vendor Packages
+            </Link>
+
+            <Link
+              to={`/admin/galleryUpdates/vendorgallery/${vendorId}`}
+              className="btn btn-outline-success btn-sm shadow-sm"
+            >
+              <i className="fas fa-images me-1"></i>
+              Gallery
+            </Link>
+
+            <Link
+              to={`/admin/review/vendorallleads/${vendorId}`}
+              className="btn btn-outline-info btn-sm shadow-sm"
+              state={{ vendorId: vendorId }}
+            >
+              <i className="fas fa-user-friends me-1"></i>
+              Leads
+            </Link>
           </div>
         </div>
 
         <div className="card-body p-4">
           <div className="row g-4">
             <div className="col-lg-8">
-              <h5 className="mb-4 d-flex align-items-center">
-                <i className="fas fa-info-circle text-primary me-2"></i>
+              <h5 className="mb-4 d-flex align-items-center fs-6">
+                <i className="fas fa-info-circle text-primary me-2 fs-6"></i>
                 Contact Information
               </h5>
               <div className="row g-3">
                 {profileFields?.map(({ label, value, icon }, i) => (
-                  <div key={i} className="col-md-6">
+                  <div key={i} className="col-md-6 mt-2">
                     <div className="justify-content-between align-items-center p-3 bg-light rounded-3 h-100">
                       <div className="d-flex align-items-center gap-3">
                         <div className="text-primary fs-5">
@@ -169,9 +198,9 @@ export default function VendorDetails() {
             </div>
           </div>
 
-          {( vendor.long_description) && (
+          {vendor.long_description && (
             <div className="mt-4">
-              <h5 className="mb-3 d-flex align-items-center">
+              <h5 className="mb-3 d-flex align-items-center fs-6">
                 <i className="fas fa-file-alt text-info me-2"></i>
                 About
               </h5>
@@ -187,7 +216,9 @@ export default function VendorDetails() {
                 {vendor.long_description && (
                   <div className="col-md-6 mb-3">
                     <div className="bg-light p-4 rounded-3 h-100">
-                      <h6 className="text-primary mb-2">Long Description</h6>
+                      <h6 className="text-primary mb-2 fs-6">
+                        Long Description
+                      </h6>
                       <p className="mb-0 lh-lg">{vendor.long_description}</p>
                     </div>
                   </div>
@@ -197,12 +228,16 @@ export default function VendorDetails() {
           )}
 
           <div className="mt-4">
-            <h5 className="mb-4 d-flex align-items-center">Social Media & Links</h5>
+            <h5 className="mb-4 d-flex align-items-center fs-6">
+              Social Media & Links
+            </h5>
             <div className="d-flex flex-wrap gap-3">
               {socialLinks?.map(({ key, icon, color }) => {
                 const link = vendor[key];
                 if (!link) return null;
-                const fullUrl = link.startsWith("http") ? link : `https://${link}`;
+                const fullUrl = link.startsWith("http")
+                  ? link
+                  : `https://${link}`;
                 return (
                   <div key={key}>
                     <a
@@ -236,6 +271,47 @@ export default function VendorDetails() {
             </div>
           </div>
         </div>
+
+        {showImage && (
+          <div
+            className="modal fade show"
+            style={{ display: "block", backgroundColor: "rgba(0,0,0,0.8)" }}
+            onClick={() => setShowImage(false)} // background क्लिक पर बंद होगा
+          >
+            <div
+              className="d-flex justify-content-center align-items-center"
+              style={{ minHeight: "100vh" }}
+            >
+              {/* Card container */}
+              <div
+                className="card rounded-pill shadow-lg border-0 overflow-hidden"
+                style={{
+                  maxWidth: "600px",
+                  width: "90%",
+                  background: "#fff",
+                }}
+                onClick={(e) => e.stopPropagation()} // card पर क्लिक से बंद न हो
+              >
+                <div className="card-body p-0 d-flex justify-content-center align-items-center">
+                  <img
+                    src={
+                      vendor.image ||
+                      "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                    }
+                    alt="Vendor Large"
+                    className="img-fluid"
+                    style={{
+                      maxHeight: "100vh",
+                      width: "100%",
+                      objectFit: "cover",
+                      borderRadius: "50rem", // pill effect
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

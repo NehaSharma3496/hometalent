@@ -29,7 +29,7 @@ export const MenuItems = {
         },
         {
           icon: "fa-solid fa-user-shield",
-          label: "Approve Vendors",
+          label: "Approved Vendors",
           link: "/admin/vendor/approvevendors",
         },
         {

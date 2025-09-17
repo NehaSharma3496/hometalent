@@ -14,6 +14,7 @@ export default function SponsoredRankUpdate() {
 
   const [loading, setLoading] = useState(true);
   const [vendorList, setVendorList] = useState([]);
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     if (categoryId) fetchVendors();
@@ -101,6 +102,18 @@ export default function SponsoredRankUpdate() {
     }
   };
 
+  // 🔎 Filter vendor list based on search
+  const filteredVendors = searchText
+    ? vendorList.filter((vendor) => {
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
+          vendor.email?.toLowerCase().includes(lowerSearch) ||
+          vendor.phone?.toLowerCase().includes(lowerSearch)
+        );
+      })
+    : vendorList;
+
   return (
     <div className="page-content">
       <div className="row align-items-center mb-3">
@@ -118,6 +131,28 @@ export default function SponsoredRankUpdate() {
           <button className="btn btn-success" onClick={handleSubmit}>
             Update Ranks
           </button>
+        </div>
+      </div>
+
+      {/* 🔎 Search Bar */}
+      <div className="col-md-4 mb-3">
+        <div className="d-flex align-items-center border rounded px-2">
+          <i className="ri-search-line me-2 text-muted" />
+          <input
+            type="text"
+            className="form-control border-0 shadow-none"
+            placeholder="Search by vendor name, email, or phone..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+          {searchText && (
+            <button
+              className="btn btn-sm btn-light border-0"
+              onClick={() => setSearchText("")}
+            >
+              <i className="ri-close-line" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -141,14 +176,14 @@ export default function SponsoredRankUpdate() {
                     Loading...
                   </td>
                 </tr>
-              ) : vendorList.length === 0 ? (
+              ) : filteredVendors.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="text-center">
                     No vendors found
                   </td>
                 </tr>
               ) : (
-                vendorList.map((vendor, index) => (
+                filteredVendors.map((vendor, index) => (
                   <tr key={vendor.id}>
                     <td>{index + 1}</td>
                     <td>{vendor.owner_name || "N/A"}</td>

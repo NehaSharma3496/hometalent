@@ -201,6 +201,23 @@ export default function ViewProfileChanges() {
     }
   };
 
+  // const columns = [
+  //   {
+  //     name: "Field",
+  //     selector: (row) => row.field,
+  //     sortable: true,
+  //   },
+  //   {
+  //     name: "Current Value",
+  //     selector: (row) => row.oldVal,
+  //   },
+  //   {
+  //     name: "Requested Change",
+  //     selector: (row) => row.newVal,
+  //     cell: (row) => <span className="text-warning fw-bold">{row.newVal}</span>,
+  //   },
+  // ];
+
   const columns = [
     {
       name: "Field",
@@ -210,11 +227,38 @@ export default function ViewProfileChanges() {
     {
       name: "Current Value",
       selector: (row) => row.oldVal,
+      cell: (row) =>
+        row.field.toLowerCase().includes("image") ? (
+          row.oldVal !== "-" ? (
+            <a href={row.oldVal} target="_blank" rel="noopener noreferrer">
+              <img
+                src={row.oldVal}
+                alt="Old"
+                style={{ width: "50px", height: "50px", objectFit: "cover" }}
+              />
+            </a>
+          ) : (
+            "-"
+          )
+        ) : (
+          row.oldVal
+        ),
     },
     {
       name: "Requested Change",
       selector: (row) => row.newVal,
-      cell: (row) => <span className="text-warning fw-bold">{row.newVal}</span>,
+      cell: (row) =>
+        row.field.toLowerCase().includes("image") ? (
+          <a href={row.newVal} target="_blank" rel="noopener noreferrer">
+            <img
+              src={row.newVal}
+              alt="New"
+              style={{ width: "50px", height: "50px", objectFit: "cover" }}
+            />
+          </a>
+        ) : (
+          <span className="text-warning fw-bold">{row.newVal}</span>
+        ),
     },
   ];
 

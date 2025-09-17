@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { GetAllVendorLeads } from "../../../Services/vendor/Vendor";
-import { Link } from "react-router-dom";
+import { Link,useLocation } from "react-router-dom";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 import { Modal, Button } from "react-bootstrap";
 
-export default function AllLeads() {
+export default function VendorAllLeads() {
+    const location = useLocation();
   const [leads, setLeads] = useState([]);
   const [searchText, setSearchText] = useState("");
   const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user"));
-  const userId = user?.id;
   const [allLeads, setAllLeads] = useState([]);
-
+const vendorId=location?.state?.vendorId
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
@@ -29,7 +28,7 @@ export default function AllLeads() {
   const fetchAllLeads = async (page, limit) => {
     setLoading(true);
     try {
-      const res = await GetAllVendorLeads(token, userId, page, limit);
+      const res = await GetAllVendorLeads(token, vendorId, page, limit);
       if (res?.data && res?.pagination) {
         setLeads(res.data);
         setTotalRows(res.pagination.total_records);
@@ -46,8 +45,8 @@ export default function AllLeads() {
 
   const fetchGlobalLeads = async () => {
     const token = localStorage.getItem("token");
-    const user = JSON.parse(localStorage.getItem("user"));
-    const userId = user?.id;
+    // const user = JSON.parse(localStorage.getItem("user"));
+    // const userId = user?.id;
 
     let fullList = [];
     let page = 1;
@@ -55,7 +54,7 @@ export default function AllLeads() {
     let totalPages = 1;
 
     while (page <= totalPages) {
-      const res = await GetAllVendorLeads(token, userId, page, limit);
+      const res = await GetAllVendorLeads(token, vendorId, page, limit);
       if (res?.data && res?.pagination?.total_records) {
         fullList = [...fullList, ...res.data];
         totalPages = Math.ceil(res.pagination.total_records / limit);
@@ -71,8 +70,8 @@ export default function AllLeads() {
   const exportToExcel = async () => {
     try {
       const token = localStorage.getItem("token");
-      const user = JSON.parse(localStorage.getItem("user"));
-      const userId = user?.id;
+    //   const user = JSON.parse(localStorage.getItem("user"));
+    //   const userId = user?.id;
 
       let allLeads = [];
       let page = 1;
@@ -80,7 +79,7 @@ export default function AllLeads() {
       let totalPages = 1;
 
       while (page <= totalPages) {
-        const res = await GetAllVendorLeads(token, userId, page, limit);
+        const res = await GetAllVendorLeads(token, vendorId, page, limit);
         const { data, pagination } = res || {};
         if (data?.length) allLeads = [...allLeads, ...data];
 
@@ -116,11 +115,11 @@ export default function AllLeads() {
   };
 
   useEffect(() => {
-    if (userId) {
+    if (vendorId) {
       fetchAllLeads(currentPage, perPage);
       fetchGlobalLeads();
     }
-  }, [userId, currentPage, perPage]);
+  }, [vendorId, currentPage, perPage]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -219,7 +218,7 @@ export default function AllLeads() {
         {/* Left side: Back + Heading */}
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/vendor/dashboard">
+            <Link to="/admin/dashboard">
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </Link>
             <h2 className="add-page-heading">All Leads</h2>

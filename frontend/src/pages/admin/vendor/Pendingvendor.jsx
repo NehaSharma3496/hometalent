@@ -152,18 +152,17 @@ export default function PendingVendor() {
           Email: row.email || "N/A",
           "Category Names": categoryNames,
           "Phone Number": row.phone || "N/A",
-          "Price Range": row.price_range || "N/A",  
+          "Price Range": row.price_range || "N/A",
           "Pin Code": row.pin_code || "N/A",
           "Experience Since": row.experience_since || "N/A",
-           Approval_Status:
-          row.approval_status === 1
-            ? "Approved"
-            : row.approval_status === 2
-            ? "Rejected"
-            : "Pending",
-              Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
+          Approval_Status:
+            row.approval_status === 1
+              ? "Approved"
+              : row.approval_status === 2
+              ? "Rejected"
+              : "Pending",
+          Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
         };
-        
       });
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -177,28 +176,27 @@ export default function PendingVendor() {
   };
 
   const filteredPendingVendors = searchText
-  ? allPendingVendors.filter((vendor) => {
-      const lowerSearch = searchText.toLowerCase();
+    ? allPendingVendors.filter((vendor) => {
+        const lowerSearch = searchText.toLowerCase();
 
-      const categoryNames = vendor.category_id
-        ? vendor.category_id
-            .split(",")
-            .map((id) => categoryMap[id.trim()]?.toLowerCase() || "")
-            .join(", ")
-        : "";
+        const categoryNames = vendor.category_id
+          ? vendor.category_id
+              .split(",")
+              .map((id) => categoryMap[id.trim()]?.toLowerCase() || "")
+              .join(", ")
+          : "";
 
-      return (
-        vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
-        vendor.email?.toLowerCase().includes(lowerSearch) ||
-        vendor.phone?.toLowerCase().includes(lowerSearch) ||
-        vendor.price_range?.toLowerCase().includes(lowerSearch) ||
-        vendor.pin_code?.toLowerCase().includes(lowerSearch) ||
-        vendor.experience_since?.toLowerCase().includes(lowerSearch) ||
-        categoryNames.includes(lowerSearch)
-      );
-    })
-  : pendingvendors;
-
+        return (
+          vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
+          vendor.email?.toLowerCase().includes(lowerSearch) ||
+          vendor.phone?.toLowerCase().includes(lowerSearch) ||
+          vendor.price_range?.toLowerCase().includes(lowerSearch) ||
+          vendor.pin_code?.toLowerCase().includes(lowerSearch) ||
+          vendor.experience_since?.toLowerCase().includes(lowerSearch) ||
+          categoryNames.includes(lowerSearch)
+        );
+      })
+    : pendingvendors;
 
   useEffect(() => {
     fetchPendingVendors(currentPage, perPage);
@@ -280,6 +278,21 @@ export default function PendingVendor() {
       name: "Experience Since",
       selector: (row) => row.experience_since || "—",
       sortable: true,
+    },
+    {
+      name: "View",
+      cell: (row) => (
+        <button
+          className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
+          style={{ width: "35px", height: "35px" }}
+          onClick={() =>
+            navigate(`/admin/vendordetails`, { state: { vendorId: row.id } })
+          }
+          title="View"
+        >
+          <i className="fa-regular fa-eye"></i>
+        </button>
+      ),
     },
     {
       name: "Status",
