@@ -288,7 +288,7 @@ export default function Allvendors() {
         // "Short Description": row.short_description || "N/A",
         // "Experience Since": row.experience_since || "N/A",
         City: row.City?.name || "N/A",
-         State: row.State?.name || "N/A",
+        State: row.State?.name || "N/A",
         Status: row.status === 1 ? "Active" : "Inactive",
         Approval_Status:
           row.approval_status === 1
@@ -424,10 +424,10 @@ export default function Allvendors() {
     //   name: "Experience Since",
     //   selector: (row) => row.experience_since || "—",
     // },
-     {
+    {
       name: "State",
       selector: (row) => row?.State.name || "—",
-      width:"150px"
+      width: "150px",
     },
     {
       name: "City",

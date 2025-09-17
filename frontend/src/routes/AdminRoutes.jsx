@@ -38,6 +38,8 @@ import AllFeedBack from "../pages/admin/enquiries&leads/AllFeedback";
 import AllReport from "../pages/admin/review/AllReport";
 import VendorAllLeads from "../pages/admin/vendor/VendorLeads";
 import SubscribedVendors from "../pages/admin/vendor/SubscribedVendors";
+import ExpiredVendors from "../pages/admin/vendor/ExpiredVendors";
+import UnsubscribedVendors from "../pages/admin/vendor/UnsubscribedVendors";
 
 const AdminRoutes = (
   <Route path="/admin" element={<AdminLayout />}>
@@ -92,6 +94,8 @@ const AdminRoutes = (
     <Route path="review/allreport" element={<AllReport/>}/>
     <Route path="review/vendorallleads/:vendorId" element={<VendorAllLeads/>}/>
     <Route path="subscribedvendors" element={<SubscribedVendors/>}/>
+    <Route path="expiredvendors" element={<ExpiredVendors/>}/>
+    <Route path="unsubscribed" element={<UnsubscribedVendors/>}/>
   </Route>
 );
 

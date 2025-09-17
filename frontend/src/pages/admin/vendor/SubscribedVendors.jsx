@@ -49,7 +49,9 @@ export default function SubscribedVendors() {
       vendor.phone?.toLowerCase().includes(lowerSearch) ||
       vendor.price_range?.toLowerCase().includes(lowerSearch) ||
       vendor.experience_since?.toLowerCase().includes(lowerSearch) ||
-      vendor.category_name?.toLowerCase().includes(lowerSearch)
+      vendor.Category.name?.toLowerCase().includes(lowerSearch) ||
+      vendor.State.name?.toLowerCase().includes(lowerSearch) ||
+      vendor.City.name?.toLowerCase().includes(lowerSearch)
     );
   });
 
@@ -64,7 +66,9 @@ export default function SubscribedVendors() {
         Phone: row.phone || "N/A",
         // "Price Range": row.price_range || "N/A",
         // Experience: row.experience_since || "N/A",
-        Date: row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "N/A",
+        Date: row.createdAt
+          ? new Date(row.createdAt).toLocaleDateString()
+          : "N/A",
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -79,12 +83,22 @@ export default function SubscribedVendors() {
 
   const columns = [
     { name: "S.No", selector: (row, index) => index + 1, width: "60px" },
-    { name: "Owner Name", selector: (row) => row.owner_name || "—", sortable: true, width: "150px" },
-    { name: "Email", selector: (row) => row.email || "—", sortable: true, width: "230px" },
-    // {name:"Category Name",selector:(row)=>row.Category.name||"-"},
+    {
+      name: "Owner Name",
+      selector: (row) => row.owner_name || "—",
+      sortable: true,
+      width: "150px",
+    },
+    {
+      name: "Email",
+      selector: (row) => row.email || "—",
+      sortable: true,
+      width: "230px",
+    },
+    { name: "Category Name", selector: (row) => row.Category.name || "-" },
     { name: "Phone", selector: (row) => row.phone || "—", sortable: true },
-        // { name: "State", selector: (row) => row.State.name || "—", sortable: true },
-            // { name: "City", selector: (row) => row.City.name || "—", sortable: true },
+    { name: "State", selector: (row) => row.State.name || "—", sortable: true },
+    { name: "City", selector: (row) => row.City.name || "—", sortable: true },
   ];
 
   return (
@@ -118,7 +132,10 @@ export default function SubscribedVendors() {
               onChange={(e) => setSearchText(e.target.value)}
             />
             {searchText && (
-              <button className="btn btn-sm btn-light border-0" onClick={() => setSearchText("")}>
+              <button
+                className="btn btn-sm btn-light border-0"
+                onClick={() => setSearchText("")}
+              >
                 <i className="ri-close-line" />
               </button>
             )}

@@ -106,7 +106,7 @@ export default function Dashboard() {
       // change: arrowText(counts.inactive_vendors_percentage_increase),
       color: "#6B7280",
       // pct: counts.inactive_vendors_percentage_increase,
-      link: "/admin/vendor/blockedvendors",
+      link: "/admin/expiredvendors",
     },
     {
       title: "Unsubscribed Vendors",
@@ -115,7 +115,7 @@ export default function Dashboard() {
       // change: arrowText(counts.unsubscribed_vendors_percentage_increase),
       color: "#EF4444",
       // pct: counts.unsubscribed_vendors_percentage_increase,
-      link: "/admin/vendor/unsubscribedvendors",
+      link: "/admin/unsubscribed",
     },
 
     ];
