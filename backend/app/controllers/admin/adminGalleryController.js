@@ -1,4 +1,4 @@
-const { User, Gallery, VendorPackageSubscription, Package, Notification, Category } = require('../../models');
+const { User, Gallery, VendorPackageSubscription, Package, Notification, Category, City, State } = require('../../models');
 const fs = require('fs');
 const path = require('path');
 const socketManager = require('../../socket/socketManager');
@@ -418,7 +418,9 @@ exports.getUserCompleteProfile = async (req, res) => {
           model: Category,
           attributes: ['id', 'name'], // bring category name
           required: false
-        }
+        },
+        { model: City, attributes: ['id', 'name'], required: false },
+        { model: State, attributes: ['id', 'name'], required: false }
       ]
     });
 
