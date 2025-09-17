@@ -1783,6 +1783,13 @@ exports.getVendorsByPackageStatus = async (req, res) => {
             as: "subscriptions", // use your alias here if defined
             required: false,
           },
+          {
+          model: Category,
+          attributes: ['id', 'name'], // bring category name
+          required: false
+        },
+        { model: City, attributes: ['id', 'name'], required: false },
+        { model: State, attributes: ['id', 'name'], required: false }
         ],
         group: ["User.id"],
         having: literal(`COUNT(subscriptions.id) = 0`), // match alias
@@ -1801,6 +1808,13 @@ exports.getVendorsByPackageStatus = async (req, res) => {
               end_date: { [Op.gte]: fn("NOW") },
             },
           },
+          {
+                    model: Category,
+                    attributes: ['id', 'name'], // bring category name
+                    required: false
+                  },
+                  { model: City, attributes: ['id', 'name'], required: false },
+                  { model: State, attributes: ['id', 'name'], required: false }
         ],
         distinct: true,
       });
@@ -1814,6 +1828,13 @@ exports.getVendorsByPackageStatus = async (req, res) => {
             as: "subscriptions", // alias
             required: true,
           },
+          {
+                    model: Category,
+                    attributes: ['id', 'name'], // bring category name
+                    required: false
+                  },
+                  { model: City, attributes: ['id', 'name'], required: false },
+                  { model: State, attributes: ['id', 'name'], required: false }
         ],
         group: ["User.id"],
         having: literal(`
