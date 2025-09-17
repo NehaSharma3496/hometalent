@@ -16269,7 +16269,7 @@ object {
 /*-- Section Padding -- */
 .section-padding {
   padding-top: 50px;
-  padding-bottom: 98px;
+  padding-bottom: 11px;
 }
 
 @media (max-width: 991px) {
@@ -23816,7 +23816,7 @@ button.applyBtn.btn.btn-sm.btn-primary {
 -----------------------------------------------*/
 .category-area {
   padding-top: 50px;
-  padding-bottom: 50px;
+  padding-bottom: 37px;
   position: relative;
 }
 
