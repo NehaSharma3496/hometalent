@@ -620,7 +620,7 @@ exports.refundPayment = async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       status: true,
       msg: 'Refund processed successfully',
       data: refundResult
@@ -628,7 +628,7 @@ exports.refundPayment = async (req, res) => {
 
   } catch (error) {
     console.error('Error processing refund:', error);
-    res.status(500).json({
+    return res.status(500).json({
       status: false,
       msg: error.message
     });
