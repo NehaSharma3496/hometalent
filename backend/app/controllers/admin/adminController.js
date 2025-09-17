@@ -12,6 +12,7 @@ const {
   Review,
   Notification,
   FeedBack,
+  City,
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 const socketManager = require('../../socket/socketManager');
@@ -27,14 +28,20 @@ exports.listAllVendors = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    const { count, rows: vendors } = await User.findAndCountAll({
+    const { count, rows } = await User.findAndCountAll({
+      include: [
+        { model : City, attributes: ['id', 'name'] }
+      ],
       where: { role_id: 2 },
       order: [["createdAt", "DESC"]], 
       raw: true,
       limit,
       offset,
     });
-
+const vendors = rows.map(v => ({
+  ...v,
+  City: { id: v['City.id'], name: v['City.name'] }
+}));
     // Get all unique category IDs
     const categoryIds = [
       ...new Set(
@@ -70,7 +77,7 @@ exports.listAllVendors = async (req, res) => {
 
     const totalPages = Math.ceil(count / limit);
 
-    res.json({
+    return res.json({
       status: true,
       data: enrichedVendors,
       pagination: {
@@ -83,7 +90,7 @@ exports.listAllVendors = async (req, res) => {
       },
     });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1393,7 +1400,69 @@ exports.getDashboardCounts = async (req, res) => {
       return ((current - prev) / prev) * 100;
     }
 
-    res.json({
+    const baseWhere = { role_id: 2, approval_status: 1 };
+
+// 1️⃣ Vendors with NO subscription
+const noSubscription = await User.count({
+  where: baseWhere,
+  include: [
+    {
+      model: VendorPackageSubscription,
+      as : "subscriptions",
+      required: false, // left join
+    },
+  ],
+  group: ["User.id"],
+  having: literal(`COUNT(subscriptions.id) = 0`),
+});
+
+const unsubscribedTotal = Array.isArray(noSubscription)
+      ? noSubscription.length
+      : noSubscription;
+
+
+const withActive = await User.count({
+  where: baseWhere,
+  include: [
+    {
+      model: VendorPackageSubscription,
+      as : "subscriptions",
+      required: true,
+      where: {
+        start_date: { [Op.lte]: fn("NOW") },
+        end_date: { [Op.gte]: fn("NOW") },
+      },
+    },
+  ],
+  distinct: true,
+});
+
+
+
+const onlyExpired = await User.count({
+  where: baseWhere,
+  include: [
+    {
+      model: VendorPackageSubscription,
+      as : "subscriptions",
+      required: true,
+    },
+  ],
+  group: ["User.id"],
+  having: literal(`
+    SUM(CASE 
+          WHEN subscriptions.start_date <= NOW() 
+           AND subscriptions.end_date >= NOW() 
+          THEN 1 ELSE 0 
+        END) = 0
+  `), // no active ones
+});
+
+ const expiredTotal = Array.isArray(onlyExpired)
+      ? onlyExpired.length
+      : onlyExpired;
+
+    return res.json({
       status: true,
       data: {
         total_leads: totalLeads,
@@ -1402,6 +1471,9 @@ exports.getDashboardCounts = async (req, res) => {
         approve_vendors: approveVendors,
         active_vendors: activeVendors,
         inactive_vendors: inactiveVendors,
+        unsubscribed_vendors: unsubscribedTotal,
+        subscribed_with_active: withActive,
+        subscribed_only_expired: expiredTotal,
         leads_percentage_increase: getPercentageIncrease(
           leadsCurrentMonth,
           leadsPrevMonth
@@ -1429,7 +1501,7 @@ exports.getDashboardCounts = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.status(500).json({ status: false, msg: error.message });
   }
 };
 
@@ -1684,6 +1756,83 @@ exports.sendotp = async (req, res) => {
     return res.json({ status: true, msg: "otp send successfully", otp: otp });
   } catch (error) {
     return res.status(500).json({ status: false, msg: error.message });
+  }
+};
+
+exports.getVendorsByPackageStatus = async (req, res) => {
+  try {
+    const { status } = req.query;
+
+    if (!["active", "expired", "unsubscribed"].includes(status)) {
+      return res.status(400).json({ status: false, msg: "Invalid status parameter" });
+    }
+
+    const baseWhere = { role_id: 2, approval_status: 1 };
+    let vendors;
+
+    if (status === "unsubscribed") {
+      // Vendors with NO subscriptions
+      vendors = await User.findAll({
+        where: baseWhere,
+        include: [
+          {
+            model: VendorPackageSubscription,
+            as: "subscriptions", // use your alias here if defined
+            required: false,
+          },
+        ],
+        group: ["User.id"],
+        having: literal(`COUNT(subscriptions.id) = 0`), // match alias
+      });
+    } else if (status === "active") {
+      // Vendors with at least one active subscription
+      vendors = await User.findAll({
+        where: baseWhere,
+        include: [
+          {
+            model: VendorPackageSubscription,
+            as: "subscriptions", // alias
+            required: true,
+            where: {
+              start_date: { [Op.lte]: fn("NOW") },
+              end_date: { [Op.gte]: fn("NOW") },
+            },
+          },
+        ],
+        distinct: true,
+      });
+    } else if (status === "expired") {
+      // Vendors with only expired subscriptions (and no active ones)
+      vendors = await User.findAll({
+        where: baseWhere,
+        include: [
+          {
+            model: VendorPackageSubscription,
+            as: "subscriptions", // alias
+            required: true,
+          },
+        ],
+        group: ["User.id"],
+        having: literal(`
+          SUM(
+            CASE 
+              WHEN subscriptions.start_date <= NOW() 
+               AND subscriptions.end_date >= NOW() 
+              THEN 1 ELSE 0 
+            END
+          ) = 0
+        `), // ensures no active
+      });
+    }
+
+    return res.json({
+      status: true,
+      count: vendors.length,
+      data: vendors,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ status: false, msg: "Server error", error: error.message });
   }
 };
 

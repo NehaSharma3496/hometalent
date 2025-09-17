@@ -27,6 +27,8 @@ export default function Allvendors() {
   const [selectedPkgId, setSelectedPkgId] = useState(null);
   const [assignVendorId, setAssignVendorId] = useState(null);
   const [vendorPackageStatus, setVendorPackageStatus] = useState({});
+  const [checkpackage, setCheckpackage] = useState(false);
+  const [vendorpkgdata, setVendorpkgdata] = useState({});
   // const [vendorPackageStatus, setVendorPackageStatus] = useState({});
   const [vendorPackageHistory, setVendorPackageHistory] = useState({});
 
@@ -114,6 +116,7 @@ export default function Allvendors() {
       Swal.fire("Error", "Failed to load packages or history", "error");
     }
   };
+     
 
   const submitAssignPackage = async () => {
     try {
@@ -160,7 +163,7 @@ export default function Allvendors() {
   try {
     const token = localStorage.getItem("token");
     const res = await getVendorPackageHistory(token, vendorId);
-
+     setVendorpkgdata(res.data);
     if (res.status && res.data.length > 0) {
       let historyObj = {};
       const now = new Date();
@@ -208,6 +211,7 @@ export default function Allvendors() {
           v.email?.toLowerCase().includes(lowerSearch) ||
           v.price_range.toLowerCase().includes(lowerSearch) ||
           v.experience_since.toLowerCase().includes(lowerSearch) ||
+          v.City.name?.toLowerCase().includes(lowerSearch) ||
           v.phone?.toLowerCase().includes(lowerSearch) ||
           (Array.isArray(v.category_names)
             ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
@@ -250,6 +254,7 @@ export default function Allvendors() {
         "Price Range": row.price_range || "N/A",
         "Short Description": row.short_description || "N/A",
         "Experience Since": row.experience_since || "N/A",
+        City: row.City?.name || "N/A",
         Status: row.status === 1 ? "Active" : "Inactive",
         Approval_Status:
           row.approval_status === 1
@@ -332,7 +337,25 @@ export default function Allvendors() {
       await Swal.fire("Error", "Failed to update status.", "error");
     }
   };
+  
+  const fetchVendorPkg = async (vendorId) => {
+  const token = localStorage.getItem("token");
+  const historyRes = await getVendorPackageHistory(token, vendorId);
+  return historyRes.data;
+};
 
+  useEffect(() => {
+  const loadAllHistories = async () => {
+    let histories = {};
+    for (let vendor of vendors) {
+      const data = await fetchVendorPkg(vendor.id);
+      histories[vendor.id] = data;
+    }
+    setCheckpackage(histories);
+  };
+  if (vendors?.length > 0) loadAllHistories();
+}, [vendors]);
+  
   const columns = [
     {
       name: "S.No",
@@ -367,6 +390,49 @@ export default function Allvendors() {
       name: "Experience Since",
       selector: (row) => row.experience_since || "—",
     },
+    {
+      name: "City",
+      selector: (row) => row.City.name || "—",
+    },
+    {
+  name: "Package Status",
+  cell: (row) => {
+    const pkgStatus = checkpackage[row.id] || {};
+    const activePkgIds = [];
+    const expiredPkgIds = [];
+
+    Object.keys(pkgStatus).forEach((pkgId) => {
+      const status = pkgStatus[pkgId]?.status; // make sure backend gives `status`
+      const startDate = new Date(pkgStatus[pkgId]?.start_date);
+      const endDate = new Date(pkgStatus[pkgId]?.end_date);
+      const now = new Date();
+
+      if (startDate <= now && (!endDate || endDate >= now)) {
+        activePkgIds.push(pkgId);
+      } else if (endDate && endDate < now) {
+        expiredPkgIds.push(pkgId);
+      }
+    });
+
+    return (
+      <div>
+        {activePkgIds.length > 0 ? (
+          <span className="badge bg-success me-1">
+            Active
+          </span>
+        )
+         : expiredPkgIds.length > 0 ? (
+          <span className="badge bg-danger me-1">
+            Expired
+          </span>
+        ) : 'N/A'}
+       
+      </div>
+    );
+  },
+  sortable: false,
+  width: "150px",
+},
     {
       name: "Active Status",
       cell: (row) => (
