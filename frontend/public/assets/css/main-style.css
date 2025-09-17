@@ -16293,8 +16293,8 @@ object {
 
 @media (max-width: 991px) {
   .section-padding2 {
-    padding-top: 70px;
-    padding-bottom: 70px;
+    padding-top: 20px;
+    padding-bottom: 20px;
   }
 }
 
@@ -16600,7 +16600,7 @@ object {
 
 .section-title .title {
   font-size: 30px;
-  
+
   font-weight: 700;
   color: var(--primary-title);
   text-transform: capitalize;
@@ -20999,19 +20999,19 @@ button.applyBtn.btn.btn-sm.btn-primary {
 }
 
 .header-area-three .main-menu .listing .single-list .single {
-  -webkit-transition: 0s;
-  transition: 0s;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.3;
-  color: var(--primary-title);
-  display: block;
-  padding: 10px 15px;
-  text-transform: capitalize;
-  margin-top: 5px;
-  /* border-radius: 4px 4px 0 0; */
-  border-radius: 8px !important;
+    display: flex;              /* flex se content center align kar sakte ho */
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 10px !important;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--primary-title);
+    margin-top: 5px;
 }
+
 
 @media (max-width: 1199px) {
   .header-area-three .main-menu .listing .single-list .single {
@@ -21033,7 +21033,7 @@ button.applyBtn.btn.btn-sm.btn-primary {
 
 .header-area-three .main-menu .listing .single-list .single.active>.single {
   color: var(--primary-color);
-  
+
 }
 
 .header-area-three .main-menu .listing .single-list .link-active {
@@ -21058,15 +21058,15 @@ button.applyBtn.btn.btn-sm.btn-primary {
 .header-area-three .main-menu .listing .single-list:hover>.single {
   /* color: var(--secondary-color); */
   -webkit-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+  /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); */
   /* background-color: var(--blue); */
   background-color: #2278b6;
   color: white;
   /* padding: 2px; */
-  border-radius: 5px;
+  border-radius: 8px !important;
 }
 
-.header-area-three .main-menu .listing .single-list:hover>.single::after {
+/* .header-area-three .main-menu .listing .single-list:hover>.single::after {
   bottom: -24px;
   content: "";
   opacity: 1;
@@ -21077,7 +21077,7 @@ button.applyBtn.btn.btn-sm.btn-primary {
   height: 25px;
   clip-path: polygon(100% 0%, 100% 100%, 50% 27%, 0px 100%, 0% 50%, 0px 0px);
   background-color: var(--white);
-}
+} */
 
 .header-area-three .main-menu .listing .single-list:hover>.submenu {
   visibility: visible;
@@ -37314,19 +37314,19 @@ td .user .thumb {
 
   .row.g-4.justify-content-center {
     display: flex;
-    flex-wrap: nowrap;   
-    gap: 12px;            
+    flex-wrap: nowrap;
+    gap: 12px;
     align-items: center;
   }
 
-  
-  .row.g-4.justify-content-center > div {
+
+  .row.g-4.justify-content-center>div {
     flex: 1;
   }
 
 
   .row.g-4.justify-content-center .sign-btn {
-    flex: 0 0 160px; 
+    flex: 0 0 160px;
   }
 
 

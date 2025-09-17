@@ -137,34 +137,32 @@ export default function AdminHeader() {
     notifications.length > 0 ? notifications : storedNotifications;
 
 
-  useEffect(() => {
-    if (window.innerWidth > 576) return;
-    const links = document.querySelectorAll(".sidebar-link");
+  // useEffect(() => {
+  //   if (window.innerWidth > 576) return;
+  //   const links = document.querySelectorAll(".sidebar-link");
 
-    const handleClick = () => {
-      document.body.classList.add("sidebar-toggle");
-    };
+  //   const handleClick = () => {
+  //     document.body.classList.add("sidebar-toggle");
+  //   };
 
-    links.forEach(link => {
-      link.addEventListener("click", handleClick);
-    });
+  //   links.forEach(link => {
+  //     link.addEventListener("click", handleClick);
+  //   });
 
-    return () => {
-      links.forEach(link => {
-        link.removeEventListener("click", handleClick);
-      });
-    };
-  }, []);
+  //   return () => {
+  //     links.forEach(link => {
+  //       link.removeEventListener("click", handleClick);
+  //     });
+  //   };
+  // }, []);
 
   const sidebarRef = useRef(null);
 
   useEffect(() => {
 
-
     const handleClickOutside = (e) => {
 
       if (window.innerWidth > 576) return;
-
       const sidebar = document.getElementById("sidebar");
       const clickedInsideSidebar = sidebar?.contains(e.target);
       const clickedToggleBtn = document

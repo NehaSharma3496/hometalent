@@ -511,7 +511,7 @@ const CategoryDetail = () => {
               <div className="mt-30">
                 <div className="row g-4">
                   <div className="col-xl-8 col-lg-7">
-                    <div className="details-heading">
+                    <div className="details-heading d-block">
                       <div className="d-flex flex-column">
                         {vendorData?.user?.image && (
                           <div
@@ -534,7 +534,7 @@ const CategoryDetail = () => {
                           </div>
                         )}
 
-                        <h4 className="title text-capitalize mt-4 d-flex align-items-center gap-60">
+                        <h4 className="title text-capitalize mt-4 d-flex align-items-center">
                           {vendorData?.user?.owner_name}
 
                           {reviewcount && (
@@ -543,7 +543,7 @@ const CategoryDetail = () => {
                               style={{
                                 backgroundColor: "#2278b6",
                                 padding: "4px 10px",
-                                marginLeft: "200px",
+                                marginLeft: "190px",
                                 fontSize: "14px",
                                 color: "#fff",
                                 fontWeight: "600",
@@ -652,7 +652,7 @@ const CategoryDetail = () => {
                           <>
                             <div className="row g-4">
                               {visibleImages?.map((item, i) => (
-                                <div className="col-lg-3 col-sm-6" key={i}>
+                                <div className="col-lg-3 col-sm-6 mb-2" key={i}>
                                   <div
                                     className="shadow-sm mt-2"
                                     style={{
@@ -783,12 +783,12 @@ const CategoryDetail = () => {
                               : `https://${link}`;
 
                             return (
-                              <div key={key} className="me-3 mb-2">
+                              <div key={key} className=" mb-2">
                                 <a
                                   href={fullUrl}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="btn btn-outline-secondary w-100 rounded-3 p-3 text-decoration-none d-flex align-items-center gap-3 hover-lift"
+                                  className="btn btn-outline-secondary w-100  rounded-3 p-2 text-decoration-none d-flex align-items-center gap-3 hover-lift"
                                   style={{
                                     borderColor: color + "30",
                                     transition: "all 0.3s ease",
@@ -939,7 +939,7 @@ const CategoryDetail = () => {
                     </div>
 
                     <div className="date-travel-card mt-4">
-                      <div className="tabs d-flex gap-2 mb-3">
+                      <div className="tabs d-flex gap-2 mb-3 gap-10">
                         <button
                           className={`btn ${activeTab === "review"
                             ? "btn-primary"

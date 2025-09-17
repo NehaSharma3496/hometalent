@@ -54,7 +54,7 @@ const Gallery = () => {
 
       <section className="destination-section-two section-padding package-area">
         <div className="container">
-          <div className="row g-4">
+          <div className="row g-4 mt-2">
             {gallery?.length === 0 ? (
               <div className="col-12 text-center">
                 <img

@@ -105,9 +105,8 @@ const Category = () => {
       : []),
     {
       label: categoryName || "Category",
-      to: `/vendors-by-category?category_id=${categoryId}${
-        cityId ? `&city_id=${cityId}` : ""
-      }`,
+      to: `/vendors-by-category?category_id=${categoryId}${cityId ? `&city_id=${cityId}` : ""
+        }`,
     },
   ];
 
@@ -123,7 +122,7 @@ const Category = () => {
                 <h4 className="title"></h4>
 
                 <div className="d-flex gap-10 align-items-center">
-                  <div
+                  {/* <div
                     className="expand-icon hamburger block d-xl-none"
                     id="hamburger"
                   >
@@ -142,7 +141,7 @@ const Category = () => {
                         strokeLinejoin="round"
                       />
                     </svg>
-                  </div>
+                  </div> */}
 
                   <div
                     className="d-flex align-items-center border rounded px-2 py-1"
@@ -183,116 +182,91 @@ const Category = () => {
 
               <div className="all-tour-list">
                 <div className="row g-4">
-                  <div className="row">
-                    {loading ? (
-                      <div className="text-center py-5">
-                        <div className="spinner-border" role="status">
-                          <span className="visually-hidden">Loading...</span>
-                        </div>
-                        <p className="mt-2">Loading vendors...</p>
+                  {loading ? (
+                    <div className="text-center py-5">
+                      <div className="spinner-border" role="status">
+                        <span className="visually-hidden">Loading...</span>
                       </div>
-                    ) : filteredVendors?.length > 0 ? (
-                      filteredVendors?.map((item, index) => (
-                        <div className="col-xl-4 col-lg-4 col-sm-6" key={index}>
-                          <div className="hotel-card">
-                            <div className="hotel-img imgEffect4">
+                      <p className="mt-2">Loading vendors...</p>
+                    </div>
+                  ) : filteredVendors?.length > 0 ? (
+                    filteredVendors?.map((item, index) => (
+                      <div className="col-xl-3 col-lg-4 col-md-6 col-sm-12 mt-2" key={index}>
+                        <div className="hotel-card">
+                          <div className="hotel-img imgEffect4">
+                            <Link
+                              to="/categorydetail"
+                              state={{ vendorId: item.id }}
+                            >
+                              <img
+                                src={item.image || "/default-vendor.jpg"}
+                                alt={item.owner_name}
+                              />
+                            </Link>
+                          </div>
+
+                          <div className="hotel-content">
+                            <h4 className="area-name">
                               <Link
                                 to="/categorydetail"
-                                state={{
-                                  vendorId: item.id, 
-                                }}
+                                state={{ vendorId: item.id }}
                               >
-                                <img
-                                  src={item.image || "/default-vendor.jpg"}
-                                  alt={item.owner_name}
-                                />
+                                {item.owner_name}
                               </Link>
+                            </h4>
 
-                              {/* <div className="rating-badge-car">
-                                <div className="rating">
-                                  <i className="ri-star-s-fill" />
-                                  <p className="pera">
-                                    {item.rating || "4.8"} ({item.reviews || 15}{" "}
-                                    Reviews)
-                                  </p>
-                                </div>
-                              </div> */}
+                            <div className="location">
+                              <i className="ri-map-pin-line" />
+                              <div className="name text-capitalize">
+                                {city.find(
+                                  (c) => c.type === "city" && c.id === item.city_id
+                                )?.name || "Unknown"}
+                              </div>
                             </div>
 
-                            <div className="hotel-content">
-                              <h4 className="area-name">
-                                <Link
-                                  to="/categorydetail"
-                                   state={{ vendorId: item.id }}
-                                >
-                                  {item.owner_name}
-                                </Link>
-                              </h4>
-                              {/* <p className="category-name text-capitalize text-primary">
-                                <i className="fa-solid fa-layer-group me-2"></i>
-                                {categoryName || item.category_name}
-                              </p> */}
+                            <h1 className="area-name truncate-2-lines mb-3">
+                              <Link
+                                to="/categorydetail"
+                                state={{ vendorId: item.id }}
+                              >
+                                {item?.long_description}
+                              </Link>
+                            </h1>
 
-                              <div className="location">
-                                <i className="ri-map-pin-line" />
-                                <div className="name text-capitalize">
-                                  {city.find(
-                                    (c) =>
-                                      c.type === "city" && c.id === item.city_id
-                                  )?.name || "Unknown"}
-                                </div>
+                            <div className="cart-footer d-flex flex-wrap justify-content-between">
+                              <div className="d-flex gap-6 align-items-center">
+                                <p className="pera">
+                                  ₹{item.price_range || "Contact for price"}
+                                </p>
                               </div>
-
-                              <h1 className="area-name">
-                                <Link
-                                  to="/categorydetail"
-                                  state={{ vendorId: item.id }}
-                                  className="truncate-2-lines mb-3"
-                                >
-                                  {item?.long_description}
-                                </Link>
-                              </h1>
-
-                              <div className="cart-footer d-flex flex-wrap justify-content-between">
-                                <div className="d-flex gap-6 align-items-center">
-                                  <p className="pera">
-                                    ₹{item.price_range || "Contact for price"}
-                                  </p>
-                                  {/* <p className="sub-pera text-12 text-capitalize">
-                                    /person
-                                  </p> */}
-                                </div>
-                                <Link
-                                  to="/categorydetail"
-                                  state={{
-                                    vendorId: item.id,
-                                  }}
-                                  className="browse-btn"
-                                >
-                                  View Details
-                                </Link>
-                              </div>
+                              <Link
+                                to="/categorydetail"
+                                state={{ vendorId: item.id }}
+                                className="browse-btn"
+                              >
+                                View Details
+                              </Link>
                             </div>
                           </div>
                         </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-5">
-                        <img
-                          src="/assets/images/NoVendor.jpg"
-                          alt="No vendors"
-                          style={{ width: "180px", marginBottom: "20px" }}
-                        />
-                        <h4 className="text-muted">No vendors available</h4>
-                        <p className="text-secondary">
-                          We couldn’t find any vendors matching your search or
-                          selection.
-                        </p>
                       </div>
-                    )}
-                  </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-5">
+                      <img
+                        src="/assets/images/NoVendor.jpg"
+                        alt="No vendors"
+                        style={{ width: "180px", marginBottom: "20px" }}
+                      />
+                      <h4 className="text-muted">No vendors available</h4>
+                      <p className="text-secondary">
+                        We couldn’t find any vendors matching your search or selection.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
+
             </div>
           </div>
         </div>
