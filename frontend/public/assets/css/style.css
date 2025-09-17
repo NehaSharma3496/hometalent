@@ -7057,3 +7057,8 @@ input.cursor-pointer {
     gap: 15px;
   }
 }
+
+
+body.modal-open {
+  overflow: hidden;
+}
