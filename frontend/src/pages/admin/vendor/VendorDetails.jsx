@@ -124,12 +124,12 @@ export default function VendorDetails() {
                     {vendor.profile_name}
                   </span>
                 )}
-                {vendor.experience_since && (
+                {/* {vendor.experience_since && (
                   <span>
                     <i className="fas fa-calendar-alt me-1"></i>
                     Since {vendor.experience_since}
                   </span>
-                )}
+                )} */}
               </div>
             </div>
           </div>

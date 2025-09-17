@@ -33,6 +33,8 @@ export default function Allvendors() {
   const [vendorPackageHistory, setVendorPackageHistory] = useState({});
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [packageFilter, setPackageFilter] = useState(""); // 🔹 new state
+
 
   const fetchVendors = async (page, limit) => {
     setLoading(true);
@@ -220,39 +222,55 @@ export default function Allvendors() {
   //     })
   //   : vendors;
 
-  const filteredVendors = (searchText ? allVendors : vendors).filter((v) => {
-    const lowerSearch = searchText.toLowerCase();
+const filteredVendors = (searchText ? allVendors : vendors).filter((v) => {
+  const lowerSearch = searchText.toLowerCase();
 
-    // Text Filter
-    const matchesText =
-      !searchText ||
-      v.owner_name?.toLowerCase().includes(lowerSearch) ||
-      v.email?.toLowerCase().includes(lowerSearch) ||
-      // v.price_range?.toLowerCase().includes(lowerSearch) ||
-      // v.experience_since?.toLowerCase().includes(lowerSearch) ||
-      v.phone?.toLowerCase().includes(lowerSearch) ||
-      v.City.name?.toLowerCase().includes(lowerSearch) ||
-      v.State.name?.toLowerCase().includes(lowerSearch) ||
-      (Array.isArray(v.category_names)
-        ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
-        : v.category_names?.toLowerCase().includes(lowerSearch));
+  // 🔹 Text Filter
+  const matchesText =
+    !searchText ||
+    v.owner_name?.toLowerCase().includes(lowerSearch) ||
+    v.email?.toLowerCase().includes(lowerSearch) ||
+    v.phone?.toLowerCase().includes(lowerSearch) ||
+    v.City.name?.toLowerCase().includes(lowerSearch) ||
+    v.State.name?.toLowerCase().includes(lowerSearch) ||
+    (Array.isArray(v.category_names)
+      ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
+      : v.category_names?.toLowerCase().includes(lowerSearch));
 
-    // Date Filter
-    const createdDate = new Date(v.createdAt);
-    const fromDate = startDate ? new Date(startDate) : null;
-    const toDate = endDate ? new Date(endDate) : null;
+  // 🔹 Date Filter
+  const createdDate = new Date(v.createdAt);
+  const fromDate = startDate ? new Date(startDate) : null;
+  const toDate = endDate ? new Date(endDate) : null;
+  if (toDate) {
+    toDate.setHours(23, 59, 59, 999);
+  }
+  const matchesDate =
+    (!fromDate || createdDate >= fromDate) &&
+    (!toDate || createdDate <= toDate);
 
-    // Agar endDate set hai to usko din ke end tak le jao
-    if (toDate) {
-      toDate.setHours(23, 59, 59, 999);
-    }
+  // 🔹 Package Status Filter
+  let matchesPackage = true;
+  if (packageFilter) {
+    const pkgStatus = checkpackage[v.id] || {};
+    const now = new Date();
+    let statusLabel = "N/A";
 
-    const matchesDate =
-      (!fromDate || createdDate >= fromDate) &&
-      (!toDate || createdDate <= toDate);
+    Object.keys(pkgStatus).forEach((pkgId) => {
+      const start = new Date(pkgStatus[pkgId]?.start_date);
+      const end = new Date(pkgStatus[pkgId]?.end_date);
+      if (start <= now && (!end || end >= now)) {
+        statusLabel = "Active";
+      } else if (end && end < now) {
+        statusLabel = "Expired";
+      }
+    });
 
-    return matchesText && matchesDate;
-  });
+    matchesPackage = statusLabel === packageFilter;
+  }
+
+  return matchesText && matchesDate && matchesPackage;
+});
+
 
   const exportToExcel = async () => {
     try {
@@ -741,7 +759,23 @@ export default function Allvendors() {
       <span className="d-none d-md-inline">Clear</span>
     </button>
   )}
+
+  <select
+    className="form-select form-select-sm shadow-sm border rounded"
+    value={packageFilter}
+    onChange={(e) => setPackageFilter(e.target.value)}
+    style={{ width: "150px" }}
+  >
+    <option value="">All Packages</option>
+    <option value="Active">Active</option>
+    <option value="Expired">Expired</option>
+    <option value="N/A">N/A</option>
+  </select>
+
+
 </div>
+
+
 
         </div>
 
