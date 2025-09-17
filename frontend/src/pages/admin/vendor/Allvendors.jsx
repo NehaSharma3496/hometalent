@@ -426,12 +426,12 @@ export default function Allvendors() {
     // },
     {
       name: "State",
-      selector: (row) => row?.State.name || "—",
+      selector: (row) => row?.State?.name || "—",
       width: "150px",
     },
     {
       name: "City",
-      selector: (row) => row.City.name || "—",
+      selector: (row) => row.City?.name || "—",
     },
     {
       name: "Package Status",
