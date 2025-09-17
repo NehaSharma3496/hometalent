@@ -13,6 +13,7 @@ const {
   Notification,
   FeedBack,
   City,
+  State
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 const socketManager = require('../../socket/socketManager');
@@ -30,7 +31,8 @@ exports.listAllVendors = async (req, res) => {
 
     const { count, rows } = await User.findAndCountAll({
       include: [
-        { model : City, attributes: ['id', 'name'] }
+        { model : City, attributes: ['id', 'name'] },
+        { model : State, attributes: ['id', 'name'] }
       ],
       where: { role_id: 2 },
       order: [["createdAt", "DESC"]], 
@@ -40,7 +42,8 @@ exports.listAllVendors = async (req, res) => {
     });
 const vendors = rows.map(v => ({
   ...v,
-  City: { id: v['City.id'], name: v['City.name'] }
+  City: { id: v['City.id'], name: v['City.name'] },
+  State: { id: v['State.id'], name: v['State.name'] }
 }));
     // Get all unique category IDs
     const categoryIds = [
