@@ -431,7 +431,7 @@ const CategoryDetail = () => {
           title="Loading..."
           links={[{ label: "Home", to: "/" }, { label: "Loading...", to: "#" }]}
         />
-        <section className="tour-details-section section-padding">
+        <section className="tour-details-section section-padding section-padding1">
           <div className="container">
             <div className="row justify-content-center">
               <div className="col-md-6 text-center">
@@ -678,7 +678,7 @@ const CategoryDetail = () => {
                             </div>
 
                             {imageItems?.length > 4 && (
-                              <div className="text-center mt-3 mb-3">
+                              <div className="text-center mt-3 mb-3 pt-1">
                                 <button
                                   className="btn btn-primary"
                                   onClick={() => {
