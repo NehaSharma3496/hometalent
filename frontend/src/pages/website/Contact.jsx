@@ -97,7 +97,7 @@ const Contact = () => {
   return (
     <div>
       <Breadcrumbs title="Contact" links={breadcrumbLinks} />
-      <section className="contact-area section-padding2">
+      <section className="contact-area section-padding2 fix-section">
         <div className="position-relative contact-bg-before">
           <div className="container">
             <div className="row justify-content-center">

@@ -31,7 +31,7 @@ const Blog = () => {
     <div>
       {/* {loading} */}
       <Breadcrumbs title="Blog" links={breadcrumbLinks} />
-      <section className="news-area top-bottom-padding2">
+      <section className="news-area top-bottom-padding2 fix-section">
         <div className="container ">
           <div className="row g-4">
             {blog?.length > 0 ? (
