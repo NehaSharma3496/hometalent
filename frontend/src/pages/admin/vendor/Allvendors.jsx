@@ -29,6 +29,9 @@ export default function Allvendors() {
   const [vendorPackageStatus, setVendorPackageStatus] = useState({});
   // const [vendorPackageStatus, setVendorPackageStatus] = useState({});
   const [vendorPackageHistory, setVendorPackageHistory] = useState({});
+  const [startDate, setStartDate] = useState("");
+const [endDate, setEndDate] = useState("");
+
 
   const fetchVendors = async (page, limit) => {
     setLoading(true);
@@ -193,6 +196,34 @@ export default function Allvendors() {
   }
 };
 
+// const filteredVendors = (searchText ? allVendors : vendors).filter((v) => {
+//   const lowerSearch = searchText.toLowerCase();
+
+//   // ✅ Text Filter
+//   const matchesText =
+//     !searchText ||
+//     v.owner_name?.toLowerCase().includes(lowerSearch) ||
+//     v.email?.toLowerCase().includes(lowerSearch) ||
+//     v.price_range?.toLowerCase().includes(lowerSearch) ||
+//     v.experience_since?.toLowerCase().includes(lowerSearch) ||
+//     v.phone?.toLowerCase().includes(lowerSearch) ||
+//     (Array.isArray(v.category_names)
+//       ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
+//       : v.category_names?.toLowerCase().includes(lowerSearch));
+
+//   // ✅ Date Filter
+//   const createdDate = new Date(v.createdAt);
+//   const fromDate = startDate ? new Date(startDate) : null;
+//   const toDate = endDate ? new Date(endDate) : null;
+
+//   const matchesDate =
+//     (!fromDate || createdDate >= fromDate) &&
+//     (!toDate || createdDate <= toDate);
+
+//   return matchesText && matchesDate;
+// });
+
+
 
   useEffect(() => {
     vendors.forEach((vendor) => {
@@ -200,21 +231,50 @@ export default function Allvendors() {
     });
   }, [vendors]);
 
-  const filteredVendors = searchText
-    ? allVendors.filter((v) => {
-        const lowerSearch = searchText.toLowerCase();
-        return (
-          v.owner_name?.toLowerCase().includes(lowerSearch) ||
-          v.email?.toLowerCase().includes(lowerSearch) ||
-          v.price_range.toLowerCase().includes(lowerSearch) ||
-          v.experience_since.toLowerCase().includes(lowerSearch) ||
-          v.phone?.toLowerCase().includes(lowerSearch) ||
-          (Array.isArray(v.category_names)
-            ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
-            : v.category_names?.toLowerCase().includes(lowerSearch))
-        );
-      })
-    : vendors;
+  // const filteredVendors = searchText
+  //   ? allVendors.filter((v) => {
+  //       const lowerSearch = searchText.toLowerCase();
+  //       return (
+  //         v.owner_name?.toLowerCase().includes(lowerSearch) ||
+  //         v.email?.toLowerCase().includes(lowerSearch) ||
+  //         v.price_range.toLowerCase().includes(lowerSearch) ||
+  //         v.experience_since.toLowerCase().includes(lowerSearch) ||
+  //         v.phone?.toLowerCase().includes(lowerSearch) ||
+  //         (Array.isArray(v.category_names)
+  //           ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
+  //           : v.category_names?.toLowerCase().includes(lowerSearch))
+  //       );
+  //     })
+  //   : vendors;
+  
+
+const filteredVendors = (searchText ? allVendors : vendors).filter((v) => {
+  const lowerSearch = searchText.toLowerCase();
+
+  // Text Filter
+  const matchesText =
+    !searchText ||
+    v.owner_name?.toLowerCase().includes(lowerSearch) ||
+    v.email?.toLowerCase().includes(lowerSearch) ||
+    v.price_range?.toLowerCase().includes(lowerSearch) ||
+    v.experience_since?.toLowerCase().includes(lowerSearch) ||
+    v.phone?.toLowerCase().includes(lowerSearch) ||
+    (Array.isArray(v.category_names)
+      ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
+      : v.category_names?.toLowerCase().includes(lowerSearch));
+
+  // Date Filter
+  const createdDate = new Date(v.createdAt);
+  const fromDate = startDate ? new Date(startDate) : null;
+  const toDate = endDate ? new Date(endDate) : null;
+
+  const matchesDate =
+    (!fromDate || createdDate >= fromDate) &&
+    (!toDate || createdDate <= toDate);
+
+  return matchesText && matchesDate;
+});
+
 
   const exportToExcel = async () => {
     try {
@@ -558,28 +618,58 @@ export default function Allvendors() {
       </div>
 
       <div className="card table-padding">
-        <div className="card-header">
-          <div className="col-md-4">
-            <div className="d-flex align-items-center border rounded px-2">
-              <i className="ri-search-line me-2 text-muted" />
-              <input
-                type="text"
-                className="form-control border-0 shadow-none"
-                placeholder="Search by Owner Name..."
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-              {searchText && (
-                <button
-                  className="btn btn-sm btn-light border-0"
-                  onClick={() => setSearchText("")}
-                >
-                  <i className="ri-close-line" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
+       <div className="card-header d-flex flex-wrap gap-3">
+  {/* Search Bar */}
+  <div className="col-md-4">
+    <div className="d-flex align-items-center border rounded px-2">
+      <i className="ri-search-line me-2 text-muted" />
+      <input
+        type="text"
+        className="form-control border-0 shadow-none"
+        placeholder="Search by Owner Name..."
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+      />
+      {searchText && (
+        <button
+          className="btn btn-sm btn-light border-0"
+          onClick={() => setSearchText("")}
+        >
+          <i className="ri-close-line" />
+        </button>
+      )}
+    </div>
+  </div>
+
+  {/* Date Filter */}
+  <div className="d-flex align-items-center gap-2">
+    <input
+      type="date"
+      className="form-control"
+      value={startDate}
+      onChange={(e) => setStartDate(e.target.value)}
+    />
+    <span>to</span>
+    <input
+      type="date"
+      className="form-control"
+      value={endDate}
+      onChange={(e) => setEndDate(e.target.value)}
+    />
+    {(startDate || endDate) && (
+      <button
+        className="btn btn-sm btn-light border"
+        onClick={() => {
+          setStartDate("");
+          setEndDate("");
+        }}
+      >
+        Clear
+      </button>
+    )}
+  </div>
+</div>
+
         <div className="row ">
           <div className="card-body">
             <Datatable
