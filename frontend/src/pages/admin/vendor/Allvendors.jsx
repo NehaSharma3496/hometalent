@@ -284,10 +284,11 @@ export default function Allvendors() {
           ? row.category_names.join(", ")
           : row.category_names || "N/A",
         Phone: row.phone || "N/A",
-        "Price Range": row.price_range || "N/A",
-        "Short Description": row.short_description || "N/A",
-        "Experience Since": row.experience_since || "N/A",
+        // "Price Range": row.price_range || "N/A",
+        // "Short Description": row.short_description || "N/A",
+        // "Experience Since": row.experience_since || "N/A",
         City: row.City?.name || "N/A",
+         State: row.State?.name || "N/A",
         Status: row.status === 1 ? "Active" : "Inactive",
         Approval_Status:
           row.approval_status === 1
@@ -423,10 +424,11 @@ export default function Allvendors() {
     //   name: "Experience Since",
     //   selector: (row) => row.experience_since || "—",
     // },
-    //  {
-    //   name: "State",
-    //   selector: (row) => row?.State.name || "—",
-    // },
+     {
+      name: "State",
+      selector: (row) => row?.State.name || "—",
+      width:"150px"
+    },
     {
       name: "City",
       selector: (row) => row.City.name || "—",

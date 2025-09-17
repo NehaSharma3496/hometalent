@@ -38,7 +38,7 @@ export default function Dashboard() {
       {
         title: "Total Vendors",
         value: fmt(counts.total_vendors),
-       icon: "fa fa-user-tie",
+        icon: "fa fa-user-tie",
         change: arrowText(counts.vendors_percentage_increase),
         color: "#7B2CBF",
         pct: counts.vendors_percentage_increase,
@@ -89,6 +89,35 @@ export default function Dashboard() {
         pct: counts.leads_percentage_increase,
         link: "/admin/enquiries/allleads",
       },
+
+ {
+      title: "Subscribed Vendors",
+      value: fmt(counts.subscribed_with_active),
+      icon: "fa fa-user-check",
+      // change: arrowText(counts.active_vendors_percentage_increase),
+      color: "#0EA5E9",
+      // pct: counts.active_vendors_percentage_increase,
+      link: "/admin/subscribedvendors",
+    },
+    {
+      title: "Expired Vendors",
+      value: fmt(counts.subscribed_only_expired),
+      icon: "fa fa-user-clock",
+      // change: arrowText(counts.inactive_vendors_percentage_increase),
+      color: "#6B7280",
+      // pct: counts.inactive_vendors_percentage_increase,
+      link: "/admin/vendor/blockedvendors",
+    },
+    {
+      title: "Unsubscribed Vendors",
+      value: fmt(counts.unsubscribed_vendors),
+      icon: "fa fa-user-slash",
+      // change: arrowText(counts.unsubscribed_vendors_percentage_increase),
+      color: "#EF4444",
+      // pct: counts.unsubscribed_vendors_percentage_increase,
+      link: "/admin/vendor/unsubscribedvendors",
+    },
+
     ];
   }, [counts]);
 
