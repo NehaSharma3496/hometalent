@@ -780,3 +780,20 @@ export async function GetVendorDetails(token, id) {
     return error;
   }
 }
+
+export async function GetVendorsByPackageStatus(token, status) {
+  try {
+    const response = await axios.get(
+      `${Config.base_url}admin/getVendorsByPackageStatus`,
+      {
+        params: { status },
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}

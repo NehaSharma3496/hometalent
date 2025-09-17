@@ -31,6 +31,8 @@ export default function Allvendors() {
   const [vendorpkgdata, setVendorpkgdata] = useState({});
   // const [vendorPackageStatus, setVendorPackageStatus] = useState({});
   const [vendorPackageHistory, setVendorPackageHistory] = useState({});
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const fetchVendors = async (page, limit) => {
     setLoading(true);
@@ -116,7 +118,6 @@ export default function Allvendors() {
       Swal.fire("Error", "Failed to load packages or history", "error");
     }
   };
-     
 
   const submitAssignPackage = async () => {
     try {
@@ -160,42 +161,41 @@ export default function Allvendors() {
   };
 
   const fetchVendorPackageHistory = async (vendorId) => {
-  try {
-    const token = localStorage.getItem("token");
-    const res = await getVendorPackageHistory(token, vendorId);
-     setVendorpkgdata(res.data);
-    if (res.status && res.data.length > 0) {
-      let historyObj = {};
-      const now = new Date();
+    try {
+      const token = localStorage.getItem("token");
+      const res = await getVendorPackageHistory(token, vendorId);
+      setVendorpkgdata(res.data);
+      if (res.status && res.data.length > 0) {
+        let historyObj = {};
+        const now = new Date();
 
-      res.data.forEach((pkg) => {
-        const end = new Date(pkg.end_date);
+        res.data.forEach((pkg) => {
+          const end = new Date(pkg.end_date);
 
-        // Sirf tab add karo jab active ho
-        if (pkg.payment_status === "completed" && end >= now) {
-          historyObj[pkg.package_id] = "Active";
-        }
-      });
+          // Sirf tab add karo jab active ho
+          if (pkg.payment_status === "completed" && end >= now) {
+            historyObj[pkg.package_id] = "Active";
+          }
+        });
 
+        setVendorPackageHistory((prev) => ({
+          ...prev,
+          [vendorId]: historyObj,
+        }));
+      } else {
+        setVendorPackageHistory((prev) => ({
+          ...prev,
+          [vendorId]: {}, // No history found
+        }));
+      }
+    } catch (err) {
+      console.error("Error fetching vendor package history:", err);
       setVendorPackageHistory((prev) => ({
         ...prev,
-        [vendorId]: historyObj,
-      }));
-    } else {
-      setVendorPackageHistory((prev) => ({
-        ...prev,
-        [vendorId]: {}, // No history found
+        [vendorId]: {},
       }));
     }
-  } catch (err) {
-    console.error("Error fetching vendor package history:", err);
-    setVendorPackageHistory((prev) => ({
-      ...prev,
-      [vendorId]: {},
-    }));
-  }
-};
-
+  };
 
   useEffect(() => {
     vendors.forEach((vendor) => {
@@ -203,22 +203,55 @@ export default function Allvendors() {
     });
   }, [vendors]);
 
-  const filteredVendors = searchText
-    ? allVendors.filter((v) => {
-        const lowerSearch = searchText.toLowerCase();
-        return (
-          v.owner_name?.toLowerCase().includes(lowerSearch) ||
-          v.email?.toLowerCase().includes(lowerSearch) ||
-          v.price_range.toLowerCase().includes(lowerSearch) ||
-          v.experience_since.toLowerCase().includes(lowerSearch) ||
-          v.City.name?.toLowerCase().includes(lowerSearch) ||
-          v.phone?.toLowerCase().includes(lowerSearch) ||
-          (Array.isArray(v.category_names)
-            ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
-            : v.category_names?.toLowerCase().includes(lowerSearch))
-        );
-      })
-    : vendors;
+  // const filteredVendors = searchText
+  //   ? allVendors.filter((v) => {
+  //       const lowerSearch = searchText.toLowerCase();
+  //       return (
+  //         v.owner_name?.toLowerCase().includes(lowerSearch) ||
+  //         v.email?.toLowerCase().includes(lowerSearch) ||
+  //         v.price_range.toLowerCase().includes(lowerSearch) ||
+  //         v.experience_since.toLowerCase().includes(lowerSearch) ||
+  //         v.City.name?.toLowerCase().includes(lowerSearch) ||
+  //         v.phone?.toLowerCase().includes(lowerSearch) ||
+  //         (Array.isArray(v.category_names)
+  //           ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
+  //           : v.category_names?.toLowerCase().includes(lowerSearch))
+  //       );
+  //     })
+  //   : vendors;
+
+  const filteredVendors = (searchText ? allVendors : vendors).filter((v) => {
+    const lowerSearch = searchText.toLowerCase();
+
+    // Text Filter
+    const matchesText =
+      !searchText ||
+      v.owner_name?.toLowerCase().includes(lowerSearch) ||
+      v.email?.toLowerCase().includes(lowerSearch) ||
+      // v.price_range?.toLowerCase().includes(lowerSearch) ||
+      // v.experience_since?.toLowerCase().includes(lowerSearch) ||
+      v.phone?.toLowerCase().includes(lowerSearch) ||
+      v.City.name?.toLowerCase().includes(lowerSearch) ||
+      (Array.isArray(v.category_names)
+        ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
+        : v.category_names?.toLowerCase().includes(lowerSearch));
+
+    // Date Filter
+    const createdDate = new Date(v.createdAt);
+    const fromDate = startDate ? new Date(startDate) : null;
+    const toDate = endDate ? new Date(endDate) : null;
+
+    // Agar endDate set hai to usko din ke end tak le jao
+    if (toDate) {
+      toDate.setHours(23, 59, 59, 999);
+    }
+
+    const matchesDate =
+      (!fromDate || createdDate >= fromDate) &&
+      (!toDate || createdDate <= toDate);
+
+    return matchesText && matchesDate;
+  });
 
   const exportToExcel = async () => {
     try {
@@ -251,10 +284,11 @@ export default function Allvendors() {
           ? row.category_names.join(", ")
           : row.category_names || "N/A",
         Phone: row.phone || "N/A",
-        "Price Range": row.price_range || "N/A",
-        "Short Description": row.short_description || "N/A",
-        "Experience Since": row.experience_since || "N/A",
+        // "Price Range": row.price_range || "N/A",
+        // "Short Description": row.short_description || "N/A",
+        // "Experience Since": row.experience_since || "N/A",
         City: row.City?.name || "N/A",
+        State: row.State?.name || "N/A",
         Status: row.status === 1 ? "Active" : "Inactive",
         Approval_Status:
           row.approval_status === 1
@@ -337,25 +371,25 @@ export default function Allvendors() {
       await Swal.fire("Error", "Failed to update status.", "error");
     }
   };
-  
+
   const fetchVendorPkg = async (vendorId) => {
-  const token = localStorage.getItem("token");
-  const historyRes = await getVendorPackageHistory(token, vendorId);
-  return historyRes.data;
-};
+    const token = localStorage.getItem("token");
+    const historyRes = await getVendorPackageHistory(token, vendorId);
+    return historyRes.data;
+  };
 
   useEffect(() => {
-  const loadAllHistories = async () => {
-    let histories = {};
-    for (let vendor of vendors) {
-      const data = await fetchVendorPkg(vendor.id);
-      histories[vendor.id] = data;
-    }
-    setCheckpackage(histories);
-  };
-  if (vendors?.length > 0) loadAllHistories();
-}, [vendors]);
-  
+    const loadAllHistories = async () => {
+      let histories = {};
+      for (let vendor of vendors) {
+        const data = await fetchVendorPkg(vendor.id);
+        histories[vendor.id] = data;
+      }
+      setCheckpackage(histories);
+    };
+    if (vendors?.length > 0) loadAllHistories();
+  }, [vendors]);
+
   const columns = [
     {
       name: "S.No",
@@ -384,55 +418,56 @@ export default function Allvendors() {
       width: "170px",
     },
     { name: "Phone", selector: (row) => row.phone || "—" },
-    { name: "Price Range", selector: (row) => row.price_range || "—" },
+    // { name: "Price Range", selector: (row) => row.price_range || "—" },
 
+    // {
+    //   name: "Experience Since",
+    //   selector: (row) => row.experience_since || "—",
+    // },
     {
-      name: "Experience Since",
-      selector: (row) => row.experience_since || "—",
+      name: "State",
+      selector: (row) => row?.State.name || "—",
+      width: "150px",
     },
     {
       name: "City",
       selector: (row) => row.City.name || "—",
     },
     {
-  name: "Package Status",
-  cell: (row) => {
-    const pkgStatus = checkpackage[row.id] || {};
-    const activePkgIds = [];
-    const expiredPkgIds = [];
+      name: "Package Status",
+      cell: (row) => {
+        const pkgStatus = checkpackage[row.id] || {};
+        const activePkgIds = [];
+        const expiredPkgIds = [];
 
-    Object.keys(pkgStatus).forEach((pkgId) => {
-      const status = pkgStatus[pkgId]?.status; // make sure backend gives `status`
-      const startDate = new Date(pkgStatus[pkgId]?.start_date);
-      const endDate = new Date(pkgStatus[pkgId]?.end_date);
-      const now = new Date();
+        Object.keys(pkgStatus).forEach((pkgId) => {
+          const status = pkgStatus[pkgId]?.status; // make sure backend gives `status`
+          const startDate = new Date(pkgStatus[pkgId]?.start_date);
+          const endDate = new Date(pkgStatus[pkgId]?.end_date);
+          const now = new Date();
 
-      if (startDate <= now && (!endDate || endDate >= now)) {
-        activePkgIds.push(pkgId);
-      } else if (endDate && endDate < now) {
-        expiredPkgIds.push(pkgId);
-      }
-    });
+          if (startDate <= now && (!endDate || endDate >= now)) {
+            activePkgIds.push(pkgId);
+          } else if (endDate && endDate < now) {
+            expiredPkgIds.push(pkgId);
+          }
+        });
 
-    return (
-      <div>
-        {activePkgIds.length > 0 ? (
-          <span className="badge bg-success me-1">
-            Active
-          </span>
-        )
-         : expiredPkgIds.length > 0 ? (
-          <span className="badge bg-danger me-1">
-            Expired
-          </span>
-        ) : 'N/A'}
-       
-      </div>
-    );
-  },
-  sortable: false,
-  width: "150px",
-},
+        return (
+          <div>
+            {activePkgIds.length > 0 ? (
+              <span className="badge bg-success me-1">Active</span>
+            ) : expiredPkgIds.length > 0 ? (
+              <span className="badge bg-danger me-1">Expired</span>
+            ) : (
+              "N/A"
+            )}
+          </div>
+        );
+      },
+      sortable: false,
+      width: "150px",
+    },
     {
       name: "Active Status",
       cell: (row) => (
@@ -624,7 +659,7 @@ export default function Allvendors() {
       </div>
 
       <div className="card table-padding">
-        <div className="card-header">
+        {/* <div className="card-header">
           <div className="col-md-4">
             <div className="d-flex align-items-center border rounded px-2">
               <i className="ri-search-line me-2 text-muted" />
@@ -645,7 +680,62 @@ export default function Allvendors() {
               )}
             </div>
           </div>
+        </div> */}
+
+        <div className="card-header d-flex flex-wrap gap-3">
+          {/* Search Bar */}
+          <div className="col-md-4">
+            <div className="d-flex align-items-center border rounded px-2">
+              <i className="ri-search-line me-2 text-muted" />
+              <input
+                type="text"
+                className="form-control border-0 shadow-none"
+                placeholder="Search by Owner Name..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+              {searchText && (
+                <button
+                  className="btn btn-sm btn-light border-0"
+                  onClick={() => setSearchText("")}
+                >
+                  <i className="ri-close-line" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Date Filter */}
+          <div className="d-flex align-items-center gap-2">
+            <input
+              type="date"
+              className="form-control form-control-sm shadow-sm border-primary rounded"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <span className="fw-semibold text-secondary">to</span>
+            <input
+              type="date"
+              className="form-control form-control-sm shadow-sm border-primary rounded"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+            {(startDate || endDate) && (
+              <button
+                className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 rounded"
+                style={{ height: "31px", lineHeight: "1", padding: "0 10px" }}
+                onClick={() => {
+                  setStartDate("");
+                  setEndDate("");
+                }}
+              >
+                <i className="fas fa-times"></i>
+                <span className="d-none d-md-inline">Clear</span>
+              </button>
+            )}
+          </div>
         </div>
+
         <div className="row ">
           <div className="card-body">
             <Datatable

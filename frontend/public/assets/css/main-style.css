@@ -37331,3 +37331,17 @@ td .user .thumb {
 
 
 }
+
+input[type="date"] {
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(35%) sepia(88%) saturate(500%) hue-rotate(200deg);
+  cursor: pointer;
+}
+
+input[type="date"]:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 6px rgba(13, 110, 253, 0.3);
+}

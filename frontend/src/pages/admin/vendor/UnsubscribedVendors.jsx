@@ -1,0 +1,261 @@
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  GetVendorsByPackageStatus,
+  showPackage,
+  AssignPackageToVendor,
+} from "../../../Services/admin/Admin";
+import Datatable from "react-data-table-component";
+import * as XLSX from "xlsx";
+import Swal from "sweetalert2";
+
+export default function UnsubscribedVendors() {
+  const [vendors, setVendors] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  // Assign package states
+  const [pkgModalOpen, setPkgModalOpen] = useState(false);
+  const [pkgOptions, setPkgOptions] = useState([]);
+  const [selectedPkgId, setSelectedPkgId] = useState(null);
+  const [assignVendorId, setAssignVendorId] = useState(null);
+
+  const token = localStorage.getItem("token");
+
+  // Fetch vendors
+  const fetchVendors = async (page = 1, limit = 10) => {
+    setLoading(true);
+    try {
+      const res = await GetVendorsByPackageStatus(
+        token,
+        "unsubscribed",
+        page,
+        limit
+      );
+      const { data, count } = res || {};
+      setVendors(data || []);
+      setTotalRows(count || 0);
+    } catch (err) {
+      console.error("Error fetching vendors:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchVendors(currentPage, perPage);
+  }, [currentPage, perPage]);
+
+  // Pagination
+  const handlePageChange = (page) => setCurrentPage(page);
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
+
+  // Export to Excel
+  const exportToExcel = () => {
+    try {
+      const exportData = vendors.map((row, index) => ({
+        "S.No": index + 1,
+        "Owner Name": row.owner_name || "N/A",
+        Email: row.email || "N/A",
+        Category: row.Category?.name || "N/A",
+         State:row.State.name||"N/A",
+        City:row.City.name||"N/A",
+        Phone: row.phone || "N/A",
+        Date: row.createdAt
+          ? new Date(row.createdAt).toLocaleDateString()
+          : "N/A",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Unsubscribed Vendors");
+      XLSX.writeFile(workbook, "Unsubscribed_Vendor_List.xlsx");
+    } catch (err) {
+      console.error("Error exporting vendors:", err);
+      Swal.fire("Error", "Failed to export vendors", "error");
+    }
+  };
+
+  // Open Assign Package Modal
+  const openAssignPackage = async (vendorId) => {
+    try {
+      const res = await showPackage(token, 1, 100);
+      const activePkgs = (res?.data || []).filter((p) => Number(p.status) === 1);
+      setPkgOptions(activePkgs);
+      setAssignVendorId(vendorId);
+      setSelectedPkgId(null);
+      setPkgModalOpen(true);
+    } catch (err) {
+      Swal.fire("Error", "Failed to load packages", "error");
+    }
+  };
+
+  // Submit Package Assignment
+  const submitAssignPackage = async () => {
+    if (!assignVendorId || !selectedPkgId)
+      return Swal.fire("Select Package", "Please select a package", "warning");
+
+    try {
+      const res = await AssignPackageToVendor(token, assignVendorId, selectedPkgId);
+      if (res?.status) {
+        await Swal.fire("Success", res.msg || "Package assigned", "success");
+        setPkgModalOpen(false);
+        fetchVendors(currentPage, perPage);
+      } else {
+        Swal.fire("Error", res?.msg || "Unable to assign package", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", err?.message || "Unable to assign package", "error");
+    }
+  };
+
+  // Search & filter
+  const filteredVendors = vendors.filter((vendor) => {
+    const lowerSearch = searchText.toLowerCase();
+    return (
+      vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
+      vendor.email?.toLowerCase().includes(lowerSearch) ||
+      vendor.phone?.toLowerCase().includes(lowerSearch) ||
+      vendor.Category?.name?.toLowerCase().includes(lowerSearch) ||
+      vendor.State?.name?.toLowerCase().includes(lowerSearch) ||
+      vendor.City?.name?.toLowerCase().includes(lowerSearch)
+    );
+  });
+
+  const columns = [
+    { name: "S.No", selector: (row, index) => index + 1, width: "60px" },
+    { name: "Owner Name", selector: (row) => row.owner_name || "—", sortable: true },
+    { name: "Email", selector: (row) => row.email || "—", sortable: true },
+    { name: "Category Name", selector: (row) => row.Category?.name || "-" },
+    { name: "Phone", selector: (row) => row.phone || "—", sortable: true },
+    { name: "State", selector: (row) => row.State?.name || "—", sortable: true },
+    { name: "City", selector: (row) => row.City?.name || "—", sortable: true },
+    {
+      name: "Assign Package",
+      cell: (row) => (
+        <button
+          className="btn btn-success btn-sm"
+          onClick={() => openAssignPackage(row.id)}
+        >
+          <i className="fa-solid fa-box"></i>
+        </button>
+      ),
+    },
+  ];
+
+  return (
+    <div className="page-content">
+      <div className="row align-items-center mb-3">
+        <div className="col-md-6">
+          <div className="add-page-heading-div">
+            <Link to="/admin/dashboard">
+              <i className="fa fa-arrow-left"></i>
+            </Link>
+            <h2 className="add-page-heading">Unsubscribed Vendors</h2>
+          </div>
+        </div>
+        <div className="col-md-6 text-end">
+          <button className="btn btn-success me-2" onClick={exportToExcel}>
+            <i className="fa-solid fa-file-excel me-1"></i>Download Excel
+          </button>
+        </div>
+      </div>
+
+      <div className="card table-padding">
+        <div className="col-md-4 mb-3">
+          <div className="d-flex align-items-center border rounded px-2">
+            <i className="ri-search-line me-2 text-muted" />
+            <input
+              type="text"
+              className="form-control border-0 shadow-none"
+              placeholder="Search by vendor..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+            {searchText && (
+              <button
+                className="btn btn-sm btn-light border-0"
+                onClick={() => setSearchText("")}
+              >
+                <i className="ri-close-line" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="col-md-12">
+          <Datatable
+            columns={columns}
+            data={filteredVendors}
+            progressPending={loading}
+            pagination
+            paginationServer
+            paginationTotalRows={totalRows}
+            paginationPerPage={perPage}
+            onChangeRowsPerPage={handlePerRowsChange}
+            onChangePage={handlePageChange}
+          />
+        </div>
+      </div>
+
+      {pkgModalOpen && (
+        <div className="modal fade show d-block" style={{ background: "rgba(0,0,0,0.5)" }}>
+          <div className="modal-dialog modal-dialog-centered modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Assign Package</h5>
+                <button type="button" className="btn-close" onClick={() => setPkgModalOpen(false)} />
+              </div>
+              <div className="modal-body">
+                {pkgOptions.length === 0 ? (
+                  <p>No active packages found.</p>
+                ) : (
+                  <div className="list-group">
+                    {pkgOptions.map((p) => (
+                      <label
+                        key={p.id}
+                        className="list-group-item d-flex justify-content-between align-items-center"
+                      >
+                        <div>
+                          <input
+                            type="radio"
+                            name="assignPkg"
+                            className="form-check-input me-2"
+                            checked={selectedPkgId === p.id}
+                            onChange={() => setSelectedPkgId(p.id)}
+                          />
+                          <span className="fw-semibold">{p.name}</span>
+                          <div className="small text-muted">
+                            ₹{p.price} • {p.validity_in_months ? `${p.validity_in_months} months` : "N/A"}
+                          </div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setPkgModalOpen(false)}>
+                  Close
+                </button>
+                <button
+                  className="btn btn-primary"
+                  disabled={!selectedPkgId}
+                  onClick={submitAssignPackage}
+                >
+                  Assign
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
