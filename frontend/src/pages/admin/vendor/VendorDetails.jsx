@@ -86,7 +86,7 @@ export default function VendorDetails() {
     },
   ];
 
-return (
+  return (
     <div className="page-content">
       <div className="row align-items-center mb-1">
         <div className="col-md-6 mb-2">
@@ -116,22 +116,23 @@ return (
                 />
               </div>
             </div>
-            {/* <div className="col">
+            <div className="col">
               <h3 className="mb-2 fs-4 fw-bold">{vendor.owner_name}</h3>
               <div className="d-flex align-items-center gap-3 mb-2">
-                {vendor.profile_name && (
-                  <span className="badge bg-primary">
-                    {vendor.profile_name}
-                  </span>
-                )}
-                {vendor.experience_since && (
+               {(vendor.profile_name || vendor.owner_name) && (
+  <span className="badge bg-primary">
+    {vendor.profile_name || vendor.owner_name}
+  </span>
+)}
+
+                {/* {vendor.experience_since && (
                   <span>
                     <i className="fas fa-calendar-alt me-1"></i>
                     Since {vendor.experience_since}
                   </span>
-                )}
+                )} */}
               </div>
-            </div> */}
+            </div>
           </div>
           {/* <div className="position-absolute top-0 end-0 p-3">
             <Link
@@ -145,33 +146,32 @@ return (
           </div> */}
 
           <div className="position-absolute top-0 end-0 p-3 d-flex flex-column gap-2">
-  <Link
-    to="/admin/vendor/vendorpackagedetails"
-    className="btn btn-outline-primary btn-sm shadow-sm"
-    state={{ vendorId: vendorId }}
-  >
-    <i className="fas fa-box-open me-1"></i>
-    Vendor Packages
-  </Link>
+            <Link
+              to="/admin/vendor/vendorpackagedetails"
+              className="btn btn-outline-primary btn-sm shadow-sm"
+              state={{ vendorId: vendorId }}
+            >
+              <i className="fas fa-box-open me-1"></i>
+              Vendor Packages
+            </Link>
 
-  <Link
-    to={`/admin/galleryUpdates/vendorgallery/${vendorId}`}
-    className="btn btn-outline-primary btn-sm shadow-sm"
-  >
-    <i className="fas fa-images me-1"></i>
-    Gallery
-  </Link>
+            <Link
+              to={`/admin/galleryUpdates/vendorgallery/${vendorId}`}
+              className="btn btn-outline-primary btn-sm shadow-sm"
+            >
+              <i className="fas fa-images me-1"></i>
+              Gallery
+            </Link>
 
-  <Link
-    to={`/admin/review/vendorallleads/${vendorId}`}
-    className="btn btn-outline-primary btn-sm shadow-sm"
-    state={{ vendorId: vendorId }}
-  >
-    <i className="fas fa-user-friends me-1"></i>
-    Leads
-  </Link>
-</div>
-
+            <Link
+              to={`/admin/review/vendorallleads/${vendorId}`}
+              className="btn btn-outline-primary btn-sm shadow-sm"
+              state={{ vendorId: vendorId }}
+            >
+              <i className="fas fa-user-friends me-1"></i>
+              Leads
+            </Link>
+          </div>
         </div>
 
         <div className="card-body p-4">

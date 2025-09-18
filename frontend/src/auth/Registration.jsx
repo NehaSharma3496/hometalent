@@ -10,9 +10,10 @@ import {
   GetCities,
 } from "../Services/vendor/Vendor";
 import { VerifyOtp } from "../Services/webService/Web";
-import { Link } from "react-router-dom";
+import { Link,useNavigate  } from "react-router-dom";
 
 const Registration = () => {
+  const navigate = useNavigate();
   const [categoryData, setCategoryData] = useState([]);
   const [statesData, setStatesData] = useState([]);
   const [cityData, setCityData] = useState([]);
@@ -265,8 +266,9 @@ const Registration = () => {
       <div className="input-group mb-2">
         <input
           type="text"
-          className={`form-control contact-input ${touched.phone && errors.phone ? "is-invalid" : ""
-            }`}
+          className={`form-control contact-input ${
+            touched.phone && errors.phone ? "is-invalid" : ""
+          }`}
           value={values.phone || ""}
           onChange={(e) =>
             handlePhoneInput(e, setFieldValue, setFieldTouched, touched)
@@ -309,10 +311,10 @@ const Registration = () => {
                 {phoneVerificationState.loading
                   ? "Sending..."
                   : !isOtpSent
-                    ? "Send OTP"
-                    : otpTimer > 0
-                      ? `Resend OTP in ${otpTimer}s`
-                      : "Resend OTP"}
+                  ? "Send OTP"
+                  : otpTimer > 0
+                  ? `Resend OTP in ${otpTimer}s`
+                  : "Resend OTP"}
               </button>
             </>
           )}
@@ -437,7 +439,7 @@ const Registration = () => {
     },
     {
       name: "longDesc",
-      label: "Large Description*",
+      label: "Full Description*",
       type: "textarea",
       colClass: "col-12 mb-3",
     },
@@ -512,9 +514,7 @@ const Registration = () => {
       type: "checkbox",
       colClass: "col-md-12 mb-3",
     },
-
-  ]
-
+  ];
 
   // Enhanced fields array with custom phone field
   // const fields = [
@@ -672,9 +672,6 @@ const Registration = () => {
   //   },
   // ];
 
-
-
-
   const onSubmit = async (values) => {
     // Check if phone is verified before submission
     if (!phoneVerificationState.isVerified) {
@@ -757,10 +754,10 @@ const Registration = () => {
       if (res?.data?.status) {
         Swal.fire(
           "Success",
-          "User registered! We will reach you soon on mail",
+          "Registration successful! Login details have been sent to your mail/phone via Cegano Technology.",
           "success"
         ).then(() => {
-          window.location.reload();
+           navigate("/");;
         });
       } else {
         Swal.fire(

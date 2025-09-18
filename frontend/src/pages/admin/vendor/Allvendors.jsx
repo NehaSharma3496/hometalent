@@ -35,7 +35,6 @@ export default function Allvendors() {
   const [endDate, setEndDate] = useState("");
   const [packageFilter, setPackageFilter] = useState(""); // 🔹 new state
 
-
   const fetchVendors = async (page, limit) => {
     setLoading(true);
     try {
@@ -222,55 +221,60 @@ export default function Allvendors() {
   //     })
   //   : vendors;
 
-const filteredVendors = (searchText ? allVendors : vendors).filter((v) => {
-  const lowerSearch = searchText.toLowerCase();
+  const filteredVendors = (searchText ? allVendors : vendors).filter((v) => {
+    const lowerSearch = searchText.toLowerCase();
 
-  // 🔹 Text Filter
-  const matchesText =
-    !searchText ||
-    v.owner_name?.toLowerCase().includes(lowerSearch) ||
-    v.email?.toLowerCase().includes(lowerSearch) ||
-    v.phone?.toLowerCase().includes(lowerSearch) ||
-    v.City.name?.toLowerCase().includes(lowerSearch) ||
-    v.State.name?.toLowerCase().includes(lowerSearch) ||
-    (Array.isArray(v.category_names)
-      ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
-      : v.category_names?.toLowerCase().includes(lowerSearch));
+    // 🔹 Text Filter
+    const matchesText =
+      !searchText ||
+      v.owner_name?.toLowerCase().includes(lowerSearch) ||
+      v.email?.toLowerCase().includes(lowerSearch) ||
+      v.phone?.toLowerCase().includes(lowerSearch) ||
+      v.City.name?.toLowerCase().includes(lowerSearch) ||
+      v.State.name?.toLowerCase().includes(lowerSearch) ||
+      (Array.isArray(v.category_names)
+        ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
+        : v.category_names?.toLowerCase().includes(lowerSearch));
 
-  // 🔹 Date Filter
-  const createdDate = new Date(v.createdAt);
-  const fromDate = startDate ? new Date(startDate) : null;
-  const toDate = endDate ? new Date(endDate) : null;
-  if (toDate) {
-    toDate.setHours(23, 59, 59, 999);
-  }
-  const matchesDate =
-    (!fromDate || createdDate >= fromDate) &&
-    (!toDate || createdDate <= toDate);
+    // 🔹 Date Filter
+    const createdDate = new Date(v.createdAt);
+    const fromDate = startDate ? new Date(startDate) : null;
+    const toDate = endDate ? new Date(endDate) : null;
+    if (toDate) {
+      toDate.setHours(23, 59, 59, 999);
+    }
+    const matchesDate =
+      (!fromDate || createdDate >= fromDate) &&
+      (!toDate || createdDate <= toDate);
 
-  // 🔹 Package Status Filter
-  let matchesPackage = true;
-  if (packageFilter) {
-    const pkgStatus = checkpackage[v.id] || {};
-    const now = new Date();
-    let statusLabel = "N/A";
+    // 🔹 Package Status Filter
+    // 🔹 Package Status Filter
+let matchesPackage = true;
+if (packageFilter) {
+  const pkgStatusArr = checkpackage[v.id] || [];
+  const now = new Date();
 
-    Object.keys(pkgStatus).forEach((pkgId) => {
-      const start = new Date(pkgStatus[pkgId]?.start_date);
-      const end = new Date(pkgStatus[pkgId]?.end_date);
-      if (start <= now && (!end || end >= now)) {
-        statusLabel = "Active";
-      } else if (end && end < now) {
-        statusLabel = "Expired";
-      }
-    });
+  let hasActive = pkgStatusArr.some((pkg) => {
+    const start = new Date(pkg.start_date);
+    const end = new Date(pkg.end_date);
+    return pkg.payment_status === "completed" && start <= now && (!end || end >= now);
+  });
 
-    matchesPackage = statusLabel === packageFilter;
-  }
+  let hasExpired = pkgStatusArr.some((pkg) => {
+    const end = new Date(pkg.end_date);
+    return pkg.payment_status === "completed" && end < now;
+  });
 
-  return matchesText && matchesDate && matchesPackage;
-});
+  let statusLabel = "N/A";
+  if (hasActive) statusLabel = "Active";
+  else if (hasExpired) statusLabel = "Expired";
 
+  matchesPackage = statusLabel === packageFilter;
+}
+
+
+    return matchesText && matchesDate && matchesPackage;
+  });
 
   const exportToExcel = async () => {
     try {
@@ -726,57 +730,52 @@ const filteredVendors = (searchText ? allVendors : vendors).filter((v) => {
 
           {/* Date Filter */}
           <div className="d-flex align-items-center gap-2">
-  <input
-    type={startDate ? "date" : "text"}
-    className="form-control form-control-sm shadow-sm border rounded"
-    placeholder="From"
-    value={startDate}
-    onFocus={(e) => (e.target.type = "date")}
-    onBlur={(e) => !startDate && (e.target.type = "text")}
-    onChange={(e) => setStartDate(e.target.value)}
-  />
+            <input
+              type={startDate ? "date" : "text"}
+              className="form-control form-control-sm shadow-sm border rounded"
+              placeholder="From"
+              value={startDate}
+              onFocus={(e) => (e.target.type = "date")}
+              onBlur={(e) => !startDate && (e.target.type = "text")}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
 
-  <input
-    type={endDate ? "date" : "text"}
-    className="form-control form-control-sm shadow-sm border rounded"
-    placeholder="To"
-    value={endDate}
-    onFocus={(e) => (e.target.type = "date")}
-    onBlur={(e) => !endDate && (e.target.type = "text")}
-    onChange={(e) => setEndDate(e.target.value)}
-  />
+            <input
+              type={endDate ? "date" : "text"}
+              className="form-control form-control-sm shadow-sm border rounded"
+              placeholder="To"
+              value={endDate}
+              onFocus={(e) => (e.target.type = "date")}
+              onBlur={(e) => !endDate && (e.target.type = "text")}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
 
-  {(startDate || endDate) && (
-    <button
-      className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 rounded"
-      style={{ height: "31px", lineHeight: "1", padding: "0 10px" }}
-      onClick={() => {
-        setStartDate("");
-        setEndDate("");
-      }}
-    >
-      <i className="fas fa-times"></i>
-      <span className="d-none d-md-inline">Clear</span>
-    </button>
-  )}
+            {(startDate || endDate) && (
+              <button
+                className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 rounded"
+                style={{ height: "31px", lineHeight: "1", padding: "0 10px" }}
+                onClick={() => {
+                  setStartDate("");
+                  setEndDate("");
+                }}
+              >
+                <i className="fas fa-times"></i>
+                <span className="d-none d-md-inline">Clear</span>
+              </button>
+            )}
 
-  <select
-    className="form-select form-select-sm shadow-sm border rounded"
-    value={packageFilter}
-    onChange={(e) => setPackageFilter(e.target.value)}
-    style={{ width: "150px" }}
-  >
-    <option value="">All Packages</option>
-    <option value="Active">Active</option>
-    <option value="Expired">Expired</option>
-    <option value="N/A">N/A</option>
-  </select>
-
-
-</div>
-
-
-
+            <select
+              className="form-select form-select-sm shadow-sm border rounded"
+              value={packageFilter}
+              onChange={(e) => setPackageFilter(e.target.value)}
+              style={{ width: "150px" }}
+            >
+              <option value="">All Packages</option>
+              <option value="Active">Active</option>
+              <option value="Expired">Expired</option>
+              <option value="N/A">N/A</option>
+            </select>
+          </div>
         </div>
 
         <div className="row ">
