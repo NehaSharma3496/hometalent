@@ -40,11 +40,11 @@ exports.listAllVendors = async (req, res) => {
       limit,
       offset,
     });
-const vendors = rows.map(v => ({
-  ...v,
-  City: { id: v['City.id'], name: v['City.name'] },
-  State: { id: v['State.id'], name: v['State.name'] }
-}));
+    const vendors = rows.map(v => ({
+      ...v,
+      City: { id: v['City.id'], name: v['City.name'] },
+      State: { id: v['State.id'], name: v['State.name'] }
+    }));
     // Get all unique category IDs
     const categoryIds = [
       ...new Set(
@@ -1773,14 +1773,14 @@ exports.getVendorsByPackageStatus = async (req, res) => {
     const baseWhere = { role_id: 2, approval_status: 1 };
     let vendors;
 
-    if (status === "unsubscribed") {
+    if(status === "unsubscribed") {
       // Vendors with NO subscriptions
       vendors = await User.findAll({
         where: baseWhere,
         include: [
           {
             model: VendorPackageSubscription,
-            as: "subscriptions", // use your alias here if defined
+            as: "vendor", // use your alias here if defined
             required: false,
           },
           {
@@ -1792,7 +1792,7 @@ exports.getVendorsByPackageStatus = async (req, res) => {
         { model: State, attributes: ['id', 'name'], required: false }
         ],
         group: ["User.id"],
-        having: literal(`COUNT(subscriptions.id) = 0`), // match alias
+        having: literal(`COUNT(vendor.id) = 0`), // match alias
       });
     } else if (status === "active") {
       // Vendors with at least one active subscription
@@ -1801,7 +1801,7 @@ exports.getVendorsByPackageStatus = async (req, res) => {
         include: [
           {
             model: VendorPackageSubscription,
-            as: "subscriptions", // alias
+            as: "vendor", // alias
             required: true,
             where: {
               start_date: { [Op.lte]: fn("NOW") },
@@ -1819,35 +1819,27 @@ exports.getVendorsByPackageStatus = async (req, res) => {
         distinct: true,
       });
     } else if (status === "expired") {
-      // Vendors with only expired subscriptions (and no active ones)
-      vendors = await User.findAll({
-        where: baseWhere,
-        include: [
-          {
-            model: VendorPackageSubscription,
-            as: "subscriptions", // alias
-            required: true,
-          },
-          {
-                    model: Category,
-                    attributes: ['id', 'name'], // bring category name
-                    required: false
-                  },
-                  { model: City, attributes: ['id', 'name'], required: false },
-                  { model: State, attributes: ['id', 'name'], required: false }
-        ],
-        group: ["User.id"],
-        having: literal(`
-          SUM(
-            CASE 
-              WHEN subscriptions.start_date <= NOW() 
-               AND subscriptions.end_date >= NOW() 
-              THEN 1 ELSE 0 
-            END
-          ) = 0
-        `), // ensures no active
-      });
+     vendors = await User.findAll({
+  where: {
+    role_id: 2,
+    approval_status: 1,
+  },
+  include: [
+    {
+      model: VendorPackageSubscription,
+      as: "vendor",
+      required: true,
+    },
+    { model: Category, attributes: ["id", "name"], required: false },
+    { model: City, attributes: ["id", "name"], required: false },
+    { model: State, attributes: ["id", "name"], required: false },
+  ],
+  group: ["User.id"],
+  having: literal(`MAX(\`vendor\`.\`end_date\`) < NOW()`),
+});
+
     }
+console.log("vendors", vendors);
 
     return res.json({
       status: true,
