@@ -81,14 +81,14 @@ const Registration = () => {
     ownerName: Yup.string()
       .matches(
         /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
-        "Only alphabets and spaces are allowed"
+        "Only alphabets are allowed"
       )
       .required("Owner Name is required"),
 
     profileName: Yup.string()
       .matches(
         /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
-        "Only alphabets and spaces are allowed"
+        "Only alphabets are allowed"
       )
       .required("Profile Name is required"),
 
@@ -118,7 +118,7 @@ const Registration = () => {
       otherwise: (schema) => schema.notRequired(),
     }),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
-    longDesc: Yup.string().required("Large Description is required"),
+    longDesc: Yup.string().required("Description is required"),
   });
 
   // Phone verification handlers
@@ -455,7 +455,7 @@ const Registration = () => {
     },
     {
       name: "longDesc",
-      label: "Full Description*",
+      label: "Description*",
       type: "textarea",
       colClass: "col-12 mb-3",
     },

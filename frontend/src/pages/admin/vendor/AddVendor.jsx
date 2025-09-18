@@ -80,14 +80,14 @@ const validationSchema = Yup.object({
   ownerName: Yup.string()
     .matches(
       /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
-      "Only alphabets and spaces are allowed (no numbers or special characters)"
+      "Only alphabets  are allowed "
     )
     .required("Owner Name is required"),
 
   profileName: Yup.string()
     .matches(
       /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
-      "Only alphabets and spaces are allowed (no numbers or special characters)"
+      "Only alphabets are allowed "
     )
     .required("Profile Name is required"),
 
@@ -111,7 +111,7 @@ const validationSchema = Yup.object({
     otherwise: (schema) => schema.notRequired(),
   }),
   terms: Yup.boolean().oneOf([true], "You must accept terms"),
-  longDesc: Yup.string().required("Large Description is required"),
+  longDesc: Yup.string().required("Description is required"),
 });
 
 
@@ -321,13 +321,13 @@ const validationSchema = Yup.object({
   const fields = [
     {
       name: "ownerName",
-      label: "Profile Name*",
+      label: "Owner Name*",
       type: "text",
       colClass: "col-md-4",
     },
     {
       name: "profileName",
-      label: "Owner Name",
+      label: "Profile Name",
       type: "text",
       colClass: "col-md-4",
     },
@@ -407,7 +407,7 @@ const validationSchema = Yup.object({
     // },
     {
       name: "longDesc",
-      label: "Full Description*",
+      label: "Description*",
       type: "textarea",
       colClass: "col-md-12",
     },

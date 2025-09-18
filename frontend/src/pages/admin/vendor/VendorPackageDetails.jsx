@@ -238,7 +238,7 @@ export default function VendorPackageDetails() {
         row.payment_status === "pending" ? "-" : formatDate(row.end_date),
     },
 
-    { name: "Amount", selector: (row) => `₹${row?.Package?.price || "0"}` },
+    { name: "Amount", selector: (row) => `₹${row?.amount || "0"}` },
     { name: "Payment Status", selector: (row) => row?.payment_status || "N/A" },
  {
   name: "Status",

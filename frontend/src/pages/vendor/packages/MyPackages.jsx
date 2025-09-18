@@ -148,7 +148,7 @@ export default function MyPackages() {
     },
     {
       name: "Amount",
-      selector: (row) => `₹${row?.Package?.price || "-"}`,
+      selector: (row) => `₹${row?.amount || "-"}`,
     },
     {
       name: "Payment Status",

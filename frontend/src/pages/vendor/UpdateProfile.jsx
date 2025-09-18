@@ -25,17 +25,21 @@ export default function UpdateProfile() {
 
   // Enhanced validation schema with all fields
   const validationSchema = Yup.object().shape({
-    owner_name: Yup.string()
+    ownerName: Yup.string()
+          .matches(
+            /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+            "Only alphabets are allowed"
+          )
+          .required("Owner Name is required"),
+    
+    profile_name: Yup.string()
       .required("Profile Name is required")
       .min(2, "Profile Name must be at least 2 characters")
       .max(50, "Profile Name must not exceed 50 characters")
-      .matches(/^[a-zA-Z\s]+$/, "Profile Name can only contain letters and spaces"),
-    
-    // profile_name: Yup.string()
-    //   .required("Owner Name is required")
-    //   .min(2, "Owner Name must be at least 2 characters")
-    //   .max(50, "Owner Name must not exceed 50 characters")
-    //   .matches(/^[a-zA-Z\s]+$/, "Owner Name can only contain letters and spaces"),
+      .matches(
+            /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+            "Only alphabets are allowed"
+          ),
     
     phone: Yup.string()
       .required("Phone number is required")
@@ -150,14 +154,14 @@ export default function UpdateProfile() {
   const fields = [
     {
       name: "owner_name",
-      label: "Profile Name",
+      label: "Owner Name",
       type: "text",
       colClass: "col-md-4 ",
       required: true,
     },
     {
       name: "profile_name",
-      label: "Owner Name",
+      label: "Profile Name",
       type: "text",
       colClass: "col-md-4 ",
       required: true,

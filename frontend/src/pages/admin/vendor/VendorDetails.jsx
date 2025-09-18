@@ -159,22 +159,23 @@ export default function VendorDetails() {
               Vendor Packages
             </Link>
 
-            <Link
-              to={`/admin/galleryUpdates/vendorgallery/${vendorId}`}
-              className="btn btn-outline-primary btn-sm shadow-sm"
-            >
-              <i className="fas fa-images me-1"></i>
-              Gallery
-            </Link>
+          <Link
+  to={`/admin/galleryUpdates/vendorgallery/${vendorId}`}
+  className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
+>
+  <i className="fas fa-images"></i>
+  <span>Gallery</span>
+</Link>
 
-            <Link
-              to={`/admin/review/vendorallleads/${vendorId}`}
-              className="btn btn-outline-primary btn-sm shadow-sm"
-              state={{ vendorId: vendorId }}
-            >
-              <i className="fas fa-user-friends me-1"></i>
-              Leads
-            </Link>
+<Link
+  to={`/admin/review/vendorallleads/${vendorId}`}
+  className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
+  state={{ vendorId: vendorId }}
+>
+  <i className="fas fa-user-friends"></i>
+  <span>Leads</span>
+</Link>
+
           </div>
         </div>
 

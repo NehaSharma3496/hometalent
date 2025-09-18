@@ -27,16 +27,22 @@ export default function UpdateVendor() {
   // Enhanced validation schema with all fields
   const validationSchema = Yup.object().shape({
     owner_name: Yup.string()
+      .required("Owner Name is required")
+      .min(2, "Owner Name must be at least 2 characters")
+      .max(50, "Owner Name must not exceed 50 characters")
+     .matches(
+        /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+        "Only alphabets are allowed"
+      ),
+
+    profile_name: Yup.string()
       .required("Profile Name is required")
       .min(2, "Profile Name must be at least 2 characters")
       .max(50, "Profile Name must not exceed 50 characters")
-      .matches(/^[a-zA-Z\s]+$/, "Profile Name can only contain letters and spaces"),
-
-    // profile_name: Yup.string()
-    //   .required("Owner Name is required")
-    //   .min(2, "Owner Name must be at least 2 characters")
-    //   .max(50, "Owner Name must not exceed 50 characters")
-    //   .matches(/^[a-zA-Z\s]+$/, "Owner Name can only contain letters and spaces"),
+       .matches(
+        /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+        "Only alphabets are allowed"
+      ),
 
     phone: Yup.string()
       .required("Phone number is required")
@@ -151,21 +157,21 @@ export default function UpdateVendor() {
   const fields = [
     {
       name: "owner_name",
-      label: "Profile Name",
+      label: "Owner Name*",
       type: "text",
       colClass: "col-md-4 mb-3",
       required: true,
     },
     {
       name: "profile_name",
-      label: "Owner Name",
+      label: "Profile Name",
       type: "text",
       colClass: "col-md-4 mb-3",
       required: true,
     },
     { 
       name: "phone", 
-      label: "Phone", 
+      label: "Phone*", 
       type: "text", 
       colClass: "col-md-4 mb-3",
       required: true,
@@ -173,14 +179,14 @@ export default function UpdateVendor() {
     },
     { 
       name: "email", 
-      label: "Email", 
+      label: "Email*", 
       type: "email", 
       colClass: "col-md-4 mb-3",
       required: true,
     },
     {
       name: "state_id",
-      label: "State",
+      label: "State*",
       type: "select",
       options: statesData,
       // when state changes: update selectedStateId (to fetch cities) AND reset cityTouched
@@ -193,7 +199,7 @@ export default function UpdateVendor() {
     },
     {
       name: "city_id",
-      label: "City",
+      label: "City*",
       type: "select",
       options: cityData,
       // when user actively changes city -> mark as touched
@@ -203,7 +209,7 @@ export default function UpdateVendor() {
     },
     {
       name: "pin_code",
-      label: "Pin Code",
+      label: "Pin Code*",
       type: "text",
       colClass: "col-md-4 mb-3",
       required: true,
@@ -219,7 +225,7 @@ export default function UpdateVendor() {
     },
     {
       name: "category_id",
-      label: "Category",
+      label: "Category*",
       type: "select",
       options: categoryData,
       colClass: "col-md-4 mb-3",
@@ -249,7 +255,7 @@ export default function UpdateVendor() {
     },
     {
       name: "long_description",
-      label: "Long Description",
+      label: "Description*",
       type: "textarea",
       colClass: "col-12 mb-3",
       required: true,

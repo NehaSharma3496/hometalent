@@ -75,7 +75,11 @@ const CategoryDetail = () => {
         setIsReviewOtpSent(true);
         setReviewServerOtp(res.otp);
         setIsReviewOtpVerified(false);
-        Swal.fire("Success", "Verification code sent via Cegano Technology Enter the OTP to continue.", "success");
+        Swal.fire(
+          "Success",
+          "Verification code sent via Cegano Technology Enter the OTP to continue.",
+          "success"
+        );
       } else if (res?.msg?.toLowerCase().includes("already verify")) {
         setIsReviewOtpVerified(true);
         setIsReviewOtpSent(false);
@@ -99,7 +103,11 @@ const CategoryDetail = () => {
         setIsReportOtpSent(true);
         setReportServerOtp(res.otp);
         setIsReportOtpVerified(false);
-        Swal.fire("Success", "Verification code sent via Cegano Technology Enter the OTP to continue.", "success");
+        Swal.fire(
+          "Success",
+          "Verification code sent via Cegano Technology Enter the OTP to continue.",
+          "success"
+        );
       } else if (res?.msg?.toLowerCase().includes("already verify")) {
         setIsReportOtpVerified(true);
         setIsReportOtpSent(false);
@@ -244,9 +252,10 @@ const CategoryDetail = () => {
       // Check if vendor exists and is active
       if (res?.data && res?.data?.user) {
         // Check vendor status - adjust these conditions based on your API response
-        const isVendorActive = res.data.user.is_active === 1 ||
+        const isVendorActive =
+          res.data.user.is_active === 1 ||
           res.data.user.is_active === true ||
-          res.data.user.status === 'active' ||
+          res.data.user.status === "active" ||
           res.data.user.status === 1 ||
           res.data.user.active === 1 ||
           res.data.user.active === true;
@@ -324,11 +333,7 @@ const CategoryDetail = () => {
   };
 
   const handleSubmit = async () => {
-    if (
-      !leadData.name ||
-      !leadData.phone ||
-      !leadData.query
-    ) {
+    if (!leadData.name || !leadData.phone || !leadData.query) {
       Swal.fire({
         icon: "warning",
         title: "Missing Fields",
@@ -429,15 +434,25 @@ const CategoryDetail = () => {
       <div>
         <Breadcrumbs
           title="Loading..."
-          links={[{ label: "Home", to: "/" }, { label: "Loading...", to: "#" }]}
+          links={[
+            { label: "Home", to: "/" },
+            { label: "Loading...", to: "#" },
+          ]}
         />
         <section className="tour-details-section section-padding section-padding1">
           <div className="container">
             <div className="row justify-content-center">
               <div className="col-md-6 text-center">
-                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "400px" }}>
+                <div
+                  className="d-flex justify-content-center align-items-center"
+                  style={{ minHeight: "400px" }}
+                >
                   <div>
-                    <div className="spinner-border text-primary mb-3" role="status" style={{ width: "3rem", height: "3rem" }}>
+                    <div
+                      className="spinner-border text-primary mb-3"
+                      role="status"
+                      style={{ width: "3rem", height: "3rem" }}
+                    >
                       <span className="visually-hidden">Loading...</span>
                     </div>
                     <h4 className="text-muted">Loading vendor details...</h4>
@@ -457,19 +472,34 @@ const CategoryDetail = () => {
       <div>
         <Breadcrumbs
           title="Vendor Not Found"
-          links={[{ label: "Home", to: "/" }, { label: "Vendor Not Found", to: "#" }]}
+          links={[
+            { label: "Home", to: "/" },
+            { label: "Vendor Not Found", to: "#" },
+          ]}
         />
         <section className="tour-details-section section-padding">
           <div className="container">
             <div className="row justify-content-center">
               <div className="col-md-8 col-lg-6">
-                <div className="text-center" style={{ minHeight: "500px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                <div
+                  className="text-center"
+                  style={{
+                    minHeight: "500px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                  }}
+                >
                   <div className="mb-4">
-                    <i className="ri-error-warning-line" style={{ fontSize: "120px", color: "#ff6b6b" }}></i>
+                    <i
+                      className="ri-error-warning-line"
+                      style={{ fontSize: "120px", color: "#ff6b6b" }}
+                    ></i>
                   </div>
                   <h2 className="text-danger mb-3 fw-bold">Vendor Not Found</h2>
                   <p className="text-muted mb-4 lead">
-                    Sorry, the vendor you're looking for is not available or has been deactivated.
+                    Sorry, the vendor you're looking for is not available or has
+                    been deactivated.
                   </p>
                   <div className="d-flex flex-column flex-sm-row gap-4 justify-content-center align-items-center mt-4">
                     <a
@@ -488,7 +518,6 @@ const CategoryDetail = () => {
                       <span>Go Back</span>
                     </button>
                   </div>
-
                 </div>
               </div>
             </div>
@@ -537,32 +566,31 @@ const CategoryDetail = () => {
                         <h4 className="title text-capitalize mt-4 d-flex align-items-center">
                           {vendorData?.user?.owner_name}
 
-                          {reviewcount && (
-                            <div
-                              className="d-flex align-items-center justify-content-center"
-                              style={{
-                                backgroundColor: "#2278b6",
-                                padding: "4px 10px",
-                                marginLeft: "190px",
-                                fontSize: "14px",
-                                color: "#fff",
-                                fontWeight: "600",
-                              }}
-                            >
-                              <i
-                                className="ri-star-fill"
+                          {reviewcount !== null &&
+                            reviewcount !== undefined &&
+                            reviewcount !== "" && (
+                              <div
+                                className="d-flex align-items-center justify-content-center"
                                 style={{
-                                  color: "#FFD700",
-                                  fontSize: "18px",
-                                  marginRight: "6px",
+                                  backgroundColor: "#2278b6",
+                                  padding: "4px 10px",
+                                  marginLeft: "190px",
+                                  fontSize: "14px",
+                                  color: "#fff",
+                                  fontWeight: "600",
                                 }}
-                              />
-                              {parseFloat(reviewcount).toFixed(1)}{" "}
-                              <span
-                                style={{ fontWeight: "400", marginLeft: "2px" }}
-                              ></span>
-                            </div>
-                          )}
+                              >
+                                <i
+                                  className="ri-star-fill"
+                                  style={{
+                                    color: "#FFD700",
+                                    fontSize: "18px",
+                                    marginRight: "6px",
+                                  }}
+                                />
+                                {parseFloat(reviewcount).toFixed(1)}
+                              </div>
+                            )}
                         </h4>
 
                         <div className="d-flex flex-wrap align-items-center gap-20 mt-8">
@@ -626,10 +654,11 @@ const CategoryDetail = () => {
                         <div className="d-flex gap-3 mb-3 mt-4">
                           {imageItems?.length > 0 && (
                             <button
-                              className={`btn ${activeTabs === "images"
-                                ? "btn-primary"
-                                : "btn-outline-primary"
-                                } mb-4`}
+                              className={`btn ${
+                                activeTabs === "images"
+                                  ? "btn-primary"
+                                  : "btn-outline-primary"
+                              } mb-4`}
                               onClick={() => setActiveTabs("images")}
                             >
                               Images
@@ -637,10 +666,11 @@ const CategoryDetail = () => {
                           )}
                           {videoItems?.length > 0 && (
                             <button
-                              className={`btn ${activeTabs === "videos"
-                                ? "btn-primary"
-                                : "btn-outline-primary"
-                                } mb-4`}
+                              className={`btn ${
+                                activeTabs === "videos"
+                                  ? "btn-primary"
+                                  : "btn-outline-primary"
+                              } mb-4`}
                               onClick={() => setActiveTabs("videos")}
                             >
                               Videos
@@ -941,19 +971,21 @@ const CategoryDetail = () => {
                     <div className="date-travel-card mt-4">
                       <div className="tabs d-flex gap-2 mb-3 gap-10">
                         <button
-                          className={`btn ${activeTab === "review"
-                            ? "btn-primary"
-                            : "btn-outline-primary"
-                            }`}
+                          className={`btn ${
+                            activeTab === "review"
+                              ? "btn-primary"
+                              : "btn-outline-primary"
+                          }`}
                           onClick={() => setActiveTab("review")}
                         >
                           Review
                         </button>
                         <button
-                          className={`btn ${activeTab === "report"
-                            ? "btn-primary"
-                            : "btn-outline-primary"
-                            }`}
+                          className={`btn ${
+                            activeTab === "report"
+                              ? "btn-primary"
+                              : "btn-outline-primary"
+                          }`}
                           onClick={() => setActiveTab("report")}
                         >
                           Report
@@ -1206,10 +1238,7 @@ const CategoryDetail = () => {
                           </div>
 
                           <div className="mt-3">
-                            <button
-                              type="submit"
-                              className="send-btn w-100"
-                            >
+                            <button type="submit" className="send-btn w-100">
                               Submit Report
                             </button>
                           </div>
