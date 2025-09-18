@@ -218,7 +218,7 @@ export default function VendorDetails() {
                   <div className="col-md-6 mb-3">
                     <div className="bg-light p-4 rounded-3 h-100">
                       <h6 className="text-primary mb-2 fs-6">
-                        Long Description
+                         Description
                       </h6>
                       <p className="mb-0 lh-lg">{vendor.long_description}</p>
                     </div>

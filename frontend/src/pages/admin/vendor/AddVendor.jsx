@@ -74,33 +74,45 @@ export default function AddVendor() {
     return () => clearInterval(interval);
   }, [otpTimer]);
 
-  const validationSchema = Yup.object({
-    ownerName: Yup.string().required("Owner Name is required"),
-    state: Yup.string().required("State is required"),
-    city: Yup.string().required("City is required"),
-    pin: Yup.string()
-      .matches(/^\d{6}$/, "Pin code must be exactly 6 digits")
-      .required("Pin Code is required"),
-    phone: Yup.string()
-      .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
-      .required("Phone No is required"),
-    isPhoneVerified: Yup.boolean().oneOf(
-      [true],
-      "Phone number must be verified"
-    ),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    category: Yup.string().required("Category is required"),
-    otherCategory: Yup.string().when("category", {
-      is: (val) => {
-        const selected = categoryData?.find((cat) => cat.value === val);
-        return selected?.label?.toLowerCase() === "other";
-      },
-      then: (schema) => schema.required("Please enter category name"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    terms: Yup.boolean().oneOf([true], "You must accept terms"),
-    longDesc: Yup.string().required("Large Description is required"),
-  });
+const validationSchema = Yup.object({
+  ownerName: Yup.string()
+    .matches(
+      /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+      "Only alphabets and spaces are allowed (no numbers or special characters)"
+    )
+    .required("Owner Name is required"),
+
+  profileName: Yup.string()
+    .matches(
+      /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+      "Only alphabets and spaces are allowed (no numbers or special characters)"
+    )
+    .required("Profile Name is required"),
+
+  state: Yup.string().required("State is required"),
+  city: Yup.string().required("City is required"),
+  pin: Yup.string()
+    .matches(/^\d{6}$/, "Pin code must be exactly 6 digits")
+    .required("Pin Code is required"),
+  phone: Yup.string()
+    .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
+    .required("Phone No is required"),
+  isPhoneVerified: Yup.boolean().oneOf([true], "Phone number must be verified"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+  category: Yup.string().required("Category is required"),
+  otherCategory: Yup.string().when("category", {
+    is: (val) => {
+      const selected = categoryData?.find((cat) => cat.value === val);
+      return selected?.label?.toLowerCase() === "other";
+    },
+    then: (schema) => schema.required("Please enter category name"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+  terms: Yup.boolean().oneOf([true], "You must accept terms"),
+  longDesc: Yup.string().required("Large Description is required"),
+});
+
+
 
   const handlePhoneInput = (e, setFieldValue, setFieldTouched, touched) => {
     const inputValue = e.target.value;
@@ -153,7 +165,7 @@ export default function AddVendor() {
           isVerified: false,
         }));
         setOtpTimer(60); // start 1 minute countdown
-        Swal.fire("Success", "OTP sent successfully!", "success");
+        Swal.fire("Success", "Verification code sent via Cegano Technology.Enter the OTP to continue.", "success");
       } else {
         setPhoneVerificationState((prev) => ({ ...prev, loading: false }));
         Swal.fire("Error", res?.msg || "Failed to send OTP", "error");

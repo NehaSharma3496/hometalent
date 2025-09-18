@@ -10,7 +10,7 @@ import {
   GetCities,
 } from "../Services/vendor/Vendor";
 import { VerifyOtp } from "../Services/webService/Web";
-import { Link,useNavigate  } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -78,7 +78,20 @@ const Registration = () => {
 
   // Enhanced validation schema with phone verification
   const validationSchema = Yup.object({
-    ownerName: Yup.string().required("Owner Name is required"),
+    ownerName: Yup.string()
+      .matches(
+        /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+        "Only alphabets and spaces are allowed"
+      )
+      .required("Owner Name is required"),
+
+    profileName: Yup.string()
+      .matches(
+        /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+        "Only alphabets and spaces are allowed"
+      )
+      .required("Profile Name is required"),
+
     state: Yup.string().required("State is required"),
     city: Yup.string().required("City is required"),
     pin: Yup.string()
@@ -91,7 +104,6 @@ const Registration = () => {
       [true],
       "Phone number must be verified"
     ),
-
     email: Yup.string().email("Invalid email").required("Email is required"),
     category: Yup.string().required("Category is required"),
     otherCategory: Yup.string().when("category", {
@@ -165,7 +177,11 @@ const Registration = () => {
           isVerified: false,
         }));
         setOtpTimer(60); // start 1 minute countdown
-        Swal.fire("Success", "OTP sent successfully!", "success");
+        Swal.fire(
+          "Success",
+          "Verification code sent via Cegano Technology.Enter the OTP to continue.",
+          "success"
+        );
       } else {
         setPhoneVerificationState((prev) => ({ ...prev, loading: false }));
         Swal.fire("Error", res?.msg || "Failed to send OTP", "error");
@@ -757,7 +773,7 @@ const Registration = () => {
           "Registration successful! Login details have been sent to your mail/phone via Cegano Technology.",
           "success"
         ).then(() => {
-           navigate("/");;
+          navigate("/");
         });
       } else {
         Swal.fire(
