@@ -51,107 +51,94 @@ exports.getVendorsByCategoryId = async (req, res) => {
       return res.status(400).json({ status: false, msg: 'At least category_id or city_id is required' });
     }
 
-    // Build where clause
+    // Build base where clause
     let whereClause = {
       role_id: 2,
       status: 1
     };
-   
-    
-    if (category_id && category_id != undefined && category_id != '') {
-        whereClause[Op.or] = [
-    { category_id: category_id }, // Exact match
-    { category_id: { [Op.like]: `%,${category_id},%` } }, // Middle
-    { category_id: { [Op.like]: `${category_id},%` } },   // Start
-    { category_id: { [Op.like]: `%,${category_id}` } }    // End
-  ];
+
+    if (category_id) {
+      whereClause[Op.or] = [
+        { category_id: category_id },
+        { category_id: { [Op.like]: `%,${category_id},%` } },
+        { category_id: { [Op.like]: `${category_id},%` } },
+        { category_id: { [Op.like]: `%,${category_id}` } }
+      ];
     }
+
     if (city_id) {
       whereClause.city_id = city_id;
     }
 
-    // Subscription filter: only vendors with an active subscription
-    const now = new Date();
+    // Active subscription include
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // remove time for comparison
+
     const subscriptionInclude = {
       model: VendorPackageSubscription,
-      as: 'subscriptions',
+      as: 'subscriptions', // must match User.hasMany alias
+      required: true,
       where: {
         payment_status: 'completed',
-        start_date: { [Op.lte]: now },
-        end_date: { [Op.gte]: now }
-      },
-      required: true
+        start_date: { [Op.lte]: today },
+        end_date: { [Op.gte]: today }
+      }
     };
-    
 
-    // Get sponsored vendors for this specific category/city (ordered by category-specific sponsor_rank)
-    let sponsoredWhere = { ...whereClause };
+    // Sponsored vendors
     let sponsorRankInclude = {
       model: VendorCategoryRank,
       as: 'categoryRanks',
-      where: { is_sponsored: 1 },
-      required: true,
-      attributes: ['sponsor_rank']
+      required: false, // set false to avoid filtering out vendors
+      attributes: ['sponsor_rank'],
+      where: { is_sponsored: 1 }
     };
-    if (category_id && category_id != undefined && category_id != '') sponsorRankInclude.where.category_id = category_id;
+    if (category_id) sponsorRankInclude.where.category_id = category_id;
 
     const sponsoredVendors = await User.findAll({
-      where: sponsoredWhere,
-      include: [sponsorRankInclude, subscriptionInclude],
+      where: whereClause,
+      include: [subscriptionInclude, sponsorRankInclude],
       order: [[{ model: VendorCategoryRank, as: 'categoryRanks' }, 'sponsor_rank', 'ASC']],
       distinct: true
     });
-    
-  //  return res.json({ status: true, data: sponsoredVendors });
-   
-    // Get non-sponsored vendors for this filter
+
+    const sponsoredIds = sponsoredVendors.map(v => v.id);
+
+    // Non-sponsored vendors
     let nonSponsorRankInclude = {
       model: VendorCategoryRank,
       as: 'categoryRanks',
-      where: { is_sponsored: 0},
-      required: false
+      required: false,
+      where: { is_sponsored: 0 }
     };
+    if (category_id) nonSponsorRankInclude.where.category_id = category_id;
 
-    if (category_id && category_id != undefined && category_id != '') nonSponsorRankInclude.where.category_id = category_id;
-
-    const sponsoredIds = sponsoredVendors.map(v => v.id);
-        const nonSponsoredVendors = await User.findAll({
-            where: {
+    const nonSponsoredVendors = await User.findAll({
+      where: {
         ...whereClause,
-        id: { [Op.notIn]: sponsoredIds } // EXCLUDE already fetched sponsored vendors
+        id: { [Op.notIn]: sponsoredIds } // exclude already fetched sponsored
       },
-      include: [nonSponsorRankInclude, subscriptionInclude],
-      order: [['createdAt', 'DESC']]
+      include: [subscriptionInclude, nonSponsorRankInclude],
+      order: [['createdAt', 'DESC']],
+      distinct: true
     });
-    
+
     // Shuffle non-sponsored vendors
     const shuffledNonSponsored = nonSponsoredVendors.sort(() => Math.random() - 0.5);
 
-    // Combine sponsored vendors first, then shuffled non-sponsored vendors
+    // Combine sponsored and non-sponsored
     const allVendors = [...sponsoredVendors, ...shuffledNonSponsored];
 
-    // Get all category names for each vendor
-    // for (const v of allVendors) {
-    //   const ids = (v.category_id || '').split(',').map(id => id.trim());
-    //   const categoryNames = await Category.findAll({
-    //     where: { id: ids },
-    //     attributes: ['id', 'name']
-    //   });
-    //   v.dataValues.category_names = categoryNames.map(c => c.name);
-    // }
-
+    // Add category names
     for (const v of allVendors) {
       const ids = (v.category_id || '').split(',').map(id => id.trim());
-
       const categoryNames = await Category.findAll({
         where: { id: ids },
         attributes: ['id', 'name']
       });
 
       let names = categoryNames.map(c => c.name);
-
-      // If "Other" is present, replace it with v.category_name
-      names = names.map(name => name === "Other" ? v.category_name : name);
+      names = names.map(name => name === 'Other' ? v.category_name : name);
 
       v.dataValues.category_names = names;
     }
@@ -161,6 +148,7 @@ exports.getVendorsByCategoryId = async (req, res) => {
     return res.json({ status: false, msg: error.message });
   }
 };
+
 
 
 
