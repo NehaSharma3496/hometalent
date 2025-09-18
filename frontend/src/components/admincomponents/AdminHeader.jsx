@@ -138,7 +138,7 @@ export default function AdminHeader() {
 
 
   useEffect(() => {
-    if (window.innerWidth > 576) return;
+    if (window.innerWidth > 1024) return;
     const links = document.querySelectorAll(".sidebar-link");
 
     const handleClick = () => {
@@ -160,7 +160,7 @@ const sidebarRef = useRef(null);
 
 useEffect(() => {
   const handleClickOutside = (e) => {
-    if (window.innerWidth > 576) return;
+    if (window.innerWidth > 1024) return;
 
     const sidebar = document.getElementById("sidebar");
     const clickedInsideSidebar = sidebar?.contains(e.target);

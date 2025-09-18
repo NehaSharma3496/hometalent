@@ -101,7 +101,7 @@ export default function VendorDetails() {
 
       <div className="card border-0 shadow-lg rounded-4 overflow-hidden">
         <div className="p-4 position-relative">
-          <div className="row align-items-center">
+          <div className="row align-items-center profile-des">
             <div className="col-auto">
               <div className="position-relative">
                 <img
@@ -116,7 +116,7 @@ export default function VendorDetails() {
                 />
               </div>
             </div>
-            <div className="col">
+            {/* <div className="col">
               <h3 className="mb-2 fs-4 fw-bold">{vendor.owner_name}</h3>
               <div className="d-flex align-items-center gap-3 mb-2">
                 {vendor.profile_name && (
@@ -131,7 +131,7 @@ export default function VendorDetails() {
                   </span>
                 )} */}
               </div>
-            </div>
+            </div> */}
           </div>
           {/* <div className="position-absolute top-0 end-0 p-3">
             <Link

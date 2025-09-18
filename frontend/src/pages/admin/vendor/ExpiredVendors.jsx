@@ -64,6 +64,15 @@ export default function ExpiredVendors() {
     fetchVendors(currentPage, perPage);
   }, [currentPage, perPage]);
 
+
+  useEffect(() => {
+    if (pkgModalOpen) {
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
+    }
+  }, [pkgModalOpen]);
+
   // Pagination
   const handlePageChange = (page) => setCurrentPage(page);
   const handlePerRowsChange = (newPerPage) => {
@@ -79,8 +88,8 @@ export default function ExpiredVendors() {
         "Owner Name": row.owner_name || "N/A",
         Email: row.email || "N/A",
         Category: row.Category.name || "N/A",
-        State:row.State.name||"N/A",
-        City:row.City.name||"N/A",
+        State: row.State.name || "N/A",
+        City: row.City.name || "N/A",
         Phone: row.phone || "N/A",
         Date: row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "N/A",
       }));
@@ -110,30 +119,30 @@ export default function ExpiredVendors() {
   };
 
   // Submit Package Assignment
- const submitAssignPackage = async () => {
-  if (!assignVendorId || !selectedPkgId)
-    return Swal.fire("Select Package", "Please select a package", "warning");
+  const submitAssignPackage = async () => {
+    if (!assignVendorId || !selectedPkgId)
+      return Swal.fire("Select Package", "Please select a package", "warning");
 
-  try {
-    const res = await AssignPackageToVendor(token, assignVendorId, selectedPkgId);
-    if (res?.status) {
-      await Swal.fire("Success", res.msg || "Package assigned", "success");
-      setPkgModalOpen(false); // Close modal after success
-      fetchVendors(currentPage, perPage); // Refresh vendor list
-    } else {
-      Swal.fire("Error", res?.msg || "Unable to assign package", "error");
+    try {
+      const res = await AssignPackageToVendor(token, assignVendorId, selectedPkgId);
+      if (res?.status) {
+        await Swal.fire("Success", res.msg || "Package assigned", "success");
+        setPkgModalOpen(false); // Close modal after success
+        fetchVendors(currentPage, perPage); // Refresh vendor list
+      } else {
+        Swal.fire("Error", res?.msg || "Unable to assign package", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", err?.message || "Unable to assign package", "error");
     }
-  } catch (err) {
-    Swal.fire("Error", err?.message || "Unable to assign package", "error");
-  }
-};
+  };
 
 
   // Search & filter
   const filteredVendors = vendors.filter((vendor) => {
     const lowerSearch = searchText.toLowerCase();
     return (
-        vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
+      vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
       vendor.email?.toLowerCase().includes(lowerSearch) ||
       vendor.phone?.toLowerCase().includes(lowerSearch) ||
       vendor.Category.name?.toLowerCase().includes(lowerSearch) ||
@@ -157,7 +166,7 @@ export default function ExpiredVendors() {
           className="btn btn-success btn-sm"
           onClick={() => openAssignPackage(row.id)}
         >
-          <i className="fa-solid fa-box"></i> 
+          <i className="fa-solid fa-box"></i>
         </button>
       ),
     },
@@ -215,69 +224,94 @@ export default function ExpiredVendors() {
         </div>
       </div>
 
-     {pkgModalOpen && (
-  <div className="modal fade show d-block" style={{ background: "rgba(0,0,0,0.5)" }}>
-    <div className="modal-dialog modal-dialog-centered modal-lg">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title">Assign Package</h5>
-          <button type="button" className="btn-close" onClick={() => setPkgModalOpen(false)} />
-        </div>
-        <div className="modal-body">
-          {pkgOptions.length === 0 ? (
-            <p>No active packages found.</p>
-          ) : (
-            <div className="list-group">
-              {pkgOptions.map((p) => (
-                <label
-                  key={p.id}
-                  className="list-group-item d-flex justify-content-between align-items-center"
-                >
-                  <div>
-                    <input
-                      type="radio"
-                      name="assignPkg"
-                      className="form-check-input me-2"
-                      checked={selectedPkgId === p.id}
-                      onChange={() => setSelectedPkgId(p.id)}
-                    />
-                    <span className="fw-semibold">{p.name}</span>
-                    <div className="small text-muted">
-                      ₹{p.price} • {p.validity_in_months ? `${p.validity_in_months} months` : "N/A"}
-                    </div>
-                  </div>
-                  <div>
-                    <span
-                      className={`badge ${
-                        vendorPackageHistory[assignVendorId]?.[p.id] === "Active"
-                          ? "bg-success"
-                          : "bg-secondary"
-                      }`}
-                    >
-                      {vendorPackageHistory[assignVendorId]?.[p.id] || ""}
-                    </span>
-                  </div>
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="modal-footer">
-          <button className="btn btn-secondary" onClick={() => setPkgModalOpen(false)}>
-            Close
-          </button>
-          <button
-            className="btn btn-primary"
-            disabled={!selectedPkgId}
-            onClick={submitAssignPackage}
+      {pkgModalOpen && (
+        <div
+          className="modal fade show d-block"
+          style={{ background: "rgba(0,0,0,0.5)", zIndex: 1040 }}
+             onClick={() => setPkgModalOpen(false)} 
+        >
+          <div
+            className="modal-dialog modal-dialog-centered modal-md"
+            style={{ zIndex: 1050 }}
+            onClick={(e) => e.stopPropagation()}
           >
-            Assign
-          </button>
+            <div className="modal-content">
+
+              <div className="modal-header">
+                <h5 className="modal-title">Assign Package</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setPkgModalOpen(false)}
+                />
+              </div>
+
+              <div className="modal-body">
+                {pkgOptions.length === 0 ? (
+                  <p>No active packages found.</p>
+                ) : (
+                  <div className="list-group">
+                    {pkgOptions.map((p) => (
+                      <label
+                        key={p.id}
+                        className="list-group-item d-flex justify-content-between align-items-center"
+                      >
+
+                        <div>
+                          <input
+                            type="radio"
+                            name="assignPkg"
+                            className="form-check-input me-2"
+                            checked={selectedPkgId === p.id}
+                            onChange={() => setSelectedPkgId(p.id)}
+                          />
+                          <span className="fw-semibold">{p.name}</span>
+                          <div className="small text-muted">
+                            ₹{p.price} •{" "}
+                            {p.validity_in_months
+                              ? `${p.validity_in_months} months`
+                              : "N/A"}
+                          </div>
+                        </div>
+
+
+                        <div>
+                          <span
+                            className={`badge ${vendorPackageHistory[assignVendorId]?.[p.id] === "Active"
+                              ? "bg-success"
+                              : "bg-secondary"
+                              }`}
+                          >
+                            {vendorPackageHistory[assignVendorId]?.[p.id] || ""}
+                          </span>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+
+              <div className="modal-footer">
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setPkgModalOpen(false)}
+                >
+                  Close
+                </button>
+                <button
+                  className="btn btn-primary"
+                  disabled={!selectedPkgId}
+                  onClick={submitAssignPackage}
+                >
+                  Assign
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
+
 
     </div>
   );

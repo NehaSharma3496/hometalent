@@ -49,6 +49,15 @@ export default function UnsubscribedVendors() {
     fetchVendors(currentPage, perPage);
   }, [currentPage, perPage]);
 
+  useEffect(() => {
+    if (pkgModalOpen) {
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
+    }
+  }, [pkgModalOpen]);
+
+
   // Pagination
   const handlePageChange = (page) => setCurrentPage(page);
   const handlePerRowsChange = (newPerPage) => {
@@ -64,8 +73,8 @@ export default function UnsubscribedVendors() {
         "Owner Name": row.owner_name || "N/A",
         Email: row.email || "N/A",
         Category: row.Category?.name || "N/A",
-         State:row.State.name||"N/A",
-        City:row.City.name||"N/A",
+        State: row.State.name || "N/A",
+        City: row.City.name || "N/A",
         Phone: row.phone || "N/A",
         Date: row.createdAt
           ? new Date(row.createdAt).toLocaleDateString()
@@ -205,12 +214,24 @@ export default function UnsubscribedVendors() {
       </div>
 
       {pkgModalOpen && (
-        <div className="modal fade show d-block" style={{ background: "rgba(0,0,0,0.5)" }}>
-          <div className="modal-dialog modal-dialog-centered modal-lg">
+        <div
+          className="modal fade show d-block"
+          style={{ background: "rgba(0,0,0,0.5)", zIndex: 1040 }}
+          onClick={() => setPkgModalOpen(false)}
+        >
+          <div
+            className="modal-dialog modal-dialog-centered modal-md"
+            style={{ zIndex: 1050 }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Assign Package</h5>
-                <button type="button" className="btn-close" onClick={() => setPkgModalOpen(false)} />
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setPkgModalOpen(false)}
+                />
               </div>
               <div className="modal-body">
                 {pkgOptions.length === 0 ? (
@@ -232,7 +253,10 @@ export default function UnsubscribedVendors() {
                           />
                           <span className="fw-semibold">{p.name}</span>
                           <div className="small text-muted">
-                            ₹{p.price} • {p.validity_in_months ? `${p.validity_in_months} months` : "N/A"}
+                            ₹{p.price} •{" "}
+                            {p.validity_in_months
+                              ? `${p.validity_in_months} months`
+                              : "N/A"}
                           </div>
                         </div>
                       </label>
@@ -241,7 +265,10 @@ export default function UnsubscribedVendors() {
                 )}
               </div>
               <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={() => setPkgModalOpen(false)}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setPkgModalOpen(false)}
+                >
                   Close
                 </button>
                 <button
@@ -256,6 +283,7 @@ export default function UnsubscribedVendors() {
           </div>
         </div>
       )}
+
     </div>
   );
 }
