@@ -36,7 +36,7 @@ export default function UpdateVendor() {
       ),
 
     profile_name: Yup.string()
-      .required("Profile Name is required")
+      
       .min(2, "Profile Name must be at least 2 characters")
       .max(50, "Profile Name must not exceed 50 characters")
        .matches(
@@ -216,14 +216,6 @@ export default function UpdateVendor() {
       placeholder: "Enter 6-digit pin code"
     },
     {
-      name: "price_range",
-      label: "Price Range",
-      type: "text",
-      colClass: "col-md-4 mb-3",
-      required: true,
-      placeholder: ""
-    },
-    {
       name: "category_id",
       label: "Category*",
       type: "select",
@@ -235,7 +227,7 @@ export default function UpdateVendor() {
       name: "other_category",
       label: "Category Name*",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       showWhen: (values) => {
         const selected = categoryData?.find(
           (cat) => cat.value === values.category_id
@@ -244,6 +236,14 @@ export default function UpdateVendor() {
       },
       placeholder: "",
       required: true, // This will be conditionally required via Yup validation
+    },
+     {
+      name: "price_range",
+      label: "Price Range",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+      required: true,
+      placeholder: ""
     },
     {
       name: "experience_since",
@@ -265,42 +265,42 @@ export default function UpdateVendor() {
       name: "facebook_link",
       label: "Facebook Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       // placeholder: "https://facebook.com/yourpage"
     },
     {
       name: "instagram_link",
       label: "Instagram Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       // placeholder: "https://instagram.com/youraccount"
     },
     {
       name: "twitter_link",
       label: "Twitter Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       // placeholder: "https://twitter.com/youraccount"
     },
     {
       name: "linkedin_link",
       label: "LinkedIn Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       // placeholder: "https://linkedin.com/in/yourprofile"
     },
     {
       name: "youtube_link",
       label: "YouTube Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       // placeholder: "https://youtube.com/yourchannel"
     },
     {
       name: "website_link",
       label: "Website Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       // placeholder: "https://yourwebsite.com"
     },
     {

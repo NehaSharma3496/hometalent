@@ -8,7 +8,7 @@ import {
   SubmitProfileUpdateRequest,
   GetVendorDetails,
 } from "../../Services/vendor/Vendor";
-import { Link ,useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 
 export default function UpdateProfile() {
@@ -25,47 +25,39 @@ export default function UpdateProfile() {
 
   // Enhanced validation schema with all fields
   const validationSchema = Yup.object().shape({
-    ownerName: Yup.string()
-          .matches(
-            /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
-            "Only alphabets are allowed"
-          )
-          .required("Owner Name is required"),
-    
+    owner_name: Yup.string()
+      .matches(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, "Only alphabets are allowed")
+      .required("Owner Name is required"),
+
     profile_name: Yup.string()
-      .required("Profile Name is required")
-      .min(2, "Profile Name must be at least 2 characters")
-      .max(50, "Profile Name must not exceed 50 characters")
-      .matches(
-            /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
-            "Only alphabets are allowed"
-          ),
-    
+      .matches(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, "Only alphabets are allowed"),
+
     phone: Yup.string()
       .required("Phone number is required")
-      .matches(/^[6-9]\d{9}$/, "Please enter a valid 10-digit Indian mobile number"),
-    
+      .matches(
+        /^[6-9]\d{9}$/,
+        "Please enter a valid 10-digit Indian mobile number"
+      ),
+
     email: Yup.string()
       .required("Email is required")
       .email("Please enter a valid email address"),
-    
-    state_id: Yup.string()
-      .required("State is required"),
-    
-    city_id: Yup.string()
-      .required("City is required"),
-    
+
+    state_id: Yup.string().required("State is required"),
+
+    city_id: Yup.string().required("City is required"),
+
     pin_code: Yup.string()
       .required("Pin Code is required")
       .matches(/^\d{6}$/, "Pin Code must be exactly 6 digits"),
-    
+
     // price_range: Yup.string()
     //   .required("Price Range is required")
     //   .min(3, "Please provide a meaningful price range"),
-    
+
     category_id: Yup.string()
       .required("Category is required"),
-    
+
     // Conditional validation for other_category
     other_category: Yup.string().when('category_id', {
       is: (categoryId) => {
@@ -79,7 +71,7 @@ export default function UpdateProfile() {
         .max(50, "Category Name must not exceed 50 characters"),
       otherwise: (schema) => schema.notRequired()
     }),
-    
+
     // experience_since: Yup.string()
     //   .required("Experience Since is required")
     //   .matches(/^\d{4}$/, "Please enter a valid 4-digit year")
@@ -89,66 +81,66 @@ export default function UpdateProfile() {
     //     const experienceYear = parseInt(value);
     //     return experienceYear <= currentYear && experienceYear >= 1950;
     //   }),
-    
-    long_description: Yup.string()
-      .required("Long Description is required")
-      .min(50, "Long Description must be at least 50 characters")
-      .max(1000, "Long Description must not exceed 1000 characters"),
-    
+
+    // long_description: Yup.string()
+    //   .required("Long Description is required")
+    //   .min(50, "Long Description must be at least 50 characters")
+    //   .max(1000, "Long Description must not exceed 1000 characters"),
+
     // Optional social media links with URL validation
-    facebook_link: Yup.string()
-      .nullable()
-      .test('facebook-url', 'Please enter a valid Facebook URL', function(value) {
-        if (!value || value.trim() === '') return true; // Allow empty
-        return Yup.string().url().isValidSync(value) && /facebook\.com/.test(value);
-      }),
-    
-    instagram_link: Yup.string()
-      .nullable()
-      .test('instagram-url', 'Please enter a valid Instagram URL', function(value) {
-        if (!value || value.trim() === '') return true; // Allow empty
-        return Yup.string().url().isValidSync(value) && /instagram\.com/.test(value);
-      }),
-    
-    twitter_link: Yup.string()
-      .nullable()
-      .test('twitter-url', 'Please enter a valid Twitter/X URL', function(value) {
-        if (!value || value.trim() === '') return true; // Allow empty
-        return Yup.string().url().isValidSync(value) && /(twitter\.com|x\.com)/.test(value);
-      }),
-    
-    linkedin_link: Yup.string()
-      .nullable()
-      .test('linkedin-url', 'Please enter a valid LinkedIn URL', function(value) {
-        if (!value || value.trim() === '') return true; // Allow empty
-        return Yup.string().url().isValidSync(value) && /linkedin\.com/.test(value);
-      }),
-    
-    youtube_link: Yup.string()
-      .nullable()
-      .test('youtube-url', 'Please enter a valid YouTube URL', function(value) {
-        if (!value || value.trim() === '') return true; // Allow empty
-        return Yup.string().url().isValidSync(value) && /youtube\.com/.test(value);
-      }),
-    
-    website_link: Yup.string()
-      .nullable()
-      .test('website-url', 'Please enter a valid URL', function(value) {
-        if (!value || value.trim() === '') return true; // Allow empty
-        return Yup.string().url().isValidSync(value);
-      }),
-    
+    // facebook_link: Yup.string()
+    //   .nullable()
+    //   .test('facebook-url', 'Please enter a valid Facebook URL', function(value) {
+    //     if (!value || value.trim() === '') return true; // Allow empty
+    //     return Yup.string().url().isValidSync(value) && /facebook\.com/.test(value);
+    //   }),
+
+    // instagram_link: Yup.string()
+    //   .nullable()
+    //   .test('instagram-url', 'Please enter a valid Instagram URL', function(value) {
+    //     if (!value || value.trim() === '') return true; // Allow empty
+    //     return Yup.string().url().isValidSync(value) && /instagram\.com/.test(value);
+    //   }),
+
+    // twitter_link: Yup.string()
+    //   .nullable()
+    //   .test('twitter-url', 'Please enter a valid Twitter/X URL', function(value) {
+    //     if (!value || value.trim() === '') return true; // Allow empty
+    //     return Yup.string().url().isValidSync(value) && /(twitter\.com|x\.com)/.test(value);
+    //   }),
+
+    // linkedin_link: Yup.string()
+    //   .nullable()
+    //   .test('linkedin-url', 'Please enter a valid LinkedIn URL', function(value) {
+    //     if (!value || value.trim() === '') return true; // Allow empty
+    //     return Yup.string().url().isValidSync(value) && /linkedin\.com/.test(value);
+    //   }),
+
+    // youtube_link: Yup.string()
+    //   .nullable()
+    //   .test('youtube-url', 'Please enter a valid YouTube URL', function(value) {
+    //     if (!value || value.trim() === '') return true; // Allow empty
+    //     return Yup.string().url().isValidSync(value) && /youtube\.com/.test(value);
+    //   }),
+
+    // website_link: Yup.string()
+    //   .nullable()
+    //   .test('website-url', 'Please enter a valid URL', function(value) {
+    //     if (!value || value.trim() === '') return true; // Allow empty
+    //     return Yup.string().url().isValidSync(value);
+    //   }),
+
     // Image validation (optional)
-    image: Yup.mixed()
-      .nullable()
-      .test('file-size', 'File size must be less than 5MB', function(value) {
-        if (!value || !value[0]) return true;
-        return value[0].size <= 5 * 1024 * 1024; // 5MB limit
-      })
-      .test('file-type', 'Only image files are allowed', function(value) {
-        if (!value || !value[0]) return true;
-        return ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].includes(value[0].type);
-      })
+    // image: Yup.mixed()
+    //   .nullable()
+    //   .test('file-size', 'File size must be less than 5MB', function(value) {
+    //     if (!value || !value[0]) return true;
+    //     return value[0].size <= 5 * 1024 * 1024; // 5MB limit
+    //   })
+    //   .test('file-type', 'Only image files are allowed', function(value) {
+    //     if (!value || !value[0]) return true;
+    //     return ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].includes(value[0].type);
+    //   })
   });
 
   const fields = [
@@ -166,18 +158,18 @@ export default function UpdateProfile() {
       colClass: "col-md-4 ",
       required: true,
     },
-    { 
-      name: "phone", 
-      label: "Phone", 
-      type: "text", 
+    {
+      name: "phone",
+      label: "Phone",
+      type: "text",
       colClass: "col-md-4 ",
       required: true,
-      placeholder: "Enter 10-digit mobile number"
+      placeholder: "Enter 10-digit mobile number",
     },
-    { 
-      name: "email", 
-      label: "Email", 
-      type: "email", 
+    {
+      name: "email",
+      label: "Email",
+      type: "email",
       colClass: "col-md-4 ",
       required: true,
     },
@@ -208,15 +200,7 @@ export default function UpdateProfile() {
       type: "text",
       colClass: "col-md-4 mb-3",
       required: true,
-      placeholder: "Enter 6-digit pin code"
-    },
-    {
-      name: "price_range",
-      label: "Price Range",
-      type: "text",
-      colClass: "col-md-4 ",
-      required: true,
-      placeholder: ""
+      placeholder: "Enter 6-digit pin code",
     },
     {
       name: "category_id",
@@ -241,12 +225,19 @@ export default function UpdateProfile() {
       required: true, // This will be conditionally required via Yup validation
     },
     {
+      name: "price_range",
+      label: "Price Range",
+      type: "text",
+      colClass: "col-md-4 ",
+      required: true,
+      placeholder: "",
+    },
+    {
       name: "experience_since",
       label: "Experience Since",
       type: "text",
       colClass: "col-md-4 mb-3",
       required: true,
-      
     },
     {
       name: "long_description",
@@ -254,49 +245,49 @@ export default function UpdateProfile() {
       type: "textarea",
       colClass: "col-12 ",
       required: true,
-      placeholder: "Describe your services in detail (minimum 50 characters)"
+      // placeholder: "Describe your services in detail (minimum 50 characters)"
     },
     {
       name: "facebook_link",
       label: "Facebook Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
-      placeholder: "https://facebook.com/yourpage"
+      colClass: "col-md-4",
+      // placeholder: "https://facebook.com/yourpage"
     },
     {
       name: "instagram_link",
       label: "Instagram Link",
       type: "text",
-      colClass: "col-md-6 ",
-      placeholder: "https://instagram.com/youraccount"
+      colClass: "col-md-4",
+      // placeholder: "https://instagram.com/youraccount"
     },
     {
       name: "twitter_link",
       label: "Twitter Link",
       type: "text",
-      colClass: "col-md-6 ",
-      placeholder: "https://twitter.com/youraccount"
+      colClass: "ccol-md-4",
+      // placeholder: "https://twitter.com/youraccount"
     },
     {
       name: "linkedin_link",
       label: "LinkedIn Link",
       type: "text",
-      colClass: "col-md-6 ",
-      placeholder: "https://linkedin.com/in/yourprofile"
+      colClass: "col-md-4",
+      // placeholder: "https://linkedin.com/in/yourprofile"
     },
     {
       name: "youtube_link",
       label: "YouTube Link",
       type: "text",
-      colClass: "col-md-6 ",
-      placeholder: "https://youtube.com/yourchannel"
+      colClass: "col-md-4",
+      // placeholder: "https://youtube.com/yourchannel"
     },
     {
       name: "website_link",
       label: "Website Link",
       type: "text",
-      colClass: "col-md-6 ",
-      placeholder: "https://yourwebsite.com"
+      colClass: "col-md-4",
+      // placeholder: "https://yourwebsite.com"
     },
     {
       name: "image",
@@ -309,8 +300,13 @@ export default function UpdateProfile() {
 
   const onSubmit = async (values) => {
     // Check if category is "Other" and other_category is provided
-    const selectedCat = categoryData?.find((cat) => cat.value === values.category_id);
-    if (selectedCat?.label?.toLowerCase() === "other" && !values.other_category?.trim()) {
+    const selectedCat = categoryData?.find(
+      (cat) => cat.value === values.category_id
+    );
+    if (
+      selectedCat?.label?.toLowerCase() === "other" &&
+      !values.other_category?.trim()
+    ) {
       Swal.fire(
         "Validation Error",
         "Please provide a category name when 'Other' is selected",
@@ -369,7 +365,8 @@ export default function UpdateProfile() {
           }
         } else if (key === "image" && values[key]?.length > 0) {
           formData.append("image", values[key][0]);
-        } else if (key !== "other_category") { // Don't append other_category separately
+        } else if (key !== "other_category") {
+          // Don't append other_category separately
           formData.append(key, values[key]);
         }
       }
@@ -428,7 +425,7 @@ export default function UpdateProfile() {
           price_range: vendor.price_range || "",
           short_description: vendor.short_description || "",
           category_id: vendor.category_id?.toString() || "",
-          other_category:   "",
+          other_category: vendor.category_name || "",
           experience_since: vendor.experience_since || "",
           long_description: vendor.long_description || "",
           facebook_link: vendor.facebook_link || "",
@@ -472,11 +469,11 @@ export default function UpdateProfile() {
     <div className="page-content ">
       <div className="add-page-heading-div">
         <button
-              className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
-            >
-              <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </button>
+          className="btn btn-link p-0"
+          onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
+        >
+          <i className="fa-sharp fa-regular fa-arrow-left"></i>
+        </button>
         <h2 className="add-page-heading ">Request Profile Update</h2>
       </div>
 

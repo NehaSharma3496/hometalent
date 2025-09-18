@@ -564,7 +564,11 @@ const CategoryDetail = () => {
                         )}
 
                         <h4 className="title text-capitalize mt-4 d-flex align-items-center">
-                          {vendorData?.user?.owner_name}
+                         {vendorData?.user?.owner_name}{" "}
+{vendorData?.user?.profile_name && (
+  <>({vendorData.user.profile_name})</>
+)}
+
 
                           {reviewcount !== null &&
                             reviewcount !== undefined &&

@@ -246,9 +246,7 @@ export default function Allvendors() {
           const start = new Date(pkg.start_date);
           const end = new Date(pkg.end_date);
           return (
-            pkg.payment_status === "completed" &&
-            start <= now &&
-            end >= now
+            pkg.payment_status === "completed" && start <= now && end >= now
           );
         });
 
@@ -270,35 +268,103 @@ export default function Allvendors() {
 
   // 🔹 Let Datatable handle pagination internally - no manual slicing needed
 
+  // const exportToExcel = async () => {
+  //   try {
+  //     // 🔹 Export only filtered data instead of all vendors
+  //     const exportData = filteredVendors.map((row, index) => ({
+  //       "S.No": index + 1,
+  //       "Owner Name": row.owner_name || "N/A",
+  //       Email: row.email || "N/A",
+  //       "Category Name": Array.isArray(row.category_names)
+  //         ? row.category_names.join(", ")
+  //         : row.category_names || "N/A",
+  //       Phone: row.phone || "N/A",
+  //       City: row.City?.name || "N/A",
+  //       State: row.State?.name || "N/A",
+  //       Status: row.status === 1 ? "Active" : "Inactive",
+  //       Approval_Status:
+  //         row.approval_status === 1
+  //           ? "Approved"
+  //           : row.approval_status === 2
+  //           ? "Rejected"
+  //           : "Pending",
+  //       Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
+  //     }));
+
+  //     const worksheet = XLSX.utils.json_to_sheet(exportData);
+  //     const workbook = XLSX.utils.book_new();
+  //     XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Vendors");
+  //     XLSX.writeFile(workbook, "Filtered_Vendor_List.xlsx");
+
+  //     Swal.fire("Success", `${exportData.length} vendors exported successfully!`, "success");
+  //   } catch (err) {
+  //     console.error("Error exporting vendors:", err);
+  //     Swal.fire("Error", "Failed to export vendors", "error");
+  //   }
+  // };
+
   const exportToExcel = async () => {
     try {
+      const now = new Date();
+
       // 🔹 Export only filtered data instead of all vendors
-      const exportData = filteredVendors.map((row, index) => ({
-        "S.No": index + 1,
-        "Owner Name": row.owner_name || "N/A",
-        Email: row.email || "N/A",
-        "Category Name": Array.isArray(row.category_names)
-          ? row.category_names.join(", ")
-          : row.category_names || "N/A",
-        Phone: row.phone || "N/A",
-        City: row.City?.name || "N/A",
-        State: row.State?.name || "N/A",
-        Status: row.status === 1 ? "Active" : "Inactive",
-        Approval_Status:
-          row.approval_status === 1
-            ? "Approved"
-            : row.approval_status === 2
-            ? "Rejected"
-            : "Pending",
-        Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
-      }));
+      const exportData = filteredVendors?.map((row, index) => {
+        const pkgStatusArr = checkpackage[row.id] || [];
+
+        let hasActive = false;
+        let hasExpired = false;
+
+        if (Array.isArray(pkgStatusArr) && pkgStatusArr.length > 0) {
+          hasActive = pkgStatusArr.some((pkg) => {
+            const start = new Date(pkg.start_date);
+            const end = new Date(pkg.end_date);
+            return (
+              pkg.payment_status === "completed" && start <= now && end >= now
+            );
+          });
+
+          hasExpired = pkgStatusArr.some((pkg) => {
+            const end = new Date(pkg.end_date);
+            return pkg.payment_status === "completed" && end < now;
+          });
+        }
+
+        let packageStatus = "N/A";
+        if (hasActive) packageStatus = "Active";
+        else if (hasExpired) packageStatus = "Expired";
+
+        return {
+          "S.No": index + 1,
+          "Owner Name": row.owner_name || "N/A",
+          Email: row.email || "N/A",
+          "Category Name": Array.isArray(row.category_names)
+            ? row.category_names.join(", ")
+            : row.category_names || "N/A",
+          Phone: row.phone || "N/A",
+          City: row.City?.name || "N/A",
+          State: row.State?.name || "N/A",
+          Status: row.status === 1 ? "Active" : "Inactive",
+          Approval_Status:
+            row.approval_status === 1
+              ? "Approved"
+              : row.approval_status === 2
+              ? "Rejected"
+              : "Pending",
+          "Package Status": packageStatus, // 🔹 Added this
+          Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
+        };
+      });
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Vendors");
       XLSX.writeFile(workbook, "Filtered_Vendor_List.xlsx");
-      
-      Swal.fire("Success", `${exportData.length} vendors exported successfully!`, "success");
+
+      Swal.fire(
+        "Success",
+        `${exportData.length} vendors exported successfully!`,
+        "success"
+      );
     } catch (err) {
       console.error("Error exporting vendors:", err);
       Swal.fire("Error", "Failed to export vendors", "error");
@@ -379,7 +445,8 @@ export default function Allvendors() {
   useEffect(() => {
     const loadAllHistories = async () => {
       let histories = {};
-      for (let vendor of allVendors) { // 🔹 Use allVendors instead of vendors
+      for (let vendor of allVendors) {
+        // 🔹 Use allVendors instead of vendors
         const data = await fetchVendorPkg(vendor.id);
         histories[vendor.id] = data;
       }
@@ -444,9 +511,7 @@ export default function Allvendors() {
             const start = new Date(pkg.start_date);
             const end = new Date(pkg.end_date);
             return (
-              pkg.payment_status === "completed" &&
-              start <= now &&
-              end >= now
+              pkg.payment_status === "completed" && start <= now && end >= now
             );
           });
 
@@ -645,10 +710,7 @@ export default function Allvendors() {
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <button
-              className="btn btn-link p-0"
-              onClick={() => navigate(-1)}
-            >
+            <button className="btn btn-link p-0" onClick={() => navigate(-1)}>
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
             <h2 className="add-page-heading">All Vendor</h2>
@@ -751,18 +813,18 @@ export default function Allvendors() {
                 }
               </small>
             </div> */}
-            
+
             <Datatable
               columns={columns}
-              data={filteredVendors} 
+              data={filteredVendors}
               progressPending={loading}
               pagination
               paginationPerPage={perPage}
               paginationRowsPerPageOptions={[10, 25, 50, 100]}
               onChangeRowsPerPage={handlePerRowsChange}
               paginationComponentOptions={{
-                rowsPerPageText: 'Rows per page:',
-                rangeSeparatorText: 'of',
+                rowsPerPageText: "Rows per page:",
+                rangeSeparatorText: "of",
               }}
             />
           </div>
@@ -775,10 +837,7 @@ export default function Allvendors() {
           style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
           onClick={() => setPkgModalOpen(false)}
         >
-          <div
-            className="modal-dialog"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Assign Package</h5>

@@ -25,7 +25,7 @@ const ForgotPassword = () => {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: response?.data?.msg || "Password reset link sent.",
+          text:"Password reset link sent to mail via Cegano Technology..",
         });
         resetForm();
       } else {

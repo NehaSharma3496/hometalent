@@ -89,8 +89,8 @@ const Registration = () => {
       .matches(
         /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
         "Only alphabets are allowed"
-      )
-      .required("Profile Name is required"),
+      ),
+      
 
     state: Yup.string().required("State is required"),
     city: Yup.string().required("City is required"),
@@ -444,7 +444,7 @@ const Registration = () => {
       name: "otherCategory",
       label: "Category Name*",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       showWhen: (values) => {
         const selected = categoryData?.find(
           (cat) => cat.value === values.category
@@ -476,37 +476,37 @@ const Registration = () => {
       name: "facebook_link",
       label: "Facebook Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
     },
     {
       name: "instagram_link",
       label: "Instagram Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
     },
     {
       name: "twitter_link",
       label: "Twitter Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
     },
     {
       name: "linkedin_link",
       label: "LinkedIn Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
     },
     {
       name: "youtube_link",
       label: "YouTube Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
     },
     {
       name: "website_link",
       label: "Website Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
     },
     {
       name: "image",

@@ -105,8 +105,9 @@ const Category = () => {
       : []),
     {
       label: categoryName || "Category",
-      to: `/vendors-by-category?category_id=${categoryId}${cityId ? `&city_id=${cityId}` : ""
-        }`,
+      to: `/vendors-by-category?category_id=${categoryId}${
+        cityId ? `&city_id=${cityId}` : ""
+      }`,
     },
   ];
 
@@ -191,7 +192,10 @@ const Category = () => {
                     </div>
                   ) : filteredVendors?.length > 0 ? (
                     filteredVendors?.map((item, index) => (
-                      <div className="col-xl-3 col-lg-4 col-md-6 col-sm-12 mt-2" key={index}>
+                      <div
+                        className="col-xl-3 col-lg-4 col-md-6 col-sm-12 mt-2"
+                        key={index}
+                      >
                         <div className="hotel-card">
                           <div className="hotel-img imgEffect4">
                             <Link
@@ -211,7 +215,7 @@ const Category = () => {
                                 to="/categorydetail"
                                 state={{ vendorId: item.id }}
                               >
-                                {item.owner_name}
+                                {item.profile_name||item.owner_name}
                               </Link>
                             </h4>
 
@@ -219,7 +223,8 @@ const Category = () => {
                               <i className="ri-map-pin-line" />
                               <div className="name text-capitalize">
                                 {city.find(
-                                  (c) => c.type === "city" && c.id === item.city_id
+                                  (c) =>
+                                    c.type === "city" && c.id === item.city_id
                                 )?.name || "Unknown"}
                               </div>
                             </div>
@@ -260,13 +265,13 @@ const Category = () => {
                       />
                       <h4 className="text-muted">No vendors available</h4>
                       <p className="text-secondary">
-                        We couldn’t find any vendors matching your search or selection.
+                        We couldn’t find any vendors matching your search or
+                        selection.
                       </p>
                     </div>
                   )}
                 </div>
               </div>
-
             </div>
           </div>
         </div>

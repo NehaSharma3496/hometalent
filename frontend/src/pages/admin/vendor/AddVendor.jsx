@@ -88,8 +88,8 @@ const validationSchema = Yup.object({
     .matches(
       /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
       "Only alphabets are allowed "
-    )
-    .required("Profile Name is required"),
+    ),
+    
 
   state: Yup.string().required("State is required"),
   city: Yup.string().required("City is required"),
@@ -368,12 +368,6 @@ const validationSchema = Yup.object({
       colClass: "col-md-4 mb-3",
     },
     {
-      name: "priceRange",
-      label: "Price Range",
-      type: "text",
-      colClass: "col-md-4 mb-3",
-    },
-    {
       name: "category",
       label: "Category*",
       type: "select",
@@ -384,7 +378,7 @@ const validationSchema = Yup.object({
       name: "otherCategory",
       label: "Category Name*",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       showWhen: (values) => {
         const selected = categoryData?.find(
           (cat) => cat.value === values.category
@@ -392,6 +386,12 @@ const validationSchema = Yup.object({
         return selected?.label?.toLowerCase() === "other";
       },
       placeholder: "Enter category name",
+    },
+      {
+      name: "priceRange",
+      label: "Price Range",
+      type: "text",
+      colClass: "col-md-4 mb-3",
     },
     {
       name: "experience",
@@ -415,37 +415,37 @@ const validationSchema = Yup.object({
       name: "facebook_link",
       label: "Facebook Link",
       type: "text",
-      colClass: "col-md-6",
+      colClass: "col-md-4",
     },
     {
       name: "instagram_link",
       label: "Instagram Link",
       type: "text",
-      colClass: "col-md-6",
+      colClass: "col-md-4",
     },
     {
       name: "twitter_link",
       label: "Twitter Link",
       type: "text",
-      colClass: "col-md-6",
+      colClass: "col-md-4",
     },
     {
       name: "linkedin_link",
       label: "LinkedIn Link",
       type: "text",
-      colClass: "col-md-6",
+      colClass: "col-md-4",
     },
     {
       name: "youtube_link",
       label: "YouTube Link",
       type: "text",
-      colClass: "col-md-6",
+      colClass: "col-md-4",
     },
     {
       name: "website_link",
       label: "Website Link",
       type: "text",
-      colClass: "col-md-6",
+      colClass: "col-md-4",
     },
     {
       name: "image",
