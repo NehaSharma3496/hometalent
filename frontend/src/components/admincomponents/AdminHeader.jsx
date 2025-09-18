@@ -138,23 +138,25 @@ export default function AdminHeader() {
 
 
   useEffect(() => {
-    if (window.innerWidth > 1024) return;
-    const links = document.querySelectorAll(".sidebar-link");
+  if (window.innerWidth > 1024) return; // sirf mobile/tablet pe chale
 
-    const handleClick = () => {
-      document.body.classList.add("sidebar-toggle");
-    };
+  const links = document.querySelectorAll(".sidebar-link");
 
-    links.forEach(link => {
-      link.addEventListener("click", handleClick);
+  const handleClick = () => {
+    document.body.classList.toggle("sidebar-toggle"); // add/remove dono karega
+  };
+
+  links.forEach((link) => {
+    link.addEventListener("click", handleClick);
+  });
+
+  return () => {
+    links.forEach((link) => {
+      link.removeEventListener("click", handleClick);
     });
+  };
+}, []);
 
-    return () => {
-      links.forEach(link => {
-        link.removeEventListener("click", handleClick);
-      });
-    };
-  }, []);
 
 const sidebarRef = useRef(null);
 
@@ -211,10 +213,10 @@ useEffect(() => {
                 <div className="position-relative">
                   {/* 🔔 Notification Button */}
                   <button
-                    className="btn btn-light border-0 shadow-sm rounded-circle p-2 position-relative"
+                    className="btn btn-light border-0 shadow-sm rounded-circle mt-1  position-relative"
                     onClick={() => setIsOpen(!isOpen)}
                   >
-                    <i className="fa-solid fa-bell text-primary fs-5"></i>
+                    <i className="fa-solid fa-bell text-primary fs-6"></i>
                     {unreadCount > 0 && (
                       <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                         {unreadCount}
@@ -233,16 +235,8 @@ useEffect(() => {
 
                       {/* Dropdown */}
                       <div
-                        className="card shadow border-0 rounded-3"
-                        style={{
-                          position: "fixed",
-                          top: "70px",
-                          right: "20px",
-                          width: "350px",
-                          maxHeight: "400px",
-                          overflowY: "auto",
-                          zIndex: 1050,
-                        }}
+                        className="card shadow border-0 rounded-3 dropdrow-style"
+
                       >
                         {/* Header */}
                         <div className="card-header bg-white d-flex justify-content-between align-items-center">
