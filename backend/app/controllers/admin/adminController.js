@@ -1411,12 +1411,12 @@ const noSubscription = await User.count({
   include: [
     {
       model: VendorPackageSubscription,
-      as : "subscriptions",
+      as : "vendor",
       required: false, // left join
     },
   ],
   group: ["User.id"],
-  having: literal(`COUNT(subscriptions.id) = 0`),
+  having: literal(`COUNT(vendor.id) = 0`),
 });
 
 const unsubscribedTotal = Array.isArray(noSubscription)
@@ -1429,7 +1429,7 @@ const withActive = await User.count({
   include: [
     {
       model: VendorPackageSubscription,
-      as : "subscriptions",
+      as : "vendor",
       required: true,
       where: {
         start_date: { [Op.lte]: fn("NOW") },
@@ -1442,28 +1442,23 @@ const withActive = await User.count({
 
 
 
-const onlyExpired = await User.count({
-  where: baseWhere,
+const onlyExpired = await User.findAll({
+  where: {
+    role_id: 2,
+    approval_status: 1,
+  },
   include: [
     {
       model: VendorPackageSubscription,
-      as : "subscriptions",
+      as: "vendor",
       required: true,
     },
   ],
-  group: ["User.id"],
-  having: literal(`
-    SUM(CASE 
-          WHEN subscriptions.start_date <= NOW() 
-           AND subscriptions.end_date >= NOW() 
-          THEN 1 ELSE 0 
-        END) = 0
-  `), // no active ones
+  group: [Sequelize.col("User.id")],
+  having: literal(`MAX(\`vendor\`.\`end_date\`) < NOW()`),
 });
 
- const expiredTotal = Array.isArray(onlyExpired)
-      ? onlyExpired.length
-      : onlyExpired;
+const expiredTotal = onlyExpired.length;
 
     return res.json({
       status: true,
@@ -1797,27 +1792,25 @@ exports.getVendorsByPackageStatus = async (req, res) => {
     } else if (status === "active") {
       // Vendors with at least one active subscription
       vendors = await User.findAll({
-        where: baseWhere,
-        include: [
-          {
-            model: VendorPackageSubscription,
-            as: "vendor", // alias
-            required: true,
-            where: {
-              start_date: { [Op.lte]: fn("NOW") },
-              end_date: { [Op.gte]: fn("NOW") },
-            },
-          },
-          {
-                    model: Category,
-                    attributes: ['id', 'name'], // bring category name
-                    required: false
-                  },
-                  { model: City, attributes: ['id', 'name'], required: false },
-                  { model: State, attributes: ['id', 'name'], required: false }
-        ],
-        distinct: true,
-      });
+  where: baseWhere,
+  include: [
+    {
+      model: VendorPackageSubscription,
+      as: "vendor",
+      required: true,
+    },
+    {
+      model: Category,
+      attributes: ["id", "name"],
+      required: false,
+    },
+    { model: City, attributes: ["id", "name"], required: false },
+    { model: State, attributes: ["id", "name"], required: false },
+  ],
+  group: ["User.id"],
+  having: literal(`MAX(\`vendor\`.\`end_date\`) >= NOW()`), // latest package must still be active
+});
+
     } else if (status === "expired") {
      vendors = await User.findAll({
   where: {
