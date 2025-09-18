@@ -237,6 +237,15 @@ export default function UpdateVendor() {
       placeholder: "",
       required: true, // This will be conditionally required via Yup validation
     },
+    
+    {
+      name: "long_description",
+      label: "Description*",
+      type: "textarea",
+      colClass: "col-12 mb-3",
+      required: true,
+      placeholder: "Describe your services in detail (minimum 50 characters)"
+    },
      {
       name: "price_range",
       label: "Price Range",
@@ -252,14 +261,6 @@ export default function UpdateVendor() {
       colClass: "col-md-4 mb-3",
       required: true,
       placeholder: ""
-    },
-    {
-      name: "long_description",
-      label: "Description*",
-      type: "textarea",
-      colClass: "col-12 mb-3",
-      required: true,
-      placeholder: "Describe your services in detail (minimum 50 characters)"
     },
     {
       name: "facebook_link",

@@ -224,7 +224,16 @@ export default function UpdateProfile() {
       placeholder: "",
       required: true, // This will be conditionally required via Yup validation
     },
+   
     {
+      name: "long_description",
+      label: "Long Description",
+      type: "textarea",
+      colClass: "col-12 ",
+      required: true,
+      // placeholder: "Describe your services in detail (minimum 50 characters)"
+    },
+     {
       name: "price_range",
       label: "Price Range",
       type: "text",
@@ -238,14 +247,6 @@ export default function UpdateProfile() {
       type: "text",
       colClass: "col-md-4 mb-3",
       required: true,
-    },
-    {
-      name: "long_description",
-      label: "Long Description",
-      type: "textarea",
-      colClass: "col-12 ",
-      required: true,
-      // placeholder: "Describe your services in detail (minimum 50 characters)"
     },
     {
       name: "facebook_link",

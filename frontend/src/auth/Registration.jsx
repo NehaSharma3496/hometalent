@@ -437,7 +437,7 @@ const Registration = () => {
       name: "category",
       label: "Category*",
       type: "select",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       options: categoryData,
     },
     {

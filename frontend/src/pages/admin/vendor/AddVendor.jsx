@@ -387,18 +387,7 @@ const validationSchema = Yup.object({
       },
       placeholder: "Enter category name",
     },
-      {
-      name: "priceRange",
-      label: "Price Range",
-      type: "text",
-      colClass: "col-md-4 mb-3",
-    },
-    {
-      name: "experience",
-      label: "Experience Since",
-      type: "text",
-      colClass: "col-md-4",
-    },
+   
     // {
     //   name: "shortDesc",
     //   label: "Short Description",
@@ -410,6 +399,18 @@ const validationSchema = Yup.object({
       label: "Description*",
       type: "textarea",
       colClass: "col-md-12",
+    },
+       {
+      name: "priceRange",
+      label: "Price Range",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+    },
+    {
+      name: "experience",
+      label: "Experience Since",
+      type: "text",
+      colClass: "col-md-4",
     },
     {
       name: "facebook_link",
