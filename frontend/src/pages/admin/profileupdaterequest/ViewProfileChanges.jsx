@@ -267,7 +267,10 @@ export default function ViewProfileChanges() {
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <button className="btn btn-link" onClick={() => navigate(-1)}>
+             <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
             <h2 className="add-page-heading mb-0">Vendor Profile Update</h2>

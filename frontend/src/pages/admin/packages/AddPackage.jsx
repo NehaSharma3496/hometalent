@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import ReusableForm from "../../../extracomponents/ReusableForm";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import { CreatePackage } from "../../../Services/admin/Admin";
 
 export default function AddPackage() {
   const token = localStorage.getItem("token");
   const [validityType, setValidityType] = useState("months"); // default
+  const navigate = useNavigate();
 
   const initialValues = {
     name: "",
@@ -158,9 +159,12 @@ export default function AddPackage() {
   return (
     <div className="page-content">
       <div className="add-page-heading-div mb-2">
-        <Link to="/admin/dashboard">
-          <i className="fa-sharp fa-regular fa-arrow-left"></i>
-        </Link>
+       <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </button>
         <h2 className="add-page-heading">Add Package</h2>
       </div>
       <div className="card table-padding font">

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import { GetVendorDetails, GetCategories } from "../../Services/vendor/Vendor";
 
 export default function MyProfile() {
@@ -8,6 +8,7 @@ export default function MyProfile() {
   const token = localStorage.getItem("token");
   const vendorId = localStorage.getItem("userId");
   const [showImage, setShowImage] = useState(false);
+  const navigate = useNavigate();
 
   const fetchVendor = async () => {
     try {
@@ -89,9 +90,12 @@ export default function MyProfile() {
       <div className="row align-items-center mb-1">
         <div className="col-md-6 mb-2">
           <div className="add-page-heading-div">
-            <Link to="/vendor/dashboard" className="me-2">
+            <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
+            </button>
             <h5 className="add-page-heading mb-0">My Profile</h5>
           </div>
         </div>

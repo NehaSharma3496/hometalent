@@ -1,9 +1,11 @@
 import React from 'react';
 import ReusableForm from '../../../extracomponents/ReusableForm';
 import * as Yup from 'yup';
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
 
 const Adduser = () => {
+    const navigate = useNavigate();
+
   const fields = [
     { name: 'firstName', label: 'First Name', type: 'text', placeholder: 'Enter first name', colClass: 'col-md-6' },
     { name: 'lastName', label: 'Last Name', type: 'text', placeholder: 'Enter last name', colClass: 'col-md-6' },
@@ -49,7 +51,12 @@ const Adduser = () => {
      <div className="page-content">
         
                 <div className="add-page-heading-div mb-4">
-                    <Link to="/admin/dashboard"><i className="fa-sharp fa-regular fa-arrow-left"></i></Link>
+                    <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </button>
                     <h2 className="add-page-heading">Add User</h2>
                 </div>
     <div className="card">

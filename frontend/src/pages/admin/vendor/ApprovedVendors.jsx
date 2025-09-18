@@ -4,6 +4,7 @@ import { GetVendoreList } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
+import {useNavigate} from "react-router-dom";
 
 export default function ApprovedVendors() {
   const [approvedVendors, setApprovedVendors] = useState([]);
@@ -13,6 +14,8 @@ export default function ApprovedVendors() {
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
   const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+
   const fetchApprovedVendors = async (page, limit) => {
     setLoading(true);
     try {
@@ -189,9 +192,12 @@ export default function ApprovedVendors() {
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/admin/dashboard">
-              <i className="fa fa-arrow-left"></i>
-            </Link>
+            <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </button>
             <h2 className="add-page-heading">Approved Vendors</h2>
           </div>
         </div>

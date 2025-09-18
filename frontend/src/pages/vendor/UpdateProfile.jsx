@@ -8,7 +8,7 @@ import {
   SubmitProfileUpdateRequest,
   GetVendorDetails,
 } from "../../Services/vendor/Vendor";
-import { Link } from "react-router-dom";
+import { Link ,useNavigate} from "react-router-dom";
 import * as Yup from "yup";
 
 export default function UpdateProfile() {
@@ -18,6 +18,7 @@ export default function UpdateProfile() {
   const [selectedStateId, setSelectedStateId] = useState("");
   const [initialValues, setInitialValues] = useState(null);
   const [cityTouched, setCityTouched] = useState(false);
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
   const vendorId = localStorage.getItem("userId");
@@ -466,9 +467,12 @@ export default function UpdateProfile() {
   return (
     <div className="page-content ">
       <div className="add-page-heading-div">
-        <Link to="/vendor/dashboard">
-          <i className="fa-sharp fa-regular fa-arrow-left"></i>
-        </Link>
+        <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </button>
         <h2 className="add-page-heading ">Request Profile Update</h2>
       </div>
 

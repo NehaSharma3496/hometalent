@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReusableForm from "../../../extracomponents/ReusableForm";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import {
   VendorRegister,
   GetCategories,
@@ -12,6 +12,8 @@ import {
 import { VerifyOtp } from "../../../Services/webService/Web";
 
 export default function AddVendor() {
+    const navigate = useNavigate();
+
   const [categoryData, setCategoryData] = useState([]);
   const [statesData, setStatesData] = useState([]);
   const [cityData, setCityData] = useState([]);
@@ -609,9 +611,12 @@ const validationSchema = Yup.object({
   return (
     <div className="page-content">
       <div className="add-page-heading-div mb-4">
-        <Link to="/admin/dashboard">
-          <i className="fa-sharp fa-regular fa-arrow-left"></i>
-        </Link>
+        <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </button>
         <h2 className="add-page-heading">Add Vendor</h2>
       </div>
       <div className="card card1">

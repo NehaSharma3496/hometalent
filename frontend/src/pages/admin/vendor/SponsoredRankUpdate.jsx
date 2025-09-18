@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link,useNavigate } from "react-router-dom";
 import {
   GetSponsoredVendorsByCategory,
   UpdateSponsoredRanks,
@@ -11,6 +11,7 @@ export default function SponsoredRankUpdate() {
   const token = localStorage.getItem("token");
   const categoryId = location.state?.categoryId;
   const categoryName = location.state?.categoryName;
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [vendorList, setVendorList] = useState([]);
@@ -119,9 +120,12 @@ export default function SponsoredRankUpdate() {
       <div className="row align-items-center mb-3">
         <div className="col-md-6 col-8">
           <div className="add-page-heading-div d-flex align-items-center">
-            <Link to="/admin/dashboard" className="me-2">
+             <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
+            </button>
             <h2 className="add-page-heading">
               Sponsored Vendors - {categoryName}
             </h2>

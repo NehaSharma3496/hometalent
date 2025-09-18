@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReusableForm from "../../../extracomponents/ReusableForm";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link ,useNavigate} from "react-router-dom";
 import {
   SubmitProfileUpdateRequest,
   GetCities,
@@ -18,6 +18,7 @@ export default function UpdateVendor() {
   const [selectedStateId, setSelectedStateId] = useState("");
   const [initialValues, setInitialValues] = useState(null);
   const [cityTouched, setCityTouched] = useState(false);
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
   const location = useLocation();
@@ -476,9 +477,12 @@ export default function UpdateVendor() {
   return (
     <div className="page-content container-fluid">
       <div className="add-page-heading-div mb-3 d-flex align-items-center gap-2">
-        <Link to="/admin/dashboard">
-          <i className="fa-sharp fa-regular fa-arrow-left"></i>
-        </Link>
+       <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </button>
         <h2 className="add-page-heading mb-0">Request Profile Update</h2>
       </div>
       <div className="card">

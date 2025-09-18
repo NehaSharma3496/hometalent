@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link ,useNavigate} from "react-router-dom";
 import {
   GetGalleryUpdateRequests,
   ProcessGalleryUpdateRequests,
@@ -16,7 +16,8 @@ export default function VendorGallery() {
   const [selectAll, setSelectAll] = useState(false);
   const token = localStorage.getItem("token");
   const adminId = 1;
-  
+    const navigate = useNavigate();
+
   /** Fetch Vendor Gallery */
   const fetchGallery = async () => {
     try {
@@ -243,9 +244,12 @@ export default function VendorGallery() {
       <div className="row align-items-center mb-3">
         <div className="col-md-6 mb-4">
           <div className="add-page-heading-div">
-            <Link to="/admin/vendor/allvendors" className="me-2">
-              <i className="fa fa-arrow-left"></i>
-            </Link>
+            <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </button>
             <h5 className="add-page-heading mb-0">Vendor Gallery</h5>
           </div>
         </div>

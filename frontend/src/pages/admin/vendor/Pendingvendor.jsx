@@ -371,9 +371,12 @@ export default function PendingVendor() {
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/admin/dashboard">
+           <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
+            </button>
             <h2 className="add-page-heading">Pending Vendors</h2>
           </div>
         </div>

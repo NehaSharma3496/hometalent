@@ -3,7 +3,7 @@ import {
   GetAdminGallery,
   RemoveGalleryItem,
 } from "../../../Services/vendor/Vendor";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const AdminGallery = () => {
@@ -11,6 +11,7 @@ const AdminGallery = () => {
   const [activeTab, setActiveTab] = useState("images");
   const [selectedItems, setSelectedItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
@@ -128,9 +129,12 @@ const AdminGallery = () => {
       <div className="d-flex justify-content-between align-items-center mb-2">
         {/* Left side */}
         <div className="add-page-heading-div d-flex align-items-center">
-          <Link to="/admin/dashboard" className="me-2">
-            <i className="fa fa-arrow-left"></i>
-          </Link>
+          <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </button>
           <h5 className="add-page-heading mb-0">Gallery</h5>
         </div>
 

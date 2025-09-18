@@ -335,9 +335,12 @@ const VendorPackages = () => {
         {/* Left side: Back + Heading */}
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/vendor/dashboard">
+           <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
+            </button>
             <h2 className="add-page-heading">Packages</h2>
           </div>
         </div>

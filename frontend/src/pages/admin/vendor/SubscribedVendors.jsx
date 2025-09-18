@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import { GetVendorsByPackageStatus } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
@@ -12,6 +12,7 @@ export default function SubscribedVendors() {
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
 
@@ -106,9 +107,12 @@ export default function SubscribedVendors() {
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/admin/dashboard">
-              <i className="fa fa-arrow-left"></i>
-            </Link>
+            <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </button>
             <h2 className="add-page-heading">Subscribed Vendors</h2>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link,useNavigate } from "react-router-dom";
 import { GetVendorDetails } from "../../../Services/vendor/Vendor";
 
 export default function VendorDetails() {
@@ -8,6 +8,7 @@ export default function VendorDetails() {
   const token = localStorage.getItem("token");
   const vendorId = location.state?.vendorId;
   const [showImage, setShowImage] = useState(false);
+  const navigate = useNavigate();
 
   const fetchVendor = async () => {
     try {
@@ -91,9 +92,12 @@ export default function VendorDetails() {
       <div className="row align-items-center mb-1">
         <div className="col-md-6 mb-2">
           <div className="add-page-heading-div">
-            <Link to="/admin/vendor/allvendors" className="me-2">
+          <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
+            </button>
             <h5 className="add-page-heading mb-0">Vendor Profile</h5>
           </div>
         </div>
