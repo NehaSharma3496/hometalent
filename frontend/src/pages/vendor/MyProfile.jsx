@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GetVendorDetails, GetCategories } from "../../Services/vendor/Vendor";
 
 export default function MyProfile() {
@@ -146,10 +146,10 @@ export default function MyProfile() {
             </Link>
           </div> */}
 
- <div className="position-absolute top-0 end-0 p-3 d-flex flex-column gap-2">
+          <div className="position-absolute top-0 end-0 p-3 d-flex ">
             <Link
               to="/vendor/mypackages"
-              className="btn btn-outline-primary btn-sm shadow-sm"
+             className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
               state={{ vendorId: vendorId }}
             >
               <i className="fas fa-box-open me-1"></i>
@@ -277,8 +277,8 @@ export default function MyProfile() {
               style={{ minHeight: "100vh" }}
             >
               <div
-                className="card rounded-pill shadow-lg border-0 overflow-hidden"
-                style={{ maxWidth: "600px", width: "90%", background: "#fff" }}
+                className="card1 rounded-pill shadow-lg border-0 overflow-hidden"
+                style={{ maxWidth: "600px", width: "60%", background: "#fff" }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="card-body p-0 d-flex justify-content-center align-items-center">
@@ -287,7 +287,7 @@ export default function MyProfile() {
                     alt="Vendor Large"
                     className="img-fluid"
                     style={{
-                      maxHeight: "100vh",
+                      maxHeight: "80vh",
                       width: "100%",
                       objectFit: "cover",
                       borderRadius: "50rem",

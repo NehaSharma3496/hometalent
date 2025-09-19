@@ -399,7 +399,7 @@ a {
     line-height: normal;
     letter-spacing: 1.44px;
     text-transform: uppercase;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 #main-content .h2-heading {
@@ -7067,25 +7067,53 @@ body.modal-open {
 
 
 .dropdrow-style {
-  position: fixed;
-  margin-top: 20px; 
-  right: 20px;
-  width: 350px;
-  max-height: 400px;
-  overflow-y: auto;
-  z-index: 1050;
-  padding: 0 !important;
+    position: fixed;
+    margin-top: 20px;
+    right: 20px;
+    width: 350px;
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1050;
+    padding: 0 !important;
 }
 
 @media (max-width: 576px) {
-.dropdrow-style {
-  position: fixed;
-  margin-top: 25px; 
-  right: 4px;
-  width: 266px;
-  max-height: 400px;
-  overflow-y: auto;
-  z-index: 1050;
-  padding: 0 !important;
+    .dropdrow-style {
+        position: fixed;
+        margin-top: 25px;
+        right: 4px;
+        width: 266px;
+        max-height: 400px;
+        overflow-y: auto;
+        z-index: 1050;
+        padding: 0 !important;
+    }
 }
+
+.custom-swal-popup {
+    height: 400px !important;
+    /* Fixed height */
+    overflow-y: auto !important;
+    /* Scroll enable if content bada ho */
+}
+
+.custom-popup-content {
+    font-size: 15px;
+    text-align: left;
+}
+
+.card1 {
+    padding: 24px 24px 24px 24px;
+    width: 60% !important;
+}
+
+@media (max-width: 576px) {
+    .card1 {
+        padding: 0;
+        width: 60% !important;
+    }
+     .card-body{
+        padding: 0.4rem !important;
+     }
+
 }
