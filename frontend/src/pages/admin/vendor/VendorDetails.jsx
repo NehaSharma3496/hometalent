@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, Link,useNavigate } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { GetVendorDetails } from "../../../Services/vendor/Vendor";
 
 export default function VendorDetails() {
@@ -92,9 +92,9 @@ export default function VendorDetails() {
       <div className="row align-items-center mb-1">
         <div className="col-md-6 mb-2">
           <div className="add-page-heading-div">
-          <button
+            <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
@@ -123,11 +123,11 @@ export default function VendorDetails() {
             <div className="col">
               <h3 className="mb-2 fs-4 fw-bold">{vendor.owner_name}</h3>
               <div className="d-flex align-items-center gap-3 mb-2">
-               {(vendor.profile_name || vendor.owner_name) && (
-  <span className="badge bg-primary">
-    {vendor.profile_name || vendor.owner_name}
-  </span>
-)}
+                {(vendor.profile_name || vendor.owner_name) && (
+                  <span className="badge bg-primary">
+                    {vendor.profile_name || vendor.owner_name}
+                  </span>
+                )}
 
                 {/* {vendor.experience_since && (
                   <span>
@@ -159,23 +159,22 @@ export default function VendorDetails() {
               Vendor Packages
             </Link>
 
-          <Link
-  to={`/admin/galleryUpdates/vendorgallery/${vendorId}`}
-  className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
->
-  <i className="fas fa-images"></i>
-  <span>Gallery</span>
-</Link>
+            <Link
+              to={`/admin/galleryUpdates/vendorgallery/${vendorId}`}
+              className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
+            >
+              <i className="fas fa-images"></i>
+              <span>Gallery</span>
+            </Link>
 
-<Link
-  to={`/admin/review/vendorallleads/${vendorId}`}
-  className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
-  state={{ vendorId: vendorId }}
->
-  <i className="fas fa-user-friends"></i>
-  <span>Leads</span>
-</Link>
-
+            <Link
+              to={`/admin/review/vendorallleads/${vendorId}`}
+              className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
+              state={{ vendorId: vendorId }}
+            >
+              <i className="fas fa-user-friends"></i>
+              <span>Leads</span>
+            </Link>
           </div>
         </div>
 
@@ -222,9 +221,7 @@ export default function VendorDetails() {
                 {vendor.long_description && (
                   <div className="col-md-6 mb-3">
                     <div className="bg-light p-4 rounded-3 h-100">
-                      <h6 className="text-primary mb-2 fs-6">
-                         Description
-                      </h6>
+                      <h6 className="text-primary mb-2 fs-6">Description</h6>
                       <p className="mb-0 lh-lg">{vendor.long_description}</p>
                     </div>
                   </div>

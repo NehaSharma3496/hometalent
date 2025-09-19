@@ -449,13 +449,48 @@ const validationSchema = Yup.object({
       colClass: "col-md-4",
     },
     {
-      name: "image",
-      label: "Image",
-      type: "file",
-      colClass: "col-md-6",
-      accept: "image/*",
-      multiple: false,
-    },
+         name: "image",
+         label: (
+           <>
+             Image{" "}
+             <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
+               (Image size should be 736x400 for better experience)
+             </span>
+             <i
+               className="ri-eye-fill"
+               style={{
+                 marginLeft: "8px",
+                 cursor: "pointer",
+                 color: "#2278b6",
+                 fontSize: "18px",
+               }}
+               onClick={() =>
+                 Swal.fire({
+                   title: "Image Upload Guidelines",
+                   html: `
+                 <div style="text-align:left; font-size:15px;">
+                   ✅ Upload only clear & good quality image<br/><br/>
+                   ✅ Preferred size: <b>736 × 400 px</b> (minimum)<br/><br/>
+                   ✅ Supported formats: <b>.jpg, .jpeg, .png</b><br/><br/>
+                   ✅ File size: <b>Max 5 MB</b><br/><br/>
+                   ✅ Make sure your profile image is clearly visible<br/><br/>
+                   🚫 Blur, low-quality, pixelated, or stretched images may not look clear on your profile. For best results, upload a sharp and proper-sized image.<br/><br/>
+                   ⚠ Irrelevant or offensive images are not allowed
+                 </div>
+               `,
+                   icon: "info",
+                   confirmButtonText: "Got it!",
+                   width: 600,
+                 })
+               }
+             ></i>
+           </>
+         ),
+         type: "file",
+         colClass: "col-md-6 mb-3",
+         accept: "image/*",
+         multiple: false,
+       },
     {
       name: "terms",
       label: (

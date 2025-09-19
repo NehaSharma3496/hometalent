@@ -337,9 +337,13 @@ const Home = () => {
           <div className="row justify-content-center">
             <div className="col-xl-7 col-lg-7">
               <div className="section-title text-center mx-auto position-relative">
-                <h4 className="blue-title">Explore Talented Home Creators by Category</h4>
+                <h4 className="blue-title">
+                  Explore Talented Home Creators by Category
+                </h4>
                 <span className="highlights">
-                  From handmade crafts and artisanal products to personalized services and home-based skills—discover authentic local makers and providers
+                  From handmade crafts and artisanal products to personalized
+                  services and home-based skills—discover authentic local makers
+                  and providers
                 </span>
               </div>
             </div>
@@ -426,239 +430,245 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="testimonial-area testimonial-bg section-padding2 pb-2">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-xl-7 col-lg-7">
-              <div className="section-title text-center mx-auto position-relative">
-                <h4 className="blue-title pb-3">
-                  See Those Lovely Words From Clients
-                </h4>
-                <span className="highlights">
-                  Connecting Through Stories and Reviews Join the conversation
-                  and see the impact of HomeTalent4u through the eyes of our
-                  users.
-                </span>
-              </div>
-            </div>
-          </div>
-          <Slider {...settings}>
-            {review?.map((item, index) => (
-              <div
-                key={item.id || item._id || `${item.name}-${index}`}
-                className="p-2"
-              >
-                <div
-                  className="testimonial-card"
-                  style={{
-                    background: "#f9f9f9",
-                    borderRadius: "16px",
-                    padding: "35px 25px",
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-                    transition: "all 0.3s ease",
-                    position: "relative",
-                    minHeight: "230px",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  {/* Floating Quote Icon */}
-                  <img
-                    src="/assets/images/testimonial/iconoir_quote.png"
-                    alt="quote"
-                    style={{
-                      width: "40px",
-                      opacity: 0.08,
-                      position: "absolute",
-                      top: "25px",
-                      right: "25px",
-                    }}
-                  />
-
-                  {/* User Info */}
-                  <div className="d-flex align-items-center mb-3">
-                    <div
-                      className="d-flex align-items-center justify-content-center text-white"
-                      style={{
-                        width: "60px",
-                        height: "60px",
-                        borderRadius: "50%",
-                        background: "linear-gradient(135deg, #007BFF, #00C6FF)",
-                        fontSize: "26px",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <i className="ri-user-line"></i>
-                    </div>
-                    <div className="ms-3">
-                      <h5
-                        className="mb-1"
-                        style={{
-                          fontWeight: 600,
-                          fontSize: "1.1rem",
-                          color: "#333",
-                        }}
-                      >
-                        {item.name}
-                      </h5>
-
-                      {/* Star Rating After Name */}
-                      <div>
-                        {[...Array(5)].map((_, starIndex) => (
-                          <i
-                            key={starIndex}
-                            className={`ri-star-${starIndex < item.rating ? "fill" : "line"}`}
-                            style={{
-                              color: "#FFC107",
-                              fontSize: "1rem",
-                              marginRight: "2px",
-                            }}
-                          ></i>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Message */}
-                  <div>
-                    <p
-                      className="text-muted"
-                      style={{
-                        fontSize: "0.95rem",
-                        lineHeight: "1.8",
-                        color: "#555",
-                        marginBottom: 0,
-                      }}
-                    >
-                      {isExpanded || item.message?.length <= 200
-                        ? item.message
-                        : `${item.message.slice(0, 140)}...`}
-                    </p>
-                    {item.message?.length > 200 && (
-                      <button
-                        onClick={toggleReadMore}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: "#007bff",
-                          cursor: "pointer",
-                          padding: 0,
-                          fontSize: "0.9rem",
-                        }}
-                      >
-                        {isExpanded ? "Read Less" : "Read More"}
-                      </button>
-                    )}
-                  </div>
+      {review?.length > 0 && (
+        <section className="testimonial-area testimonial-bg section-padding2 pb-2">
+          <div className="container">
+            <div className="row justify-content-center">
+              <div className="col-xl-7 col-lg-7">
+                <div className="section-title text-center mx-auto position-relative">
+                  <h4 className="blue-title pb-3">
+                    See Those Lovely Words From Clients
+                  </h4>
+                  <span className="highlights">
+                    Connecting Through Stories and Reviews Join the conversation
+                    and see the impact of HomeTalent4u through the eyes of our
+                    users.
+                  </span>
                 </div>
               </div>
-            ))}
-          </Slider>
+            </div>
+            <Slider {...settings}>
+              {review?.map((item, index) => (
+                <div
+                  key={item.id || item._id || `${item.name}-${index}`}
+                  className="p-2"
+                >
+                  <div
+                    className="testimonial-card"
+                    style={{
+                      background: "#f9f9f9",
+                      borderRadius: "16px",
+                      padding: "35px 25px",
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+                      transition: "all 0.3s ease",
+                      position: "relative",
+                      minHeight: "230px",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    {/* Floating Quote Icon */}
+                    <img
+                      src="/assets/images/testimonial/iconoir_quote.png"
+                      alt="quote"
+                      style={{
+                        width: "40px",
+                        opacity: 0.08,
+                        position: "absolute",
+                        top: "25px",
+                        right: "25px",
+                      }}
+                    />
 
-        </div>
-      </section>
+                    {/* User Info */}
+                    <div className="d-flex align-items-center mb-3">
+                      <div
+                        className="d-flex align-items-center justify-content-center text-white"
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          borderRadius: "50%",
+                          background:
+                            "linear-gradient(135deg, #007BFF, #00C6FF)",
+                          fontSize: "26px",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <i className="ri-user-line"></i>
+                      </div>
+                      <div className="ms-3">
+                        <h5
+                          className="mb-1"
+                          style={{
+                            fontWeight: 600,
+                            fontSize: "1.1rem",
+                            color: "#333",
+                          }}
+                        >
+                          {item.name}
+                        </h5>
 
-      <section className="news-area section-padding2" ref={blogSectionRef}>
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-xl-7 col-lg-7">
-              <div className="section-title text-center mx-605 mx-auto position-relative mb-60">
-                <h4 className="blue-title pb-2 mt-4">Blog & HomeTalent4U</h4>
-                <span className="highlights">
-                  At HomeTalent4U, we share tips, stories, and insights to help
-                  you grow your creativity into success.
-                </span>
+                        {/* Star Rating After Name */}
+                        <div>
+                          {[...Array(5)].map((_, starIndex) => (
+                            <i
+                              key={starIndex}
+                              className={`ri-star-${
+                                starIndex < item.rating ? "fill" : "line"
+                              }`}
+                              style={{
+                                color: "#FFC107",
+                                fontSize: "1rem",
+                                marginRight: "2px",
+                              }}
+                            ></i>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Message */}
+                    <div>
+                      <p
+                        className="text-muted"
+                        style={{
+                          fontSize: "0.95rem",
+                          lineHeight: "1.8",
+                          color: "#555",
+                          marginBottom: 0,
+                        }}
+                      >
+                        {isExpanded || item.message?.length <= 200
+                          ? item.message
+                          : `${item.message.slice(0, 140)}...`}
+                      </p>
+                      {item.message?.length > 200 && (
+                        <button
+                          onClick={toggleReadMore}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "#007bff",
+                            cursor: "pointer",
+                            padding: 0,
+                            fontSize: "0.9rem",
+                          }}
+                        >
+                          {isExpanded ? "Read Less" : "Read More"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </Slider>
+          </div>
+        </section>
+      )}
+
+      {blogdata?.length > 0 && (
+        <section className="news-area section-padding2" ref={blogSectionRef}>
+          <div className="container">
+            <div className="row justify-content-center">
+              <div className="col-xl-7 col-lg-7">
+                <div className="section-title text-center mx-605 mx-auto position-relative mb-60">
+                  <h4 className="blue-title pb-2 mt-4">Blog & HomeTalent4U</h4>
+                  <span className="highlights">
+                    At HomeTalent4U, we share tips, stories, and insights to
+                    help you grow your creativity into success.
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="row g-4">
-            {(showAllBlog ? blogdata : blogdata?.slice(0, 3))?.map(
-              (item, index) => (
-                <div
-                  className="col-xl-4 col-lg-4 col-sm-6 pb-3"
-                  key={item.id || item._id || index}
-                >
-                  <article className="news-card-two">
-                    <figure className="news-banner-two imgEffect">
-                      <Link to={`/blogdetail/${item.id}`}>
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          style={{
-                            width: "100%",
-                            height: "230px",
-                            objectFit: "cover",
-                          }}
-                        />
-                      </Link>
-                    </figure>
-                    <div className="news-content">
-                      <div className="date d-flex ">
-                        <div className="news-info">
-                          <p className="date-time">
-                            {new Date(item.createdAt).toLocaleDateString(
-                              "en-IN",
-                              {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              }
-                            )}
+            <div className="row g-4">
+              {(showAllBlog ? blogdata : blogdata?.slice(0, 3))?.map(
+                (item, index) => (
+                  <div
+                    className="col-xl-4 col-lg-4 col-sm-6 pb-3"
+                    key={item.id || item._id || index}
+                  >
+                    <article className="news-card-two">
+                      <figure className="news-banner-two imgEffect">
+                        <Link to={`/blogdetail/${item.id}`}>
+                          <img
+                            src={item.image}
+                            alt={item.title}
+                            style={{
+                              width: "100%",
+                              height: "230px",
+                              objectFit: "cover",
+                            }}
+                          />
+                        </Link>
+                      </figure>
+                      <div className="news-content">
+                        <div className="date d-flex ">
+                          <div className="news-info">
+                            <p className="date-time">
+                              {new Date(item.createdAt).toLocaleDateString(
+                                "en-IN",
+                                {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                }
+                              )}
+                            </p>
+                          </div>
+                          <span className="px-5">|</span>
+                          <div className="category-name">
+                            <span className=" text-primary">HomeTalent4U</span>
+                          </div>
+                        </div>
+                        <h4 className="title mb-2">
+                          <Link
+                            to={`/blogdetail/${item.id}`}
+                            className="clamp-title"
+                          >
+                            {item.title}
+                          </Link>
+                        </h4>
+                        <div className="news-description">
+                          <p className="pera clamp-description ">
+                            {item.short_description?.slice(0, 100)}...
                           </p>
                         </div>
-                        <span className="px-5">|</span>
-                        <div className="category-name">
-                          <span className=" text-primary">HomeTalent4U</span>
+                        <div className="">
+                          <Link
+                            to={`/blogdetail/${item.id}`}
+                            className=" btn-primary-sm btn-primary"
+                          >
+                            Read More
+                          </Link>
                         </div>
                       </div>
-                      <h4 className="title mb-2">
-                        <Link
-                          to={`/blogdetail/${item.id}`}
-                          className="clamp-title"
-                        >
-                          {item.title}
-                        </Link>
-                      </h4>
-                      <div className="news-description">
-                        <p className="pera clamp-description ">
-                          {item.short_description?.slice(0, 100)}...
-                        </p>
-                      </div>
-                      <div className="">
-                        <Link
-                          to={`/blogdetail/${item.id}`}
-                          className=" btn-primary-sm btn-primary"
-                        >
-                          Read More
-                        </Link>
-                      </div>
-                    </div>
-                  </article>
-                </div>
-              )
+                    </article>
+                  </div>
+                )
+              )}
+            </div>
+
+            {blogdata?.length > 3 && (
+              <div className="text-center">
+                <button
+                  onClick={() => {
+                    setShowAllBlog((prev) => {
+                      const newState = !prev;
+                      if (!newState) scrollToSection(blogSectionRef);
+                      return newState;
+                    });
+                  }}
+                  className="btn btn-primary test12"
+                >
+                  {showAllBlog ? "View Less" : "View All Blogs"}
+                </button>
+              </div>
             )}
           </div>
-
-          {blogdata?.length > 3 && (
-            <div className="text-center">
-              <button
-                onClick={() => {
-                  setShowAllBlog((prev) => {
-                    const newState = !prev;
-                    if (!newState) scrollToSection(blogSectionRef);
-                    return newState;
-                  });
-                }}
-                className="btn btn-primary test12"
-              >
-                {showAllBlog ? "View Less" : "View All Blogs"}
-              </button>
-            </div>
-          )}
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };

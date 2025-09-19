@@ -137,14 +137,44 @@ export default function MyProfile() {
           </div>
 
           {/* Right side buttons */}
-          <div className="position-absolute top-0 end-0 p-3 d-flex flex-column gap-2">
+          {/* <div className="position-absolute top-0 end-0 p-3 d-flex flex-column gap-2">
             <Link
               to="/vendor/mypackages"
               className="btn btn-outline-primary btn-sm shadow-sm"
             >
               <i className="fas fa-box-open me-1"></i> My Packages
             </Link>
+          </div> */}
+
+ <div className="position-absolute top-0 end-0 p-3 d-flex flex-column gap-2">
+            <Link
+              to="/vendor/mypackages"
+              className="btn btn-outline-primary btn-sm shadow-sm"
+              state={{ vendorId: vendorId }}
+            >
+              <i className="fas fa-box-open me-1"></i>
+              My Packages
+            </Link>
+
+            <Link
+              to={`/vendor/gallery`}
+              className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
+            >
+              <i className="fas fa-images"></i>
+              <span>Gallery</span>
+            </Link>
+
+            <Link
+              to={`/vendor/leads/all`}
+              className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
+              state={{ vendorId: vendorId }}
+            >
+              <i className="fas fa-user-friends"></i>
+              <span>Leads</span>
+            </Link>
           </div>
+
+
         </div>
 
         <div className="card-body p-4">

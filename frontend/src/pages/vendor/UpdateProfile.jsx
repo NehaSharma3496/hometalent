@@ -214,7 +214,7 @@ export default function UpdateProfile() {
       name: "other_category",
       label: "Category Name*",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       showWhen: (values) => {
         const selected = categoryData?.find(
           (cat) => cat.value === values.category_id
@@ -227,7 +227,7 @@ export default function UpdateProfile() {
    
     {
       name: "long_description",
-      label: "Long Description",
+      label: "Description",
       type: "textarea",
       colClass: "col-12 ",
       required: true,
@@ -237,7 +237,7 @@ export default function UpdateProfile() {
       name: "price_range",
       label: "Price Range",
       type: "text",
-      colClass: "col-md-4 ",
+      colClass: "col-md-4",
       required: true,
       placeholder: "",
     },
@@ -245,7 +245,7 @@ export default function UpdateProfile() {
       name: "experience_since",
       label: "Experience Since",
       type: "text",
-      colClass: "col-md-4 mb-3",
+      colClass: "col-md-4",
       required: true,
     },
     {
@@ -266,7 +266,7 @@ export default function UpdateProfile() {
       name: "twitter_link",
       label: "Twitter Link",
       type: "text",
-      colClass: "ccol-md-4",
+      colClass: "col-md-4",
       // placeholder: "https://twitter.com/youraccount"
     },
     {
@@ -290,13 +290,49 @@ export default function UpdateProfile() {
       colClass: "col-md-4",
       // placeholder: "https://yourwebsite.com"
     },
-    {
-      name: "image",
-      label: "Profile Image",
-      type: "file",
-      colClass: "col-md-6 mb-3",
-      accept: "image/*",
-    },
+     {
+          name: "image",
+          label: (
+            <>
+              Image{" "}
+              <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
+                (Image size should be 736x400 for better experience)
+              </span>
+              <i
+                className="ri-eye-fill"
+                style={{
+                  marginLeft: "8px",
+                  cursor: "pointer",
+                  color: "#2278b6",
+                  fontSize: "18px",
+                }}
+                onClick={() =>
+                  Swal.fire({
+                    title: "Image Upload Guidelines",
+                    html: `
+                  <div style="text-align:left; font-size:15px;">
+                    ✅ Upload only clear & good quality image<br/><br/>
+                    ✅ Preferred size: <b>736 × 400 px</b> (minimum)<br/><br/>
+                    ✅ Supported formats: <b>.jpg, .jpeg, .png</b><br/><br/>
+                    ✅ File size: <b>Max 5 MB</b><br/><br/>
+                    ✅ Make sure your profile image is clearly visible<br/><br/>
+                    🚫 Blur, low-quality, pixelated, or stretched images may not look clear on your profile. For best results, upload a sharp and proper-sized image.<br/><br/>
+                    ⚠ Irrelevant or offensive images are not allowed
+                  </div>
+                `,
+                    icon: "info",
+                    confirmButtonText: "Got it!",
+                    width: 600,
+                  })
+                }
+              ></i>
+            </>
+          ),
+          type: "file",
+          colClass: "col-md-6 mb-3",
+          accept: "image/*",
+          multiple: false,
+        },
   ];
 
   const onSubmit = async (values) => {

@@ -79,18 +79,13 @@ const Registration = () => {
   // Enhanced validation schema with phone verification
   const validationSchema = Yup.object({
     ownerName: Yup.string()
-      .matches(
-        /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
-        "Only alphabets are allowed"
-      )
+      .matches(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, "Only alphabets are allowed")
       .required("Owner Name is required"),
 
-    profileName: Yup.string()
-      .matches(
-        /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
-        "Only alphabets are allowed"
-      ),
-      
+    profileName: Yup.string().matches(
+      /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+      "Only alphabets are allowed"
+    ),
 
     state: Yup.string().required("State is required"),
     city: Yup.string().required("City is required"),
@@ -510,12 +505,48 @@ const Registration = () => {
     },
     {
       name: "image",
-      label: "Image",
+      label: (
+        <>
+          Image{" "}
+          <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
+            (Image size should be 736x400 for better experience)
+          </span>
+          <i
+            className="ri-eye-fill"
+            style={{
+              marginLeft: "8px",
+              cursor: "pointer",
+              color: "#2278b6",
+              fontSize: "18px",
+            }}
+            onClick={() =>
+              Swal.fire({
+                title: "Image Upload Guidelines",
+                html: `
+              <div style="text-align:left; font-size:15px;">
+                ✅ Upload only clear & good quality image<br/><br/>
+                ✅ Preferred size: <b>736 × 400 px</b> (minimum)<br/><br/>
+                ✅ Supported formats: <b>.jpg, .jpeg, .png</b><br/><br/>
+                ✅ File size: <b>Max 5 MB</b><br/><br/>
+                ✅ Make sure your profile image is clearly visible<br/><br/>
+                🚫 Blur, low-quality, pixelated, or stretched images may not look clear on your profile. For best results, upload a sharp and proper-sized image.<br/><br/>
+                ⚠ Irrelevant or offensive images are not allowed
+              </div>
+            `,
+                icon: "info",
+                confirmButtonText: "Got it!",
+                width: 600,
+              })
+            }
+          ></i>
+        </>
+      ),
       type: "file",
       colClass: "col-md-6 mb-3",
       accept: "image/*",
       multiple: false,
     },
+
     {
       name: "terms",
       label: (
