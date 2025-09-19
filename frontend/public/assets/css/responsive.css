@@ -547,6 +547,7 @@
 	#main-content .page-content .page-heading {
 	    font-size: 14px;
 	    letter-spacing: 0.44px;
+		margin-top: 20px !important;
 	}
 
 	.dt-container .dt-search input.form-control {
