@@ -72,11 +72,11 @@ exports.getVendorsByCategoryId = async (req, res) => {
 
     // Active subscription include
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // remove time for comparison
+    // today.setHours(0, 0, 0, 0); // remove time for comparison
 
     const subscriptionInclude = {
       model: VendorPackageSubscription,
-      as: 'subscriptions', // must match User.hasMany alias
+      as: 'vendor', // must match User.hasMany alias
       required: true,
       where: {
         payment_status: 'completed',
