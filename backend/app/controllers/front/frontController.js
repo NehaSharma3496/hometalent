@@ -1,6 +1,6 @@
 
 const { State, City, User, Category, VendorCategoryRank, ContactUs, VendorPackageSubscription } = require('../../models'); // adjust path to your models
-const { Op, Sequelize } = require('sequelize');
+const { Op, Sequelize, where, fn, col } = require('sequelize');
 const sequelize = require('../../config/db.config');
 exports.listStatesAndCities = async (req, res) => {
   try {
@@ -71,7 +71,7 @@ exports.getVendorsByCategoryId = async (req, res) => {
     }
 
     // Active subscription include
-    const today = new Date();
+    const today = new Date().toISOString().split('T')[0];
     // today.setHours(0, 0, 0, 0); // remove time for comparison
 
     const subscriptionInclude = {
@@ -80,8 +80,10 @@ exports.getVendorsByCategoryId = async (req, res) => {
       required: true,
       where: {
         payment_status: 'completed',
-        start_date: { [Op.lte]: today },
-        end_date: { [Op.gte]: today }
+         [Op.and]: [
+      where(fn('DATE', col('vendor.start_date')), { [Op.lte]: today }),
+      where(fn('DATE', col('vendor.end_date')), { [Op.gte]: today })
+    ]
       }
     };
 

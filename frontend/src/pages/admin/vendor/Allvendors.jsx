@@ -236,7 +236,6 @@ export default function Allvendors() {
     if (packageFilter) {
       const pkgStatusArr = checkpackage[v.id] || [];
       const now = new Date();
-
       let hasActive = false;
       let hasExpired = false;
 
@@ -501,26 +500,24 @@ export default function Allvendors() {
       name: "Package Status",
       cell: (row) => {
         const pkgStatusArr = checkpackage[row.id] || [];
-        const now = new Date();
+       const now = new Date();
+       now.setHours(0, 0, 0, 0);
 
         let hasActive = false;
         let hasExpired = false;
 
         if (Array.isArray(pkgStatusArr) && pkgStatusArr.length > 0) {
-          hasActive = pkgStatusArr.some((pkg) => {
-            const start = new Date(pkg.start_date);
-            const end = new Date(pkg.end_date);
-            return (
-              pkg.payment_status === "completed" && start <= now && end >= now
-            );
-          });
+         hasActive = pkgStatusArr.some((pkg) => {
+          const start = new Date(pkg.start_date);
+          const end = new Date(pkg.end_date);
+          return start <= now && end >= now; // Only date check
+        });
 
-          hasExpired = pkgStatusArr.some((pkg) => {
-            const end = new Date(pkg.end_date);
-            return pkg.payment_status === "completed" && end < now;
-          });
+        hasExpired = pkgStatusArr.some((pkg) => {
+          const end = new Date(pkg.end_date);
+          return end < now; // Only date check
+        });
         }
-
         return (
           <div>
             {hasActive ? (
