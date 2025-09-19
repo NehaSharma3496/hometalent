@@ -311,7 +311,7 @@ export default function UpdateProfile() {
                    html: `
                  <div style="text-align:left; font-size:15px;">
                    ✅ Upload only clear & good quality image<br/><br/>
-                   ✅ Preferred size: <b>736 × 400 px</b> (minimum)<br/><br/>
+                   ✅ Preferred size: <b>736 × 400 px</b><br/><br/>
                    ✅ Supported formats: <b>.jpg, .jpeg, .png</b><br/><br/>
                    ✅ File size: <b>Max 5 MB</b><br/><br/>
                    ✅ Make sure your profile image is clearly visible<br/><br/>
