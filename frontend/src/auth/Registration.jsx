@@ -803,7 +803,7 @@ const Registration = () => {
       if (res?.data?.status) {
         Swal.fire(
           "Success",
-          "Registration successful! Login details have been sent to your mail/phone via Cegano Technology.",
+          "Registration successful! Login details have been sent to your mail via Cegano Technology.",
           "success"
         ).then(() => {
           navigate("/");
