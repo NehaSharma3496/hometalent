@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { GetAllLeads } from "../../../Services/admin/Admin";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import { Modal, Button } from "react-bootstrap";
@@ -11,6 +11,7 @@ export default function AllLeads() {
   const [searchText, setSearchText] = useState("");
   const token = localStorage.getItem("token");
   const [allLeads, setAllLeads] = useState([]);
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -230,9 +231,12 @@ export default function AllLeads() {
       <div className="row align-items-center mb-3">
         <div className="col-md-12 d-flex justify-content-between align-items-center flex-wrap">
           <div className="add-page-heading-div d-flex align-items-center">
-            <Link to="/admin/dashboard">
+            <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
+            </button>
             <h2 className="add-page-heading">All Leads</h2>
           </div>
 

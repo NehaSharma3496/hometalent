@@ -55,9 +55,12 @@ export default function CategoryList() {
       <div className="row align-items-center mb-3">
         <div className="col-md-6 col-8">
           <div className="add-page-heading-div d-flex align-items-center">
-            <Link to="/admin/dashboard" className="me-2">
+            <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
+            </button>
             <h2 className="add-page-heading">Categories</h2>
           </div>
         </div>

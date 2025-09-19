@@ -29,11 +29,10 @@ export default function Allvendors() {
   const [vendorPackageStatus, setVendorPackageStatus] = useState({});
   const [checkpackage, setCheckpackage] = useState(false);
   const [vendorpkgdata, setVendorpkgdata] = useState({});
-  // const [vendorPackageStatus, setVendorPackageStatus] = useState({});
   const [vendorPackageHistory, setVendorPackageHistory] = useState({});
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [packageFilter, setPackageFilter] = useState(""); // 🔹 new state
+  const [packageFilter, setPackageFilter] = useState("");
 
   const fetchVendors = async (page, limit) => {
     setLoading(true);
@@ -152,13 +151,14 @@ export default function Allvendors() {
     }
   };
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
+  // 🔹 Only needed for server-side pagination - removed for client-side
+  // const handlePageChange = (page) => {
+  //   setCurrentPage(page);
+  // };
 
   const handlePerRowsChange = (newPerPage) => {
     setPerPage(newPerPage);
-    setCurrentPage(1);
+    // setCurrentPage(1); // Not needed for client-side pagination
   };
 
   const fetchVendorPackageHistory = async (vendorId) => {
@@ -204,24 +204,8 @@ export default function Allvendors() {
     });
   }, [vendors]);
 
-  // const filteredVendors = searchText
-  //   ? allVendors.filter((v) => {
-  //       const lowerSearch = searchText.toLowerCase();
-  //       return (
-  //         v.owner_name?.toLowerCase().includes(lowerSearch) ||
-  //         v.email?.toLowerCase().includes(lowerSearch) ||
-  //         v.price_range.toLowerCase().includes(lowerSearch) ||
-  //         v.experience_since.toLowerCase().includes(lowerSearch) ||
-  //         v.City.name?.toLowerCase().includes(lowerSearch) ||
-  //         v.phone?.toLowerCase().includes(lowerSearch) ||
-  //         (Array.isArray(v.category_names)
-  //           ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
-  //           : v.category_names?.toLowerCase().includes(lowerSearch))
-  //       );
-  //     })
-  //   : vendors;
-
-  const filteredVendors = (searchText ? allVendors : vendors).filter((v) => {
+  // 🔹 MAIN FILTERING LOGIC - Fixed
+  const filteredVendors = allVendors.filter((v) => {
     const lowerSearch = searchText.toLowerCase();
 
     // 🔹 Text Filter
@@ -230,8 +214,8 @@ export default function Allvendors() {
       v.owner_name?.toLowerCase().includes(lowerSearch) ||
       v.email?.toLowerCase().includes(lowerSearch) ||
       v.phone?.toLowerCase().includes(lowerSearch) ||
-      v.City.name?.toLowerCase().includes(lowerSearch) ||
-      v.State.name?.toLowerCase().includes(lowerSearch) ||
+      v.City?.name?.toLowerCase().includes(lowerSearch) ||
+      v.State?.name?.toLowerCase().includes(lowerSearch) ||
       (Array.isArray(v.category_names)
         ? v.category_names.join(", ").toLowerCase().includes(lowerSearch)
         : v.category_names?.toLowerCase().includes(lowerSearch));
@@ -247,88 +231,143 @@ export default function Allvendors() {
       (!fromDate || createdDate >= fromDate) &&
       (!toDate || createdDate <= toDate);
 
-    // 🔹 Package Status Filter
-    // 🔹 Package Status Filter
-let matchesPackage = true;
-if (packageFilter) {
-  const pkgStatusArr = checkpackage[v.id] || [];
-  const now = new Date();
+    // 🔹 Package Status Filter - Fixed
+    let matchesPackage = true;
+    if (packageFilter) {
+      const pkgStatusArr = checkpackage[v.id] || [];
+      const now = new Date();
 
-  let hasActive = pkgStatusArr.some((pkg) => {
-    const start = new Date(pkg.start_date);
-    const end = new Date(pkg.end_date);
-    return pkg.payment_status === "completed" && start <= now && (!end || end >= now);
-  });
+      let hasActive = false;
+      let hasExpired = false;
 
-  let hasExpired = pkgStatusArr.some((pkg) => {
-    const end = new Date(pkg.end_date);
-    return pkg.payment_status === "completed" && end < now;
-  });
+      // Check if vendor has any active packages
+      if (Array.isArray(pkgStatusArr) && pkgStatusArr.length > 0) {
+        hasActive = pkgStatusArr.some((pkg) => {
+          const start = new Date(pkg.start_date);
+          const end = new Date(pkg.end_date);
+          return (
+            pkg.payment_status === "completed" && start <= now && end >= now
+          );
+        });
 
-  let statusLabel = "N/A";
-  if (hasActive) statusLabel = "Active";
-  else if (hasExpired) statusLabel = "Expired";
+        hasExpired = pkgStatusArr.some((pkg) => {
+          const end = new Date(pkg.end_date);
+          return pkg.payment_status === "completed" && end < now;
+        });
+      }
 
-  matchesPackage = statusLabel === packageFilter;
-}
+      let statusLabel = "N/A";
+      if (hasActive) statusLabel = "Active";
+      else if (hasExpired) statusLabel = "Expired";
 
+      matchesPackage = statusLabel === packageFilter;
+    }
 
     return matchesText && matchesDate && matchesPackage;
   });
 
+  // 🔹 Let Datatable handle pagination internally - no manual slicing needed
+
+  // const exportToExcel = async () => {
+  //   try {
+  //     // 🔹 Export only filtered data instead of all vendors
+  //     const exportData = filteredVendors.map((row, index) => ({
+  //       "S.No": index + 1,
+  //       "Owner Name": row.owner_name || "N/A",
+  //       Email: row.email || "N/A",
+  //       "Category Name": Array.isArray(row.category_names)
+  //         ? row.category_names.join(", ")
+  //         : row.category_names || "N/A",
+  //       Phone: row.phone || "N/A",
+  //       City: row.City?.name || "N/A",
+  //       State: row.State?.name || "N/A",
+  //       Status: row.status === 1 ? "Active" : "Inactive",
+  //       Approval_Status:
+  //         row.approval_status === 1
+  //           ? "Approved"
+  //           : row.approval_status === 2
+  //           ? "Rejected"
+  //           : "Pending",
+  //       Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
+  //     }));
+
+  //     const worksheet = XLSX.utils.json_to_sheet(exportData);
+  //     const workbook = XLSX.utils.book_new();
+  //     XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Vendors");
+  //     XLSX.writeFile(workbook, "Filtered_Vendor_List.xlsx");
+
+  //     Swal.fire("Success", `${exportData.length} vendors exported successfully!`, "success");
+  //   } catch (err) {
+  //     console.error("Error exporting vendors:", err);
+  //     Swal.fire("Error", "Failed to export vendors", "error");
+  //   }
+  // };
+
   const exportToExcel = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const now = new Date();
 
-      let allVendors = [];
-      let page = 1;
-      const limit = 1000000;
-      let totalPages = 1;
+      // 🔹 Export only filtered data instead of all vendors
+      const exportData = filteredVendors?.map((row, index) => {
+        const pkgStatusArr = checkpackage[row.id] || [];
 
-      while (page <= totalPages) {
-        const res = await GetVendoreList(token, page, limit);
-        const { data, pagination } = res || {};
-        if (data?.length) allVendors = [...allVendors, ...data];
+        let hasActive = false;
+        let hasExpired = false;
 
-        if (pagination) {
-          totalPages = Math.ceil(pagination.total_records / limit);
-        } else {
-          break;
+        if (Array.isArray(pkgStatusArr) && pkgStatusArr.length > 0) {
+          hasActive = pkgStatusArr.some((pkg) => {
+            const start = new Date(pkg.start_date);
+            const end = new Date(pkg.end_date);
+            return (
+              pkg.payment_status === "completed" && start <= now && end >= now
+            );
+          });
+
+          hasExpired = pkgStatusArr.some((pkg) => {
+            const end = new Date(pkg.end_date);
+            return pkg.payment_status === "completed" && end < now;
+          });
         }
 
-        page++;
-      }
+        let packageStatus = "N/A";
+        if (hasActive) packageStatus = "Active";
+        else if (hasExpired) packageStatus = "Expired";
 
-      const exportData = allVendors.map((row, index) => ({
-        "S.No": index + 1,
-        "Owner Name": row.owner_name || "N/A",
-        Email: row.email || "N/A",
-        "Category Name": Array.isArray(row.category_names)
-          ? row.category_names.join(", ")
-          : row.category_names || "N/A",
-        Phone: row.phone || "N/A",
-        // "Price Range": row.price_range || "N/A",
-        // "Short Description": row.short_description || "N/A",
-        // "Experience Since": row.experience_since || "N/A",
-        City: row.City?.name || "N/A",
-        State: row.State?.name || "N/A",
-        Status: row.status === 1 ? "Active" : "Inactive",
-        Approval_Status:
-          row.approval_status === 1
-            ? "Approved"
-            : row.approval_status === 2
-            ? "Rejected"
-            : "Pending",
-        Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
-      }));
+        return {
+          "S.No": index + 1,
+          "Owner Name": row.owner_name || "N/A",
+          Email: row.email || "N/A",
+          "Category Name": Array.isArray(row.category_names)
+            ? row.category_names.join(", ")
+            : row.category_names || "N/A",
+          Phone: row.phone || "N/A",
+          City: row.City?.name || "N/A",
+          State: row.State?.name || "N/A",
+          Status: row.status === 1 ? "Active" : "Inactive",
+          Approval_Status:
+            row.approval_status === 1
+              ? "Approved"
+              : row.approval_status === 2
+              ? "Rejected"
+              : "Pending",
+          "Package Status": packageStatus, // 🔹 Added this
+          Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
+        };
+      });
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "All Vendors");
-      XLSX.writeFile(workbook, "All_Vendor_List.xlsx");
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Vendors");
+      XLSX.writeFile(workbook, "Filtered_Vendor_List.xlsx");
+
+      Swal.fire(
+        "Success",
+        `${exportData.length} vendors exported successfully!`,
+        "success"
+      );
     } catch (err) {
       console.error("Error exporting vendors:", err);
-      Swal.fire("Error", "Failed to export all vendors", "error");
+      Swal.fire("Error", "Failed to export vendors", "error");
     }
   };
 
@@ -355,6 +394,7 @@ if (packageFilter) {
       if (response.status === true || response.status === "true") {
         await Swal.fire("Success", response.message, "success");
         fetchVendors(currentPage, perPage);
+        fetchAllVendors(); // 🔹 Refresh all vendors data
       } else {
         throw new Error(response.message || "Failed to update approval");
       }
@@ -386,6 +426,7 @@ if (packageFilter) {
       if (res?.status === true || res?.status === "true") {
         await Swal.fire("Success", "Vendor status updated.", "success");
         fetchVendors(currentPage, perPage);
+        fetchAllVendors(); // 🔹 Refresh all vendors data
       } else {
         throw new Error(res?.message || "Failed to update status");
       }
@@ -404,19 +445,25 @@ if (packageFilter) {
   useEffect(() => {
     const loadAllHistories = async () => {
       let histories = {};
-      for (let vendor of vendors) {
+      for (let vendor of allVendors) {
+        // 🔹 Use allVendors instead of vendors
         const data = await fetchVendorPkg(vendor.id);
         histories[vendor.id] = data;
       }
       setCheckpackage(histories);
     };
-    if (vendors?.length > 0) loadAllHistories();
-  }, [vendors]);
+    if (allVendors?.length > 0) loadAllHistories();
+  }, [allVendors]);
+
+  // 🔹 Auto-reset not needed for client-side pagination - Datatable handles it
+  // useEffect(() => {
+  //   setCurrentPage(1);
+  // }, [searchText, startDate, endDate, packageFilter]);
 
   const columns = [
     {
       name: "S.No",
-      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
+      selector: (row, index) => index + 1, // 🔹 Simple index for client-side pagination
       width: "50px",
     },
     {
@@ -441,12 +488,6 @@ if (packageFilter) {
       width: "170px",
     },
     { name: "Phone", selector: (row) => row.phone || "—" },
-    // { name: "Price Range", selector: (row) => row.price_range || "—" },
-
-    // {
-    //   name: "Experience Since",
-    //   selector: (row) => row.experience_since || "—",
-    // },
     {
       name: "State",
       selector: (row) => row?.State?.name || "—",
@@ -459,28 +500,32 @@ if (packageFilter) {
     {
       name: "Package Status",
       cell: (row) => {
-        const pkgStatus = checkpackage[row.id] || {};
-        const activePkgIds = [];
-        const expiredPkgIds = [];
+        const pkgStatusArr = checkpackage[row.id] || [];
+        const now = new Date();
 
-        Object.keys(pkgStatus).forEach((pkgId) => {
-          const status = pkgStatus[pkgId]?.status; // make sure backend gives `status`
-          const startDate = new Date(pkgStatus[pkgId]?.start_date);
-          const endDate = new Date(pkgStatus[pkgId]?.end_date);
-          const now = new Date();
+        let hasActive = false;
+        let hasExpired = false;
 
-          if (startDate <= now && (!endDate || endDate >= now)) {
-            activePkgIds.push(pkgId);
-          } else if (endDate && endDate < now) {
-            expiredPkgIds.push(pkgId);
-          }
-        });
+        if (Array.isArray(pkgStatusArr) && pkgStatusArr.length > 0) {
+          hasActive = pkgStatusArr.some((pkg) => {
+            const start = new Date(pkg.start_date);
+            const end = new Date(pkg.end_date);
+            return (
+              pkg.payment_status === "completed" && start <= now && end >= now
+            );
+          });
+
+          hasExpired = pkgStatusArr.some((pkg) => {
+            const end = new Date(pkg.end_date);
+            return pkg.payment_status === "completed" && end < now;
+          });
+        }
 
         return (
           <div>
-            {activePkgIds.length > 0 ? (
+            {hasActive ? (
               <span className="badge bg-success me-1">Active</span>
-            ) : expiredPkgIds.length > 0 ? (
+            ) : hasExpired ? (
               <span className="badge bg-danger me-1">Expired</span>
             ) : (
               "N/A"
@@ -665,9 +710,9 @@ if (packageFilter) {
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/admin/dashboard">
+            <button className="btn btn-link p-0" onClick={() => navigate(-1)}>
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
+            </button>
             <h2 className="add-page-heading">All Vendor</h2>
           </div>
         </div>
@@ -682,29 +727,6 @@ if (packageFilter) {
       </div>
 
       <div className="card table-padding">
-        {/* <div className="card-header">
-          <div className="col-md-4">
-            <div className="d-flex align-items-center border rounded px-2">
-              <i className="ri-search-line me-2 text-muted" />
-              <input
-                type="text"
-                className="form-control border-0 shadow-none"
-                placeholder="Search by Owner Name..."
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-              {searchText && (
-                <button
-                  className="btn btn-sm btn-light border-0"
-                  onClick={() => setSearchText("")}
-                >
-                  <i className="ri-close-line" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div> */}
-
         <div className="card-header d-flex flex-wrap gap-3">
           {/* Search Bar */}
           <div className="col-md-4">
@@ -738,6 +760,7 @@ if (packageFilter) {
               onFocus={(e) => (e.target.type = "date")}
               onBlur={(e) => !startDate && (e.target.type = "text")}
               onChange={(e) => setStartDate(e.target.value)}
+              max={endDate || undefined}
             />
 
             <input
@@ -748,6 +771,7 @@ if (packageFilter) {
               onFocus={(e) => (e.target.type = "date")}
               onBlur={(e) => !endDate && (e.target.type = "text")}
               onChange={(e) => setEndDate(e.target.value)}
+              min={startDate || undefined}
             />
 
             {(startDate || endDate) && (
@@ -778,18 +802,30 @@ if (packageFilter) {
           </div>
         </div>
 
-        <div className="row ">
+        <div className="row">
           <div className="card-body">
+            {/* 🔹 SHOW FILTERED COUNT */}
+            {/* <div className="mb-2">
+              <small className="text-muted">
+                Showing {Math.min(perPage, filteredVendors.length)} of {filteredVendors.length} vendors
+                {(searchText || startDate || endDate || packageFilter) && 
+                  ` (filtered from ${allVendors.length} total)`
+                }
+              </small>
+            </div> */}
+
             <Datatable
               columns={columns}
               data={filteredVendors}
               progressPending={loading}
               pagination
-              paginationServer
-              paginationTotalRows={totalRows}
               paginationPerPage={perPage}
+              paginationRowsPerPageOptions={[10, 25, 50, 100]}
               onChangeRowsPerPage={handlePerRowsChange}
-              onChangePage={handlePageChange}
+              paginationComponentOptions={{
+                rowsPerPageText: "Rows per page:",
+                rangeSeparatorText: "of",
+              }}
             />
           </div>
         </div>
@@ -799,12 +835,9 @@ if (packageFilter) {
         <div
           className="modal fade show"
           style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-          onClick={() => setPkgModalOpen(false)} // backdrop click se band hoga
+          onClick={() => setPkgModalOpen(false)}
         >
-          <div
-            className="modal-dialog"
-            onClick={(e) => e.stopPropagation()} // andar click se band na ho
-          >
+          <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Assign Package</h5>

@@ -1,6 +1,6 @@
 import React, { use, useEffect, useState } from "react";
 import { GetAllVendorLeads } from "../../../Services/vendor/Vendor";
-import { Link,useLocation } from "react-router-dom";
+import { Link,useLocation ,useNavigate} from "react-router-dom";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
@@ -19,6 +19,8 @@ const vendorId=location?.state?.vendorId
   const [totalRows, setTotalRows] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [fullText, setFullText] = useState("");
+    const navigate = useNavigate();
+
 
   const handleReadMore = (text) => {
     setFullText(text);
@@ -218,9 +220,12 @@ const vendorId=location?.state?.vendorId
         {/* Left side: Back + Heading */}
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/admin/dashboard">
+           <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
+            </button>
             <h2 className="add-page-heading">All Leads</h2>
           </div>
         </div>

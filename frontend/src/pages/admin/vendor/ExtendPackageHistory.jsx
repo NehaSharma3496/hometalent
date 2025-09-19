@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { GetExtendPackageHistory } from "../../../Services/admin/Admin";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link,useNavigate } from "react-router-dom";
 import DataTable from "react-data-table-component";
 
 export default function ExtendPackageHistory() {
@@ -8,6 +8,7 @@ export default function ExtendPackageHistory() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
   const location = useLocation();
   const vendor_id = location?.state?.vendor_id;
@@ -91,9 +92,12 @@ export default function ExtendPackageHistory() {
       <div className="row align-items-center mb-4">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/admin/dashboard" className="me-2">
-              <i className="fa fa-arrow-left"></i>
-            </Link>
+             <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </button>
             <h5 className="add-page-heading mb-0">Extend Package History</h5>
           </div>
         </div>

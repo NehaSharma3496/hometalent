@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link ,useNavigate} from "react-router-dom";
 import { GetActiveVendors, GetCategories } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 
 export default function ActiveVendor() {
+    const navigate = useNavigate();
+
   const [activevendors, setActiveVendors] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [categoryList, setCategoryList] = useState([]);
@@ -217,9 +219,12 @@ export default function ActiveVendor() {
       <div className="row align-items-center mb-3  ">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/admin/dashboard">
+            <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
+            </button>
             <h2 className="add-page-heading">Active Vendors</h2>
           </div>
         </div>

@@ -10,7 +10,7 @@ import {
   GetCities,
 } from "../Services/vendor/Vendor";
 import { VerifyOtp } from "../Services/webService/Web";
-import { Link,useNavigate  } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -78,7 +78,15 @@ const Registration = () => {
 
   // Enhanced validation schema with phone verification
   const validationSchema = Yup.object({
-    ownerName: Yup.string().required("Owner Name is required"),
+    ownerName: Yup.string()
+      .matches(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, "Only alphabets are allowed")
+      .required("Owner Name is required"),
+
+    profileName: Yup.string().matches(
+      /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+      "Only alphabets are allowed"
+    ),
+
     state: Yup.string().required("State is required"),
     city: Yup.string().required("City is required"),
     pin: Yup.string()
@@ -91,7 +99,6 @@ const Registration = () => {
       [true],
       "Phone number must be verified"
     ),
-
     email: Yup.string().email("Invalid email").required("Email is required"),
     category: Yup.string().required("Category is required"),
     otherCategory: Yup.string().when("category", {
@@ -106,7 +113,7 @@ const Registration = () => {
       otherwise: (schema) => schema.notRequired(),
     }),
     terms: Yup.boolean().oneOf([true], "You must accept terms"),
-    longDesc: Yup.string().required("Large Description is required"),
+    longDesc: Yup.string().required("Description is required"),
   });
 
   // Phone verification handlers
@@ -165,7 +172,11 @@ const Registration = () => {
           isVerified: false,
         }));
         setOtpTimer(60); // start 1 minute countdown
-        Swal.fire("Success", "OTP sent successfully!", "success");
+        Swal.fire(
+          "Success",
+          "Verification code sent via Cegano Technology.Enter the OTP to continue.",
+          "success"
+        );
       } else {
         setPhoneVerificationState((prev) => ({ ...prev, loading: false }));
         Swal.fire("Error", res?.msg || "Failed to send OTP", "error");
@@ -276,6 +287,7 @@ const Registration = () => {
           placeholder="Enter 10-digit phone number"
           maxLength="10"
           autoComplete="tel"
+           disabled={phoneVerificationState.isVerified} 
         />
 
         {/* {phoneVerificationState.showVerifyButton &&
@@ -421,14 +433,14 @@ const Registration = () => {
       name: "category",
       label: "Category*",
       type: "select",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       options: categoryData,
     },
     {
       name: "otherCategory",
       label: "Category Name*",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       showWhen: (values) => {
         const selected = categoryData?.find(
           (cat) => cat.value === values.category
@@ -439,7 +451,7 @@ const Registration = () => {
     },
     {
       name: "longDesc",
-      label: "Full Description*",
+      label: "Description*",
       type: "textarea",
       colClass: "col-12 mb-3",
     },
@@ -460,46 +472,83 @@ const Registration = () => {
       name: "facebook_link",
       label: "Facebook Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
     },
     {
       name: "instagram_link",
       label: "Instagram Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
     },
     {
       name: "twitter_link",
       label: "Twitter Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
     },
     {
       name: "linkedin_link",
       label: "LinkedIn Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
     },
     {
       name: "youtube_link",
       label: "YouTube Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
     },
     {
       name: "website_link",
       label: "Website Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
     },
     {
       name: "image",
-      label: "Image",
+      label: (
+        <>
+          Image{" "}<i
+            className="ri-eye-fill"
+            style={{
+              marginLeft: "8px",
+              marginRight:"8px",
+              cursor: "pointer",
+              color: "#2278b6",
+              fontSize: "18px",
+            }}
+            onClick={() =>
+              Swal.fire({
+                title: "Image Upload Guidelines",
+                html: `
+              <div style="text-align:left; font-size:15px;">
+                ✅ Upload only clear & good quality image<br/><br/>
+                ✅ Preferred size: <b>736 × 400 px</b><br/><br/>
+                ✅ Supported formats: <b>.jpg, .jpeg, .png</b><br/><br/>
+                ✅ File size: <b>Max 5 MB</b><br/><br/>
+                ✅ Make sure your profile image is clearly visible<br/><br/>
+                🚫 Blur, low-quality, pixelated, or stretched images may not look clear on your profile. For best results, upload a sharp and proper-sized image.<br/><br/>
+                ⚠️ Irrelevant or offensive images are not allowed
+              </div>
+            `,
+                icon: "info",
+                confirmButtonText: "Got it!",
+                width: 600,
+              })
+            }
+          ></i>
+          <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
+            (Image size should be 736x400 for better experience)
+          </span>
+          
+        </>
+      ),
       type: "file",
       colClass: "col-md-6 mb-3",
       accept: "image/*",
       multiple: false,
     },
+
     {
       name: "terms",
       label: (
@@ -757,7 +806,7 @@ const Registration = () => {
           "Registration successful! Login details have been sent to your mail/phone via Cegano Technology.",
           "success"
         ).then(() => {
-           navigate("/");;
+          navigate("/");
         });
       } else {
         Swal.fire(

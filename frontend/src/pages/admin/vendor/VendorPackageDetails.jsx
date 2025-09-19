@@ -5,7 +5,7 @@ import {
   ExtendPackage,
 } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation,useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 
@@ -22,6 +22,7 @@ export default function VendorPackageDetails() {
   const [latestPackageId, setLatestPackageId] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
   const [extensionHistory, setExtensionHistory] = useState([]);
+  const navigate = useNavigate();
 
   const [historyPage, setHistoryPage] = useState(1);
   const [historyPerPage, setHistoryPerPage] = useState(5);
@@ -237,7 +238,7 @@ export default function VendorPackageDetails() {
         row.payment_status === "pending" ? "-" : formatDate(row.end_date),
     },
 
-    { name: "Amount", selector: (row) => `₹${row?.Package?.price || "0"}` },
+    { name: "Amount", selector: (row) => `₹${row?.amount || "0"}` },
     { name: "Payment Status", selector: (row) => row?.payment_status || "N/A" },
  {
   name: "Status",
@@ -347,9 +348,12 @@ export default function VendorPackageDetails() {
       <div className="row align-items-center mb-4">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/admin/dashboard" className="me-2">
-              <i className="fa fa-arrow-left"></i>
-            </Link>
+            <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </button>
             <h5 className="add-page-heading mb-0">Vendor Packages</h5>
           </div>
         </div>

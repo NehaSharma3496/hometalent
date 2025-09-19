@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getVendorPackageHistory } from "../../../Services/vendor/Vendor";
 import { GetExtendPackageHistory } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 
@@ -17,6 +17,7 @@ export default function MyPackages() {
   const [totalRows, setTotalRows] = useState(0);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
   const vendorId = localStorage.getItem("userId");
@@ -147,7 +148,7 @@ export default function MyPackages() {
     },
     {
       name: "Amount",
-      selector: (row) => `₹${row?.Package?.price || "-"}`,
+      selector: (row) => `₹${row?.amount || "-"}`,
     },
     {
       name: "Payment Status",
@@ -249,9 +250,12 @@ export default function MyPackages() {
         {/* Left side: Back + Heading */}
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/vendor/dashboard">
+            <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
+            </button>
             <h2 className="add-page-heading">My Packages</h2>
           </div>
         </div>

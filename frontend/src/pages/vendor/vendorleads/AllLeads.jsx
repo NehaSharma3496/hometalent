@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { GetAllVendorLeads } from "../../../Services/vendor/Vendor";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
@@ -13,6 +13,7 @@ export default function AllLeads() {
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
   const [allLeads, setAllLeads] = useState([]);
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -219,9 +220,12 @@ export default function AllLeads() {
         {/* Left side: Back + Heading */}
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/vendor/dashboard">
+            <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
+            </button>
             <h2 className="add-page-heading">All Leads</h2>
           </div>
         </div>

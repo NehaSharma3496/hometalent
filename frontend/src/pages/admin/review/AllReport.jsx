@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import Datatable from "react-data-table-component";
 import { GetReport } from "../../../Services/webService/Web";
 import { Modal, Button } from "react-bootstrap";
@@ -10,6 +10,7 @@ export default function AllReport() {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [fullText, setFullText] = useState("");
+  const navigate = useNavigate();
 
   const handleReadMore = (text) => {
     setFullText(text);
@@ -72,9 +73,12 @@ export default function AllReport() {
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <Link to="/admin/dashboard">
+             <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
+            </button>
             <h2 className="add-page-heading">All Report</h2>
           </div>
         </div>

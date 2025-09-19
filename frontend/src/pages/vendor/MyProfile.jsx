@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import { GetVendorDetails, GetCategories } from "../../Services/vendor/Vendor";
 
 export default function MyProfile() {
@@ -8,6 +8,7 @@ export default function MyProfile() {
   const token = localStorage.getItem("token");
   const vendorId = localStorage.getItem("userId");
   const [showImage, setShowImage] = useState(false);
+  const navigate = useNavigate();
 
   const fetchVendor = async () => {
     try {
@@ -38,7 +39,10 @@ export default function MyProfile() {
 
   if (!vendor) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "60vh" }}
+      >
         <div className="text-center">
           <div className="spinner-border text-primary mb-3" role="status">
             <span className="visually-hidden">Loading...</span>
@@ -62,9 +66,21 @@ export default function MyProfile() {
     { label: "Email", value: vendor.email, icon: "fas fa-envelope" },
     { label: "Phone", value: vendor.phone, icon: "fas fa-phone" },
     { label: "Price Range", value: vendor.price_range, icon: "fas fa-inr" },
-    { label: "Experience Since", value: vendor.experience_since, icon: "fas fa-calendar-alt" },
-    { label: "Pin Code", value: vendor.pin_code, icon: "fas fa-map-marker-alt" },
-    { label: "Category Name", value: vendor.category_name, icon: "fas fa-tags" },
+    {
+      label: "Experience Since",
+      value: vendor.experience_since,
+      icon: "fas fa-calendar-alt",
+    },
+    {
+      label: "Pin Code",
+      value: vendor.pin_code,
+      icon: "fas fa-map-marker-alt",
+    },
+    {
+      label: "Category Name",
+      value: vendor.category_name,
+      icon: "fas fa-tags",
+    },
     { label: "State", value: vendor.State?.name, icon: "fas fa-map" },
     { label: "City", value: vendor.City?.name, icon: "fas fa-city" },
   ];
@@ -74,9 +90,12 @@ export default function MyProfile() {
       <div className="row align-items-center mb-1">
         <div className="col-md-6 mb-2">
           <div className="add-page-heading-div">
-            <Link to="/vendor/dashboard" className="me-2">
+            <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </Link>
+            </button>
             <h5 className="add-page-heading mb-0">My Profile</h5>
           </div>
         </div>
@@ -96,7 +115,11 @@ export default function MyProfile() {
                   src={vendor.image || "/no-image.png"}
                   alt="Vendor"
                   className="rounded-circle border border-3 border-white shadow"
-                  style={{ width: "100px", height: "100px", objectFit: "cover" }}
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                  }}
                   onClick={() => setShowImage(true)}
                 />
               </div>
@@ -104,17 +127,54 @@ export default function MyProfile() {
             <div className="col">
               <h3 className="mb-2 fs-4 fw-bold">{vendor.owner_name}</h3>
               <div className="d-flex align-items-center gap-3 mb-2">
-                {vendor.profile_name && <span className="badge bg-primary">{vendor.profile_name}</span>}
+                {(vendor.profile_name || vendor.owner_name) && (
+                  <span className="badge bg-primary">
+                    {vendor.profile_name || vendor.owner_name}
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
           {/* Right side buttons */}
-          <div className="position-absolute top-0 end-0 p-3 d-flex flex-column gap-2">
-            <Link to="/vendor/mypackages" className="btn btn-outline-primary btn-sm shadow-sm">
+          {/* <div className="position-absolute top-0 end-0 p-3 d-flex flex-column gap-2">
+            <Link
+              to="/vendor/mypackages"
+              className="btn btn-outline-primary btn-sm shadow-sm"
+            >
               <i className="fas fa-box-open me-1"></i> My Packages
             </Link>
+          </div> */}
+
+ <div className="position-absolute top-0 end-0 p-3 d-flex flex-column gap-2">
+            <Link
+              to="/vendor/mypackages"
+              className="btn btn-outline-primary btn-sm shadow-sm"
+              state={{ vendorId: vendorId }}
+            >
+              <i className="fas fa-box-open me-1"></i>
+              My Packages
+            </Link>
+
+            <Link
+              to={`/vendor/gallery`}
+              className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
+            >
+              <i className="fas fa-images"></i>
+              <span>Gallery</span>
+            </Link>
+
+            <Link
+              to={`/vendor/leads/all`}
+              className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
+              state={{ vendorId: vendorId }}
+            >
+              <i className="fas fa-user-friends"></i>
+              <span>Leads</span>
+            </Link>
           </div>
+
+
         </div>
 
         <div className="card-body p-4">
@@ -152,7 +212,7 @@ export default function MyProfile() {
               <div className="row">
                 <div className="col-md-6 mb-3">
                   <div className="bg-light p-4 rounded-3 h-100">
-                    <h6 className="text-primary mb-2 fs-6">Long Description</h6>
+                    <h6 className="text-primary mb-2 fs-6"> Description</h6>
                     <p className="mb-0 lh-lg">{vendor.long_description}</p>
                   </div>
                 </div>
@@ -162,12 +222,16 @@ export default function MyProfile() {
 
           {/* Social Media Links */}
           <div className="mt-4">
-            <h5 className="mb-4 d-flex align-items-center fs-6">Social Media & Links</h5>
+            <h5 className="mb-4 d-flex align-items-center fs-6">
+              Social Media & Links
+            </h5>
             <div className="d-flex flex-wrap gap-3">
               {socialLinks?.map(({ key, icon, color }) => {
                 const link = vendor[key];
                 if (!link) return null;
-                const fullUrl = link.startsWith("http") ? link : `https://${link}`;
+                const fullUrl = link.startsWith("http")
+                  ? link
+                  : `https://${link}`;
                 return (
                   <a
                     key={key}
@@ -208,7 +272,10 @@ export default function MyProfile() {
             style={{ display: "block", backgroundColor: "rgba(0,0,0,0.8)" }}
             onClick={() => setShowImage(false)}
           >
-            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+            <div
+              className="d-flex justify-content-center align-items-center"
+              style={{ minHeight: "100vh" }}
+            >
               <div
                 className="card rounded-pill shadow-lg border-0 overflow-hidden"
                 style={{ maxWidth: "600px", width: "90%", background: "#fff" }}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReusableForm from "../../../extracomponents/ReusableForm";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link ,useNavigate} from "react-router-dom";
 import {
   SubmitProfileUpdateRequest,
   GetCities,
@@ -18,6 +18,7 @@ export default function UpdateVendor() {
   const [selectedStateId, setSelectedStateId] = useState("");
   const [initialValues, setInitialValues] = useState(null);
   const [cityTouched, setCityTouched] = useState(false);
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
   const location = useLocation();
@@ -26,16 +27,22 @@ export default function UpdateVendor() {
   // Enhanced validation schema with all fields
   const validationSchema = Yup.object().shape({
     owner_name: Yup.string()
-      .required("Profile Name is required")
+      .required("Owner Name is required")
+      .min(2, "Owner Name must be at least 2 characters")
+      .max(50, "Owner Name must not exceed 50 characters")
+     .matches(
+        /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+        "Only alphabets are allowed"
+      ),
+
+    profile_name: Yup.string()
+      
       .min(2, "Profile Name must be at least 2 characters")
       .max(50, "Profile Name must not exceed 50 characters")
-      .matches(/^[a-zA-Z\s]+$/, "Profile Name can only contain letters and spaces"),
-
-    // profile_name: Yup.string()
-    //   .required("Owner Name is required")
-    //   .min(2, "Owner Name must be at least 2 characters")
-    //   .max(50, "Owner Name must not exceed 50 characters")
-    //   .matches(/^[a-zA-Z\s]+$/, "Owner Name can only contain letters and spaces"),
+       .matches(
+        /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+        "Only alphabets are allowed"
+      ),
 
     phone: Yup.string()
       .required("Phone number is required")
@@ -150,21 +157,21 @@ export default function UpdateVendor() {
   const fields = [
     {
       name: "owner_name",
-      label: "Profile Name",
+      label: "Owner Name*",
       type: "text",
       colClass: "col-md-4 mb-3",
       required: true,
     },
     {
       name: "profile_name",
-      label: "Owner Name",
+      label: "Profile Name",
       type: "text",
       colClass: "col-md-4 mb-3",
       required: true,
     },
     { 
       name: "phone", 
-      label: "Phone", 
+      label: "Phone*", 
       type: "text", 
       colClass: "col-md-4 mb-3",
       required: true,
@@ -172,14 +179,14 @@ export default function UpdateVendor() {
     },
     { 
       name: "email", 
-      label: "Email", 
+      label: "Email*", 
       type: "email", 
       colClass: "col-md-4 mb-3",
       required: true,
     },
     {
       name: "state_id",
-      label: "State",
+      label: "State*",
       type: "select",
       options: statesData,
       // when state changes: update selectedStateId (to fetch cities) AND reset cityTouched
@@ -192,7 +199,7 @@ export default function UpdateVendor() {
     },
     {
       name: "city_id",
-      label: "City",
+      label: "City*",
       type: "select",
       options: cityData,
       // when user actively changes city -> mark as touched
@@ -202,23 +209,15 @@ export default function UpdateVendor() {
     },
     {
       name: "pin_code",
-      label: "Pin Code",
+      label: "Pin Code*",
       type: "text",
       colClass: "col-md-4 mb-3",
       required: true,
       placeholder: "Enter 6-digit pin code"
     },
     {
-      name: "price_range",
-      label: "Price Range",
-      type: "text",
-      colClass: "col-md-4 mb-3",
-      required: true,
-      placeholder: ""
-    },
-    {
       name: "category_id",
-      label: "Category",
+      label: "Category*",
       type: "select",
       options: categoryData,
       colClass: "col-md-4 mb-3",
@@ -228,7 +227,7 @@ export default function UpdateVendor() {
       name: "other_category",
       label: "Category Name*",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       showWhen: (values) => {
         const selected = categoryData?.find(
           (cat) => cat.value === values.category_id
@@ -237,6 +236,23 @@ export default function UpdateVendor() {
       },
       placeholder: "",
       required: true, // This will be conditionally required via Yup validation
+    },
+    
+    {
+      name: "long_description",
+      label: "Description*",
+      type: "textarea",
+      colClass: "col-12 mb-3",
+      required: true,
+      placeholder: "Describe your services in detail (minimum 50 characters)"
+    },
+     {
+      name: "price_range",
+      label: "Price Range",
+      type: "text",
+      colClass: "col-md-4 mb-3",
+      required: true,
+      placeholder: ""
     },
     {
       name: "experience_since",
@@ -247,62 +263,91 @@ export default function UpdateVendor() {
       placeholder: ""
     },
     {
-      name: "long_description",
-      label: "Long Description",
-      type: "textarea",
-      colClass: "col-12 mb-3",
-      required: true,
-      placeholder: "Describe your services in detail (minimum 50 characters)"
-    },
-    {
       name: "facebook_link",
       label: "Facebook Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       // placeholder: "https://facebook.com/yourpage"
     },
     {
       name: "instagram_link",
       label: "Instagram Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       // placeholder: "https://instagram.com/youraccount"
     },
     {
       name: "twitter_link",
       label: "Twitter Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       // placeholder: "https://twitter.com/youraccount"
     },
     {
       name: "linkedin_link",
       label: "LinkedIn Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       // placeholder: "https://linkedin.com/in/yourprofile"
     },
     {
       name: "youtube_link",
       label: "YouTube Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       // placeholder: "https://youtube.com/yourchannel"
     },
     {
       name: "website_link",
       label: "Website Link",
       type: "text",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-4",
       // placeholder: "https://yourwebsite.com"
     },
-    {
-      name: "image",
-      label: "Profile Image",
-      type: "file",
-      colClass: "col-md-6 mb-3",
-      accept: "image/*",
-    },
+   {
+         name: "image",
+         label: (
+           <>
+             Image{" "}<i
+               className="ri-eye-fill"
+               style={{
+                 marginLeft: "8px",
+                 marginRight:"8px",
+                 cursor: "pointer",
+                 color: "#2278b6",
+                 fontSize: "18px",
+               }}
+               onClick={() =>
+                 Swal.fire({
+                   title: "Image Upload Guidelines",
+                   html: `
+                 <div style="text-align:left; font-size:15px;">
+                   ✅ Upload only clear & good quality image<br/><br/>
+                   ✅ Preferred size: <b>736 × 400 px</b><br/><br/>
+                   ✅ Supported formats: <b>.jpg, .jpeg, .png</b><br/><br/>
+                   ✅ File size: <b>Max 5 MB</b><br/><br/>
+                   ✅ Make sure your profile image is clearly visible<br/><br/>
+                   🚫 Blur, low-quality, pixelated, or stretched images may not look clear on your profile. For best results, upload a sharp and proper-sized image.<br/><br/>
+                   ⚠️ Irrelevant or offensive images are not allowed
+                 </div>
+               `,
+                   icon: "info",
+                   confirmButtonText: "Got it!",
+                   width: 600,
+                 })
+               }
+             ></i>
+             <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
+               (Image size should be 736x400 for better experience)
+             </span>
+             
+           </>
+         ),
+         type: "file",
+         colClass: "col-md-6 mb-3",
+         accept: "image/*",
+         multiple: false,
+       },
   ];
 
   const onSubmit = async (values) => {
@@ -476,9 +521,12 @@ export default function UpdateVendor() {
   return (
     <div className="page-content container-fluid">
       <div className="add-page-heading-div mb-3 d-flex align-items-center gap-2">
-        <Link to="/admin/dashboard">
-          <i className="fa-sharp fa-regular fa-arrow-left"></i>
-        </Link>
+       <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </button>
         <h2 className="add-page-heading mb-0">Request Profile Update</h2>
       </div>
       <div className="card">

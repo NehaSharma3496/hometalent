@@ -182,9 +182,12 @@ export default function UpdatePackages() {
   return (
     <div className="page-content">
       <div className="add-page-heading-div mb-4">
-        <Link to="/admin/dashboard">
-          <i className="fa-sharp fa-regular fa-arrow-left"></i>
-        </Link>
+        <button
+              className="btn btn-link p-0"
+              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+            >
+              <i className="fa-sharp fa-regular fa-arrow-left"></i>
+            </button>
         <h2 className="add-page-heading">Update Package</h2>
       </div>
       <div className="card">
