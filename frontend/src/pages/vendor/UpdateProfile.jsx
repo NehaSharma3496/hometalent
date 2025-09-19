@@ -165,7 +165,7 @@ export default function UpdateProfile() {
       colClass: "col-md-4 ",
       required: true,
       placeholder: "Enter 10-digit mobile number",
-       disabled: true,
+      disabled: true,
     },
     {
       name: "email",
@@ -173,7 +173,7 @@ export default function UpdateProfile() {
       type: "email",
       colClass: "col-md-4 ",
       required: true,
-       disabled: true,
+      disabled: true,
     },
     {
       name: "state_id",
@@ -226,7 +226,7 @@ export default function UpdateProfile() {
       placeholder: "",
       required: true, // This will be conditionally required via Yup validation
     },
-   
+
     {
       name: "long_description",
       label: "Description",
@@ -235,7 +235,7 @@ export default function UpdateProfile() {
       required: true,
       // placeholder: "Describe your services in detail (minimum 50 characters)"
     },
-     {
+    {
       name: "price_range",
       label: "Price Range",
       type: "text",
@@ -292,50 +292,63 @@ export default function UpdateProfile() {
       colClass: "col-md-4",
       // placeholder: "https://yourwebsite.com"
     },
-   {
-         name: "image",
-         label: (
-           <>
-             Image{" "}<i
-               className="ri-eye-fill"
-               style={{
-                 marginLeft: "8px",
-                 marginRight:"8px",
-                 cursor: "pointer",
-                 color: "#2278b6",
-                 fontSize: "18px",
-               }}
-               onClick={() =>
-                 Swal.fire({
-                   title: "Image Upload Guidelines",
-                   html: `
-                 <div style="text-align:left; font-size:15px;">
-                   ✅ Upload only clear & good quality image<br/><br/>
-                   ✅ Preferred size: <b>736 × 400 px</b><br/><br/>
-                   ✅ Supported formats: <b>.jpg, .jpeg, .png</b><br/><br/>
-                   ✅ File size: <b>Max 5 MB</b><br/><br/>
-                   ✅ Make sure your profile image is clearly visible<br/><br/>
-                   🚫 Blur, low-quality, pixelated, or stretched images may not look clear on your profile. For best results, upload a sharp and proper-sized image.<br/><br/>
-                   ⚠️ Irrelevant or offensive images are not allowed
-                 </div>
-               `,
-                   icon: "info",
-                   confirmButtonText: "Got it!",
-                   width: 600,
-                 })
-               }
-             ></i>
-             <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
-               (Image size should be 736x400 for better experience)
-             </span>
-             
-           </>
-         ),
-         type: "file",
-         colClass: "col-md-6 mb-3",
-         accept: "image/*",
-         multiple: false,
-       },
+    {
+      name: "image",
+      label: (
+        <>
+          Image{" "}<i
+            className="ri-eye-fill"
+            style={{
+              marginLeft: "8px",
+              marginRight: "8px",
+              cursor: "pointer",
+              color: "#2278b6",
+              fontSize: "18px",
+            }}
+            onClick={() =>
+              Swal.fire({
+                title: "Image Upload Guidelines",
+                html: `
+    <div style="text-align:left; font-size:15px;">
+      ✅ Upload only clear & good quality image<br/><br/>
+      ✅ Preferred size: <b>736 × 400 px</b><br/><br/>
+      ✅ Supported formats: <b>.jpg, .jpeg, .png</b><br/><br/>
+      ✅ File size: <b>Max 5 MB</b><br/><br/>
+      ✅ Make sure your profile image is clearly visible<br/><br/>
+      🚫 Blur, low-quality, pixelated, or stretched images may not look clear on your profile. For best results, upload a sharp and proper-sized image.<br/><br/>
+      ⚠️ Irrelevant or offensive images are not allowed
+    </div>
+  `,
+                // icon: "info",
+                confirmButtonText: "Got it!",
+                width: 400,
+                customClass: {
+                  popup: "custom-swal-popup"
+                },
+                didOpen: () => {
+
+                  document.documentElement.style.overflow = "hidden";
+                  document.body.style.overflow = "hidden";
+                },
+                willClose: () => {
+
+                  document.documentElement.style.overflow = "";
+                  document.body.style.overflow = "";
+                }
+              })
+            }
+          ></i>
+          <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
+            (Image size should be 736x400 for better experience)
+          </span>
+
+        </>
+      ),
+      type: "file",
+      colClass: "col-md-6 mb-3",
+      accept: "image/*",
+      multiple: false,
+    },
   ];
 
   const onSubmit = async (values) => {
