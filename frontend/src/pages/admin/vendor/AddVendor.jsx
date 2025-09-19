@@ -225,9 +225,8 @@ export default function AddVendor() {
       <div className="input-group mb-2">
         <input
           type="text"
-          className={`form-control ${
-            touched.phone && errors.phone ? "is-invalid" : ""
-          }`}
+          className={`form-control ${touched.phone && errors.phone ? "is-invalid" : ""
+            }`}
           value={values.phone || ""}
           onChange={(e) =>
             handlePhoneInput(e, setFieldValue, setFieldTouched, touched)
@@ -235,7 +234,7 @@ export default function AddVendor() {
           placeholder="Enter 10-digit phone number"
           maxLength="10"
           autoComplete="tel"
-           disabled={phoneVerificationState.isVerified} 
+          disabled={phoneVerificationState.isVerified}
         />
         {/* {phoneVerificationState.showVerifyButton &&
           !phoneVerificationState.isVerified && (
@@ -269,10 +268,10 @@ export default function AddVendor() {
                 {phoneVerificationState.loading
                   ? "Sending..."
                   : !isOtpSent
-                  ? "Send OTP"
-                  : otpTimer > 0
-                  ? `Resend OTP in ${otpTimer}s`
-                  : "Resend OTP"}
+                    ? "Send OTP"
+                    : otpTimer > 0
+                      ? `Resend OTP in ${otpTimer}s`
+                      : "Resend OTP"}
               </button>
             </>
           )}
@@ -449,49 +448,62 @@ export default function AddVendor() {
       colClass: "col-md-4",
     },
     {
-          name: "image",
-          label: (
-            <>
-              Image{" "}<i
-                className="ri-eye-fill"
-                style={{
-                  marginLeft: "8px",
-                  marginRight:"8px",
-                  cursor: "pointer",
-                  color: "#2278b6",
-                  fontSize: "18px",
-                }}
-                onClick={() =>
-                  Swal.fire({
-                    title: "Image Upload Guidelines",
-                    html: `
-                  <div style="text-align:left; font-size:15px;">
-                    ✅ Upload only clear & good quality image<br/><br/>
-                    ✅ Preferred size: <b>736 × 400 px</b><br/><br/>
-                    ✅ Supported formats: <b>.jpg, .jpeg, .png</b><br/><br/>
-                    ✅ File size: <b>Max 5 MB</b><br/><br/>
-                    ✅ Make sure your profile image is clearly visible<br/><br/>
-                    🚫 Blur, low-quality, pixelated, or stretched images may not look clear on your profile. For best results, upload a sharp and proper-sized image.<br/><br/>
-                    ⚠️ Irrelevant or offensive images are not allowed
-                  </div>
-                `,
-                    icon: "info",
-                    confirmButtonText: "Got it!",
-                    width: 600,
-                  })
+      name: "image",
+      label: (
+        <>
+          Image{" "}<i
+            className="ri-eye-fill"
+            style={{
+              marginLeft: "8px",
+              marginRight: "8px",
+              cursor: "pointer",
+              color: "#2278b6",
+              fontSize: "18px",
+            }}
+            onClick={() =>
+              Swal.fire({
+                title: "Image Upload Guidelines",
+                html: `
+    <div style="text-align:left; font-size:15px;">
+      ✅ Upload only clear & good quality image<br/><br/>
+      ✅ Preferred size: <b>736 × 400 px</b><br/><br/>
+      ✅ Supported formats: <b>.jpg, .jpeg, .png</b><br/><br/>
+      ✅ File size: <b>Max 5 MB</b><br/><br/>
+      ✅ Make sure your profile image is clearly visible<br/><br/>
+      🚫 Blur, low-quality, pixelated, or stretched images may not look clear on your profile. For best results, upload a sharp and proper-sized image.<br/><br/>
+      ⚠️ Irrelevant or offensive images are not allowed
+    </div>
+  `,
+                // icon: "info",
+                confirmButtonText: "Got it!",
+                width: 400,
+                customClass: {
+                  popup: "custom-swal-popup"
+                },
+                didOpen: () => {
+
+                  document.documentElement.style.overflow = "hidden";
+                  document.body.style.overflow = "hidden";
+                },
+                willClose: () => {
+
+                  document.documentElement.style.overflow = "";
+                  document.body.style.overflow = "";
                 }
-              ></i>
-              <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
-                (Image size should be 736x400 for better experience)
-              </span>
-              
-            </>
-          ),
-          type: "file",
-          colClass: "col-md-6 mb-3",
-          accept: "image/*",
-          multiple: false,
-        },
+              })
+            }
+          ></i>
+          <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
+            (Image size should be 736x400 for better experience)
+          </span>
+
+        </>
+      ),
+      type: "file",
+      colClass: "col-md-6 mb-3",
+      accept: "image/*",
+      multiple: false,
+    },
     {
       name: "terms",
       label: (
@@ -656,7 +668,7 @@ export default function AddVendor() {
         </button>
         <h2 className="add-page-heading">Add Vendor</h2>
       </div>
-      <div className="card card1">
+      <div className="card ">
         <ReusableForm
           initialValues={initialValues}
           validationSchema={validationSchema}
