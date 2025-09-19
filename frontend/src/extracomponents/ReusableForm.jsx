@@ -119,6 +119,7 @@ const renderField = (field, formikProps, values) => {
           className="form-control contact-input"
           id={field.name}
           placeholder={field.placeholder}
+           disabled={field.disabled}
         />
       );
 
@@ -151,6 +152,7 @@ const renderField = (field, formikProps, values) => {
                   field.multiple !== false ? files : files[0]
                 );
               }}
+               disabled={field.disabled}
             />
           )}
         </Field>
@@ -186,6 +188,7 @@ const renderField = (field, formikProps, values) => {
                   field.onChange(e, form.setFieldValue);
                 }
               }}
+               disabled={field.disabled}
             />
           )}
         </Field>

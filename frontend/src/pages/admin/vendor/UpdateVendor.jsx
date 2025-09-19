@@ -304,18 +304,15 @@ export default function UpdateVendor() {
       colClass: "col-md-4",
       // placeholder: "https://yourwebsite.com"
     },
-    {
+   {
          name: "image",
          label: (
            <>
-             Image{" "}
-             <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
-               (Image size should be 736x400 for better experience)
-             </span>
-             <i
+             Image{" "}<i
                className="ri-eye-fill"
                style={{
                  marginLeft: "8px",
+                 marginRight:"8px",
                  cursor: "pointer",
                  color: "#2278b6",
                  fontSize: "18px",
@@ -331,7 +328,7 @@ export default function UpdateVendor() {
                    ✅ File size: <b>Max 5 MB</b><br/><br/>
                    ✅ Make sure your profile image is clearly visible<br/><br/>
                    🚫 Blur, low-quality, pixelated, or stretched images may not look clear on your profile. For best results, upload a sharp and proper-sized image.<br/><br/>
-                   ⚠ Irrelevant or offensive images are not allowed
+                   ⚠️ Irrelevant or offensive images are not allowed
                  </div>
                `,
                    icon: "info",
@@ -340,6 +337,10 @@ export default function UpdateVendor() {
                  })
                }
              ></i>
+             <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
+               (Image size should be 736x400 for better experience)
+             </span>
+             
            </>
          ),
          type: "file",

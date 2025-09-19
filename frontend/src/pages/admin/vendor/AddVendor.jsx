@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReusableForm from "../../../extracomponents/ReusableForm";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-import { Link,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   VendorRegister,
   GetCategories,
@@ -12,7 +12,7 @@ import {
 import { VerifyOtp } from "../../../Services/webService/Web";
 
 export default function AddVendor() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [categoryData, setCategoryData] = useState([]);
   const [statesData, setStatesData] = useState([]);
@@ -76,45 +76,41 @@ export default function AddVendor() {
     return () => clearInterval(interval);
   }, [otpTimer]);
 
-const validationSchema = Yup.object({
-  ownerName: Yup.string()
-    .matches(
-      /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
-      "Only alphabets  are allowed "
-    )
-    .required("Owner Name is required"),
+  const validationSchema = Yup.object({
+    ownerName: Yup.string()
+      .matches(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, "Only alphabets  are allowed ")
+      .required("Owner Name is required"),
 
-  profileName: Yup.string()
-    .matches(
+    profileName: Yup.string().matches(
       /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
       "Only alphabets are allowed "
     ),
-    
 
-  state: Yup.string().required("State is required"),
-  city: Yup.string().required("City is required"),
-  pin: Yup.string()
-    .matches(/^\d{6}$/, "Pin code must be exactly 6 digits")
-    .required("Pin Code is required"),
-  phone: Yup.string()
-    .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
-    .required("Phone No is required"),
-  isPhoneVerified: Yup.boolean().oneOf([true], "Phone number must be verified"),
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  category: Yup.string().required("Category is required"),
-  otherCategory: Yup.string().when("category", {
-    is: (val) => {
-      const selected = categoryData?.find((cat) => cat.value === val);
-      return selected?.label?.toLowerCase() === "other";
-    },
-    then: (schema) => schema.required("Please enter category name"),
-    otherwise: (schema) => schema.notRequired(),
-  }),
-  terms: Yup.boolean().oneOf([true], "You must accept terms"),
-  longDesc: Yup.string().required("Description is required"),
-});
-
-
+    state: Yup.string().required("State is required"),
+    city: Yup.string().required("City is required"),
+    pin: Yup.string()
+      .matches(/^\d{6}$/, "Pin code must be exactly 6 digits")
+      .required("Pin Code is required"),
+    phone: Yup.string()
+      .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
+      .required("Phone No is required"),
+    isPhoneVerified: Yup.boolean().oneOf(
+      [true],
+      "Phone number must be verified"
+    ),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    category: Yup.string().required("Category is required"),
+    otherCategory: Yup.string().when("category", {
+      is: (val) => {
+        const selected = categoryData?.find((cat) => cat.value === val);
+        return selected?.label?.toLowerCase() === "other";
+      },
+      then: (schema) => schema.required("Please enter category name"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    terms: Yup.boolean().oneOf([true], "You must accept terms"),
+    longDesc: Yup.string().required("Description is required"),
+  });
 
   const handlePhoneInput = (e, setFieldValue, setFieldTouched, touched) => {
     const inputValue = e.target.value;
@@ -167,7 +163,11 @@ const validationSchema = Yup.object({
           isVerified: false,
         }));
         setOtpTimer(60); // start 1 minute countdown
-        Swal.fire("Success", "Verification code sent via Cegano Technology.Enter the OTP to continue.", "success");
+        Swal.fire(
+          "Success",
+          "Verification code sent via Cegano Technology.Enter the OTP to continue.",
+          "success"
+        );
       } else {
         setPhoneVerificationState((prev) => ({ ...prev, loading: false }));
         Swal.fire("Error", res?.msg || "Failed to send OTP", "error");
@@ -235,6 +235,7 @@ const validationSchema = Yup.object({
           placeholder="Enter 10-digit phone number"
           maxLength="10"
           autoComplete="tel"
+           disabled={phoneVerificationState.isVerified} 
         />
         {/* {phoneVerificationState.showVerifyButton &&
           !phoneVerificationState.isVerified && (
@@ -255,7 +256,7 @@ const validationSchema = Yup.object({
             </button>
           )} */}
 
- {phoneVerificationState.showVerifyButton &&
+        {phoneVerificationState.showVerifyButton &&
           !phoneVerificationState.isVerified && (
             <>
               <button
@@ -275,9 +276,8 @@ const validationSchema = Yup.object({
               </button>
             </>
           )}
-
       </div>
-       {phoneVerificationState.showOtpInput && (
+      {phoneVerificationState.showOtpInput && (
         <div className="input-group mb-2">
           <input
             type="text"
@@ -307,7 +307,7 @@ const validationSchema = Yup.object({
       {touched.phone && errors.phone && (
         <div className="text-danger small mt-1">{errors.phone}</div>
       )}
-       {!phoneVerificationState.isVerified &&
+      {!phoneVerificationState.isVerified &&
         values.phone &&
         values.phone.length === 10 &&
         !errors.phone && (
@@ -387,7 +387,7 @@ const validationSchema = Yup.object({
       },
       placeholder: "Enter category name",
     },
-   
+
     // {
     //   name: "shortDesc",
     //   label: "Short Description",
@@ -400,7 +400,7 @@ const validationSchema = Yup.object({
       type: "textarea",
       colClass: "col-md-12",
     },
-       {
+    {
       name: "priceRange",
       label: "Price Range",
       type: "text",
@@ -449,48 +449,49 @@ const validationSchema = Yup.object({
       colClass: "col-md-4",
     },
     {
-         name: "image",
-         label: (
-           <>
-             Image{" "}
-             <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
-               (Image size should be 736x400 for better experience)
-             </span>
-             <i
-               className="ri-eye-fill"
-               style={{
-                 marginLeft: "8px",
-                 cursor: "pointer",
-                 color: "#2278b6",
-                 fontSize: "18px",
-               }}
-               onClick={() =>
-                 Swal.fire({
-                   title: "Image Upload Guidelines",
-                   html: `
-                 <div style="text-align:left; font-size:15px;">
-                   ✅ Upload only clear & good quality image<br/><br/>
-                   ✅ Preferred size: <b>736 × 400 px</b> (minimum)<br/><br/>
-                   ✅ Supported formats: <b>.jpg, .jpeg, .png</b><br/><br/>
-                   ✅ File size: <b>Max 5 MB</b><br/><br/>
-                   ✅ Make sure your profile image is clearly visible<br/><br/>
-                   🚫 Blur, low-quality, pixelated, or stretched images may not look clear on your profile. For best results, upload a sharp and proper-sized image.<br/><br/>
-                   ⚠ Irrelevant or offensive images are not allowed
-                 </div>
-               `,
-                   icon: "info",
-                   confirmButtonText: "Got it!",
-                   width: 600,
-                 })
-               }
-             ></i>
-           </>
-         ),
-         type: "file",
-         colClass: "col-md-6 mb-3",
-         accept: "image/*",
-         multiple: false,
-       },
+          name: "image",
+          label: (
+            <>
+              Image{" "}<i
+                className="ri-eye-fill"
+                style={{
+                  marginLeft: "8px",
+                  marginRight:"8px",
+                  cursor: "pointer",
+                  color: "#2278b6",
+                  fontSize: "18px",
+                }}
+                onClick={() =>
+                  Swal.fire({
+                    title: "Image Upload Guidelines",
+                    html: `
+                  <div style="text-align:left; font-size:15px;">
+                    ✅ Upload only clear & good quality image<br/><br/>
+                    ✅ Preferred size: <b>736 × 400 px</b> (minimum)<br/><br/>
+                    ✅ Supported formats: <b>.jpg, .jpeg, .png</b><br/><br/>
+                    ✅ File size: <b>Max 5 MB</b><br/><br/>
+                    ✅ Make sure your profile image is clearly visible<br/><br/>
+                    🚫 Blur, low-quality, pixelated, or stretched images may not look clear on your profile. For best results, upload a sharp and proper-sized image.<br/><br/>
+                    ⚠️ Irrelevant or offensive images are not allowed
+                  </div>
+                `,
+                    icon: "info",
+                    confirmButtonText: "Got it!",
+                    width: 600,
+                  })
+                }
+              ></i>
+              <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
+                (Image size should be 736x400 for better experience)
+              </span>
+              
+            </>
+          ),
+          type: "file",
+          colClass: "col-md-6 mb-3",
+          accept: "image/*",
+          multiple: false,
+        },
     {
       name: "terms",
       label: (
@@ -577,7 +578,7 @@ const validationSchema = Yup.object({
       if (res?.data?.status) {
         Swal.fire(
           "Success",
-       " Registration successful! Login details have been sent to your mail/phone via Cegano Technology.",
+          " Registration successful! Login details have been sent to your mail/phone via Cegano Technology.",
           "success"
         ).then(() => {
           window.location.reload();
@@ -648,11 +649,11 @@ const validationSchema = Yup.object({
     <div className="page-content">
       <div className="add-page-heading-div mb-4">
         <button
-              className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
-            >
-              <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </button>
+          className="btn btn-link p-0"
+          onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
+        >
+          <i className="fa-sharp fa-regular fa-arrow-left"></i>
+        </button>
         <h2 className="add-page-heading">Add Vendor</h2>
       </div>
       <div className="card card1">

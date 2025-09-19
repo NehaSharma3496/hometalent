@@ -287,6 +287,7 @@ const Registration = () => {
           placeholder="Enter 10-digit phone number"
           maxLength="10"
           autoComplete="tel"
+           disabled={phoneVerificationState.isVerified} 
         />
 
         {/* {phoneVerificationState.showVerifyButton &&
@@ -507,14 +508,11 @@ const Registration = () => {
       name: "image",
       label: (
         <>
-          Image{" "}
-          <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
-            (Image size should be 736x400 for better experience)
-          </span>
-          <i
+          Image{" "}<i
             className="ri-eye-fill"
             style={{
               marginLeft: "8px",
+              marginRight:"8px",
               cursor: "pointer",
               color: "#2278b6",
               fontSize: "18px",
@@ -530,7 +528,7 @@ const Registration = () => {
                 ✅ File size: <b>Max 5 MB</b><br/><br/>
                 ✅ Make sure your profile image is clearly visible<br/><br/>
                 🚫 Blur, low-quality, pixelated, or stretched images may not look clear on your profile. For best results, upload a sharp and proper-sized image.<br/><br/>
-                ⚠ Irrelevant or offensive images are not allowed
+                ⚠️ Irrelevant or offensive images are not allowed
               </div>
             `,
                 icon: "info",
@@ -539,6 +537,10 @@ const Registration = () => {
               })
             }
           ></i>
+          <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
+            (Image size should be 736x400 for better experience)
+          </span>
+          
         </>
       ),
       type: "file",
