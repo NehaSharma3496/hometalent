@@ -105,9 +105,8 @@ const Category = () => {
       : []),
     {
       label: categoryName || "Category",
-      to: `/vendors-by-category?category_id=${categoryId}${
-        cityId ? `&city_id=${cityId}` : ""
-      }`,
+      to: `/vendors-by-category?category_id=${categoryId}${cityId ? `&city_id=${cityId}` : ""
+        }`,
     },
   ];
 
@@ -215,7 +214,7 @@ const Category = () => {
                                 to="/categorydetail"
                                 state={{ vendorId: item.id }}
                               >
-                                {item.profile_name||item.owner_name}
+                                {item.profile_name || item.owner_name}
                               </Link>
                             </h4>
 
@@ -229,7 +228,7 @@ const Category = () => {
                               </div>
                             </div>
 
-                            <h1 className="area-name truncate-2-lines mb-3">
+                            <h1 className="area-name truncate-2-lines mb-3 ">
                               <Link
                                 to="/categorydetail"
                                 state={{ vendorId: item.id }}
@@ -238,8 +237,9 @@ const Category = () => {
                               </Link>
                             </h1>
 
+
                             <div className="cart-footer d-flex flex-wrap justify-content-between">
-                              <div className="d-flex gap-6 align-items-center">
+                              <div className="d-flex gap-2 align-items-center">
                                 <p className="pera">
                                   ₹{item.price_range || "Contact for price"}
                                 </p>
