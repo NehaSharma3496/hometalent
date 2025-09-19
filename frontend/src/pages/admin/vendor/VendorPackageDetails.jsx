@@ -243,15 +243,31 @@ export default function VendorPackageDetails() {
  {
   name: "Status",
   cell: (row) => {
-    if (row.payment_status !== "completed") return null; // pending/inactive skip
+    if (row.payment_status !== "completed") return null; // skip pending/inactive
 
-    return new Date(row.end_date) < new Date() ? (
-      <span style={{ color: "red" }}>Expired</span>
-    ) : (
-      <span style={{ color: "green" }}>Active</span>
-    );
+    // normalize date (remove time part)
+    const normalizeDate = (d) => {
+      const nd = new Date(d);
+      nd.setHours(0, 0, 0, 0);
+      return nd;
+    };
+
+    const today = normalizeDate(new Date());
+    const startDate = normalizeDate(row.start_date);
+    const endDate = normalizeDate(row.end_date);
+
+    if (endDate < today) {
+      return <span style={{ color: "red" }}>Expired</span>;
+    } else if (startDate > today) {
+      return <span style={{ color: "orange" }}>Upcoming</span>;
+    } else if (startDate <= today && endDate >= today) {
+      return <span style={{ color: "green" }}>Active</span>;
+    }
+
+    return null;
   },
-},
+}
+,
 
 
  {

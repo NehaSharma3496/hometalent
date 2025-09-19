@@ -158,24 +158,34 @@ export default function MyPackages() {
       name: "Payment Date",
       selector: (row) => (row?.createdAt ? formatDate(row.createdAt) : "-"),
     },
-    {
+   {
   name: "Status",
-  selector: (row) => row.status,
   cell: (row) => {
-    if (row.payment_status !== "completed") {
-      return <span style={{ color: "gray" }}>Inactive</span>;
-    }
+    if (row.payment_status !== "completed") return null; // skip pending/inactive
 
-    const today = new Date();
-    const endDate = new Date(row.end_date);
+    // normalize date (remove time part)
+    const normalizeDate = (d) => {
+      const nd = new Date(d);
+      nd.setHours(0, 0, 0, 0);
+      return nd;
+    };
 
-    if (endDate >= today) {
-      return <span style={{ color: "green" }}>Active</span>;
-    } else {
+    const today = normalizeDate(new Date());
+    const startDate = normalizeDate(row.start_date);
+    const endDate = normalizeDate(row.end_date);
+
+    if (endDate < today) {
       return <span style={{ color: "red" }}>Expired</span>;
+    } else if (startDate > today) {
+      return <span style={{ color: "orange" }}>Upcoming</span>;
+    } else if (startDate <= today && endDate >= today) {
+      return <span style={{ color: "green" }}>Active</span>;
     }
+
+    return null;
   },
-},
+}
+,
 
     {
       name: "Extended Days",

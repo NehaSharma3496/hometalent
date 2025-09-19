@@ -27,12 +27,49 @@ export default function Allvendors() {
   const [selectedPkgId, setSelectedPkgId] = useState(null);
   const [assignVendorId, setAssignVendorId] = useState(null);
   const [vendorPackageStatus, setVendorPackageStatus] = useState({});
-  const [checkpackage, setCheckpackage] = useState(false);
-  const [vendorpkgdata, setVendorpkgdata] = useState({});
   const [vendorPackageHistory, setVendorPackageHistory] = useState({});
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [packageFilter, setPackageFilter] = useState("");
+
+  // 🔹 Utility function to get package status for a vendor (Date-based, not time-based)
+  const getVendorPackageStatus = (vendorId) => {
+    const packages = vendorPackageHistory[vendorId];
+    if (!packages || !Array.isArray(packages) || packages.length === 0) {
+      return "N/A";
+    }
+
+    // Get today's date only (without time)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let hasActive = false;
+    let hasExpired = false;
+
+    packages.forEach((pkg) => {
+      if (pkg.payment_status === "completed") {
+        // Parse dates and remove time component
+        const startDate = new Date(pkg.start_date);
+        startDate.setHours(0, 0, 0, 0);
+        
+        const endDate = new Date(pkg.end_date);
+        endDate.setHours(0, 0, 0, 0);
+        
+        // Active: today >= startDate AND today <= endDate
+        if (today >= startDate && today <= endDate) {
+          hasActive = true;
+        } 
+        // Expired: today > endDate
+        else if (today > endDate) {
+          hasExpired = true;
+        }
+      }
+    });
+
+    if (hasActive) return "Active";
+    if (hasExpired) return "Expired";
+    return "N/A";
+  };
 
   const fetchVendors = async (page, limit) => {
     setLoading(true);
@@ -71,7 +108,6 @@ export default function Allvendors() {
         } else {
           break;
         }
-
         page++;
       }
 
@@ -98,17 +134,25 @@ export default function Allvendors() {
       setAssignVendorId(vendorId);
       setSelectedPkgId(null);
 
-      // Fetch package history and mark active/inactive
+      // Fetch package history and mark active/inactive for modal
       const historyRes = await getVendorPackageHistory(token, vendorId);
       let statusObj = {};
       if (historyRes.status && historyRes.data.length > 0) {
+        // Get today's date only (without time)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
         historyRes.data.forEach((pkg) => {
-          const now = new Date();
-          const start = new Date(pkg.start_date);
-          const end = new Date(pkg.end_date);
-          const isActive =
-            pkg.payment_status === "completed" && now >= start && now <= end;
-          statusObj[pkg.package_id] = isActive ? "Active" : "-";
+          if (pkg.payment_status === "completed") {
+            const startDate = new Date(pkg.start_date);
+            startDate.setHours(0, 0, 0, 0);
+            
+            const endDate = new Date(pkg.end_date);
+            endDate.setHours(0, 0, 0, 0);
+            
+            const isActive = today >= startDate && today <= endDate;
+            statusObj[pkg.package_id] = isActive ? "Active" : "-";
+          }
         });
       }
       setVendorPackageStatus(statusObj);
@@ -121,7 +165,6 @@ export default function Allvendors() {
 
   const submitAssignPackage = async () => {
     try {
-      setPkgModalOpen(false);
       if (!assignVendorId || !selectedPkgId) {
         return Swal.fire(
           "Select Package",
@@ -129,16 +172,20 @@ export default function Allvendors() {
           "warning"
         );
       }
+      
       const token = localStorage.getItem("token");
       const res = await AssignPackageToVendor(
         token,
         assignVendorId,
         selectedPkgId
       );
+      
       if (res?.status) {
         await Swal.fire("Success", res.msg || "Package assigned", "success");
         setPkgModalOpen(false);
         fetchVendors(currentPage, perPage);
+        // 🔹 Refresh package history after assignment
+        await fetchVendorPackageHistory(assignVendorId);
       } else {
         Swal.fire("Error", res?.msg || "Unable to assign package", "error");
       }
@@ -151,60 +198,49 @@ export default function Allvendors() {
     }
   };
 
-  // 🔹 Only needed for server-side pagination - removed for client-side
-  // const handlePageChange = (page) => {
-  //   setCurrentPage(page);
-  // };
-
   const handlePerRowsChange = (newPerPage) => {
     setPerPage(newPerPage);
-    // setCurrentPage(1); // Not needed for client-side pagination
   };
 
   const fetchVendorPackageHistory = async (vendorId) => {
     try {
       const token = localStorage.getItem("token");
       const res = await getVendorPackageHistory(token, vendorId);
-      setVendorpkgdata(res.data);
-      if (res.status && res.data.length > 0) {
-        let historyObj = {};
-        const now = new Date();
-
-        res.data.forEach((pkg) => {
-          const end = new Date(pkg.end_date);
-
-          // Sirf tab add karo jab active ho
-          if (pkg.payment_status === "completed" && end >= now) {
-            historyObj[pkg.package_id] = "Active";
-          }
-        });
-
+      
+      if (res.status && res.data && Array.isArray(res.data)) {
         setVendorPackageHistory((prev) => ({
           ...prev,
-          [vendorId]: historyObj,
+          [vendorId]: res.data,
         }));
       } else {
         setVendorPackageHistory((prev) => ({
           ...prev,
-          [vendorId]: {}, // No history found
+          [vendorId]: [], // Empty array for no history
         }));
       }
     } catch (err) {
       console.error("Error fetching vendor package history:", err);
       setVendorPackageHistory((prev) => ({
         ...prev,
-        [vendorId]: {},
+        [vendorId]: [], // Empty array on error
       }));
     }
   };
 
+  // 🔹 Fetch package history for all vendors
   useEffect(() => {
-    vendors.forEach((vendor) => {
-      fetchVendorPackageHistory(vendor.id);
-    });
-  }, [vendors]);
+    const loadAllHistories = async () => {
+      for (let vendor of allVendors) {
+        await fetchVendorPackageHistory(vendor.id);
+      }
+    };
+    
+    if (allVendors?.length > 0) {
+      loadAllHistories();
+    }
+  }, [allVendors]);
 
-  // 🔹 MAIN FILTERING LOGIC - Fixed
+  // 🔹 MAIN FILTERING LOGIC - Fixed with Date-based Package Status
   const filteredVendors = allVendors.filter((v) => {
     const lowerSearch = searchText.toLowerCase();
 
@@ -231,107 +267,20 @@ export default function Allvendors() {
       (!fromDate || createdDate >= fromDate) &&
       (!toDate || createdDate <= toDate);
 
-    // 🔹 Package Status Filter - Fixed
+    // 🔹 Package Status Filter - Fixed with Date-based logic
     let matchesPackage = true;
     if (packageFilter) {
-      const pkgStatusArr = checkpackage[v.id] || [];
-      const now = new Date();
-
-      let hasActive = false;
-      let hasExpired = false;
-
-      // Check if vendor has any active packages
-      if (Array.isArray(pkgStatusArr) && pkgStatusArr.length > 0) {
-        hasActive = pkgStatusArr.some((pkg) => {
-          const start = new Date(pkg.start_date);
-          const end = new Date(pkg.end_date);
-          return (
-            pkg.payment_status === "completed" && start <= now && end >= now
-          );
-        });
-
-        hasExpired = pkgStatusArr.some((pkg) => {
-          const end = new Date(pkg.end_date);
-          return pkg.payment_status === "completed" && end < now;
-        });
-      }
-
-      let statusLabel = "N/A";
-      if (hasActive) statusLabel = "Active";
-      else if (hasExpired) statusLabel = "Expired";
-
-      matchesPackage = statusLabel === packageFilter;
+      const vendorPkgStatus = getVendorPackageStatus(v.id);
+      matchesPackage = vendorPkgStatus === packageFilter;
     }
 
     return matchesText && matchesDate && matchesPackage;
   });
 
-  // 🔹 Let Datatable handle pagination internally - no manual slicing needed
-
-  // const exportToExcel = async () => {
-  //   try {
-  //     // 🔹 Export only filtered data instead of all vendors
-  //     const exportData = filteredVendors.map((row, index) => ({
-  //       "S.No": index + 1,
-  //       "Owner Name": row.owner_name || "N/A",
-  //       Email: row.email || "N/A",
-  //       "Category Name": Array.isArray(row.category_names)
-  //         ? row.category_names.join(", ")
-  //         : row.category_names || "N/A",
-  //       Phone: row.phone || "N/A",
-  //       City: row.City?.name || "N/A",
-  //       State: row.State?.name || "N/A",
-  //       Status: row.status === 1 ? "Active" : "Inactive",
-  //       Approval_Status:
-  //         row.approval_status === 1
-  //           ? "Approved"
-  //           : row.approval_status === 2
-  //           ? "Rejected"
-  //           : "Pending",
-  //       Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
-  //     }));
-
-  //     const worksheet = XLSX.utils.json_to_sheet(exportData);
-  //     const workbook = XLSX.utils.book_new();
-  //     XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Vendors");
-  //     XLSX.writeFile(workbook, "Filtered_Vendor_List.xlsx");
-
-  //     Swal.fire("Success", `${exportData.length} vendors exported successfully!`, "success");
-  //   } catch (err) {
-  //     console.error("Error exporting vendors:", err);
-  //     Swal.fire("Error", "Failed to export vendors", "error");
-  //   }
-  // };
-
   const exportToExcel = async () => {
     try {
-      const now = new Date();
-
-      // 🔹 Export only filtered data instead of all vendors
       const exportData = filteredVendors?.map((row, index) => {
-        const pkgStatusArr = checkpackage[row.id] || [];
-
-        let hasActive = false;
-        let hasExpired = false;
-
-        if (Array.isArray(pkgStatusArr) && pkgStatusArr.length > 0) {
-          hasActive = pkgStatusArr.some((pkg) => {
-            const start = new Date(pkg.start_date);
-            const end = new Date(pkg.end_date);
-            return (
-              pkg.payment_status === "completed" && start <= now && end >= now
-            );
-          });
-
-          hasExpired = pkgStatusArr.some((pkg) => {
-            const end = new Date(pkg.end_date);
-            return pkg.payment_status === "completed" && end < now;
-          });
-        }
-
-        let packageStatus = "N/A";
-        if (hasActive) packageStatus = "Active";
-        else if (hasExpired) packageStatus = "Expired";
+        const packageStatus = getVendorPackageStatus(row.id);
 
         return {
           "S.No": index + 1,
@@ -350,7 +299,7 @@ export default function Allvendors() {
               : row.approval_status === 2
               ? "Rejected"
               : "Pending",
-          "Package Status": packageStatus, // 🔹 Added this
+          "Package Status": packageStatus,
           Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
         };
       });
@@ -394,7 +343,7 @@ export default function Allvendors() {
       if (response.status === true || response.status === "true") {
         await Swal.fire("Success", response.message, "success");
         fetchVendors(currentPage, perPage);
-        fetchAllVendors(); // 🔹 Refresh all vendors data
+        fetchAllVendors();
       } else {
         throw new Error(response.message || "Failed to update approval");
       }
@@ -426,7 +375,7 @@ export default function Allvendors() {
       if (res?.status === true || res?.status === "true") {
         await Swal.fire("Success", "Vendor status updated.", "success");
         fetchVendors(currentPage, perPage);
-        fetchAllVendors(); // 🔹 Refresh all vendors data
+        fetchAllVendors();
       } else {
         throw new Error(res?.message || "Failed to update status");
       }
@@ -436,34 +385,10 @@ export default function Allvendors() {
     }
   };
 
-  const fetchVendorPkg = async (vendorId) => {
-    const token = localStorage.getItem("token");
-    const historyRes = await getVendorPackageHistory(token, vendorId);
-    return historyRes.data;
-  };
-
-  useEffect(() => {
-    const loadAllHistories = async () => {
-      let histories = {};
-      for (let vendor of allVendors) {
-        // 🔹 Use allVendors instead of vendors
-        const data = await fetchVendorPkg(vendor.id);
-        histories[vendor.id] = data;
-      }
-      setCheckpackage(histories);
-    };
-    if (allVendors?.length > 0) loadAllHistories();
-  }, [allVendors]);
-
-  // 🔹 Auto-reset not needed for client-side pagination - Datatable handles it
-  // useEffect(() => {
-  //   setCurrentPage(1);
-  // }, [searchText, startDate, endDate, packageFilter]);
-
   const columns = [
     {
       name: "S.No",
-      selector: (row, index) => index + 1, // 🔹 Simple index for client-side pagination
+      selector: (row, index) => index + 1,
       width: "50px",
     },
     {
@@ -500,35 +425,16 @@ export default function Allvendors() {
     {
       name: "Package Status",
       cell: (row) => {
-        const pkgStatusArr = checkpackage[row.id] || [];
-        const now = new Date();
-
-        let hasActive = false;
-        let hasExpired = false;
-
-        if (Array.isArray(pkgStatusArr) && pkgStatusArr.length > 0) {
-          hasActive = pkgStatusArr.some((pkg) => {
-            const start = new Date(pkg.start_date);
-            const end = new Date(pkg.end_date);
-            return (
-              pkg.payment_status === "completed" && start <= now && end >= now
-            );
-          });
-
-          hasExpired = pkgStatusArr.some((pkg) => {
-            const end = new Date(pkg.end_date);
-            return pkg.payment_status === "completed" && end < now;
-          });
-        }
-
+        const packageStatus = getVendorPackageStatus(row.id);
+        
         return (
           <div>
-            {hasActive ? (
-              <span className="badge bg-success me-1">Active</span>
-            ) : hasExpired ? (
-              <span className="badge bg-danger me-1">Expired</span>
+            {packageStatus === "Active" ? (
+              <span className="badge bg-success">Active</span>
+            ) : packageStatus === "Expired" ? (
+              <span className="badge bg-danger">Expired</span>
             ) : (
-              "N/A"
+              <span className="badge bg-secondary">N/A</span>
             )}
           </div>
         );
@@ -627,7 +533,6 @@ export default function Allvendors() {
           )}
         </div>
       ),
-
       width: "160px",
     },
     {
@@ -735,7 +640,7 @@ export default function Allvendors() {
               <input
                 type="text"
                 className="form-control border-0 shadow-none"
-                placeholder="Search by Owner Name..."
+                placeholder="Search by Owner Name, Email, Phone..."
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
               />
@@ -804,16 +709,6 @@ export default function Allvendors() {
 
         <div className="row">
           <div className="card-body">
-            {/* 🔹 SHOW FILTERED COUNT */}
-            {/* <div className="mb-2">
-              <small className="text-muted">
-                Showing {Math.min(perPage, filteredVendors.length)} of {filteredVendors.length} vendors
-                {(searchText || startDate || endDate || packageFilter) && 
-                  ` (filtered from ${allVendors.length} total)`
-                }
-              </small>
-            </div> */}
-
             <Datatable
               columns={columns}
               data={filteredVendors}
@@ -878,17 +773,12 @@ export default function Allvendors() {
                         <div>
                           <span
                             className={`badge ${
-                              vendorPackageHistory[assignVendorId]?.[p.id] ===
-                              "Active"
+                              vendorPackageStatus[p.id] === "Active"
                                 ? "bg-success"
-                                : vendorPackageHistory[assignVendorId]?.[
-                                    p.id
-                                  ] === "Inactive"
-                                ? "bg-danger"
                                 : "bg-secondary"
                             }`}
                           >
-                            {vendorPackageHistory[assignVendorId]?.[p.id] || ""}
+                            {vendorPackageStatus[p.id] || ""}
                           </span>
                         </div>
                       </label>
