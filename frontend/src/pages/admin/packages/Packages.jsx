@@ -88,7 +88,7 @@ export default function Packages() {
         "S.No": index + 1,
         Name: pkg.name || "N/A",
         Description: pkg.description || "N/A",
-        "Price (₹)": `₹${pkg.price}`||"0",
+        "Price (₹)": `₹${pkg.price}` || "0",
         Validity: pkg.validity_in_months
           ? `${pkg.validity_in_months} Month${
               pkg.validity_in_months > 1 ? "s" : ""
@@ -100,7 +100,7 @@ export default function Packages() {
         Status: pkg.status === 1 ? "Active" : "Inactive",
         "Created At": new Date(pkg.createdAt).toLocaleDateString(),
         "Updated At": new Date(pkg.updatedAt).toLocaleDateString(),
-          Date: new Date(pkg.createdAt).toLocaleDateString() || "N/A",
+        Date: new Date(pkg.createdAt).toLocaleDateString() || "N/A",
       }));
 
       const XLSX = await import("xlsx");
@@ -131,26 +131,39 @@ export default function Packages() {
     setCurrentPage(1);
   };
 
-  const handleStatusToggle = async (pkg) => {
-    const token = localStorage.getItem("adminToken");
-    const newStatus = pkg.status === 1 ? 0 : 1;
+const handleStatusToggle = async (pkg) => {
+  const token = localStorage.getItem("adminToken");
+  const newStatus = pkg.status === 1 ? 0 : 1;
 
-    try {
-      const res = await UpdatePackageStatus(token, {
-        package_id: pkg.id,
-        status: newStatus,
-      });
+  Swal.fire({
+    title: "Are you sure?",
+    text: `You want to ${newStatus === 1 ? "activate" : "deactivate"} this package?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, proceed!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const res = await UpdatePackageStatus(token, {
+          package_id: pkg.id,
+          status: newStatus,
+        });
 
-      if (res?.status) {
-        Swal.fire("Success", res?.msg || "Status updated", "success");
-        fetchPackages();
-      } else {
-        Swal.fire("Error", res?.msg || "Failed to update status", "error");
+        if (res?.status) {
+          Swal.fire("Success", res?.msg || "Status updated", "success");
+          fetchPackages();
+        } else {
+          Swal.fire("Error", res?.msg || "Failed to update status", "error");
+        }
+      } catch (err) {
+        Swal.fire("Error", "Server error", "error");
       }
-    } catch (err) {
-      Swal.fire("Error", "Server error", "error");
     }
-  };
+  });
+};
+
 
   // const handleDelete = async (packageId) => {
   //   const result = await Swal.fire({
@@ -292,9 +305,9 @@ export default function Packages() {
       <div className="row align-items-center mb-2">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-           <button
+            <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>

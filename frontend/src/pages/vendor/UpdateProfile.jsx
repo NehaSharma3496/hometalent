@@ -146,7 +146,7 @@ export default function UpdateProfile() {
   const fields = [
     {
       name: "owner_name",
-      label: "Owner Name",
+      label: "Owner Name*",
       type: "text",
       colClass: "col-md-4 ",
       required: true,
@@ -160,7 +160,7 @@ export default function UpdateProfile() {
     },
     {
       name: "phone",
-      label: "Phone",
+      label: "Phone*",
       type: "text",
       colClass: "col-md-4 ",
       required: true,
@@ -169,7 +169,7 @@ export default function UpdateProfile() {
     },
     {
       name: "email",
-      label: "Email",
+      label: "Email*",
       type: "email",
       colClass: "col-md-4 ",
       required: true,
@@ -177,7 +177,7 @@ export default function UpdateProfile() {
     },
     {
       name: "state_id",
-      label: "State",
+      label: "State*",
       type: "select",
       options: statesData,
       onChange: (e) => {
@@ -189,7 +189,7 @@ export default function UpdateProfile() {
     },
     {
       name: "city_id",
-      label: "City",
+      label: "City*",
       type: "select",
       options: cityData,
       onChange: () => setCityTouched(true),
@@ -198,7 +198,7 @@ export default function UpdateProfile() {
     },
     {
       name: "pin_code",
-      label: "Pin Code",
+      label: "Pin Code*",
       type: "text",
       colClass: "col-md-4 mb-3",
       required: true,
@@ -206,7 +206,7 @@ export default function UpdateProfile() {
     },
     {
       name: "category_id",
-      label: "Category",
+      label: "Category*",
       type: "select",
       options: categoryData,
       colClass: "col-md-4 ",
@@ -229,7 +229,7 @@ export default function UpdateProfile() {
 
     {
       name: "long_description",
-      label: "Description",
+      label: "Description*",
       type: "textarea",
       colClass: "col-12 ",
       required: true,
