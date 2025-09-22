@@ -25,12 +25,12 @@ const commonEmail = async (toEmail, subjectEmail, htmlEmail) => {
         console.log("SMTP Password:", process.env.SMTP_PASSWORD) 
         const transport = nodemailer.createTransport({
             type: "smtp",
-            host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT,
+            host: process.env.SMTP_HOST.trim(),
+            port: process.env.SMTP_PORT.trim(),
             secure: 'true', // true for 465, false for other ports
             auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASSWORD
+                user: process.env.SMTP_USER.trim(),
+                pass: process.env.SMTP_PASSWORD.trim()
             }
         });
         const mailOptions = {
