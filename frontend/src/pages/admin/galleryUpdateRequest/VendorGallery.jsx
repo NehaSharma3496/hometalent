@@ -7,6 +7,7 @@ import {
   AddToAdminGallery,
   RemoveGalleryItem,
 } from "../../../Services/admin/Admin";
+import { image_baseurl } from "../../../Utils/config";
 
 export default function VendorGallery() {
   const { vendorId } = useParams();
@@ -185,8 +186,8 @@ export default function VendorGallery() {
   /** Select / Unselect All Pending */
   const handleSelectAll = () => {
     const pendingItems = filteredGallery
-      .filter((item) => item.status === "pending")
-      .map((item) => item.id);
+      ?.filter((item) => item.status === "pending")
+      ?.map((item) => item.id);
 
     if (selectAll) {
       setSelectedItems([]);
@@ -330,7 +331,7 @@ export default function VendorGallery() {
           </p>
         ) : (
           <div className="row">
-            {filteredGallery.map((item) => (
+            {filteredGallery?.map((item) => (
               <div
                 className="col-xl-3 col-lg-4 col-md-6 col-sm-6 mb-4"
                 key={item.id}
@@ -339,7 +340,7 @@ export default function VendorGallery() {
                   {/* File */}
                   {item.file_type.startsWith("image") ? (
                     <img
-                      src={item.file_path}
+                      src={`${image_baseurl}${item.file_path}`}
                       alt="Gallery"
                       className="card-img-top"
                       style={{ height: "200px", objectFit: "cover" }}
@@ -350,7 +351,7 @@ export default function VendorGallery() {
                       className="card-img-top"
                       style={{ height: "200px", objectFit: "cover" }}
                     >
-                      <source src={item.file_path} type="video/mp4" />
+                      <source src={`${image_baseurl}${item.file_path}`} type="video/mp4" />
                     </video>
                   )}
 
