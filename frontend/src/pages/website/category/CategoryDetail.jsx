@@ -14,6 +14,7 @@ import { GetActiveVendors } from "../../../Services/admin/Admin";
 import Swal from "sweetalert2";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
+import { image_baseurl } from "../../../Utils/config";
 
 const CategoryDetail = () => {
   const [galleryImages, setGalleryImages] = useState([]);
@@ -405,7 +406,9 @@ const CategoryDetail = () => {
   const imageItems = galleryImages.filter((item) => item.file_type === "image");
   const videoItems = galleryImages.filter((item) => item.file_type === "video");
 
-  const imageSlides = imageItems.map((item) => ({ src: item.file_path }));
+  const imageSlides = imageItems.map((item) => ({
+    src: `${image_baseurl}${item.file_path}`,
+  }));
 
   const handleImageClick = (clickedIndex) => {
     setIndex(clickedIndex);
@@ -552,7 +555,7 @@ const CategoryDetail = () => {
                             }}
                           >
                             <img
-                              src={vendorData?.user?.image}
+                              src={`${image_baseurl}${vendorData?.user?.image}`}
                               alt="Vendor Image"
                               style={{
                                 width: "100%",
@@ -564,12 +567,10 @@ const CategoryDetail = () => {
                         )}
 
                         <h4 className="title text-capitalize mt-4 d-flex align-items-center">
-                         {vendorData?.user?.owner_name}{" "}
-{vendorData?.user?.profile_name && (
-  <>({vendorData.user.profile_name})</>
-)}
-
-
+                          {vendorData?.user?.owner_name}{" "}
+                          {vendorData?.user?.profile_name && (
+                            <>({vendorData.user.profile_name})</>
+                          )}
                           {reviewcount !== null &&
                             reviewcount !== undefined &&
                             reviewcount !== "" && (
@@ -698,7 +699,7 @@ const CategoryDetail = () => {
                                     onClick={() => handleImageClick(i)}
                                   >
                                     <img
-                                      src={item?.file_path}
+                                      src={`${image_baseurl}${item.file_path}`}
                                       alt={`Gallery ${i}`}
                                       style={{
                                         width: "100%",
@@ -759,7 +760,7 @@ const CategoryDetail = () => {
                                       }}
                                     >
                                       <source
-                                        src={item?.file_path}
+                                        src={`${image_baseurl}${item.file_path}`}
                                         type="video/mp4"
                                       />
                                     </video>

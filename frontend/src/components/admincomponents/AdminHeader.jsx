@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import MenuItems from "../admincomponents/MenuItems.jsx";
 import { GetVendorDetails } from "../../Services/vendor/Vendor.js";
 import { useNotifications } from "../../contexts/NotificationContext.js";
+import { image_baseurl } from "../../Utils/config.js";
 
 export default function AdminHeader() {
   const role = localStorage.getItem("role");
@@ -136,53 +137,46 @@ export default function AdminHeader() {
   const displayedNotifications =
     notifications.length > 0 ? notifications : storedNotifications;
 
+  useEffect(() => {
+    if (window.innerWidth > 1024) return; // sirf mobile/tablet pe chale
+
+    const links = document.querySelectorAll(".sidebar-link");
+
+    const handleClick = () => {
+      document.body.classList.toggle("sidebar-toggle"); // add/remove dono karega
+    };
+
+    links.forEach((link) => {
+      link.addEventListener("click", handleClick);
+    });
+
+    return () => {
+      links.forEach((link) => {
+        link.removeEventListener("click", handleClick);
+      });
+    };
+  }, []);
+
+  const sidebarRef = useRef(null);
 
   useEffect(() => {
-  if (window.innerWidth > 1024) return; // sirf mobile/tablet pe chale
+    const handleClickOutside = (e) => {
+      if (window.innerWidth > 1024) return;
 
-  const links = document.querySelectorAll(".sidebar-link");
+      const sidebar = document.getElementById("sidebar");
+      const clickedInsideSidebar = sidebar?.contains(e.target);
+      const clickedToggleBtn = document
+        .querySelector(".toggle-sidebar-btn")
+        ?.contains(e.target);
 
-  const handleClick = () => {
-    document.body.classList.toggle("sidebar-toggle"); // add/remove dono karega
-  };
+      if (!clickedInsideSidebar && !clickedToggleBtn) {
+        document.body.classList.add("sidebar-toggle");
+      }
+    };
 
-  links.forEach((link) => {
-    link.addEventListener("click", handleClick);
-  });
-
-  return () => {
-    links.forEach((link) => {
-      link.removeEventListener("click", handleClick);
-    });
-  };
-}, []);
-
-
-const sidebarRef = useRef(null);
-
-useEffect(() => {
-  const handleClickOutside = (e) => {
-    if (window.innerWidth > 1024) return;
-
-    const sidebar = document.getElementById("sidebar");
-    const clickedInsideSidebar = sidebar?.contains(e.target);
-    const clickedToggleBtn = document
-      .querySelector(".toggle-sidebar-btn")
-      ?.contains(e.target);
-
-    if (!clickedInsideSidebar && !clickedToggleBtn) {
-      
-      document.body.classList.add("sidebar-toggle");
-    }
-  };
-
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => document.removeEventListener("mousedown", handleClickOutside);
-}, []);
-
-
-
-
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <>
@@ -234,10 +228,7 @@ useEffect(() => {
                       ></div>
 
                       {/* Dropdown */}
-                      <div
-                        className="card shadow border-0 rounded-3 dropdrow-style"
-
-                      >
+                      <div className="card shadow border-0 rounded-3 dropdrow-style">
                         {/* Header */}
                         <div className="card-header bg-white d-flex justify-content-between align-items-center">
                           <h6 className="mb-0 fw-semibold text-primary d-flex align-items-center">
@@ -266,20 +257,22 @@ useEffect(() => {
                             displayedNotifications.map((notification) => (
                               <div
                                 key={notification.id}
-                                className={`p-2 mb-1 rounded ${notification.isRead
-                                  ? "bg-primary-subtle border border-primary"
-                                  : "bg-white border"
-                                  }`}
+                                className={`p-2 mb-1 rounded ${
+                                  notification.isRead
+                                    ? "bg-primary-subtle border border-primary"
+                                    : "bg-white border"
+                                }`}
                                 style={{ cursor: "pointer" }}
                                 onClick={() =>
                                   handleNotificationClick(notification.id)
                                 }
                               >
                                 <h6
-                                  className={`mb-1 fw-semibold d-flex align-items-center ${notification.isRead
-                                    ? "text-primary"
-                                    : "text-secondary"
-                                    }`}
+                                  className={`mb-1 fw-semibold d-flex align-items-center ${
+                                    notification.isRead
+                                      ? "text-primary"
+                                      : "text-secondary"
+                                  }`}
                                   style={{ fontSize: "0.9rem" }}
                                 >
                                   <i className="fa-solid fa-circle-info me-1"></i>
@@ -328,12 +321,18 @@ useEffect(() => {
                       <img
                         src={
                           role === "2" && profileImage
-                            ? profileImage
+                            ? `${image_baseurl}${profileImage}`
                             : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
                         }
                         className="user-img"
                         alt="Profile"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src =
+                            "https://cdn-icons-png.flaticon.com/512/149/149071.png"; // fallback
+                        }}
                       />
+
                       <i className="fa-solid fa-angle-down"></i>
                     </Link>
 

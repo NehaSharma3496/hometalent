@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GetVendorDetails, GetCategories } from "../../Services/vendor/Vendor";
+import { image_baseurl } from "../../Utils/config";
 
 export default function MyProfile() {
   const [vendor, setVendor] = useState(null);
@@ -112,7 +113,7 @@ export default function MyProfile() {
             <div className="col-auto">
               <div className="position-relative">
                 <img
-                  src={vendor.image || "/no-image.png"}
+                  src={ `${image_baseurl}${vendor.image}` }
                   alt="Vendor"
                   className="rounded-circle border border-3 border-white shadow"
                   style={{
@@ -283,7 +284,7 @@ export default function MyProfile() {
               >
                 <div className="card-body p-0 d-flex justify-content-center align-items-center">
                   <img
-                    src={vendor.image || "/no-image.png"}
+                    src={`${image_baseurl}${vendor.image}`}
                     alt="Vendor Large"
                     className="img-fluid"
                     style={{

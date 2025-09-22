@@ -5,6 +5,7 @@ import {
   GetAllAdminBlog,
 } from "../../../Services/admin/Admin";
 import Breadcrumbs from "../../../components/websitecomponents/Breadcrumbs";
+import { image_baseurl } from "../../../Utils/config";
 
 const BlogDetail = () => {
   const { blogId } = useParams();
@@ -66,7 +67,7 @@ const BlogDetail = () => {
             <div className="col-xl-8 col-lg-7">
               <div className="news-details-banner imgEffect">
                 <img
-                  src={blog.image}
+                  src={`${image_baseurl}${blog.image}`}
                   alt={blog.title}
                   style={{
                     width: "100%",
@@ -107,7 +108,7 @@ const BlogDetail = () => {
                       }}
                     >
                       <img
-                        src={b.image}
+                        src={`${image_baseurl}${b.image}`}
                         alt={b.title}
                         style={{ width: "100%", borderRadius: "6px" }}
                       />

@@ -4,6 +4,7 @@ import "yet-another-react-lightbox/styles.css";
 import Breadcrumbs from "../../components/websitecomponents/Breadcrumbs";
 import { GetAdminGallery } from "../../Services/webService/Web";
 import { useNavigate } from "react-router-dom";
+import { image_baseurl } from "../../Utils/config";
 
 const Gallery = () => {
   const [open, setOpen] = useState(false);
@@ -30,14 +31,12 @@ const Gallery = () => {
 
   const imageSlides = gallery
     .filter((item) => item.file_type === "image")
-    .map((item) => ({ src: item.file_path }));
+    .map((item) => ({ src: `${image_baseurl}${item.file_path}` }));
 
   const handleImageClick = (clickedIndex) => {
     const imageOnlyIndex = gallery
       .filter((item) => item.file_type === "image")
-      .findIndex(
-        (img) => img.file_path === gallery[clickedIndex].file_path
-      );
+      .findIndex((img) => img.file_path === gallery[clickedIndex].file_path);
 
     setIndex(imageOnlyIndex);
     setOpen(true);
@@ -86,9 +85,12 @@ const Gallery = () => {
                           if (item.admin_remarks) {
                             const meta = JSON.parse(item.admin_remarks);
                             if (meta?.source_vendor_id) {
-                              navigate(`/categorydetail/${meta.source_vendor_id}`, {
-                                state: { vendorId: meta.source_vendor_id }, 
-                              });
+                              navigate(
+                                `/categorydetail/${meta.source_vendor_id}`,
+                                {
+                                  state: { vendorId: meta.source_vendor_id },
+                                }
+                              );
                               return;
                             }
                           }
@@ -110,11 +112,14 @@ const Gallery = () => {
                             objectFit: "cover",
                           }}
                         >
-                          <source src={item.file_path} type="video/mp4" />
+                          <source
+                            src={`${image_baseurl}${item.file_path}`}
+                            type="video/mp4"
+                          />
                         </video>
                       ) : (
                         <img
-                          src={item.file_path}
+                          src={`${image_baseurl}${item.file_path}`}
                           alt={`Gallery ${i + 1}`}
                           style={{
                             width: "100%",

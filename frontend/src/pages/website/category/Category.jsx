@@ -6,6 +6,7 @@ import {
   GetCategories,
   GetVendorsByCategory,
 } from "../../../Services/webService/Web";
+import { image_baseurl } from "../../../Utils/config";
 
 const Category = () => {
   const location = useLocation();
@@ -202,7 +203,7 @@ const Category = () => {
                               state={{ vendorId: item.id }}
                             >
                               <img
-                                src={item.image || "/default-vendor.jpg"}
+                                src={`${image_baseurl}${item.image}`|| "/default-vendor.jpg"}
                                 alt={item.owner_name}
                               />
                             </Link>

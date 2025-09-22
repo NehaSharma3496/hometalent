@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import Breadcrumbs from "../../../components/websitecomponents/Breadcrumbs";
 import { GetAllAdminBlog } from "../../../Services/admin/Admin";
 import Loader from "../../../Utils/Loader"
+import { image_baseurl } from "../../../Utils/config";
+
 
 const Blog = () => {
   const [blog, setBlog] = useState([]);
@@ -41,7 +43,7 @@ const Blog = () => {
                     <figure className="news-banner-two imgEffect">
                       <Link to={`/blogdetail/${item.id}`}>
                         <img
-                          src={item?.image}
+                          src={`${image_baseurl}${item.image}`}
                           alt={item?.title || "Blog"}
                         />
                       </Link>

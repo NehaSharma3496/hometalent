@@ -6,6 +6,7 @@ import {
 } from "../../../Services/vendor/Vendor";
 import { useNavigate, Link } from "react-router-dom";
 import Swal from "sweetalert2";
+import { image_baseurl } from "../../../Utils/config";
 
 const ViewGallery = () => {
   const [gallery, setGallery] = useState([]);
@@ -273,7 +274,7 @@ const ViewGallery = () => {
                   {/* Thumbnail */}
                   {item.file_type === "image" ? (
                     <img
-                      src={item.file_path}
+                      src={`${image_baseurl}${item.file_path}`}
                       alt="Gallery"
                       className="card-img-top"
                       style={{ height: "200px", objectFit: "cover" }}
@@ -284,7 +285,7 @@ const ViewGallery = () => {
                       className="card-img-top"
                       style={{ height: "200px", objectFit: "cover" }}
                     >
-                      <source src={item.file_path} type="video/mp4" />
+                      <source src={`${image_baseurl}${item.file_path}`} type="video/mp4" />
                     </video>
                   )}
 

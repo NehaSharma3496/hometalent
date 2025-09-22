@@ -10,6 +10,7 @@ import "slick-carousel/slick/slick-theme.css";
 import { GetCategories } from "../../Services/webService/Web";
 import { GetAllAdminBlog } from "../../Services/admin/Admin";
 import Swal from "sweetalert2";
+import { image_baseurl } from "../../Utils/config";
 
 const Home = () => {
   const token = localStorage.getItem("token");
@@ -366,7 +367,7 @@ const Home = () => {
                   >
                     <img
                       loading="lazy"
-                      src={category.image_url} // directly from API
+                      src={`${image_baseurl}${category.image_url}`} // directly from API
                       alt={category.name}
                       className="your-class-name"
                       onError={(e) => {
@@ -593,7 +594,7 @@ const Home = () => {
                       <figure className="news-banner-two imgEffect">
                         <Link to={`/blogdetail/${item.id}`}>
                           <img
-                            src={item.image}
+                            src={`${image_baseurl}${item.image}`}
                             alt={item.title}
                             style={{
                               width: "100%",

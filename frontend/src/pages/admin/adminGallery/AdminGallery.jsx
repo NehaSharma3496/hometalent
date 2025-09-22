@@ -5,6 +5,7 @@ import {
 } from "../../../Services/vendor/Vendor";
 import { Link,useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { image_baseurl } from "../../../Utils/config";
 
 const AdminGallery = () => {
   const [gallery, setGallery] = useState([]);
@@ -118,7 +119,7 @@ const AdminGallery = () => {
     }
   };
 
-  const filteredGallery = gallery.filter((item) =>
+  const filteredGallery = gallery?.filter((item) =>
     activeTab === "images"
       ? item.file_type === "image"
       : item.file_type === "video"
@@ -202,7 +203,7 @@ const AdminGallery = () => {
                 <div className="card shadow-sm border-0 rounded-4 h-100">
                   {item.file_type === "image" ? (
                     <img
-                      src={item.file_path}
+                      src={`${image_baseurl}${item.file_path}`}
                       alt="Gallery"
                       className="card-img-top rounded-top-4"
                       style={{ height: "250px", objectFit: "cover" }}
@@ -213,7 +214,7 @@ const AdminGallery = () => {
                       className="card-img-top rounded-top-4"
                       style={{ height: "250px", objectFit: "cover" }}
                     >
-                      <source src={item.file_path} type="video/mp4" />
+                      <source src={`${image_baseurl}${item.file_path}` } type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                   )}

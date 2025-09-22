@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { GetVendorDetails } from "../../../Services/vendor/Vendor";
+import { image_baseurl } from "../../../Utils/config";
 
 export default function VendorDetails() {
   const location = useLocation();
@@ -297,10 +298,7 @@ export default function VendorDetails() {
               >
                 <div className="card-body p-0 d-flex justify-content-center align-items-center">
                   <img
-                    src={
-                      vendor.image ||
-                      "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                    }
+                    src={`${image_baseurl}${vendor.image}`}
                     alt="Vendor Large"
                     className="img-fluid"
                     style={{
