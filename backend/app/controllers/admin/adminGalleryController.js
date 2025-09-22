@@ -29,7 +29,7 @@ exports.uploadAdminGalleryFiles = async (req, res) => {
     if (req.files.images) {
       for (const file of req.files.images) {
         const baseUrl = `${req.protocol}://${req.get('host')}`;
-        const image = file ? `${baseUrl}/media/${file.filename}` : null;
+        const image = file ? `media/${file.filename}` : null;
         const galleryItem = await Gallery.create({
           user_id: admin_id,
           file_name: file.originalname,
@@ -47,7 +47,7 @@ exports.uploadAdminGalleryFiles = async (req, res) => {
     if (req.files.videos) {
       for (const file of req.files.videos) {
         const baseUrl = `${req.protocol}://${req.get('host')}`;
-        const video = file ? `${baseUrl}/media/${file.filename}` : null;
+        const video = file ? `media/${file.filename}` : null;
         const galleryItem = await Gallery.create({
           user_id: admin_id,
           file_name: file.originalname,

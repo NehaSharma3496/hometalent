@@ -11,7 +11,7 @@ exports.createBlog = async (req, res) => {
 
     const imageFile = req.files?.image?.[0];
     const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const image = imageFile ? `${baseUrl}/media/${imageFile.filename}` : null;
+    const image = imageFile ? `media/${imageFile.filename}` : null;
 
     const blog = await Blog.create({
       title,
@@ -54,7 +54,7 @@ exports.updateBlog = async (req, res) => {
     
     const imageFile = req.files?.image?.[0];
     const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const image = imageFile ? `${baseUrl}/media/${imageFile.filename}` : null;
+    const image = imageFile ? `media/${imageFile.filename}` : null;
 
     await blog.update({
       title: title || blog.title,

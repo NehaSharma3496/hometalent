@@ -93,7 +93,7 @@ exports.requestProfileUpdate = async (req, res) => {
     if (req.files) {
       if (req.files.image && req.files.image[0]) {
         const baseUrl = `${req.protocol}://${req.get('host')}`;
-        filteredData.image = `${baseUrl}/media/${req.files.image[0].filename}`;
+        filteredData.image = `media/${req.files.image[0].filename}`;
       }
     }
 

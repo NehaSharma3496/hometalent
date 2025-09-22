@@ -118,7 +118,9 @@ exports.createPaymentOrder = async (req, res) => {
     //     notify_url: `${req.protocol}://${req.get('host')}/payment/webhook`
     //   }
     // };
-  
+      let protocol
+  //  protocol = req.protocol === 'http' ? 'https' : req.protocol;
+      protocol = req.protocol
     const paymentData = {
       link_id: orderId,
       link_amount: pkg.price,
@@ -133,7 +135,7 @@ exports.createPaymentOrder = async (req, res) => {
       link_meta: {
         // return_url: `${req.protocol}://${req.get('host')}/payment/return?order_id=${orderId}`,
         return_url: `${req.headers.origin}/vendor/payment-callback?order_id=${orderId}`,
-        notify_url: `${req.protocol}://${req.get('host')}/payment/webhook`
+        notify_url: `${protocol}://${req.get('host')}/payment/webhook`
       }
     };
 

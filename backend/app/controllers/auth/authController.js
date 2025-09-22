@@ -48,8 +48,8 @@ exports.createUser = async (req, res) => {
     const videoFile = req.files?.video?.[0];
 
     const baseUrl = `${req.protocol}://${req.get("host")}`;
-    const image = imageFile ? `${baseUrl}/media/${imageFile.filename}` : null;
-    const video = videoFile ? `${baseUrl}/media/${videoFile.filename}` : null;
+    const image = imageFile ? `media/${imageFile.filename}` : null;
+    const video = videoFile ? `media/${videoFile.filename}` : null;
 
     var password = generateRandomPassword();
     const existingUser = await User.findOne({

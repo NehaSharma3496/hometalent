@@ -1687,7 +1687,7 @@ exports.insertcategoryimages = async (req, res) => {
 
         const mimeType = mime.lookup(filePath);
 
-        const imageUrl = `${baseUrl}/media/category/${file}`;
+        const imageUrl = `media/category/${file}`;
         
         await category.update({ image_url: imageUrl });
       } else {
