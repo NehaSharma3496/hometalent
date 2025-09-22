@@ -14,7 +14,7 @@ export default function VendorDetails() {
   const fetchVendor = async () => {
     try {
       const res = await GetVendorDetails(token, vendorId);
-      console.log("Vendor API Response:", res);
+      // console.log("Vendor API Response:", res);
 
       if (res?.data?.user) {
         setVendor(res.data.user);
@@ -110,14 +110,13 @@ export default function VendorDetails() {
             <div className="col-auto">
               <div className="position-relative">
                 <img
-                  src={
-                    vendor.image ||
-                    "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                  }
+                  src={`${image_baseurl}${vendor.image}`}
                   alt="Vendor"
                   className="rounded-circle border border-3 border-white shadow"
                   style={{ width: "80px", height: "80px", objectFit: "cover" }}
                   onClick={() => setShowImage(true)}
+                   onLoad={() => console.log("Final image URL:", `${image_baseurl}${vendor.image}`)}
+  onError={() => console.error("Image failed to load:", `${image_baseurl}${vendor.image}`)}
                 />
               </div>
             </div>
