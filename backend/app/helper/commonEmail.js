@@ -34,7 +34,7 @@ const commonEmail = async (toEmail, subjectEmail, htmlEmail) => {
             }
         });
         const mailOptions = {
-            from: process.env.SMTP_USER,
+            from: process.env.SMTP_USER.trim(),
             to: toEmail,
             subject: subjectEmail,
             html: htmlEmail
