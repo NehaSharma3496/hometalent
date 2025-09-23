@@ -82,7 +82,9 @@ export const NotificationProvider = ({ children, userType, userId }) => {
 
     // Connect to Socket.IO server
 
-    const socket = io(`${Config.base_url}`);
+    const socket = io(`http://147.93.102.146:8888/
+
+`);
 
     socket.on("connect", () => {
       console.log("Connected to Socket.IO server");
