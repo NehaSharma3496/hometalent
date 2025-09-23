@@ -328,7 +328,6 @@ exports.approveVendor = async (req, res) => {
     const { vendor_id, approval} = req.body;
     if (!vendor_id) {
       return res
-        .status(400)
         .json({ status: false, msg: "vendor_id is required" });
     }
 
@@ -941,20 +940,25 @@ exports.deletePackage = async (req, res) => {
 // Admin assigns a package to a vendor without payment
 exports.assignPackageToVendor = async (req, res) => {
   try {
-    const { vendor_id, package_id, admin_id } = req.body;
+    const { vendor_id, package_id, login_id } = req.body;
 
     if (!vendor_id || !package_id) {
-      return res.status(400).json({ status: false, msg: 'vendor_id and package_id are required' });
+      return res.json({ status: false, msg: 'vendor_id and package_id are required' });
     }
 
     const vendor = await User.findOne({ where: { id: vendor_id, role_id: 2 } });
+    const loginuser = await User.findOne({ where: { id: login_id, role_id: 3 } });
     if (!vendor) {
-      return res.status(404).json({ status: false, msg: 'Vendor not found' });
+      return res.json({ status: false, msg: 'Vendor not found' });
+    }
+
+    if (!loginuser) {
+      return res.json({ status: false, msg: 'Login User not found' });
     }
 
     const pkg = await Package.findOne({ where: { id: package_id, status: 1 } });
     if (!pkg) {
-      return res.status(404).json({ status: false, msg: 'Package not found or inactive' });
+      return res.json({ status: false, msg: 'Package not found or inactive' });
     }
 
     // Check if vendor is fresh (no completed subscriptions ever)
@@ -1022,7 +1026,8 @@ exports.assignPackageToVendor = async (req, res) => {
 
     // Optional: notify via socket/notification
     try {
-      socketManager.vendorSubscribed({ id: subscription.id, vendor_id, package_id }, pkg.name, vendor.owner_name || vendor.profile_name);
+      socketManager.vendorSubscribed({ id: subscription.id, vendor_id, package_id }, pkg.name, vendor.owner_name || vendor.profile_name, loginuser.role_id, loginuser.profile_name);
+      
       await Notification.create({
         user_id: vendor_id,
         user_type: 'vendor',
@@ -1031,11 +1036,33 @@ exports.assignPackageToVendor = async (req, res) => {
         message: `Admin assigned package ${pkg.name} to your account.`,
         metadata: { subscription_id: subscription.id, package_id }
       });
+      
+      if(loginuser.role_id == 2){
+        await Notification.create({
+          user_id: null,
+          user_type: 'admin',
+          type: 'package_assigned',
+          title: 'Package Assigned',
+          message: `New Subscription:${planName} plan subscribed by Vendor(${vendorName}).`,
+          metadata: { subscription_id: subscription.id, package_id }
+        });
+      }else{
+        await Notification.create({
+          user_id: login_id,
+          user_type: 'admin',
+          type: 'package_assigned',
+          title: 'Package Assigned',
+          message: `New Subscription:${planName} assigned to Vendor(${vendorName}) by (${loginuser.profile_name}).`,
+          metadata: { subscription_id: subscription.id, package_id }
+        });
+      }
+
+
     } catch (e) { /* ignore side-channel failures */ }
 
     return res.json({ status: true, msg: 'Package assigned successfully', data: subscription });
-  } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+  }catch (error) {
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1044,12 +1071,10 @@ exports.updatePackageStatus = async (req, res) => {
     const { package_id, status } = req.body;
     if (!package_id || typeof status === "undefined") {
       return res
-        .status(400)
         .json({ status: false, msg: "package_id and status are required" });
     }
     if (![0, 1].includes(Number(status))) {
       return res
-        .status(400)
         .json({
           status: false,
           msg: "status must be 0 (inactive) or 1 (active)",
@@ -1057,7 +1082,7 @@ exports.updatePackageStatus = async (req, res) => {
     }
     const pkg = await Package.findByPk(package_id);
     if (!pkg) {
-      return res.status(404).json({ status: false, msg: "Package not found" });
+      return res.json({ status: false, msg: "Package not found" });
     }
     pkg.status = status;
     await pkg.save();
@@ -1066,7 +1091,7 @@ exports.updatePackageStatus = async (req, res) => {
       msg: `Package ${status == 1 ? "activated" : "inactivated"} successfully`,
     });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
