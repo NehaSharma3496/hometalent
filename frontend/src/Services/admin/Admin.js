@@ -327,7 +327,8 @@ export async function RemoveGalleryItem(token, data) {
   try {
     let userId = localStorage.getItem("userId");
     const response = await axios.post(
-      `${Config.base_url}admin/gallery/remove`, data,
+      `${Config.base_url}admin/gallery/remove`,
+      data,
       {
         headers: {
           Authorization: `${token}`,
@@ -690,11 +691,14 @@ export async function UpdateReviewStatus(reviewId, reviewStatus, token) {
 
 export async function GetAllReview(token, page = 1, limit = 10) {
   try {
-    const response = await axios.get(`${Config.base_url}reviews?page=${page}&limit=${limit}`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${Config.base_url}reviews?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error;
@@ -715,11 +719,14 @@ export async function ApproveReview(reviewId, status) {
 
 export async function GetAllFeedBack(token, page = 1, limit = 10) {
   try {
-    const response = await axios.get(`${Config.base_url}admin/feedback?page=${page}&limit=${limit}`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${Config.base_url}admin/feedback?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error;
@@ -729,9 +736,13 @@ export async function GetAllFeedBack(token, page = 1, limit = 10) {
 // Add vendor gallery item to admin gallery
 export const AddToAdminGallery = async (token, data) => {
   try {
-    const res = await axios.post(`${Config.base_url}admin/gallery/upload-from-vendor`, data, {
-      headers: { Authorization: ` ${token}` },
-    });
+    const res = await axios.post(
+      `${Config.base_url}admin/gallery/upload-from-vendor`,
+      data,
+      {
+        headers: { Authorization: ` ${token}` },
+      }
+    );
     return res.data;
   } catch (err) {
     return { status: false, msg: err.message };
@@ -740,9 +751,13 @@ export const AddToAdminGallery = async (token, data) => {
 
 export const RemoveFromAdminGallery = async (token, data) => {
   try {
-    const res = await axios.post(`${Config.base_url}admin/gallery/remove`, data, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await axios.post(
+      `${Config.base_url}admin/gallery/remove`,
+      data,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
     return res.data;
   } catch (err) {
     return { status: false, msg: err.message };
@@ -792,6 +807,19 @@ export async function GetVendorsByPackageStatus(token, status) {
         },
       }
     );
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function GetEmployeeList(token, page = 1, limit = 10) {
+  try {
+    const response = await axios.get(`${Config.base_url}employee/list?page=${page}&limit=${limit}`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
     return response?.data;
   } catch (error) {
     return error;

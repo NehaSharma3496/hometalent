@@ -55,6 +55,11 @@ export const MenuItems = {
       ],
     },
     {
+      icon: "fa-solid fa-briefcase",
+      label: "Employee Management",
+      link: "/admin/employeelist",
+    },
+    {
       icon: "fa-solid fa-user",
       label: "Profile Management",
       link: "/admin/profileupdaterequest",
@@ -133,7 +138,7 @@ export const MenuItems = {
           label: "All Review",
           link: "/admin/review/allreview",
         },
-         {
+        {
           icon: "fa-solid fa-star-half-stroke",
           label: "All Report",
           link: "/admin/review/allreport",

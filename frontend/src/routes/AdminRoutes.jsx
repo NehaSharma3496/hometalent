@@ -40,6 +40,7 @@ import VendorAllLeads from "../pages/admin/vendor/VendorLeads";
 import SubscribedVendors from "../pages/admin/vendor/SubscribedVendors";
 import ExpiredVendors from "../pages/admin/vendor/ExpiredVendors";
 import UnsubscribedVendors from "../pages/admin/vendor/UnsubscribedVendors";
+import EmployeeList from "../pages/admin/employee/EmployeeList";
 
 const AdminRoutes = (
   <Route path="/admin" element={<AdminLayout />}>
@@ -96,6 +97,7 @@ const AdminRoutes = (
     <Route path="subscribedvendors" element={<SubscribedVendors/>}/>
     <Route path="expiredvendors" element={<ExpiredVendors/>}/>
     <Route path="unsubscribed" element={<UnsubscribedVendors/>}/>
+    <Route path="employeelist" element={<EmployeeList/>}/>
   </Route>
 );
 
