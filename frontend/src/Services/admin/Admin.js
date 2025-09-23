@@ -362,11 +362,11 @@ export async function showPackage(token, page = 1, limit = 10) {
   }
 }
 
-export async function AssignPackageToVendor(token, vendorId, packageId) {
+export async function AssignPackageToVendor(token, vendorId, packageId,login_id) {
   try {
     const res = await axios.post(
       `${Config.base_url}admin/package/assign`,
-      { vendor_id: vendorId, package_id: packageId },
+      { vendor_id: vendorId, package_id: packageId ,login_id},
       {
         headers: {
           Authorization: `${token}`,

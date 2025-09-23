@@ -31,6 +31,8 @@ export default function Allvendors() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [packageFilter, setPackageFilter] = useState("");
+  const login_id=localStorage.getItem("userId");
+  console.log("login_id",login_id);
 
   // 🔹 Utility function to get package status for a vendor (Date-based, not time-based)
   const getVendorPackageStatus = (vendorId) => {
@@ -51,14 +53,14 @@ export default function Allvendors() {
         // Parse dates and remove time component
         const startDate = new Date(pkg.start_date);
         startDate.setHours(0, 0, 0, 0);
-        
+
         const endDate = new Date(pkg.end_date);
         endDate.setHours(0, 0, 0, 0);
-        
+
         // Active: today >= startDate AND today <= endDate
         if (today >= startDate && today <= endDate) {
           hasActive = true;
-        } 
+        }
         // Expired: today > endDate
         else if (today > endDate) {
           hasExpired = true;
@@ -141,15 +143,15 @@ export default function Allvendors() {
         // Get today's date only (without time)
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        
+
         historyRes.data.forEach((pkg) => {
           if (pkg.payment_status === "completed") {
             const startDate = new Date(pkg.start_date);
             startDate.setHours(0, 0, 0, 0);
-            
+
             const endDate = new Date(pkg.end_date);
             endDate.setHours(0, 0, 0, 0);
-            
+
             const isActive = today >= startDate && today <= endDate;
             statusObj[pkg.package_id] = isActive ? "Active" : "-";
           }
@@ -172,14 +174,15 @@ export default function Allvendors() {
           "warning"
         );
       }
-      
+
       const token = localStorage.getItem("token");
       const res = await AssignPackageToVendor(
         token,
         assignVendorId,
-        selectedPkgId
+        selectedPkgId,
+        login_id
       );
-      
+
       if (res?.status) {
         await Swal.fire("Success", res.msg || "Package assigned", "success");
         setPkgModalOpen(false);
@@ -206,7 +209,7 @@ export default function Allvendors() {
     try {
       const token = localStorage.getItem("token");
       const res = await getVendorPackageHistory(token, vendorId);
-      
+
       if (res.status && res.data && Array.isArray(res.data)) {
         setVendorPackageHistory((prev) => ({
           ...prev,
@@ -234,7 +237,7 @@ export default function Allvendors() {
         await fetchVendorPackageHistory(vendor.id);
       }
     };
-    
+
     if (allVendors?.length > 0) {
       loadAllHistories();
     }
@@ -426,7 +429,7 @@ export default function Allvendors() {
       name: "Package Status",
       cell: (row) => {
         const packageStatus = getVendorPackageStatus(row.id);
-        
+
         return (
           <div>
             {packageStatus === "Active" ? (

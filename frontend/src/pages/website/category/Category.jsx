@@ -106,8 +106,9 @@ const Category = () => {
       : []),
     {
       label: categoryName || "Category",
-      to: `/vendors-by-category?category_id=${categoryId}${cityId ? `&city_id=${cityId}` : ""
-        }`,
+      to: `/vendors-by-category?category_id=${categoryId}${
+        cityId ? `&city_id=${cityId}` : ""
+      }`,
     },
   ];
 
@@ -203,7 +204,10 @@ const Category = () => {
                               state={{ vendorId: item.id }}
                             >
                               <img
-                                src={`${image_baseurl}${item.image}`|| "/default-vendor.jpg"}
+                                src={
+                                  `${image_baseurl}${item.image}` ||
+                                  "/default-vendor.jpg"
+                                }
                                 alt={item.owner_name}
                               />
                             </Link>
@@ -219,7 +223,16 @@ const Category = () => {
                               </Link>
                             </h4>
 
-                            <div className="location">
+                            {/* Category Name */}
+                            {(item.category_name ||
+                              (item.category_names &&
+                                item.category_names[0])) && (
+                              <p className="pera mb-2">
+                                {item.category_name || item.category_names[0]}
+                              </p>
+                            )}
+
+                            <div className="location mb-2">
                               <i className="ri-map-pin-line" />
                               <div className="name text-capitalize">
                                 {city.find(
@@ -229,7 +242,7 @@ const Category = () => {
                               </div>
                             </div>
 
-                            <h1 className="area-name truncate-2-lines mb-3 ">
+                            <h1 className="area-name truncate-2-lines mb-3">
                               <Link
                                 to="/categorydetail"
                                 state={{ vendorId: item.id }}
@@ -237,7 +250,6 @@ const Category = () => {
                                 {item?.long_description}
                               </Link>
                             </h1>
-
 
                             <div className="cart-footer d-flex flex-wrap justify-content-between">
                               <div className="d-flex gap-2 align-items-center">

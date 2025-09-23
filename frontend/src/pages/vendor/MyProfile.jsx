@@ -147,7 +147,7 @@ export default function MyProfile() {
             </Link>
           </div> */}
 
-          <div className="position-absolute top-0 end-0 p-3 d-flex ">
+          <div className="position-absolute top-0 end-0 p-3 d-flex flex-column gap-2">
             <Link
               to="/vendor/mypackages"
              className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"

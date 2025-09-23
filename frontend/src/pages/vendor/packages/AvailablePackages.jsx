@@ -132,8 +132,8 @@ const VendorPackages = () => {
 
       const exportData = allPackages.map((pkg, index) => ({
         "S.No.": index + 1,
-        "Package Name": pkg.name||"N/A",
-        "Price (₹)": pkg.price||"0",
+        "Package Name": pkg.name || "N/A",
+        "Price (₹)": pkg.price || "0",
         Validity: pkg.validity_in_months
           ? `${pkg.validity_in_months} Month${
               pkg.validity_in_months > 1 ? "s" : ""
@@ -141,10 +141,12 @@ const VendorPackages = () => {
           : pkg.days
           ? `${pkg.days} Day${pkg.days > 1 ? "s" : ""}`
           : "N/A",
-        Description: pkg.description||"N/A",
-        Features: pkg.features||"N/A",
-        Status: subscribedIds.includes(pkg.id) ? "Active" : "Not Subscribed"||"N/A",
-          Date: new Date(pkg.createdAt).toLocaleDateString() || "N/A",
+        Description: pkg.description || "N/A",
+        Features: pkg.features || "N/A",
+        Status: subscribedIds.includes(pkg.id)
+          ? "Active"
+          : "Not Subscribed" || "N/A",
+        Date: new Date(pkg.createdAt).toLocaleDateString() || "N/A",
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -222,7 +224,18 @@ const VendorPackages = () => {
       html: `
       <p><b>Description:</b> ${pkg.description}</p>
       <p><b>Price:</b> ₹${pkg.price}</p>
-      <p><b>Validity:</b> ${pkg.validity_in_months} month(s)</p>
+     <p>
+  <b>Validity:</b> ${
+    pkg.validity_in_months
+      ? `${pkg.validity_in_months} Month${
+          pkg.validity_in_months > 1 ? "s" : ""
+        }`
+      : pkg.days
+      ? `${pkg.days} Day${pkg.days > 1 ? "s" : ""}`
+      : "N/A"
+  }
+</p>
+
       <p><b>Features:</b><br/>${pkg.features.replace(/\r?\n/g, "<br/>")}</p>
     `,
       icon: "info",
@@ -298,34 +311,30 @@ const VendorPackages = () => {
       width: "150px",
     },
 
-   {
-  name: "Status",
-  cell: (row) => {
-    const today = new Date();
+    {
+      name: "Status",
+      cell: (row) => {
+        const today = new Date();
 
-    const isSubscribed = subscribedPackageIds.some(
-      (item) =>
-        item?.package_id === row.id &&
-        item?.payment_status === "completed" &&
-        new Date(item?.end_date) >= today
-    );
+        const isSubscribed = subscribedPackageIds.some(
+          (item) =>
+            item?.package_id === row.id &&
+            item?.payment_status === "completed" &&
+            new Date(item?.end_date) >= today
+        );
 
-    return (
-    <div
-  className="d-flex justify-content-center align-items-center"
-  style={{ height: "40px", width: "100%" }}
->
-  <span className="fs-6">
-    {isSubscribed ? "Active" : "-"}
-  </span>
-</div>
-
-    );
-  },
-  sortable: false,
-  width: "155px",
-}
-
+        return (
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ height: "40px", width: "100%" }}
+          >
+            <span className="fs-6">{isSubscribed ? "Active" : "-"}</span>
+          </div>
+        );
+      },
+      sortable: false,
+      width: "155px",
+    },
   ];
 
   return (
@@ -335,9 +344,9 @@ const VendorPackages = () => {
         {/* Left side: Back + Heading */}
         <div className="col-md-6">
           <div className="add-page-heading-div">
-           <button
+            <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
