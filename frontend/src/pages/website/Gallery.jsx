@@ -57,7 +57,7 @@ const Gallery = () => {
             {gallery?.length === 0 ? (
               <div className="col-12 text-center">
                 <img
-                  src="/assets/images/NoGallery.jpg"
+                  src="/assets/images/NoGallery.png"
                   alt="No Gallery"
                   style={{
                     width: "250px",
