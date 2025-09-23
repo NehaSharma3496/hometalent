@@ -1,10 +1,11 @@
-const { Role, State, City, Category } = require('../models');
+const { Role, State, City, Category, Permission } = require('../models');
 
 async function seedAll() {
   // ✅ Roles
   const roles = [
     { id: 1, role_name: 'Admin', role: 'ADMIN', status: 1, is_disable: 1 },
-    { id: 2, role_name: 'Vendor', role: 'VENDOR', status: 1, is_disable: 1 }
+    { id: 2, role_name: 'Vendor', role: 'VENDOR', status: 1, is_disable: 1 },
+    { id: 3, role_name: 'Employee', role: 'EMPLOYEE', status: 1, is_disable: 1 }
   ];
 
   const roleCount = await Role.count();

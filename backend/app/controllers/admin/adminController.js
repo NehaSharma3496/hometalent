@@ -364,12 +364,12 @@ exports.approveVendor = async (req, res) => {
 
     await commonEmail(vendor.email, subject, message);
 
-    res.json({
+    return res.json({
       status: true,
       msg: "Vendor approved and login details sent via email",
     });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1844,5 +1844,10 @@ console.log("vendors", vendors);
     return res.status(500).json({ status: false, msg: "Server error", error: error.message });
   }
 };
+
+
+
+
+
 
 
