@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { GetEmployeeList } from "../../../Services/admin/Admin";
+import { GetEmployeeList,UpdateVendorStatus } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
@@ -74,6 +74,38 @@ export default function EmployeeList() {
       console.error("Error fetching all employee:", err);
     }
   };
+
+   const handleStatusChange = async (vendorId, newStatus) => {
+      const isEnabling = newStatus === 1;
+  
+      const confirm = await Swal.fire({
+        title: isEnabling ? "Enable Vendor?" : "Disable Vendor?",
+        text: isEnabling
+          ? "Are you sure you want to enable this vendor?"
+          : "Are you sure you want to disable this vendor?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: isEnabling ? "Yes, enable" : "Yes, disable",
+        cancelButtonText: "Cancel",
+      });
+  
+      if (!confirm.isConfirmed) return;
+  
+      try {
+        const token = localStorage.getItem("token");
+        const res = await UpdateVendorStatus(vendorId, newStatus, token);
+        if (res?.status === true || res?.status === "true") {
+          await Swal.fire("Success", "Vendor status updated.", "success");
+          fetchEmployee(currentPage, perPage);
+          fetchAllEmployee();
+        } else {
+          throw new Error(res?.message || "Failed to update status");
+        }
+      } catch (err) {
+        console.error(err);
+        await Swal.fire("Error", "Failed to update status.", "error");
+      }
+    };
 
   const exportToExcel = async () => {
     try {
@@ -151,39 +183,30 @@ export default function EmployeeList() {
       selector: (row) => row?.phone || "—",
       sortable: true,
     },
-    {
-      name: "Active Status",
-      cell: (row) => (
-        <div className="form-check form-switch m-0 d-flex align-items-center">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            role="switch"
-            id={`toggle-${row.id}`}
-            checked={row.status === 1}
-            onChange={(e) => {
-              if (row.approval_status === 1) {
-                handleStatusChange(row.id, e.target.checked ? 1 : 2);
-              } else {
-                Swal.fire({
-                  icon: "warning",
-                  title: "Action not allowed",
-                  text: "Vendor must be approved first to change status.",
-                  confirmButtonColor: "#3085d6",
-                  confirmButtonText: "OK",
-                });
-              }
-            }}
-            style={{
-              width: "3.5rem",
-              height: "1.5rem",
-              cursor: row.approval_status !== 1 ? "not-allowed" : "pointer",
-              marginTop: "2px",
-            }}
-          />
-        </div>
-      ),
-    },
+   {
+  name: "Active Status",
+  cell: (row) => (
+    <div className="form-check form-switch m-0 d-flex align-items-center">
+      <input
+        className="form-check-input"
+        type="checkbox"
+        role="switch"
+        id={`toggle-${row.id}`}
+        checked={row.status === 1}
+        onChange={(e) => {
+          handleStatusChange(row.id, e.target.checked ? 1 : 2);
+        }}
+        style={{
+          width: "3.5rem",
+          height: "1.5rem",
+          cursor: "pointer",
+          marginTop: "2px",
+        }}
+      />
+    </div>
+  ),
+},
+
   ];
 
   return (
