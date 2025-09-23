@@ -122,16 +122,32 @@ exports.updateEmployee = async (req, res) => {
 
 exports.getEmployees = async (req, res) => {
   try {
-    const employees = await User.findAll({
+    // Extract page & limit from request (query or body)
+    let { page, limit } = req.body; // you can also use req.body if needed
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 10; // default 10 records per page
+
+    const offset = (page - 1) * limit;
+
+    // Fetch employees with pagination
+    const { rows: employees, count: total } = await User.findAndCountAll({
       where: { role_id: 3 },
-      attributes: ["id", "profile_name", "email", "phone", "status", "createdAt"], // select only required fields
+      attributes: ["id", "profile_name", "email", "phone", "status", "createdAt"],
       order: [["id", "DESC"]],
+      limit,
+      offset,
     });
 
     return res.json({
       status: true,
       msg: "Employees fetched successfully",
       data: employees,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
     });
 
   } catch (error) {
@@ -139,6 +155,7 @@ exports.getEmployees = async (req, res) => {
     return res.json({ status: false, msg: error.message });
   }
 };
+
 
 exports.deleteEmployee = async (req, res) => {
   try {

@@ -38,6 +38,35 @@ async function seedAll() {
     console.log('ℹ️ Categories already exist.');
   }
 
+  const permissions = [
+    { name: 'Approve / Reject', slug: 'approve_reject' },
+    { name: 'Active / Deactive', slug: 'active_deactive' },
+    { name: 'Allot Package & Extension', slug: 'allot_package_extension' },
+    { name: 'Add & Edit Vendor', slug: 'add_edit_vendor' },
+    { name: 'Profile Management (Update Request)', slug: 'profile_management' },
+    { name: 'Blogs Edit & Create', slug: 'blogs_edit_create' },
+    { name: 'Enquiries & Lead Section', slug: 'enquiries_leads' },
+    { name: 'Report & Rating (View Only)', slug: 'report_rating' },
+    { name: 'Download Excel Data', slug: 'download_excel' },
+    { name: 'Delete Vendor', slug: 'delete_vendor' },
+    { name: 'Package Creation', slug: 'package_creation' },
+    { name: 'Admin Gallery', slug: 'admin_gallery' }
+  ];
+
+  const permCount = await Permission.count();
+  if (permCount === 0) {
+    const permissionInsert = permissions.map((perm, index) => ({
+      id: index + 1,
+      name: perm.name,
+      slug: perm.slug
+    }));
+    await Permission.bulkCreate(permissionInsert);
+    console.log('✅ Permissions seeded.');
+  } else {
+    console.log('ℹ️ Permissions already exist.');
+  }
+
+
   // ✅ States and Cities
   const stateCityMap = {
     'Andhra Pradesh': ['Kurnool', 'Vijayawada', 'Visakhapatnam'],
