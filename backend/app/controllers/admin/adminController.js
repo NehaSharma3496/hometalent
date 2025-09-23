@@ -295,7 +295,14 @@ exports.updateVendorStatus = async (req, res) => {
     }
     let data
     if (vendor_id && vendor_id !== undefined) {
-      data = await User.findOne({ where: { id: vendor_id, role_id: 2 } });
+      data = await User.findOne({
+        where: {
+          id: vendor_id,
+          role_id: {
+            [Op.or]: [2, 3]
+          }
+        }
+      });
     }
     if(blog_id && blog_id !== undefined ) {
       data = await Blog.findOne({ where: { id: blog_id } });
