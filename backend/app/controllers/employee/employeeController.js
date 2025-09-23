@@ -219,6 +219,19 @@ exports.getEmployeePermissions = async (req, res) => {
   }
 };
 
+exports.getallpermissions = async (req, res) => {
+  try {
+    const permissions = await Permission.findAll({
+      attributes: ["id", "name", "slug"],
+      order: [["id", "ASC"]],
+    });
+    return res.json({ status: true, data: permissions });
+  } catch (error) {
+    console.error("Error in getallpermissions:", error);
+    return res.json({ status: false, msg: error.message });
+  }
+};
+
 
 
 
