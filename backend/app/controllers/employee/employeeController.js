@@ -180,8 +180,7 @@ exports.deleteEmployee = async (req, res) => {
 
 exports.assignPermissions = async (req, res) => {
   try {
-    const { user_id, permission_ids } = req.body; // array of permission IDs
-
+    const { user_id, permission_ids } = req.body; 
     // Ensure user is employee
     const user = await User.findOne({ where: { id: user_id, role_id: 3 } });
     if (!user) return res.json({ status: false, msg: "Employee not found" });
@@ -231,8 +230,6 @@ exports.getallpermissions = async (req, res) => {
     return res.json({ status: false, msg: error.message });
   }
 };
-
-
 
 exports.checkEmployeePermission = async (req, res) => {
   try {

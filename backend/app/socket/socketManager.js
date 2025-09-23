@@ -197,7 +197,7 @@ class SocketManager {
   }
 
   // Vendor package subscription notification
-  vendorSubscribed(subscriptionData, planName, vendorName) {
+  vendorSubscribed(subscriptionData, planName, vendorName, role_id, empname) {
     // Notify the vendor
     this.notifyVendor(subscriptionData.vendor_id, 'package_subscribed', {
       message: `New Subscription:${planName} subscribed successfully`,
@@ -205,10 +205,17 @@ class SocketManager {
     });
 
     // Notify admins
-    this.notifyAdmins('plan_subscribed', {
+    if(role_id == 2){
+      this.notifyAdmins('plan_subscribed', {
       message: `New Subscription:${planName} plan subscribed by Vendor(${vendorName}).`,
       subscription: subscriptionData
     });
+    }else{
+      this.notifyAdmins('plan_subscribed', {
+        message: `New Subscription:${planName} assigned to Vendor(${vendorName}) by (${empname}).`,
+        subscription: subscriptionData
+      });
+    }
   }
 
   // Sponsor rank updated notification

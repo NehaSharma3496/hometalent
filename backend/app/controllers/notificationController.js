@@ -13,9 +13,9 @@ exports.listAdminNotifications = async (req, res) => {
       offset,
     });
 
-    res.json({ status: true, data: rows, meta: { page, limit, total: count } });
+    return res.json({ status: true, data: rows, meta: { page, limit, total: count } });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.status(500).json({ status: false, msg: error.message });
   }
 };
 
