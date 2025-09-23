@@ -13,5 +13,6 @@ router.delete('/delete/:id', employeeController.deleteEmployee);
 router.post('/assign-permissions', employeeController.assignPermissions);
 router.get('/get-employee-permissions/:user_id', employeeController.getEmployeePermissions);
 router.get('/getallpermissions', employeeController.getallpermissions);
+router.post('/checkEmployeePermission', employeeController.checkEmployeePermission);
 
 module.exports = router;

@@ -234,6 +234,54 @@ exports.getallpermissions = async (req, res) => {
 
 
 
+exports.checkEmployeePermission = async (req, res) => {
+  try {
+    const { user_id, slug } = req.body; // or req.query
+
+    if (!user_id || !slug) {
+      return res.json({
+        status: false,
+        msg: "user_id and slug are required",
+      });
+    }
+
+    // Find permission record
+    const permission = await Permission.findOne({ where: { slug } });
+
+    if (!permission) {
+      return res.status(404).json({
+        status: false,
+        msg: "Permission not found",
+      });
+    }
+
+    // Check if employee has this permission
+    const hasPermission = await UserPermission.findOne({
+      where: {
+        user_id,
+        permission_id: permission.id,
+      },
+    });
+
+    return res.json({
+      status: true,
+      user_id,
+      slug,
+      allowed: !!hasPermission,
+    });
+
+  } catch (error) {
+    console.error("Error in checkEmployeePermission:", error);
+    return res.json({
+      status: false,
+      msg: error.message,
+    });
+  }
+};
+
+
+
+
 
 
 
