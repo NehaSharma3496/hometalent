@@ -830,7 +830,6 @@ export async function GetEmployeeList(token, page = 1, limit = 10) {
 }
 
 export async function EmployeeRegister(data) {
-  console.log("Data", data);
   try {
     const response = await axios.post(
       `${Config.base_url}employee/addemployee`,
@@ -848,10 +847,58 @@ export async function EmployeeRegister(data) {
 }
 
 export async function UpdateEmpoyee(data, vendor_id) {
-  console.log("Employee Data",data,vendor_id)
   try {
     const response = await axios.post(
       `${Config.base_url}employee/update/${vendor_id}`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    throw error?.response?.data || error;
+  }
+}
+
+export async function GetAllPermission(token) {
+  try {
+    const response = await axios.get(
+      `${Config.base_url}employee/getallpermissions`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    throw error?.response?.data || error;
+  }
+}
+
+export async function GetEmployeePermission(token, vendor_id) {
+  try {
+    const response = await axios.get(
+      `${Config.base_url}employee/get-employee-permissions/${vendor_id}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    throw error?.response?.data || error;
+  }
+}
+
+export async function AssignPermission(data) {
+  try {
+    const response = await axios.post(
+      `${Config.base_url}employee/assign-permissions`,
       data,
       {
         headers: {

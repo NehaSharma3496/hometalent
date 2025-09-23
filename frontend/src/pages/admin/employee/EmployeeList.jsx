@@ -226,6 +226,18 @@ export default function EmployeeList() {
           >
             <i className="fa fa-edit"></i>
           </button>
+          <button
+            className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
+            style={{ width: "35px", height: "35px" }}
+            onClick={() =>
+              navigate("/admin/permissions", {
+                state: { vendor_id: row.id },
+              })
+            }
+            title="Permission"
+          >
+            <i className="fa fa-key"></i>
+          </button>
         </div>
       ),
     },
