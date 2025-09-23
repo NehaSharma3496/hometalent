@@ -10,7 +10,7 @@ router.post('/addemployee', employeeController.addEmployee);
 router.get('/list', employeeController.getEmployees);
 router.post('/update/:id', uploadMedia, employeeController.updateEmployee);
 router.delete('/delete/:id', employeeController.deleteEmployee);
-router.post('/assign-permissions/:id', employeeController.assignPermissions);
-router.get('/get-employee-permissions/:id', employeeController.getEmployeePermissions);
+router.post('/assign-permissions', employeeController.assignPermissions);
+router.get('/get-employee-permissions/:user_id', employeeController.getEmployeePermissions);
 
 module.exports = router;
