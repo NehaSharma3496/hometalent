@@ -815,13 +815,52 @@ export async function GetVendorsByPackageStatus(token, status) {
 
 export async function GetEmployeeList(token, page = 1, limit = 10) {
   try {
-    const response = await axios.get(`${Config.base_url}employee/list?page=${page}&limit=${limit}`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${Config.base_url}employee/list?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error;
+  }
+}
+
+export async function EmployeeRegister(data) {
+  console.log("Data", data);
+  try {
+    const response = await axios.post(
+      `${Config.base_url}employee/addemployee`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    throw error?.response?.data || error;
+  }
+}
+
+export async function UpdateEmpoyee(data, vendor_id) {
+  console.log("Employee Data",data,vendor_id)
+  try {
+    const response = await axios.post(
+      `${Config.base_url}employee/update/${vendor_id}`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    throw error?.response?.data || error;
   }
 }

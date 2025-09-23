@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { GetEmployeeList,UpdateVendorStatus } from "../../../Services/admin/Admin";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  GetEmployeeList,
+  UpdateVendorStatus,
+} from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
@@ -75,43 +78,43 @@ export default function EmployeeList() {
     }
   };
 
-   const handleStatusChange = async (vendorId, newStatus) => {
-      const isEnabling = newStatus === 1;
-  
-      const confirm = await Swal.fire({
-        title: isEnabling ? "Enable Vendor?" : "Disable Vendor?",
-        text: isEnabling
-          ? "Are you sure you want to enable this vendor?"
-          : "Are you sure you want to disable this vendor?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: isEnabling ? "Yes, enable" : "Yes, disable",
-        cancelButtonText: "Cancel",
-      });
-  
-      if (!confirm.isConfirmed) return;
-  
-      try {
-        const token = localStorage.getItem("token");
-        const res = await UpdateVendorStatus(vendorId, newStatus, token);
-        if (res?.status === true || res?.status === "true") {
-          await Swal.fire("Success", "Vendor status updated.", "success");
-          fetchEmployee(currentPage, perPage);
-          fetchAllEmployee();
-        } else {
-          throw new Error(res?.message || "Failed to update status");
-        }
-      } catch (err) {
-        console.error(err);
-        await Swal.fire("Error", "Failed to update status.", "error");
+  const handleStatusChange = async (vendorId, newStatus) => {
+    const isEnabling = newStatus === 1;
+
+    const confirm = await Swal.fire({
+      title: isEnabling ? "Enable Employee?" : "Disable Employee?",
+      text: isEnabling
+        ? "Are you sure you want to enable this employee?"
+        : "Are you sure you want to disable this employee?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: isEnabling ? "Yes, enable" : "Yes, disable",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await UpdateVendorStatus(vendorId, newStatus, token);
+      if (res?.status === true || res?.status === "true") {
+        await Swal.fire("Success", "Employee status updated.", "success");
+        fetchEmployee(currentPage, perPage);
+        fetchAllEmployee();
+      } else {
+        throw new Error(res?.message || "Failed to update status");
       }
-    };
+    } catch (err) {
+      console.error(err);
+      await Swal.fire("Error", "Failed to update status.", "error");
+    }
+  };
 
   const exportToExcel = async () => {
     try {
       const token = localStorage.getItem("token");
 
-      let allVendors = [];
+      let allemployee = [];
       let page = 1;
       const limit = 1000000;
       let totalPages = 1;
@@ -120,7 +123,7 @@ export default function EmployeeList() {
         const res = await GetEmployeeList(token, page, limit);
         const { data, pagination } = res || {};
 
-        if (data?.length) allVendors = [...allVendors, ...data];
+        if (data?.length) allemployee = [...allemployee, ...data];
 
         if (pagination) {
           totalPages = Math.ceil(pagination.total_records / limit);
@@ -131,12 +134,13 @@ export default function EmployeeList() {
         page++;
       }
 
-      const exportData = allVendors?.map((row, index) => {
+      const exportData = allemployee?.map((row, index) => {
         return {
           "S.No": index + 1,
           Name: row.profile_name || "N/A",
           Email: row.email || "N/A",
           "Phone Number": row.phone || "N/A",
+          Status: row.status === 1 ? "Active" : "Inactive",
           Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
         };
       });
@@ -155,7 +159,7 @@ export default function EmployeeList() {
     ? allemployee?.filter((v) => {
         const lowerSearch = searchText.toLowerCase();
         return (
-          v.owner_name?.toLowerCase().includes(lowerSearch) ||
+          v.profile_name?.toLowerCase().includes(lowerSearch) ||
           v.email?.toLowerCase().includes(lowerSearch) ||
           v.phone?.toLowerCase().includes(lowerSearch)
         );
@@ -183,30 +187,48 @@ export default function EmployeeList() {
       selector: (row) => row?.phone || "—",
       sortable: true,
     },
-   {
-  name: "Active Status",
-  cell: (row) => (
-    <div className="form-check form-switch m-0 d-flex align-items-center">
-      <input
-        className="form-check-input"
-        type="checkbox"
-        role="switch"
-        id={`toggle-${row.id}`}
-        checked={row.status === 1}
-        onChange={(e) => {
-          handleStatusChange(row.id, e.target.checked ? 1 : 2);
-        }}
-        style={{
-          width: "3.5rem",
-          height: "1.5rem",
-          cursor: "pointer",
-          marginTop: "2px",
-        }}
-      />
-    </div>
-  ),
-},
-
+    {
+      name: "Active Status",
+      cell: (row) => (
+        <div className="form-check form-switch m-0 d-flex align-items-center">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            role="switch"
+            id={`toggle-${row.id}`}
+            checked={row.status === 1}
+            onChange={(e) => {
+              handleStatusChange(row.id, e.target.checked ? 1 : 2);
+            }}
+            style={{
+              width: "3.5rem",
+              height: "1.5rem",
+              cursor: "pointer",
+              marginTop: "2px",
+            }}
+          />
+        </div>
+      ),
+    },
+    {
+      name: "Action",
+      cell: (row) => (
+        <div className="d-flex align-items-center gap-2">
+          <button
+            className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
+            style={{ width: "35px", height: "35px" }}
+            onClick={() =>
+              navigate("/admin/updateemployee", {
+                state: { vendorId: row.id },
+              })
+            }
+            title="Update"
+          >
+            <i className="fa fa-edit"></i>
+          </button>
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -220,11 +242,13 @@ export default function EmployeeList() {
             <h2 className="add-page-heading">All Employee</h2>
           </div>
         </div>
-        <div className="col-md-6 text-end">
+        <div className="col-md-6 text-end mt-2">
           <button className="btn btn-success me-2" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i>
-            Download Excel
+            <i className="fa-solid fa-file-excel me-1"></i>Download Excel
           </button>
+          <Link to="/admin/addemployee" className="btn btn-primary">
+            + Add Employee
+          </Link>
         </div>
       </div>
       <div className="card table-padding-inside">
@@ -234,7 +258,7 @@ export default function EmployeeList() {
             <input
               type="text"
               className="form-control border-0 shadow-none"
-              placeholder="Search by vendor name..."
+              placeholder="Search by employee name..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
             />

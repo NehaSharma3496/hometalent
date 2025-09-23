@@ -41,6 +41,8 @@ import SubscribedVendors from "../pages/admin/vendor/SubscribedVendors";
 import ExpiredVendors from "../pages/admin/vendor/ExpiredVendors";
 import UnsubscribedVendors from "../pages/admin/vendor/UnsubscribedVendors";
 import EmployeeList from "../pages/admin/employee/EmployeeList";
+import AddEmployee from "../pages/admin/employee/AddEmployee";
+import UpdateEmployee from "../pages/admin/employee/UpdateEmployee";
 
 const AdminRoutes = (
   <Route path="/admin" element={<AdminLayout />}>
@@ -98,6 +100,8 @@ const AdminRoutes = (
     <Route path="expiredvendors" element={<ExpiredVendors/>}/>
     <Route path="unsubscribed" element={<UnsubscribedVendors/>}/>
     <Route path="employeelist" element={<EmployeeList/>}/>
+    <Route path="addemployee" element={<AddEmployee/>}/>
+    <Route path="updateemployee" element={<UpdateEmployee/>}/>
   </Route>
 );
 
