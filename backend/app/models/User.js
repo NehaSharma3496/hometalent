@@ -9,7 +9,7 @@ const User = sequelize.define('User', {
     },
     owner_name: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     },
     profile_name: {
         type: DataTypes.STRING,
@@ -17,15 +17,15 @@ const User = sequelize.define('User', {
     },
     state_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
+        allowNull: true,
+        references: { 
             model: 'states',
             key: 'id',
         },
     },
     city_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: 'cities',
             key: 'id',
@@ -62,7 +62,7 @@ const User = sequelize.define('User', {
     },
     category_id: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     },
     category_name: {
         type: DataTypes.STRING,
@@ -145,7 +145,7 @@ const User = sequelize.define('User', {
 
     sponsor_rank: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         defaultValue: 0, // 1 = sponsored vendor, 0 = not sponsored
     },
     
@@ -184,6 +184,7 @@ User.associate = (models) => {
     // User.hasMany(models.ActivityLogs, { foreignKey: 'user_id' });
     User.hasMany(models.Review, { foreignKey: 'vendor_id', as: 'reviews' });
     User.hasMany(models.Report, { foreignKey: 'vendor_id', as: 'reports' });
+    User.hasMany(models.UserPermission, { foreignKey: 'user_id', as: 'user_permissions' });
     
 };
 
