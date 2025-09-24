@@ -41,6 +41,7 @@ exports.createUser = async (req, res) => {
       youtube_link,
       website_link,
       role_id,
+      login_id
     } = req.body;
   
     // ✅ Access image and video from req.files
@@ -97,13 +98,22 @@ exports.createUser = async (req, res) => {
 
     // Send socket notification for vendor registration
     if (user.role_id == 2) {
+      let roleid= "";
+      let nmessage;
+      if(login_id && login_id !== undefined){
+        const loginuser = await User.findOne({ where: { id: login_id, role_id: {
+                    [Op.or]: [1, 3]
+                  } } });
+          roleid = loginuser.role_id
+        nmessage =  `New Vendor ${user.owner_name || user.profile_name} Successfully Registered by ${loginuser.profile_name}`
+      }
       socketManager.vendorRegistered({
         id: user.id,
         owner_name: user.owner_name,
         profile_name: user.profile_name,
         email: user.email,
         phone: user.phone,
-      });
+      }, roleid, nmessage);
       try {
         await Notification.create({
           user_id: null,
@@ -121,14 +131,14 @@ exports.createUser = async (req, res) => {
       }
     }
 
-    res.json({
+    return res.json({
       status: true,
       msg: "User created successfully",
       data: user,
     });
   } catch (error) {
     console.error("Error in createUser:", error);
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 

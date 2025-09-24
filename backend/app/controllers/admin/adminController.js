@@ -286,8 +286,14 @@ exports.listBlockedVendors = async (req, res) => {
 
 exports.updateVendorStatus = async (req, res) => {
   try {
-    const { vendor_id, blog_id, review_id, status } = req.body; // status = 1 (approve), 2 (block), 0 (unapprove)
-
+    const { vendor_id, blog_id, review_id, status, login_id } = req.body; // status = 1 (approve), 2 (block), 0 (unapprove)
+    const vendor = await User.findOne({ where: { id: vendor_id, role_id: 2 } });
+    const loginuser = await User.findOne({ where: { id: login_id, role_id: {
+            [Op.or]: [1, 3]
+          } } });
+    if (!vendor) {
+      return res.json({ status: false, msg: "Vendor not found" });
+    }
     if (![0, 1, 2].includes(Number(status))) {
       return res
         .status(400)
@@ -316,22 +322,44 @@ exports.updateVendorStatus = async (req, res) => {
 
     data.status = status;
     await data.save();
+    let action;
+      if(status == 1){
+        action = "Activated";
+      }else{
+        action = "Deactivated";
+      }
+      let type = `Status ${action}`;
+      let nmessage = `Vendor ${vendor.owner_name || vendor.profile_name} Account Status ${action} by ${loginuser.profile_name}`;
+      if(loginuser.role_id == 3){
+        socketManager.updatevendorstatus(type, nmessage, { vendor_id: vendor_id, login_id:login_id });
+        await Notification.create({
+          user_id: login_id,
+          user_type: 'admin',
+          type: type,
+          title: type,
+          message:nmessage,
+          metadata: { vendor_id: vendor_id, login_id:login_id }
+        });
+      }
 
-    res.json({ status: true, msg: `Status updated` });
+    return res.json({ status: true, msg: `Status updated` });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
 exports.approveVendor = async (req, res) => {
   try {
-    const { vendor_id, approval} = req.body;
+    const { vendor_id, approval, login_id} = req.body;
     if (!vendor_id) {
       return res
         .json({ status: false, msg: "vendor_id is required" });
     }
 
     const vendor = await User.findOne({ where: { id: vendor_id, role_id: 2 } });
+    const loginuser = await User.findOne({ where: { id: login_id, role_id: {
+            [Op.or]: [1, 3]
+          } } });
     if (!vendor) {
       return res.json({ status: false, msg: "Vendor not found" });
     }
@@ -341,12 +369,16 @@ exports.approveVendor = async (req, res) => {
     await vendor.save();
     let subject;
     let message;
+    let action;
 
     // Send email with login credentials
     if(approval == 2){
          subject = "Vendor Profile Rejected";
+         action = "Approved";
     }else{
          subject = "Vendor Approved - Login Details";
+         action = "Rejected";
+
     }
     if(approval == 2){
         message = `
@@ -369,6 +401,19 @@ exports.approveVendor = async (req, res) => {
     }
 
     await commonEmail(vendor.email, subject, message);
+      let type = `Registration Request ${action}`;
+      let nmessage = `Vendor ${vendor.owner_name || vendor.profile_name} Registration Request ${action} by ${loginuser,profile_name}.`;
+      if(loginuser.role_id == 3){
+        socketManager.approvevendor(type, nmessage, { vendor_id: vendor_id, login_id:login_id });
+        await Notification.create({
+          user_id: login_id,
+          user_type: 'admin',
+          type: type,
+          title: type,
+          message:nmessage,
+          metadata: { vendor_id: vendor_id, login_id:login_id }
+        });
+      }
 
     return res.json({
       status: true,
@@ -579,14 +624,18 @@ exports.processProfileUpdateRequest = async (req, res) => {
         msg: 'admin_id is required' 
       });
     }
-
+  
     if (!['approve', 'reject'].includes(action)) {
       return res.json({ 
         status: false, 
         msg: 'Action must be either "approve" or "reject"' 
       });
     }
-
+    
+    const loginuser = await User.findOne({ where: { id: admin_id, role_id: {
+            [Op.or]: [1, 3]
+          } } });
+  
     const request = await ProfileUpdateRequest.findOne({
       where: { id: request_id, status: 'pending' },
       include: [
@@ -673,7 +722,7 @@ exports.processProfileUpdateRequest = async (req, res) => {
         status: request.status,
         admin_remarks: request.admin_remarks,
         processed_at: request.processed_at
-      }, request.vendor_id, action);
+      }, request.vendor_id, action, loginuser.role_id, userAfter.owner_name || userAfter.profile_name, loginuser.profile_name);
 
       // Persist admin notification
       // try {
@@ -947,7 +996,9 @@ exports.assignPackageToVendor = async (req, res) => {
     }
 
     const vendor = await User.findOne({ where: { id: vendor_id, role_id: 2 } });
-    const loginuser = await User.findOne({ where: { id: login_id, role_id: 3 } });
+    const loginuser = await User.findOne({ where: { id: login_id, role_id: {
+            [Op.or]: [1, 3]
+          } } });
     if (!vendor) {
       return res.json({ status: false, msg: 'Vendor not found' });
     }
@@ -1043,7 +1094,7 @@ exports.assignPackageToVendor = async (req, res) => {
           user_type: 'admin',
           type: 'package_assigned',
           title: 'Package Assigned',
-          message: `New Subscription:${planName} plan subscribed by Vendor(${vendorName}).`,
+          message: `New Subscription:${pkg.name} plan subscribed by Vendor(${vendor.owner_name || vendor.profile_name}).`,
           metadata: { subscription_id: subscription.id, package_id }
         });
       }else{
@@ -1052,7 +1103,7 @@ exports.assignPackageToVendor = async (req, res) => {
           user_type: 'admin',
           type: 'package_assigned',
           title: 'Package Assigned',
-          message: `New Subscription:${planName} assigned to Vendor(${vendorName}) by (${loginuser.profile_name}).`,
+          message: `New Subscription:${planName} assigned by (${loginuser.profile_name}) to Vendor(${vendorName}).`,
           metadata: { subscription_id: subscription.id, package_id }
         });
       }
@@ -1127,7 +1178,7 @@ exports.getExpiredVendors = async (req, res) => {
 
 exports.extendVendorPackage = async (req, res) => {
   try {
-    const { id, extra_days } = req.body;
+    const { id, extra_days, login_id} = req.body;
 
     if (!id || !extra_days) {
       return res
@@ -1137,8 +1188,15 @@ exports.extendVendorPackage = async (req, res) => {
           msg: "subscription_id and extra_days are required",
         });
     }
-
+    
     const sub = await VendorPackageSubscription.findByPk(id);
+    const vendor = await User.findOne({ where: { id: sub.vendor_id, role_id: 2 } });
+    const loginuser = await User.findOne({ where: { id: login_id, role_id: {
+            [Op.or]: [1, 3]
+          } } });
+    if (!vendor) {
+      return res.json({ status: false, msg: "Vendor not found" });
+    }
     const pkg = await Package.findByPk(sub.package_id);
 
     if (!pkg) {
@@ -1170,7 +1228,8 @@ exports.extendVendorPackage = async (req, res) => {
        const mm = String(new_end_date.getMonth() + 1).padStart(2, "0");
        const yy = String(new_end_date.getFullYear());
        const formatted = `${dd}/${mm}/${yy}`;
-      socketManager.vendorPackageExtended(sub.vendor_id,{
+
+      socketManager.vendorPackageExtended(sub.vendor_id, loginuser.role_id, vendor.owner_name || vendor.profile_name, loginuser,profile_name, {
         id: sub.id,
         vendor_id: sub.vendor_id,
         package_name: pkg.name,

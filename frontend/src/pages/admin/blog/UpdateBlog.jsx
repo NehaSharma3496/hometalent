@@ -6,6 +6,8 @@ import {
   GetSingleAdminBlog,
 } from "../../../Services/admin/Admin";
 import "react-quill/dist/quill.snow.css";
+const login_id = localStorage.getItem("userId");
+
 
 const ReactQuill = lazy(() => import("react-quill"));
 
@@ -48,6 +50,7 @@ export default function UpdateBlog() {
     formData.append("title", title);
     formData.append("short_description", shortDescription);
     formData.append("long_description", longDescription);
+    formData.append("login_id", login_id);
     if (image) {
       formData.append("image", image);
     }

@@ -10,7 +10,7 @@ import {
   GetCities,
 } from "../../../Services/vendor/Vendor";
 import { VerifyOtp } from "../../../Services/webService/Web";
-
+const login_id = localStorage.getItem("userId");
 export default function AddVendor() {
   const navigate = useNavigate();
 
@@ -60,6 +60,7 @@ export default function AddVendor() {
     website_link: "",
     image: null,
     terms: false,
+    login_id : login_id
   };
 
   const [otpTimer, setOtpTimer] = useState(0);
@@ -550,7 +551,7 @@ export default function AddVendor() {
       formData.append("linkedin_link", values.linkedin_link || "");
       formData.append("youtube_link", values.youtube_link || "");
       formData.append("website_link", values.website_link || "");
-
+      formData.appned("login_id", values.login_id || "");
       const selectedCat = categoryData.find(
         (cat) => cat.value === values.category
       );

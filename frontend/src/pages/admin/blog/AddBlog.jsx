@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { AddAdminBlog } from "../../../Services/admin/Admin";
 import "react-quill/dist/quill.snow.css";
+const login_id = localStorage.getItem("userId");
+
 
 const ReactQuill = lazy(() => import("react-quill"));
 
@@ -45,6 +47,7 @@ export default function AddBlog() {
     formData.append("short_description", shortDescription);
     formData.append("long_description", longDescription);
     formData.append("image", image);
+    formData.append("login_id", login_id);
 
     try {
       const response = await AddAdminBlog(token, formData);

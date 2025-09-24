@@ -341,8 +341,8 @@ export default function Allvendors() {
       if (!confirm.isConfirmed) return;
 
       const token = localStorage.getItem("token");
-      const response = await GetApproveVendor(vendorId, status, token);
-
+      const login_id = localStorage.getItem("userId");
+      const response = await GetApproveVendor(vendorId, status, token, login_id);
       if (response.status === true || response.status === "true") {
         await Swal.fire("Success", response.message, "success");
         fetchVendors(currentPage, perPage);
@@ -374,7 +374,8 @@ export default function Allvendors() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await UpdateVendorStatus(vendorId, newStatus, token);
+      const login_id = localStorage.getItem("userId");
+      const res = await UpdateVendorStatus(vendorId, newStatus, token, login_id);
       if (res?.status === true || res?.status === "true") {
         await Swal.fire("Success", "Vendor status updated.", "success");
         fetchVendors(currentPage, perPage);

@@ -57,6 +57,7 @@ export async function GetApproveVendor(vendorId, approval, token) {
       {
         vendor_id: vendorId,
         approval: approval,
+        login_id: login_id
       },
       {
         headers: {
@@ -185,11 +186,11 @@ export async function GetPendingVendoreList(token, page = 1, limit = 10) {
   }
 }
 
-export async function UpdateVendorStatus(vendorId, vendorStatus, token) {
+export async function UpdateVendorStatus(vendorId, vendorStatus, token, login_id) {
   try {
     const res = await axios.post(
       `${Config.base_url}admin/vendors/update-status`,
-      { vendor_id: vendorId, status: vendorStatus },
+      { vendor_id: vendorId, status: vendorStatus, login_id: login_id },
       {
         headers: {
           Authorization: `${token}`,

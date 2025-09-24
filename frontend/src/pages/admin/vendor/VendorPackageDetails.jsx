@@ -168,11 +168,12 @@ export default function VendorPackageDetails() {
     });
 
     if (!confirm.isConfirmed) return;
-
+    const login_id = localStorage.getItem("userId");
     try {
       const response = await ExtendPackage(token, {
         id: row.id,
         extra_days: extraDays,
+        login_id: login_id
       });
 
       if (response?.status === true || response?.status === "true") {

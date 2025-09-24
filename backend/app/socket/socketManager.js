@@ -78,6 +78,7 @@ class SocketManager {
   // Send notification to specific vendor
   notifyVendor(vendorId, type, data) {
     const vendorKey = String(vendorId);
+
     const vendorSocket = this.vendorSockets.get(vendorKey);
     // console.log('Sending notification to vendor:', vendorKey, 'Socket:', vendorSocket);
     console.log("Available vendors:", vendorSocket);
@@ -122,11 +123,20 @@ class SocketManager {
   }
 
   // Vendor registration notification
-  vendorRegistered(vendorData) {
+  vendorRegistered(vendorData, role_id, message) {
+
+    if(role_id == 3){
+    this.notifyAdmins("vendor_registration_request", {
+      message: message,
+      vendor: vendorData,
+    });
+
+  }else{
     this.notifyAdmins("vendor_registration_request", {
       message: "Vendor registration request received. Action required",
       vendor: vendorData,
     });
+  }
   }
 
   // Lead submission notification
@@ -169,7 +179,7 @@ class SocketManager {
   }
 
   // Profile update processed notification
-  profileUpdateProcessed(requestData, vendorId, action) {
+  profileUpdateProcessed(requestData, vendorId, action, role_id, vendorname, empname) {
     // Notify the vendor about their request status
     this.notifyVendor(vendorId, "profile_update_processed", {
       message: `Your profile update request has been ${
@@ -180,12 +190,14 @@ class SocketManager {
     });
 
     // Notify admins
-    // this.notifyAdmins('profile_update_processed', {
-    //   message: `Vendor profile update request ${action}ed`,
-    //   request: requestData,
-    //   vendor_id: vendorId,
-    //   action
-    // });
+    if(role_id == 3){
+      this.notifyAdmins('profile_update_processed', {
+        message: `Vendor ${vendorname}'s Update Request ${action === "approve" ? "Approved" : "Rejected"} by ${empname}`,
+        request: requestData,
+        vendor_id: vendorId,
+        action
+      });
+    }
   }
 
   // Contact us submission notification
@@ -286,18 +298,47 @@ class SocketManager {
     });
   }
 
-  vendorPackageExtended(vendorId, packageData) {
+  vendorPackageExtended(vendorId, role_id, vendorname, empname, packageData) {
+
+    if(role_id == 3){
+      this.notifyAdmins("plan_extend", {
+      message: `${empname} has successfully extended the plan ${packageData.package_name} for the vendor ${vendorname}`,
+      packageData: packageData,
+    });
+    }
     // Notify vendor
     this.notifyVendor(vendorId, "plan_extend", {
       message: `Package ${packageData.package_name} extended successfully by Admin for ${packageData.extra_days} days. Valid till ${packageData.new_end_date}.`,
       subscription: packageData,
     });
+
   }
 
   feedbackSubmitted(feedbackData) {
     this.notifyAdmins("feedback_submitted", {
       message: "New feedback has been received.",
       feedback: feedbackData,
+    });
+  }
+
+  approvevendor(type, message, data) {
+    this.notifyAdmins(type, {
+      message: message,
+      data: data,
+    });
+  }
+
+  updatevendorstatus(type, message, data) {
+    this.notifyAdmins(type, {
+      message: message,
+      data: data,
+    });
+  }
+
+  blogaction(type, message, data) {
+    this.notifyAdmins(type, {
+      message: message,
+      data: data,
     });
   }
 }
