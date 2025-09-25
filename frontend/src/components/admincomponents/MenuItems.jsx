@@ -206,8 +206,8 @@ export const MenuItems = {
       ],
     },
   ],
-  3:[
-     {
+  3: [
+    {
       icon: "fa-solid fa-grid-2",
       label: "Dashboard",
       link: "/admin/dashboard",
@@ -350,7 +350,7 @@ export const MenuItems = {
         },
       ],
     },
-  ]
+  ],
 };
 
 export default MenuItems;
