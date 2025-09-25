@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import { showPackage, DeletePackage } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import { UpdatePackageStatus } from "../../../Services/admin/Admin";
+import { GetEmployeePermission } from "../../../Services/admin/Admin";
 import * as XLSX from "xlsx";
 
 export default function Packages() {
@@ -16,6 +17,29 @@ export default function Packages() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
+
+  const [permissions, setPermissions] = useState([]);
+  const role=localStorage.getItem("role");
+
+useEffect(() => {
+  const fetchPermissions = async () => {
+    if (role !== "3") return;
+
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+
+    try {
+      const res = await GetEmployeePermission(token, userId);
+      if (res?.status && Array.isArray(res.data)) {
+        setPermissions(res.data.map(p => p.slug));
+      }
+    } catch (err) {
+      console.error("Error fetching permissions:", err);
+    }
+  };
+
+  fetchPermissions();
+}, []);
 
   const fetchPackages = async (page, limit) => {
     setLoading(true);
@@ -131,39 +155,40 @@ export default function Packages() {
     setCurrentPage(1);
   };
 
-const handleStatusToggle = async (pkg) => {
-  const token = localStorage.getItem("adminToken");
-  const newStatus = pkg.status === 1 ? 0 : 1;
+  const handleStatusToggle = async (pkg) => {
+    const token = localStorage.getItem("adminToken");
+    const newStatus = pkg.status === 1 ? 0 : 1;
 
-  Swal.fire({
-    title: "Are you sure?",
-    text: `You want to ${newStatus === 1 ? "activate" : "deactivate"} this package?`,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, proceed!",
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        const res = await UpdatePackageStatus(token, {
-          package_id: pkg.id,
-          status: newStatus,
-        });
+    Swal.fire({
+      title: "Are you sure?",
+      text: `You want to ${
+        newStatus === 1 ? "activate" : "deactivate"
+      } this package?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, proceed!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await UpdatePackageStatus(token, {
+            package_id: pkg.id,
+            status: newStatus,
+          });
 
-        if (res?.status) {
-          Swal.fire("Success", res?.msg || "Status updated", "success");
-          fetchPackages();
-        } else {
-          Swal.fire("Error", res?.msg || "Failed to update status", "error");
+          if (res?.status) {
+            Swal.fire("Success", res?.msg || "Status updated", "success");
+            fetchPackages();
+          } else {
+            Swal.fire("Error", res?.msg || "Failed to update status", "error");
+          }
+        } catch (err) {
+          Swal.fire("Error", "Server error", "error");
         }
-      } catch (err) {
-        Swal.fire("Error", "Server error", "error");
       }
-    }
-  });
-};
-
+    });
+  };
 
   // const handleDelete = async (packageId) => {
   //   const result = await Swal.fire({
@@ -315,16 +340,25 @@ const handleStatusToggle = async (pkg) => {
           </div>
         </div>
 
-        <div className="col-md-6 text-end mt-2">
-          <button className="btn btn-success me-2" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-2"></i>
-            Download Excel
-          </button>
+      <div className="col-md-6 text-end mt-2">
+  <button className="btn btn-success me-2" onClick={exportToExcel}>
+    <i className="fa-solid fa-file-excel me-2"></i>
+    Download Excel
+  </button>
 
-          <Link to="/admin/addpackage" className="btn btn-primary me-2">
-            + Add Package
-          </Link>
-        </div>
+  {role === "3" ? (
+    permissions.includes("package_creation") && (
+      <Link to="/admin/addpackage" className="btn btn-primary me-2">
+        + Add Package
+      </Link>
+    )
+  ) : (
+    <Link to="/admin/addpackage" className="btn btn-primary me-2">
+      + Add Package
+    </Link>
+  )}
+</div>
+
       </div>
 
       <div className="card table-padding">

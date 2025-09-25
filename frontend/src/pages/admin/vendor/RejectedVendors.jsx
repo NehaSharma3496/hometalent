@@ -4,6 +4,7 @@ import {
   GetRejectedVendor,
   GetCategories,
   GetApproveVendor,
+  GetEmployeePermission
 } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
@@ -20,9 +21,29 @@ export default function RejectedVendors() {
   const [totalRows, setTotalRows] = useState(0);
   const [allRejectedVendors, setAllRejectedVendors] = useState([]);
   const navigate = useNavigate();
-
-
+  const [permissions, setPermissions] = useState([]);
+  const role = localStorage.getItem("role");
   const login_id = localStorage.getItem("userId");
+
+useEffect(() => {
+    const fetchPermissions = async () => {
+      if (role !== "3") return;
+
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      try {
+        const res = await GetEmployeePermission(token, userId);
+        if (res?.status && Array.isArray(res.data)) {
+          setPermissions(res.data.map((p) => p.slug));
+        }
+      } catch (err) {
+        console.error("Error fetching permissions:", err);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
 
   const fetchRejectedVendors = async (page, limit) => {
     setLoading(true);

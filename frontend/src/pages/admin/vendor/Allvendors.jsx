@@ -7,6 +7,7 @@ import {
   UpdateVendorStatus,
   showPackage,
   AssignPackageToVendor,
+  GetEmployeePermission,
 } from "../../../Services/admin/Admin";
 
 import { getVendorPackageHistory } from "../../../Services/vendor/Vendor";
@@ -31,32 +32,52 @@ export default function Allvendors() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [packageFilter, setPackageFilter] = useState("");
-  
-  // New filter states
   const [cityFilter, setCityFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [availableCities, setAvailableCities] = useState([]);
   const [availableCategories, setAvailableCategories] = useState([]);
-  
-  const login_id = localStorage.getItem("userId");
 
-  // Extract unique cities and categories from vendors data
+  const login_id = localStorage.getItem("userId");
+  const role = localStorage.getItem("role");
+
+  const [permissions, setPermissions] = useState([]);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      if (role !== "3") return;
+
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      try {
+        const res = await GetEmployeePermission(token, userId);
+        if (res?.status && Array.isArray(res.data)) {
+          setPermissions(res.data.map((p) => p.slug));
+        }
+      } catch (err) {
+        console.error("Error fetching permissions:", err);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
+
   useEffect(() => {
     if (allVendors?.length > 0) {
       // Extract cities
       const cities = [];
       const citySet = new Set();
-      
-      allVendors.forEach(vendor => {
+
+      allVendors.forEach((vendor) => {
         if (vendor.City?.name && !citySet.has(vendor.City.name)) {
           citySet.add(vendor.City.name);
           cities.push({
             id: vendor.City.id,
-            name: vendor.City.name
+            name: vendor.City.name,
           });
         }
       });
-      
+
       // Sort cities alphabetically and set default top cities
       const sortedCities = cities.sort((a, b) => a.name.localeCompare(b.name));
       setAvailableCities(sortedCities);
@@ -64,14 +85,14 @@ export default function Allvendors() {
       // Extract categories
       const categories = [];
       const categorySet = new Set();
-      
-      allVendors.forEach(vendor => {
+
+      allVendors.forEach((vendor) => {
         if (vendor.category_names) {
-          const vendorCategories = Array.isArray(vendor.category_names) 
-            ? vendor.category_names 
+          const vendorCategories = Array.isArray(vendor.category_names)
+            ? vendor.category_names
             : [vendor.category_names];
-          
-          vendorCategories.forEach(category => {
+
+          vendorCategories.forEach((category) => {
             if (category && !categorySet.has(category)) {
               categorySet.add(category);
               categories.push(category);
@@ -79,7 +100,7 @@ export default function Allvendors() {
           });
         }
       });
-      
+
       const sortedCategories = categories.sort((a, b) => a.localeCompare(b));
       setAvailableCategories(sortedCategories);
     }
@@ -305,7 +326,13 @@ export default function Allvendors() {
   };
 
   // Check if any filter is active
-  const hasActiveFilters = searchText || startDate || endDate || packageFilter || cityFilter || categoryFilter;
+  const hasActiveFilters =
+    searchText ||
+    startDate ||
+    endDate ||
+    packageFilter ||
+    cityFilter ||
+    categoryFilter;
 
   // 🔹 MAIN FILTERING LOGIC - Updated with City and Category filters
   const filteredVendors = allVendors.filter((v) => {
@@ -350,13 +377,19 @@ export default function Allvendors() {
     // 🔹 Category Filter
     let matchesCategory = true;
     if (categoryFilter) {
-      const vendorCategories = Array.isArray(v.category_names) 
-        ? v.category_names 
+      const vendorCategories = Array.isArray(v.category_names)
+        ? v.category_names
         : [v.category_names];
       matchesCategory = vendorCategories.includes(categoryFilter);
     }
 
-    return matchesText && matchesDate && matchesPackage && matchesCity && matchesCategory;
+    return (
+      matchesText &&
+      matchesDate &&
+      matchesPackage &&
+      matchesCity &&
+      matchesCategory
+    );
   });
 
   const exportToExcel = async () => {
@@ -421,7 +454,12 @@ export default function Allvendors() {
 
       const token = localStorage.getItem("token");
       const login_id = localStorage.getItem("userId");
-      const response = await GetApproveVendor(vendorId, status, token, login_id);
+      const response = await GetApproveVendor(
+        vendorId,
+        status,
+        token,
+        login_id
+      );
       if (response.status === true || response.status === "true") {
         await Swal.fire("Success", response.message, "success");
         fetchVendors(currentPage, perPage);
@@ -454,7 +492,12 @@ export default function Allvendors() {
     try {
       const token = localStorage.getItem("token");
       const login_id = localStorage.getItem("userId");
-      const res = await UpdateVendorStatus(vendorId, newStatus, token, login_id);
+      const res = await UpdateVendorStatus(
+        vendorId,
+        newStatus,
+        token,
+        login_id
+      );
       if (res?.status === true || res?.status === "true") {
         await Swal.fire("Success", "Vendor status updated.", "success");
         fetchVendors(currentPage, perPage);
@@ -468,129 +511,127 @@ export default function Allvendors() {
     }
   };
 
-  const columns = [
-    {
-      name: "S.No",
-      selector: (row, index) => index + 1,
-      width: "50px",
-    },
-    {
-      name: "Owner Name",
-      selector: (row) => row.owner_name || "—",
-      sortable: true,
-      width: "180px",
-    },
-    {
-      name: "Email",
-      selector: (row) => row.email || "—",
-      sortable: true,
-      width: "250px",
-    },
-    {
-      name: "Category Names",
-      selector: (row) =>
-        Array.isArray(row.category_names)
-          ? row.category_names.join(", ")
-          : row.category_names,
-      sortable: true,
-      width: "170px",
-    },
-    { name: "Phone", selector: (row) => row.phone || "—" },
-    {
-      name: "State",
-      selector: (row) => row?.State?.name || "—",
-      width: "150px",
-    },
-    {
-      name: "City",
-      selector: (row) => row.City?.name || "—",
-    },
-    {
-      name: "Package Status",
-      cell: (row) => {
-        const packageStatus = getVendorPackageStatus(row.id);
-
-        return (
-          <div>
-            {packageStatus === "Active" ? (
-              <span className="badge bg-success">Active</span>
-            ) : packageStatus === "Expired" ? (
-              <span className="badge bg-danger">Expired</span>
-            ) : (
-              <span className="badge bg-secondary">N/A</span>
-            )}
-          </div>
-        );
-      },
-      sortable: false,
-      width: "150px",
-    },
-    {
-      name: "Active Status",
-      cell: (row) => (
-        <div className="form-check form-switch m-0 d-flex align-items-center">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            role="switch"
-            id={`toggle-${row.id}`}
-            checked={row.status === 1}
-            onChange={(e) => {
-              if (row.approval_status === 1) {
-                handleStatusChange(row.id, e.target.checked ? 1 : 2);
-              } else {
-                Swal.fire({
-                  icon: "warning",
-                  title: "Action not allowed",
-                  text: "Vendor must be approved first to change status.",
-                  confirmButtonColor: "#3085d6",
-                  confirmButtonText: "OK",
-                });
-              }
-            }}
-            style={{
-              width: "3.5rem",
-              height: "1.5rem",
-              cursor: row.approval_status !== 1 ? "not-allowed" : "pointer",
-              marginTop: "2px",
-            }}
-          />
+ const columns = [
+  {
+    name: "S.No",
+    selector: (row, index) => index + 1,
+    width: "50px",
+  },
+  {
+    name: "Owner Name",
+    selector: (row) => row.owner_name || "—",
+    sortable: true,
+    width: "180px",
+  },
+  {
+    name: "Email",
+    selector: (row) => row.email || "—",
+    sortable: true,
+    width: "250px",
+  },
+  {
+    name: "Category Names",
+    selector: (row) =>
+      Array.isArray(row.category_names)
+        ? row.category_names.join(", ")
+        : row.category_names,
+    sortable: true,
+    width: "170px",
+  },
+  { name: "Phone", selector: (row) => row.phone || "—" },
+  {
+    name: "State",
+    selector: (row) => row?.State?.name || "—",
+    width: "150px",
+  },
+  { name: "City", selector: (row) => row.City?.name || "—" },
+  {
+    name: "Package Status",
+    cell: (row) => {
+      const packageStatus = getVendorPackageStatus(row.id);
+      return (
+        <div>
+          {packageStatus === "Active" ? (
+            <span className="badge bg-success">Active</span>
+          ) : packageStatus === "Expired" ? (
+            <span className="badge bg-danger">Expired</span>
+          ) : (
+            <span className="badge bg-secondary">N/A</span>
+          )}
         </div>
-      ),
+      );
     },
-    {
-      name: "Action",
-      cell: (row) => (
-        <div className="d-flex align-items-center gap-2">
-          <button
-            className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
-            style={{ width: "35px", height: "35px" }}
-            onClick={() =>
-              navigate(`/admin/vendordetails`, { state: { vendorId: row.id } })
+    sortable: false,
+    width: "150px",
+  },
+  {
+    name: "Active Status",
+    cell: (row) => (
+      <div className="form-check form-switch m-0 d-flex align-items-center">
+        <input
+          className="form-check-input"
+          type="checkbox"
+          role="switch"
+          id={`toggle-${row.id}`}
+          checked={row.status === 1}
+          onChange={(e) => {
+            if (row.approval_status === 1) {
+              handleStatusChange(row.id, e.target.checked ? 1 : 2);
+            } else {
+              Swal.fire({
+                icon: "warning",
+                title: "Action not allowed",
+                text: "Vendor must be approved first to change status.",
+                confirmButtonColor: "#3085d6",
+                confirmButtonText: "OK",
+              });
             }
-            title="View"
-          >
-            <i className="fa-regular fa-eye"></i>
-          </button>
+          }}
+          style={{
+            width: "3.5rem",
+            height: "1.5rem",
+            cursor: row.approval_status !== 1 ? "not-allowed" : "pointer",
+            marginTop: "2px",
+          }}
+        />
+      </div>
+    ),
+  },
+  {
+    name: "Action",
+    cell: (row) => (
+      <div className="d-flex align-items-center gap-2">
+        <button
+          className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
+          style={{ width: "35px", height: "35px" }}
+          onClick={() =>
+            navigate(`/admin/vendordetails`, { state: { vendorId: row.id } })
+          }
+          title="View"
+        >
+          <i className="fa-regular fa-eye"></i>
+        </button>
 
-          {row.approval_status !== 0 && (
-            <>
-              <button
-                className="btn btn-sm d-flex align-items-center justify-content-center"
-                style={{
-                  width: "35px",
-                  height: "35px",
-                  backgroundColor: "#a3d2f2",
-                  borderColor: "#a3d2f2",
-                }}
-                onClick={() =>
-                  navigate(`/admin/galleryUpdates/vendorgallery/${row.id}`)
-                }
-                title="View Gallery"
-              >
-                <i className="fa-solid fa-images"></i>
-              </button>
+        {row.approval_status !== 0 && (
+          <>
+            <button
+              className="btn btn-sm d-flex align-items-center justify-content-center"
+              style={{
+                width: "35px",
+                height: "35px",
+                backgroundColor: "#a3d2f2",
+                borderColor: "#a3d2f2",
+              }}
+              onClick={() =>
+                navigate(`/admin/galleryUpdates/vendorgallery/${row.id}`)
+              }
+              title="View Gallery"
+            >
+              <i className="fa-solid fa-images"></i>
+            </button>
 
+            {/* Edit button - conditional */}
+            {(role !== "3" || permissions.includes("add_edit_vendor")) && (
               <button
                 className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
                 style={{ width: "35px", height: "35px" }}
@@ -603,95 +644,97 @@ export default function Allvendors() {
               >
                 <i className="fa fa-edit"></i>
               </button>
-
-              <button
-                className="btn btn-success btn-sm d-flex align-items-center justify-content-center"
-                style={{ width: "35px", height: "35px" }}
-                onClick={() => openAssignPackage(row.id)}
-                title="Assign Package"
-              >
-                <i className="fa-solid fa-box"></i>
-              </button>
-            </>
-          )}
-        </div>
-      ),
-      width: "160px",
-    },
-    {
-      name: "Approval Status",
-      cell: (row) => {
-        const status = row.approval_status;
-
-        const getStatusLabel = () => {
-          if (status === 1) return "Approved";
-          if (status === 2) return "Rejected";
-          return "Pending";
-        };
-
-        const getButtonClass = () => {
-          if (status === 1) return "bg-success";
-          if (status === 2) return "bg-danger";
-          return "bg-warning dropdown-toggle fs-6";
-        };
-
-        return (
-          <div className="dropdown">
-            {status === 0 ? (
-              <>
-                <button
-                  className={`badge ${getButtonClass()}`}
-                  type="button"
-                  id={`statusDropdown-${row.id}`}
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  {getStatusLabel()}
-                </button>
-                <ul
-                  className="dropdown-menu"
-                  aria-labelledby={`statusDropdown-${row.id}`}
-                >
-                  <li>
-                    <button
-                      className="dropdown-item text-success"
-                      onClick={() => handleApproveVendor(row.id, 1)}
-                    >
-                      ✅ Approve
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item text-danger"
-                      onClick={() => handleApproveVendor(row.id, 2)}
-                    >
-                      ❌ Reject
-                    </button>
-                  </li>
-                </ul>
-              </>
-            ) : (
-              <button
-                className={`btn btn-sm ${getButtonClass()}`}
-                type="button"
-                disabled
-                style={{ cursor: "default" }}
-                title={getStatusLabel()}
-              >
-                {getStatusLabel()}
-              </button>
             )}
-          </div>
-        );
-      },
-      sortable: false,
-      width: "120px",
-    },
-    {
-      name: "Date",
-      selector: (row) => new Date(row.createdAt).toLocaleDateString(),
-    },
-  ];
+
+            <button
+              className="btn btn-success btn-sm d-flex align-items-center justify-content-center"
+              style={{ width: "35px", height: "35px" }}
+              onClick={() => openAssignPackage(row.id)}
+              title="Assign Package"
+            >
+              <i className="fa-solid fa-box"></i>
+            </button>
+          </>
+        )}
+      </div>
+    ),
+    width: "160px",
+  },
+
+  // Conditional Approval Status column
+  ...(role !== "3" || permissions.includes("approve_reject")
+    ? [
+        {
+          name: "Approval Status",
+          cell: (row) => {
+            const status = row.approval_status;
+            const getStatusLabel = () =>
+              status === 1 ? "Approved" : status === 2 ? "Rejected" : "Pending";
+            const getButtonClass = () =>
+              status === 1
+                ? "bg-success"
+                : status === 2
+                ? "bg-danger"
+                : "bg-warning dropdown-toggle fs-6";
+
+            return (
+              <div className="dropdown">
+                {status === 0 ? (
+                  <>
+                    <button
+                      className={`badge ${getButtonClass()}`}
+                      type="button"
+                      id={`statusDropdown-${row.id}`}
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      {getStatusLabel()}
+                    </button>
+                    <ul
+                      className="dropdown-menu"
+                      aria-labelledby={`statusDropdown-${row.id}`}
+                    >
+                      <li>
+                        <button
+                          className="dropdown-item text-success"
+                          onClick={() => handleApproveVendor(row.id, 1)}
+                        >
+                          ✅ Approve
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item text-danger"
+                          onClick={() => handleApproveVendor(row.id, 2)}
+                        >
+                          ❌ Reject
+                        </button>
+                      </li>
+                    </ul>
+                  </>
+                ) : (
+                  <button
+                    className={`btn btn-sm ${getButtonClass()}`}
+                    type="button"
+                    disabled
+                    style={{ cursor: "default" }}
+                    title={getStatusLabel()}
+                  >
+                    {getStatusLabel()}
+                  </button>
+                )}
+              </div>
+            );
+          },
+          sortable: false,
+          width: "120px",
+        },
+      ]
+    : []),
+
+  { name: "Date", selector: (row) => new Date(row.createdAt).toLocaleDateString() },
+];
+  
 
   return (
     <div className="page-content">

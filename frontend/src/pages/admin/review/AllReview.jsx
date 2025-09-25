@@ -15,6 +15,8 @@ export default function AllReviews() {
   const [showModal, setShowModal] = useState(false);
   const [fullText, setFullText] = useState("");
   const navigate = useNavigate();
+  const role=localStorage.getItem("role");
+
 
   const handleReadMore = (text) => {
     setFullText(text);
@@ -92,100 +94,90 @@ export default function AllReviews() {
     }
   };
 
-  const columns = [
-    {
-      name: "S.No",
-      selector: (row, index) => index + 1,
-      width: "60px",
-    },
-    {
-      name: "Name",
-      selector: (row) => row?.name || "N/A",
-    },
- {
-      name: "Email",
-      selector: (row) => row?.email || "N/A",
-      width: "250px",
+ let columns = [
+  {
+    name: "S.No",
+    selector: (row, index) => index + 1,
+    width: "60px",
+  },
+  {
+    name: "Name",
+    selector: (row) => row?.name || "N/A",
+  },
+  {
+    name: "Email",
+    selector: (row) => row?.email || "N/A",
+    width: "250px",
+  },
+  {
+    name: "Phone",
+    selector: (row) => row?.phone || "N/A",
+    width: "150px",
+  },
+  {
+    name: "Ratings",
+    selector: (row) => row?.rating || "N/A",
+  },
+  {
+    name: "Vendor Name",
+    selector: (row) => row?.User?.owner_name || "N/A",
+  },
+  {
+    name: "Review",
+    sortable: true,
+    cell: (row) => {
+      const maxLength = 50;
+      const shortText =
+        row.message.length > maxLength
+          ? row.message.substring(0, maxLength) + "..."
+          : row.message;
 
+      return row.message.length > maxLength ? (
+        <>
+          {shortText}{" "}
+          <button
+            className="btn btn-link p-0"
+            style={{
+              fontSize: "12px",
+              color: "#007bff",
+              textDecoration: "underline",
+              cursor: "pointer",
+              fontWeight: "500",
+            }}
+            onClick={() => handleReadMore(row.message)}
+          >
+            Read More
+          </button>
+        </>
+      ) : (
+        row.message
+      );
     },
-    {
-      name: "Phone",
-      selector: (row) => row?.phone || "N/A",
-      width: "150px",
+  },
+];
 
-    },
-    {
-      name: "Ratings",
-      selector: (row) => row?.rating|| "N/A",
-    },
-       {
-      name: "Vendor Name",
-      selector: (row) => row?.User?.owner_name|| "N/A",
-    },
-    {
-      name: "Review",
-      sortable: true,
-      cell: (row) => {
-        if (!row?.message) return "—";
-
-        const maxLength = 50; // number of letters to show
-        const shortText =
-          row.message.length > maxLength
-            ? row.message.substring(0, maxLength) + "..."
-            : row.message;
-
-        return (
-          <div>
-            {row.message.length > maxLength ? (
-              <>
-                {shortText}{" "}
-                <button
-                  className="btn btn-link p-0"
-                  style={{
-                    fontSize: "12px",
-                    color: "#007bff",
-                    textDecoration: "underline",
-                    cursor: "pointer",
-                    fontWeight: "500",
-                  }}
-                  onClick={() => handleReadMore(row.message)}
-                >
-                  Read More
-                </button>
-              </>
-            ) : (
-              row.message
-            )}
-          </div>
-        );
-      },
-    },
-
+// ✅ Only add Approval & Active for non-role 3
+if (role !== "3") {
+  columns.push(
     {
       name: "Approval",
       cell: (row) => {
         if (row.approve_status === 1) {
           return <span className="badge bg-success fs-6">Approved</span>;
         }
-
         if (row.approve_status === 0) {
           return <span className="badge bg-danger fs-6">Rejected</span>;
         }
-
-        // approve_status === 2 (pending)
         return (
           <div className="dropdown">
-            <button
-              className="btn btn-sm bg-warning dropdown-toggle"
-              data-bs-toggle="dropdown"
-            >
+            <button className="btn btn-sm bg-warning dropdown-toggle" data-bs-toggle="dropdown">
               Pending
             </button>
             <ul className="dropdown-menu">
               <li>
                 <button
                   className="dropdown-item text-success"
-                  onClick={() => handleApprove(row.id, 1)} // ✅ Approve
+                  onClick={() => handleApprove(row.id, 1)}
                 >
                   ✅ Approve
                 </button>
@@ -193,7 +185,7 @@ export default function AllReviews() {
               <li>
                 <button
                   className="dropdown-item text-danger"
-                  onClick={() => handleApprove(row.id, 0)} // ✅ Reject
+                  onClick={() => handleApprove(row.id, 0)}
                 >
                   ❌ Reject
                 </button>
@@ -211,18 +203,20 @@ export default function AllReviews() {
             className="form-check-input"
             type="checkbox"
             checked={row.status === 1}
-            disabled={row.approve_status !== 1} // ✅ only allow if approved
+            disabled={row.approve_status !== 1}
             onChange={() => handleStatusToggle(row.id, row.status)}
             style={{ width: "3.5rem", height: "1.5rem" }}
           />
         </div>
       ),
-    },
-    {
-      name: "Date",
-      selector: (row) => new Date(row.createdAt).toLocaleDateString(),
-    },
-  ];
+    }
+  );
+}
+
+columns.push({
+  name: "Date",
+  selector: (row) => new Date(row.createdAt).toLocaleDateString(),
+});
 
   return (
     <div className="page-content">
