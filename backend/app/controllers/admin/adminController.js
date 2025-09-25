@@ -196,7 +196,16 @@ exports.listSponsoredVendors = async (req, res) => {
       model: Category,
       as: "category",
       attributes: ["id", "name"]
+    },
+     {
+      model: City,
+      attributes: ["id", "name"]
+    },
+      {
+      model: State,
+      attributes: ["id", "name"]
     }
+
   ],
   order: [["sponsor_rank", "ASC"]],
   limit,
