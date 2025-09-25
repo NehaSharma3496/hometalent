@@ -4,6 +4,7 @@ import {
   GetPendingVendoreList,
   GetCategories,
   GetApproveVendor,
+  GetEmployeePermission
 } from "../../../Services/admin/Admin";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +23,31 @@ export default function PendingVendor() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
+
+const role = localStorage.getItem("role");
+
+  const [permissions, setPermissions] = useState([]);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      if (role !== "3") return;
+
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      try {
+        const res = await GetEmployeePermission(token, userId);
+        if (res?.status && Array.isArray(res.data)) {
+          setPermissions(res.data.map((p) => p.slug));
+        }
+      } catch (err) {
+        console.error("Error fetching permissions:", err);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
+
 
   const handleApproveVendor = async (vendorId, status) => {
     try {
@@ -381,12 +407,15 @@ export default function PendingVendor() {
           </div>
         </div>
 
-        <div className="col-md-6 text-end">
-          <button className="btn btn-success me-2" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i>
-            Download Excel
-          </button>
-        </div>
+       <div className="col-md-6 text-end">
+  {(role !== "3" || permissions.includes("download_excel")) && (
+    <button className="btn btn-success me-2" onClick={exportToExcel}>
+      <i className="fa-solid fa-file-excel me-1"></i>
+      Download Excel
+    </button>
+  )}
+</div>
+
       </div>
       <div className="card  table-padding">
         <div className="col-md-4">

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Link,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   GetRejectedVendor,
   GetCategories,
   GetApproveVendor,
-  GetEmployeePermission
+  GetEmployeePermission,
 } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
@@ -25,7 +25,7 @@ export default function RejectedVendors() {
   const role = localStorage.getItem("role");
   const login_id = localStorage.getItem("userId");
 
-useEffect(() => {
+  useEffect(() => {
     const fetchPermissions = async () => {
       if (role !== "3") return;
 
@@ -157,7 +157,7 @@ useEffect(() => {
               : row.approval_status === 2
               ? "Rejected"
               : "Pending",
-                Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
+          Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
         };
       });
 
@@ -177,39 +177,43 @@ useEffect(() => {
     }
   };
 
- const handleApproveVendor = async (vendorId, status) => {
-  try {
-    const confirm = await Swal.fire({
-      title: "Approve Vendor?",
-      text: "Are you sure you want to approve this vendor?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#6c757d",
-      confirmButtonText: "Yes, approve!",
-    });
+  const handleApproveVendor = async (vendorId, status) => {
+    try {
+      const confirm = await Swal.fire({
+        title: "Approve Vendor?",
+        text: "Are you sure you want to approve this vendor?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Yes, approve!",
+      });
 
-    if (!confirm.isConfirmed) return;
+      if (!confirm.isConfirmed) return;
 
-    const token = localStorage.getItem("token");
-    const login_id = localStorage.getItem("userId"); // 🔹 yaha login_id le rahe hain
+      const token = localStorage.getItem("token");
+      const login_id = localStorage.getItem("userId"); // 🔹 yaha login_id le rahe hain
 
-    // API call with login_id
-    const response = await GetApproveVendor(vendorId, status, token, login_id);
+      // API call with login_id
+      const response = await GetApproveVendor(
+        vendorId,
+        status,
+        token,
+        login_id
+      );
 
-    if (response.status === true || response.status === "true") {
-      await Swal.fire("Success", response.message, "success");
-      fetchRejectedVendors(currentPage, perPage);
-      fetchAllRejectedVendors();
-    } else {
-      throw new Error(response.message || "Failed to update approval");
+      if (response.status === true || response.status === "true") {
+        await Swal.fire("Success", response.message, "success");
+        fetchRejectedVendors(currentPage, perPage);
+        fetchAllRejectedVendors();
+      } else {
+        throw new Error(response.message || "Failed to update approval");
+      }
+    } catch (err) {
+      console.error(err);
+      await Swal.fire("Error!", "Something went wrong.", "error");
     }
-  } catch (err) {
-    console.error(err);
-    await Swal.fire("Error!", "Something went wrong.", "error");
-  }
-};
-
+  };
 
   const filteredRejectedVendors = searchText
     ? allRejectedVendors.filter((vendor) => {
@@ -297,40 +301,44 @@ useEffect(() => {
       selector: (row) => row.experience_since || "—",
       sortable: true,
     },
-    {
-      name: "Action",
-      cell: (row) => {
-        return (
-          <div className="dropdown">
-            <>
-              <button
-                className={`badge bg-danger dropdown-toggle fs-6`}
-                type="button"
-                id={`actionDropdown-${row.id}`}
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                Rejected
-              </button>
-              <ul
-                className="dropdown-menu"
-                aria-labelledby={`actionDropdown-${row.id}`}
-              >
-                <li>
+
+    // 👇 Action column tabhi add hoga jab role 3 na ho ya approve_reject permission ho
+    ...(role !== "3" || permissions.includes("approve_reject")
+      ? [
+          {
+            name: "Action",
+            cell: (row) => {
+              return (
+                <div className="dropdown">
                   <button
-                    className="dropdown-item text-success"
-                    onClick={() => handleApproveVendor(row.id, 1)}
+                    className={`badge bg-danger dropdown-toggle fs-6`}
+                    type="button"
+                    id={`actionDropdown-${row.id}`}
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
                   >
-                    ✅ Approve
+                    Rejected
                   </button>
-                </li>
-              </ul>
-            </>
-          </div>
-        );
-      },
-      width: "120px",
-    },
+                  <ul
+                    className="dropdown-menu"
+                    aria-labelledby={`actionDropdown-${row.id}`}
+                  >
+                    <li>
+                      <button
+                        className="dropdown-item text-success"
+                        onClick={() => handleApproveVendor(row.id, 1)}
+                      >
+                        ✅ Approve
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              );
+            },
+            width: "120px",
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -340,19 +348,22 @@ useEffect(() => {
           <div className="add-page-heading-div">
             <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
             <h2 className="add-page-heading">Rejected Vendors</h2>
           </div>
         </div>
-        <div className="col-md-6 text-end">
-          <button className="btn btn-success me-2" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i>
-            Download Excel
-          </button>
-        </div>
+       <div className="col-md-6 text-end">
+  {(role !== "3" || permissions.includes("download_excel")) && (
+    <button className="btn btn-success me-2" onClick={exportToExcel}>
+      <i className="fa-solid fa-file-excel me-1"></i>
+      Download Excel
+    </button>
+  )}
+</div>
+
       </div>
       <div className="card table-padding">
         <div className="col-md-4">

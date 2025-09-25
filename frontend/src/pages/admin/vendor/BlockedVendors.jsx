@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Link,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   GetBlockedVendore,
   GetCategories,
   UpdateVendorStatus,
+  GetEmployeePermission,
 } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
@@ -19,10 +20,33 @@ export default function BlockedVendors() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const login_id = localStorage.getItem("userId");
 
+  const role = localStorage.getItem("role");
+
+  const [permissions, setPermissions] = useState([]);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      if (role !== "3") return;
+
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      try {
+        const res = await GetEmployeePermission(token, userId);
+        if (res?.status && Array.isArray(res.data)) {
+          setPermissions(res.data.map((p) => p.slug));
+        }
+      } catch (err) {
+        console.error("Error fetching permissions:", err);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
 
   const fetchBlockedVendors = async (page, limit) => {
     setLoading(true);
@@ -78,7 +102,12 @@ export default function BlockedVendors() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await UpdateVendorStatus(vendorId, newStatus, token,login_id);
+      const res = await UpdateVendorStatus(
+        vendorId,
+        newStatus,
+        token,
+        login_id
+      );
       if (res?.status === true || res?.status === "true") {
         await Swal.fire("Success", "Vendor status updated.", "success");
         fetchBlockedVendors(currentPage, perPage);
@@ -166,8 +195,8 @@ export default function BlockedVendors() {
           "Price Range": row.price_range || "N/A",
           "Pin Code": row.pin_code || "N/A",
           "Experience Since": row.experience_since || "N/A",
-          "Status": row.status === 1 ? "Active" : "Inactive",
-            Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
+          Status: row.status === 1 ? "Active" : "Inactive",
+          Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
         };
       });
 
@@ -181,30 +210,29 @@ export default function BlockedVendors() {
     }
   };
 
-  const filteredBlockedVendors = 
-  // searchText
-  // ? allBlockedVendors.filter((vendor) => {
-  //     const lowerSearch = searchText.toLowerCase();
+  const filteredBlockedVendors =
+    // searchText
+    // ? allBlockedVendors.filter((vendor) => {
+    //     const lowerSearch = searchText.toLowerCase();
 
-  //     const categoryNames = vendor.category_id
-  //       ? vendor.category_id
-  //           .split(",")
-  //           .map((id) => categoryMap[id.trim()]?.toLowerCase() || "")
-  //           .join(", ")
-  //       : "";
+    //     const categoryNames = vendor.category_id
+    //       ? vendor.category_id
+    //           .split(",")
+    //           .map((id) => categoryMap[id.trim()]?.toLowerCase() || "")
+    //           .join(", ")
+    //       : "";
 
-  //     return (
-  //       vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
-  //       vendor.email?.toLowerCase().includes(lowerSearch) ||
-  //       vendor.phone?.toLowerCase().includes(lowerSearch) ||
-  //       vendor.price_range?.toLowerCase().includes(lowerSearch) ||
-  //       vendor.pin_code?.toLowerCase().includes(lowerSearch) ||
-  //       vendor.experience_since?.toLowerCase().includes(lowerSearch) ||
-  //       categoryNames.includes(lowerSearch)
-  //     );
-  //   }) :
-   blockedvendors;
-
+    //     return (
+    //       vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
+    //       vendor.email?.toLowerCase().includes(lowerSearch) ||
+    //       vendor.phone?.toLowerCase().includes(lowerSearch) ||
+    //       vendor.price_range?.toLowerCase().includes(lowerSearch) ||
+    //       vendor.pin_code?.toLowerCase().includes(lowerSearch) ||
+    //       vendor.experience_since?.toLowerCase().includes(lowerSearch) ||
+    //       categoryNames.includes(lowerSearch)
+    //     );
+    //   }) :
+    blockedvendors;
 
   useEffect(() => {
     fetchBlockedVendors(currentPage, perPage);
@@ -229,13 +257,13 @@ export default function BlockedVendors() {
     },
     {
       name: "Owner Name",
-      selector: (row) => row.owner_name  || "—",
+      selector: (row) => row.owner_name || "—",
       sortable: true,
       width: "130px",
     },
     {
       name: "Email",
-      selector: (row) => row.email|| "—",
+      selector: (row) => row.email || "—",
       sortable: true,
       width: "180px",
     },
@@ -270,29 +298,35 @@ export default function BlockedVendors() {
       selector: (row) => row.experience_since || "—",
       sortable: true,
     },
-    {
-      name: "Active Status",
-      cell: (row) => (
-        <div className="form-check form-switch m-0 d-flex align-items-center">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            role="switch"
-            id={`toggle-${row.id}`}
-            checked={row.status === 1}
-            onChange={(e) =>
-              handleStatusChange(row.id, e.target.checked ? 1 : 2)
-            }
-            style={{
-              width: "3.5rem",
-              height: "1.5rem",
-              cursor: "pointer",
-              marginTop: "2px",
-            }}
-          />
-        </div>
-      ),
-    },
+
+    // ✅ Active Status column - sirf tab dikhe jab permission ho
+    ...(role !== "3" || permissions.includes("active_deactive")
+      ? [
+          {
+            name: "Active Status",
+            cell: (row) => (
+              <div className="form-check form-switch m-0 d-flex align-items-center">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id={`toggle-${row.id}`}
+                  checked={row.status === 1}
+                  onChange={(e) =>
+                    handleStatusChange(row.id, e.target.checked ? 1 : 2)
+                  }
+                  style={{
+                    width: "3.5rem",
+                    height: "1.5rem",
+                    cursor: "pointer",
+                    marginTop: "2px",
+                  }}
+                />
+              </div>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -300,21 +334,24 @@ export default function BlockedVendors() {
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-             <button
+            <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
             <h2 className="add-page-heading">Inactive Vendors</h2>
           </div>
         </div>
-        <div className="col-md-6 text-end">
-          <button className="btn btn-success me-2" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i>
-            Download Excel
-          </button>
-        </div>
+       <div className="col-md-6 text-end">
+  {(role !== "3" || permissions.includes("download_excel")) && (
+    <button className="btn btn-success me-2" onClick={exportToExcel}>
+      <i className="fa-solid fa-file-excel me-1"></i>
+      Download Excel
+    </button>
+  )}
+</div>
+
       </div>
       <div className="card table-padding">
         <div className="col-md-4">

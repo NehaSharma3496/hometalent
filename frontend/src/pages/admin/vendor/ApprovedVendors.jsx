@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { GetVendoreList } from "../../../Services/admin/Admin";
+import { GetVendoreList,GetEmployeePermission } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
@@ -15,6 +15,31 @@ export default function ApprovedVendors() {
   const [totalRows, setTotalRows] = useState(0);
   const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+
+    const role = localStorage.getItem("role");
+
+  const [permissions, setPermissions] = useState([]);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      if (role !== "3") return;
+
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      try {
+        const res = await GetEmployeePermission(token, userId);
+        if (res?.status && Array.isArray(res.data)) {
+          setPermissions(res.data.map((p) => p.slug));
+        }
+      } catch (err) {
+        console.error("Error fetching permissions:", err);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
 
   const fetchApprovedVendors = async (page, limit) => {
     setLoading(true);
@@ -202,11 +227,14 @@ export default function ApprovedVendors() {
           </div>
         </div>
         <div className="col-md-6 text-end">
-          <button className="btn btn-success me-2" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i>
-            Download Excel
-          </button>
-        </div>
+  {(role !== "3" || permissions.includes("download_excel")) && (
+    <button className="btn btn-success me-2" onClick={exportToExcel}>
+      <i className="fa-solid fa-file-excel me-1"></i>
+      Download Excel
+    </button>
+  )}
+</div>
+
       </div>
 
       <div className="card table-padding">

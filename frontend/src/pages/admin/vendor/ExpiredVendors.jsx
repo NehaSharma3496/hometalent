@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Link,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   GetVendorsByPackageStatus,
   showPackage,
   AssignPackageToVendor,
+  GetEmployeePermission,
 } from "../../../Services/admin/Admin";
 import { getVendorPackageHistory } from "../../../Services/vendor/Vendor";
 import Datatable from "react-data-table-component";
@@ -27,11 +28,40 @@ export default function ExpiredVendors() {
 
   const token = localStorage.getItem("token");
 
+  const role = localStorage.getItem("role");
+
+  const [permissions, setPermissions] = useState([]);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      if (role !== "3") return;
+
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      try {
+        const res = await GetEmployeePermission(token, userId);
+        if (res?.status && Array.isArray(res.data)) {
+          setPermissions(res.data.map((p) => p.slug));
+        }
+      } catch (err) {
+        console.error("Error fetching permissions:", err);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
+
   // Fetch vendors
   const fetchVendors = async (page = 1, limit = 10) => {
     setLoading(true);
     try {
-      const res = await GetVendorsByPackageStatus(token, "expired", page, limit);
+      const res = await GetVendorsByPackageStatus(
+        token,
+        "expired",
+        page,
+        limit
+      );
       const { data, count } = res || {};
       setVendors(data || []);
       setTotalRows(count || 0);
@@ -65,7 +95,6 @@ export default function ExpiredVendors() {
     fetchVendors(currentPage, perPage);
   }, [currentPage, perPage]);
 
-
   useEffect(() => {
     if (pkgModalOpen) {
       document.body.classList.add("modal-open");
@@ -92,7 +121,9 @@ export default function ExpiredVendors() {
         State: row.State.name || "N/A",
         City: row.City.name || "N/A",
         Phone: row.phone || "N/A",
-        Date: row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "N/A",
+        Date: row.createdAt
+          ? new Date(row.createdAt).toLocaleDateString()
+          : "N/A",
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -109,7 +140,9 @@ export default function ExpiredVendors() {
   const openAssignPackage = async (vendorId) => {
     try {
       const res = await showPackage(token, 1, 100);
-      const activePkgs = (res?.data || []).filter((p) => Number(p.status) === 1);
+      const activePkgs = (res?.data || []).filter(
+        (p) => Number(p.status) === 1
+      );
       setPkgOptions(activePkgs);
       setAssignVendorId(vendorId);
       setSelectedPkgId(null);
@@ -125,7 +158,11 @@ export default function ExpiredVendors() {
       return Swal.fire("Select Package", "Please select a package", "warning");
 
     try {
-      const res = await AssignPackageToVendor(token, assignVendorId, selectedPkgId);
+      const res = await AssignPackageToVendor(
+        token,
+        assignVendorId,
+        selectedPkgId
+      );
       if (res?.status) {
         await Swal.fire("Success", res.msg || "Package assigned", "success");
         setPkgModalOpen(false); // Close modal after success
@@ -137,7 +174,6 @@ export default function ExpiredVendors() {
       Swal.fire("Error", err?.message || "Unable to assign package", "error");
     }
   };
-
 
   // Search & filter
   const filteredVendors = vendors.filter((vendor) => {
@@ -154,23 +190,49 @@ export default function ExpiredVendors() {
 
   const columns = [
     { name: "S.No", selector: (row, index) => index + 1, width: "60px" },
-    { name: "Owner Name", selector: (row) => row.owner_name || "—", sortable: true, width: "150px" },
-    { name: "Email", selector: (row) => row.email || "—", sortable: true, width: "230px" },
-    { name: "Category Name", selector: (row) => row.Category.name || "-", width: "230px" },
-    { name: "Phone", selector: (row) => row.phone || "—", sortable: true },
-    { name: "State", selector: (row) => row.State.name || "—", sortable: true },
-    { name: "City", selector: (row) => row.City.name || "—", sortable: true },
     {
-      name: "Assign Package",
-      cell: (row) => (
-        <button
-          className="btn btn-success btn-sm"
-          onClick={() => openAssignPackage(row.id)}
-        >
-          <i className="fa-solid fa-box"></i>
-        </button>
-      ),
+      name: "Owner Name",
+      selector: (row) => row.owner_name || "—",
+      sortable: true,
+      width: "150px",
     },
+    {
+      name: "Email",
+      selector: (row) => row.email || "—",
+      sortable: true,
+      width: "230px",
+    },
+    {
+      name: "Category Name",
+      selector: (row) => row.Category?.name || "-",
+      width: "230px",
+    },
+    { name: "Phone", selector: (row) => row.phone || "—", sortable: true },
+    {
+      name: "State",
+      selector: (row) => row.State?.name || "—",
+      sortable: true,
+    },
+    { name: "City", selector: (row) => row.City?.name || "—", sortable: true },
+
+    // ✅ Conditional Assign Package column
+    ...(role !== "3" || permissions.includes("allot_package_extension")
+      ? [
+          {
+            name: "Assign Package",
+            cell: (row) => (
+              <button
+                className="btn btn-success btn-sm"
+                onClick={() => openAssignPackage(row.id)}
+                title="Assign Package"
+              >
+                <i className="fa-solid fa-box"></i>
+              </button>
+            ),
+            width: "120px",
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -180,7 +242,7 @@ export default function ExpiredVendors() {
           <div className="add-page-heading-div">
             <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
@@ -206,7 +268,10 @@ export default function ExpiredVendors() {
               onChange={(e) => setSearchText(e.target.value)}
             />
             {searchText && (
-              <button className="btn btn-sm btn-light border-0" onClick={() => setSearchText("")}>
+              <button
+                className="btn btn-sm btn-light border-0"
+                onClick={() => setSearchText("")}
+              >
                 <i className="ri-close-line" />
               </button>
             )}
@@ -232,7 +297,7 @@ export default function ExpiredVendors() {
         <div
           className="modal fade show d-block"
           style={{ background: "rgba(0,0,0,0.5)", zIndex: 1040 }}
-             onClick={() => setPkgModalOpen(false)} 
+          onClick={() => setPkgModalOpen(false)}
         >
           <div
             className="modal-dialog modal-dialog-centered modal-md"
@@ -240,7 +305,6 @@ export default function ExpiredVendors() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-content">
-
               <div className="modal-header">
                 <h5 className="modal-title">Assign Package</h5>
                 <button
@@ -260,7 +324,6 @@ export default function ExpiredVendors() {
                         key={p.id}
                         className="list-group-item d-flex justify-content-between align-items-center"
                       >
-
                         <div>
                           <input
                             type="radio"
@@ -278,13 +341,14 @@ export default function ExpiredVendors() {
                           </div>
                         </div>
 
-
                         <div>
                           <span
-                            className={`badge ${vendorPackageHistory[assignVendorId]?.[p.id] === "Active"
-                              ? "bg-success"
-                              : "bg-secondary"
-                              }`}
+                            className={`badge ${
+                              vendorPackageHistory[assignVendorId]?.[p.id] ===
+                              "Active"
+                                ? "bg-success"
+                                : "bg-secondary"
+                            }`}
                           >
                             {vendorPackageHistory[assignVendorId]?.[p.id] || ""}
                           </span>
@@ -294,7 +358,6 @@ export default function ExpiredVendors() {
                   </div>
                 )}
               </div>
-
 
               <div className="modal-footer">
                 <button
@@ -315,8 +378,6 @@ export default function ExpiredVendors() {
           </div>
         </div>
       )}
-
-
     </div>
   );
 }

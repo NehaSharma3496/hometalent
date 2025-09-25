@@ -3,9 +3,10 @@ import { getVendorPackageHistory } from "../../../Services/vendor/Vendor";
 import {
   GetExtendPackageHistory,
   ExtendPackage,
+  GetEmployeePermission,
 } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
-import { Link, useLocation,useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 
@@ -31,6 +32,30 @@ export default function VendorPackageDetails() {
   const location = useLocation();
   const vendorId = location.state?.vendorId;
 
+  const role = localStorage.getItem("role");
+
+  const [permissions, setPermissions] = useState([]);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      if (role !== "3") return;
+
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      try {
+        const res = await GetEmployeePermission(token, userId);
+        if (res?.status && Array.isArray(res.data)) {
+          setPermissions(res.data.map((p) => p.slug));
+        }
+      } catch (err) {
+        console.error("Error fetching permissions:", err);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
+
   const formatDate = (dateStr) =>
     new Date(dateStr).toLocaleDateString("en-IN", {
       day: "2-digit",
@@ -44,7 +69,7 @@ export default function VendorPackageDetails() {
   const fetchPaginatedPackages = async (page, limit) => {
     setLoading(true);
     try {
-      const res = await getVendorPackageHistory(token, vendorId,page, limit);
+      const res = await getVendorPackageHistory(token, vendorId, page, limit);
       if (res?.data && res?.pagination) {
         const enriched = res.data.map((pkg) => ({
           ...pkg,
@@ -173,7 +198,7 @@ export default function VendorPackageDetails() {
       const response = await ExtendPackage(token, {
         id: row.id,
         extra_days: extraDays,
-        login_id: login_id
+        login_id: login_id,
       });
 
       if (response?.status === true || response?.status === "true") {
@@ -193,22 +218,22 @@ export default function VendorPackageDetails() {
 
   // 📌 Excel export (all data, with search applied)
   const exportToExcel = () => {
-   const dataToExport = (
-    searchText ? allPackagesForSearch : allPackagesForSearch
-  )
-    // sirf completed payment wale hi record lenge
-    .filter(pkg => pkg?.payment_status === "completed")
-    .map((pkg, index) => ({
-      "S.No": index + 1,
-      "Package Name": pkg?.Package?.name || "N/A",
-      "Start Date": formatDate(pkg.start_date) || "N/A",
-      "End Date": formatDate(pkg.end_date) || "N/A",
-      Price: pkg?.Package?.price || "N/A",
-      "Payment Status": pkg.payment_status || "N/A",
-      Status: pkg.status || "N/A",
-      "Payment Date": pkg?.createdAt ? formatDate(pkg.createdAt) : "N/A",
-      "Extended Days": extensionMap[pkg?.Package?.name] || "—",
-    }));
+    const dataToExport = (
+      searchText ? allPackagesForSearch : allPackagesForSearch
+    )
+      // sirf completed payment wale hi record lenge
+      .filter((pkg) => pkg?.payment_status === "completed")
+      .map((pkg, index) => ({
+        "S.No": index + 1,
+        "Package Name": pkg?.Package?.name || "N/A",
+        "Start Date": formatDate(pkg.start_date) || "N/A",
+        "End Date": formatDate(pkg.end_date) || "N/A",
+        Price: pkg?.Package?.price || "N/A",
+        "Payment Status": pkg.payment_status || "N/A",
+        Status: pkg.status || "N/A",
+        "Payment Date": pkg?.createdAt ? formatDate(pkg.createdAt) : "N/A",
+        "Extended Days": extensionMap[pkg?.Package?.name] || "—",
+      }));
 
     const ws = XLSX.utils.json_to_sheet(dataToExport);
     const wb = XLSX.utils.book_new();
@@ -238,49 +263,46 @@ export default function VendorPackageDetails() {
       selector: (row) =>
         row.payment_status === "pending" ? "-" : formatDate(row.end_date),
     },
-
     { name: "Amount", selector: (row) => `₹${row?.amount || "0"}` },
     { name: "Payment Status", selector: (row) => row?.payment_status || "N/A" },
- {
-  name: "Status",
-  cell: (row) => {
-    if (row.payment_status !== "completed") return null; // skip pending/inactive
+    {
+      name: "Status",
+      cell: (row) => {
+        if (row.payment_status !== "completed") return null;
 
-    // normalize date (remove time part)
-    const normalizeDate = (d) => {
-      const nd = new Date(d);
-      nd.setHours(0, 0, 0, 0);
-      return nd;
-    };
+        const normalizeDate = (d) => {
+          const nd = new Date(d);
+          nd.setHours(0, 0, 0, 0);
+          return nd;
+        };
 
-    const today = normalizeDate(new Date());
-    const startDate = normalizeDate(row.start_date);
-    const endDate = normalizeDate(row.end_date);
+        const today = normalizeDate(new Date());
+        const startDate = normalizeDate(row.start_date);
+        const endDate = normalizeDate(row.end_date);
 
-    if (endDate < today) {
-      return <span style={{ color: "red" }}>Expired</span>;
-    } else if (startDate > today) {
-      return <span style={{ color: "orange" }}>Upcoming</span>;
-    } else if (startDate <= today && endDate >= today) {
-      return <span style={{ color: "green" }}>Active</span>;
-    }
+        if (endDate < today)
+          return <span style={{ color: "red" }}>Expired</span>;
+        else if (startDate > today)
+          return <span style={{ color: "orange" }}>Upcoming</span>;
+        else if (startDate <= today && endDate >= today)
+          return <span style={{ color: "green" }}>Active</span>;
 
-    return null;
-  },
-}
-,
-
-
- {
+        return null;
+      },
+    },
+    {
       name: "Payment Date",
       selector: (row) => (row?.createdAt ? formatDate(row.createdAt) : "-"),
     },
     {
       name: "Extended Days",
-      selector: (row) => extensionMap[row.id] || "—", // row.id = subscriptionId
+      selector: (row) => extensionMap[row.id] || "—", // hamesha show hoga
     },
+  ];
 
-    {
+  // ✅ Actions column sirf tab add karo jab permission ho
+  if (role !== "3" || permissions.includes("allot_package_extension")) {
+    columns.push({
       name: "Actions",
       minWidth: "250px",
       cell: (row) => {
@@ -290,9 +312,8 @@ export default function VendorPackageDetails() {
 
         const isLatestCompleted = latestCompleted?.id === row.id;
 
-        // 🚫 Agar package ka price 0 hai to extend option disable kar do
-        if (row?.Package?.validity_in_months
- ==null) {
+        // 🚫 Agar package ka validity null hai to extend option disable
+        if (row?.Package?.validity_in_months == null) {
           return (
             <span className="text-muted">Free Package (Not Extendable)</span>
           );
@@ -319,8 +340,8 @@ export default function VendorPackageDetails() {
           <span className="text-muted">—</span>
         );
       },
-    },
-  ];
+    });
+  }
 
   const historyColumns = [
     {
@@ -344,13 +365,13 @@ export default function VendorPackageDetails() {
     },
   ];
 
- const filteredData = searchText
-  ? allPackagesForSearch
-      .filter((pkg) =>
-        pkg?.Package?.name?.toLowerCase().includes(searchText.toLowerCase())
-      )
-      .filter((pkg) => pkg.payment_status === "completed")
-  : paginatedPackages.filter((pkg) => pkg.payment_status === "completed");
+  const filteredData = searchText
+    ? allPackagesForSearch
+        .filter((pkg) =>
+          pkg?.Package?.name?.toLowerCase().includes(searchText.toLowerCase())
+        )
+        .filter((pkg) => pkg.payment_status === "completed")
+    : paginatedPackages.filter((pkg) => pkg.payment_status === "completed");
 
   useEffect(() => {
     if (token && vendorId) {
@@ -367,7 +388,7 @@ export default function VendorPackageDetails() {
           <div className="add-page-heading-div">
             <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
@@ -375,12 +396,15 @@ export default function VendorPackageDetails() {
           </div>
         </div>
         <div className="col-md-6 text-end">
-          <button
-            className="btn btn-success me-2"
-            onClick={exportToExcel}
-          >
-            <i className="fa fa-file-excel me-1"></i> Download Packages
-          </button>
+          <div className=" text-end">
+            {(role !== "3" || permissions.includes("download_excel")) && (
+              <button className="btn btn-success me-2" onClick={exportToExcel}>
+                <i className="fa-solid fa-file-excel me-1"></i>
+                Download Excel
+              </button>
+            )}
+          </div>
+
           <button
             className="btn btn-primary btn-sm"
             onClick={fetchExtensionHistory}

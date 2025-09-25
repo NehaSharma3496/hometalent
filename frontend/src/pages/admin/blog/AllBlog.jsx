@@ -3,6 +3,7 @@ import {
   GetAllAdminBlog,
   DeleteAdminBlog,
   UpdateBlogStatus,
+  GetEmployeePermission
 } from "../../../Services/admin/Admin";
 import { Link, useNavigate } from "react-router-dom";
 import DataTable from "react-data-table-component";
@@ -17,6 +18,30 @@ export default function AllBlog() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const navigate = useNavigate();
+
+  const role = localStorage.getItem("role");
+
+  const [permissions, setPermissions] = useState([]);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      if (role !== "3") return;
+
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      try {
+        const res = await GetEmployeePermission(token, userId);
+        if (res?.status && Array.isArray(res.data)) {
+          setPermissions(res.data.map((p) => p.slug));
+        }
+      } catch (err) {
+        console.error("Error fetching permissions:", err);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
 
   const fetchBlogs = async () => {
     try {
@@ -198,11 +223,15 @@ export default function AllBlog() {
             <h2 className="add-page-heading ">All Blogs</h2>
           </div>
 
-          <div className="text-end">
-            <button className="btn btn-success mt-4" onClick={exportToExcel}>
-              <i className="fa-solid fa-file-excel me-1"></i>Download Excel
-            </button>
-          </div>
+       <div className="col-md-6 text-end">
+  {(role !== "3" || permissions.includes("download_excel")) && (
+    <button className="btn btn-success me-2" onClick={exportToExcel}>
+      <i className="fa-solid fa-file-excel me-1"></i>
+      Download Excel
+    </button>
+  )}
+</div>
+
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link ,useNavigate} from "react-router-dom";
-import { GetActiveVendors, GetCategories } from "../../../Services/admin/Admin";
+import { GetActiveVendors, GetCategories,GetEmployeePermission } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
@@ -17,6 +17,30 @@ export default function ActiveVendor() {
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
   const [allActiveVendors, setAllActiveVendors] = useState([]);
+
+  const role = localStorage.getItem("role");
+  
+    const [permissions, setPermissions] = useState([]);
+  
+    useEffect(() => {
+      const fetchPermissions = async () => {
+        if (role !== "3") return;
+  
+        const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
+  
+        try {
+          const res = await GetEmployeePermission(token, userId);
+          if (res?.status && Array.isArray(res.data)) {
+            setPermissions(res.data.map((p) => p.slug));
+          }
+        } catch (err) {
+          console.error("Error fetching permissions:", err);
+        }
+      };
+  
+      fetchPermissions();
+    }, []);
 
   const fetchActiveVendors = async (page, limit) => {
     setLoading(true);
@@ -221,19 +245,22 @@ export default function ActiveVendor() {
           <div className="add-page-heading-div">
             <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)}  
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
             <h2 className="add-page-heading">Active Vendors</h2>
           </div>
         </div>
-        <div className="col-md-6 text-end">
-          <button className="btn btn-success me-2" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i>
-            Download Excel
-          </button>
-        </div>
+       <div className="col-md-6 text-end">
+  {(role !== "3" || permissions.includes("download_excel")) && (
+    <button className="btn btn-success me-2" onClick={exportToExcel}>
+      <i className="fa-solid fa-file-excel me-1"></i>
+      Download Excel
+    </button>
+  )}
+</div>
+
       </div>
       <div className="card table-padding-inside">
         <div className="col-md-4">

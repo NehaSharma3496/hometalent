@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { Link, useNavigate } from "react-router-dom";
 import Datatable from "react-data-table-component";
-import { GetProfileUpdateRequests } from "../../../Services/admin/Admin";
+import { GetProfileUpdateRequests,GetEmployeePermission } from "../../../Services/admin/Admin";
 import * as XLSX from "xlsx";
 
 export default function ProfileUpdateRequests() {
@@ -16,6 +16,30 @@ export default function ProfileUpdateRequests() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
+
+  const role = localStorage.getItem("role");
+
+  const [permissions, setPermissions] = useState([]);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      if (role !== "3") return;
+
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      try {
+        const res = await GetEmployeePermission(token, userId);
+        if (res?.status && Array.isArray(res.data)) {
+          setPermissions(res.data.map((p) => p.slug));
+        }
+      } catch (err) {
+        console.error("Error fetching permissions:", err);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
 
   const fetchRequests = async (page, limit) => {
     setLoading(true);
@@ -245,12 +269,15 @@ export default function ProfileUpdateRequests() {
             <h2 className="add-page-heading">Profile Update Requests</h2>
           </div>
         </div>
-        <div className="col-md-6 text-end mt-2">
-          <button className="btn btn-success me-2" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i>
-            Download Excel
-          </button>
-        </div>
+        <div className="col-md-6 text-end">
+  {(role !== "3" || permissions.includes("download_excel")) && (
+    <button className="btn btn-success me-2" onClick={exportToExcel}>
+      <i className="fa-solid fa-file-excel me-1"></i>
+      Download Excel
+    </button>
+  )}
+</div>
+
       </div>
 
       <div className="card table-padding">

@@ -511,230 +511,251 @@ export default function Allvendors() {
     }
   };
 
- const columns = [
-  {
-    name: "S.No",
-    selector: (row, index) => index + 1,
-    width: "50px",
-  },
-  {
-    name: "Owner Name",
-    selector: (row) => row.owner_name || "—",
-    sortable: true,
-    width: "180px",
-  },
-  {
-    name: "Email",
-    selector: (row) => row.email || "—",
-    sortable: true,
-    width: "250px",
-  },
-  {
-    name: "Category Names",
-    selector: (row) =>
-      Array.isArray(row.category_names)
-        ? row.category_names.join(", ")
-        : row.category_names,
-    sortable: true,
-    width: "170px",
-  },
-  { name: "Phone", selector: (row) => row.phone || "—" },
-  {
-    name: "State",
-    selector: (row) => row?.State?.name || "—",
-    width: "150px",
-  },
-  { name: "City", selector: (row) => row.City?.name || "—" },
-  {
-    name: "Package Status",
-    cell: (row) => {
-      const packageStatus = getVendorPackageStatus(row.id);
-      return (
-        <div>
-          {packageStatus === "Active" ? (
-            <span className="badge bg-success">Active</span>
-          ) : packageStatus === "Expired" ? (
-            <span className="badge bg-danger">Expired</span>
-          ) : (
-            <span className="badge bg-secondary">N/A</span>
+  const columns = [
+    {
+      name: "S.No",
+      selector: (row, index) => index + 1,
+      width: "50px",
+    },
+    {
+      name: "Owner Name",
+      selector: (row) => row.owner_name || "—",
+      sortable: true,
+      width: "180px",
+    },
+    {
+      name: "Email",
+      selector: (row) => row.email || "—",
+      sortable: true,
+      width: "250px",
+    },
+    {
+      name: "Category Names",
+      selector: (row) =>
+        Array.isArray(row.category_names)
+          ? row.category_names.join(", ")
+          : row.category_names,
+      sortable: true,
+      width: "170px",
+    },
+    { name: "Phone", selector: (row) => row.phone || "—" },
+    {
+      name: "State",
+      selector: (row) => row?.State?.name || "—",
+      width: "150px",
+    },
+    { name: "City", selector: (row) => row.City?.name || "—" },
+    {
+      name: "Package Status",
+      cell: (row) => {
+        const packageStatus = getVendorPackageStatus(row.id);
+        return (
+          <div>
+            {packageStatus === "Active" ? (
+              <span className="badge bg-success">Active</span>
+            ) : packageStatus === "Expired" ? (
+              <span className="badge bg-danger">Expired</span>
+            ) : (
+              <span className="badge bg-secondary">N/A</span>
+            )}
+          </div>
+        );
+      },
+      sortable: false,
+      width: "150px",
+    },
+
+    // ✅ Active/Deactive column conditionally
+    ...(role !== "3" || permissions.includes("active_deactive")
+      ? [
+          {
+            name: "Active Status",
+            cell: (row) => (
+              <div className="form-check form-switch m-0 d-flex align-items-center">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id={`toggle-${row.id}`}
+                  checked={row.status === 1}
+                  onChange={(e) => {
+                    if (row.approval_status === 1) {
+                      handleStatusChange(row.id, e.target.checked ? 1 : 2);
+                    } else {
+                      Swal.fire({
+                        icon: "warning",
+                        title: "Action not allowed",
+                        text: "Vendor must be approved first to change status.",
+                        confirmButtonColor: "#3085d6",
+                        confirmButtonText: "OK",
+                      });
+                    }
+                  }}
+                  style={{
+                    width: "3.5rem",
+                    height: "1.5rem",
+                    cursor:
+                      row.approval_status !== 1 ? "not-allowed" : "pointer",
+                    marginTop: "2px",
+                  }}
+                />
+              </div>
+            ),
+            width: "150px",
+          },
+        ]
+      : []),
+
+    {
+      name: "Action",
+      cell: (row) => (
+        <div className="d-flex align-items-center gap-2">
+          {/* View button */}
+          <button
+            className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
+            style={{ width: "35px", height: "35px" }}
+            onClick={() =>
+              navigate(`/admin/vendordetails`, { state: { vendorId: row.id } })
+            }
+            title="View"
+          >
+            <i className="fa-regular fa-eye"></i>
+          </button>
+
+          {row.approval_status !== 0 && (
+            <>
+              {/* Gallery */}
+              <button
+                className="btn btn-sm d-flex align-items-center justify-content-center"
+                style={{
+                  width: "35px",
+                  height: "35px",
+                  backgroundColor: "#a3d2f2",
+                  borderColor: "#a3d2f2",
+                }}
+                onClick={() =>
+                  navigate(`/admin/galleryUpdates/vendorgallery/${row.id}`)
+                }
+                title="View Gallery"
+              >
+                <i className="fa-solid fa-images"></i>
+              </button>
+
+              {/* Edit - conditional */}
+              {(role !== "3" || permissions.includes("add_edit_vendor")) && (
+                <button
+                  className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
+                  style={{ width: "35px", height: "35px" }}
+                  onClick={() =>
+                    navigate("/admin/vendor/updatevendor", {
+                      state: { vendorId: row.id },
+                    })
+                  }
+                  title="Update"
+                >
+                  <i className="fa fa-edit"></i>
+                </button>
+              )}
+
+              {/* ✅ Assign Package - conditional */}
+              {(role !== "3" ||
+                permissions.includes("allot_package_extension")) && (
+                <button
+                  className="btn btn-success btn-sm d-flex align-items-center justify-content-center"
+                  style={{ width: "35px", height: "35px" }}
+                  onClick={() => openAssignPackage(row.id)}
+                  title="Assign Package"
+                >
+                  <i className="fa-solid fa-box"></i>
+                </button>
+              )}
+            </>
           )}
         </div>
-      );
+      ),
+      width: "180px",
     },
-    sortable: false,
-    width: "150px",
-  },
-  {
-    name: "Active Status",
-    cell: (row) => (
-      <div className="form-check form-switch m-0 d-flex align-items-center">
-        <input
-          className="form-check-input"
-          type="checkbox"
-          role="switch"
-          id={`toggle-${row.id}`}
-          checked={row.status === 1}
-          onChange={(e) => {
-            if (row.approval_status === 1) {
-              handleStatusChange(row.id, e.target.checked ? 1 : 2);
-            } else {
-              Swal.fire({
-                icon: "warning",
-                title: "Action not allowed",
-                text: "Vendor must be approved first to change status.",
-                confirmButtonColor: "#3085d6",
-                confirmButtonText: "OK",
-              });
-            }
-          }}
-          style={{
-            width: "3.5rem",
-            height: "1.5rem",
-            cursor: row.approval_status !== 1 ? "not-allowed" : "pointer",
-            marginTop: "2px",
-          }}
-        />
-      </div>
-    ),
-  },
-  {
-    name: "Action",
-    cell: (row) => (
-      <div className="d-flex align-items-center gap-2">
-        <button
-          className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
-          style={{ width: "35px", height: "35px" }}
-          onClick={() =>
-            navigate(`/admin/vendordetails`, { state: { vendorId: row.id } })
-          }
-          title="View"
-        >
-          <i className="fa-regular fa-eye"></i>
-        </button>
 
-        {row.approval_status !== 0 && (
-          <>
-            <button
-              className="btn btn-sm d-flex align-items-center justify-content-center"
-              style={{
-                width: "35px",
-                height: "35px",
-                backgroundColor: "#a3d2f2",
-                borderColor: "#a3d2f2",
-              }}
-              onClick={() =>
-                navigate(`/admin/galleryUpdates/vendorgallery/${row.id}`)
-              }
-              title="View Gallery"
-            >
-              <i className="fa-solid fa-images"></i>
-            </button>
+    // ✅ Approval Status column - already conditional
+    ...(role !== "3" || permissions.includes("approve_reject")
+      ? [
+          {
+            name: "Approval Status",
+            cell: (row) => {
+              const status = row.approval_status;
+              const getStatusLabel = () =>
+                status === 1
+                  ? "Approved"
+                  : status === 2
+                  ? "Rejected"
+                  : "Pending";
+              const getButtonClass = () =>
+                status === 1
+                  ? "bg-success"
+                  : status === 2
+                  ? "bg-danger"
+                  : "bg-warning dropdown-toggle fs-6";
 
-            {/* Edit button - conditional */}
-            {(role !== "3" || permissions.includes("add_edit_vendor")) && (
-              <button
-                className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
-                style={{ width: "35px", height: "35px" }}
-                onClick={() =>
-                  navigate("/admin/vendor/updatevendor", {
-                    state: { vendorId: row.id },
-                  })
-                }
-                title="Update"
-              >
-                <i className="fa fa-edit"></i>
-              </button>
-            )}
-
-            <button
-              className="btn btn-success btn-sm d-flex align-items-center justify-content-center"
-              style={{ width: "35px", height: "35px" }}
-              onClick={() => openAssignPackage(row.id)}
-              title="Assign Package"
-            >
-              <i className="fa-solid fa-box"></i>
-            </button>
-          </>
-        )}
-      </div>
-    ),
-    width: "160px",
-  },
-
-  // Conditional Approval Status column
-  ...(role !== "3" || permissions.includes("approve_reject")
-    ? [
-        {
-          name: "Approval Status",
-          cell: (row) => {
-            const status = row.approval_status;
-            const getStatusLabel = () =>
-              status === 1 ? "Approved" : status === 2 ? "Rejected" : "Pending";
-            const getButtonClass = () =>
-              status === 1
-                ? "bg-success"
-                : status === 2
-                ? "bg-danger"
-                : "bg-warning dropdown-toggle fs-6";
-
-            return (
-              <div className="dropdown">
-                {status === 0 ? (
-                  <>
+              return (
+                <div className="dropdown">
+                  {status === 0 ? (
+                    <>
+                      <button
+                        className={`badge ${getButtonClass()}`}
+                        type="button"
+                        id={`statusDropdown-${row.id}`}
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        {getStatusLabel()}
+                      </button>
+                      <ul
+                        className="dropdown-menu"
+                        aria-labelledby={`statusDropdown-${row.id}`}
+                      >
+                        <li>
+                          <button
+                            className="dropdown-item text-success"
+                            onClick={() => handleApproveVendor(row.id, 1)}
+                          >
+                            ✅ Approve
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item text-danger"
+                            onClick={() => handleApproveVendor(row.id, 2)}
+                          >
+                            ❌ Reject
+                          </button>
+                        </li>
+                      </ul>
+                    </>
+                  ) : (
                     <button
-                      className={`badge ${getButtonClass()}`}
+                      className={`btn btn-sm ${getButtonClass()}`}
                       type="button"
-                      id={`statusDropdown-${row.id}`}
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
+                      disabled
+                      style={{ cursor: "default" }}
+                      title={getStatusLabel()}
                     >
                       {getStatusLabel()}
                     </button>
-                    <ul
-                      className="dropdown-menu"
-                      aria-labelledby={`statusDropdown-${row.id}`}
-                    >
-                      <li>
-                        <button
-                          className="dropdown-item text-success"
-                          onClick={() => handleApproveVendor(row.id, 1)}
-                        >
-                          ✅ Approve
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          className="dropdown-item text-danger"
-                          onClick={() => handleApproveVendor(row.id, 2)}
-                        >
-                          ❌ Reject
-                        </button>
-                      </li>
-                    </ul>
-                  </>
-                ) : (
-                  <button
-                    className={`btn btn-sm ${getButtonClass()}`}
-                    type="button"
-                    disabled
-                    style={{ cursor: "default" }}
-                    title={getStatusLabel()}
-                  >
-                    {getStatusLabel()}
-                  </button>
-                )}
-              </div>
-            );
+                  )}
+                </div>
+              );
+            },
+            sortable: false,
+            width: "120px",
           },
-          sortable: false,
-          width: "120px",
-        },
-      ]
-    : []),
+        ]
+      : []),
 
-  { name: "Date", selector: (row) => new Date(row.createdAt).toLocaleDateString() },
-];
-  
+    {
+      name: "Date",
+      selector: (row) => new Date(row.createdAt).toLocaleDateString(),
+    },
+  ];
 
   return (
     <div className="page-content">
@@ -748,12 +769,19 @@ export default function Allvendors() {
           </div>
         </div>
         <div className="col-md-6 text-end mt-2">
-          <button className="btn btn-success me-2" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i>Download Excel
-          </button>
-          <Link to="/admin/vendor/addvendors" className="btn btn-primary">
-            + Add Vendor
-          </Link>
+          {/* Download Excel - role 3 और permission check */}
+          {(role !== "3" || permissions.includes("download_excel")) && (
+            <button className="btn btn-success me-2" onClick={exportToExcel}>
+              <i className="fa-solid fa-file-excel me-1"></i>Download Excel
+            </button>
+          )}
+
+          {/* Add Vendor button - sirf tab dikhana jab permission ho */}
+          {role !== "3" || permissions.includes("add_edit_vendor") ? (
+            <Link to="/admin/vendor/addvendors" className="btn btn-primary">
+              + Add Vendor
+            </Link>
+          ) : null}
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import {
   GetVendorsByPackageStatus,
   showPackage,
   AssignPackageToVendor,
+  GetEmployeePermission
 } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
@@ -25,6 +26,30 @@ export default function UnsubscribedVendors() {
   const [assignVendorId, setAssignVendorId] = useState(null);
 
   const token = localStorage.getItem("token");
+
+  const role = localStorage.getItem("role");
+
+  const [permissions, setPermissions] = useState([]);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      if (role !== "3") return;
+
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      try {
+        const res = await GetEmployeePermission(token, userId);
+        if (res?.status && Array.isArray(res.data)) {
+          setPermissions(res.data.map((p) => p.slug));
+        }
+      } catch (err) {
+        console.error("Error fetching permissions:", err);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
 
   // Fetch vendors
   const fetchVendors = async (page = 1, limit = 10) => {
@@ -138,26 +163,34 @@ export default function UnsubscribedVendors() {
     );
   });
 
-  const columns = [
-    { name: "S.No", selector: (row, index) => index + 1, width: "60px" },
-    { name: "Owner Name", selector: (row) => row.owner_name || "—", sortable: true },
-    { name: "Email", selector: (row) => row.email || "—", sortable: true },
-    { name: "Category Name", selector: (row) => row.Category?.name || "-" },
-    { name: "Phone", selector: (row) => row.phone || "—", sortable: true },
-    { name: "State", selector: (row) => row.State?.name || "—", sortable: true },
-    { name: "City", selector: (row) => row.City?.name || "—", sortable: true },
-    {
-      name: "Assign Package",
-      cell: (row) => (
-        <button
-          className="btn btn-success btn-sm"
-          onClick={() => openAssignPackage(row.id)}
-        >
-          <i className="fa-solid fa-box"></i>
-        </button>
-      ),
-    },
-  ];
+const columns = [
+  { name: "S.No", selector: (row, index) => index + 1, width: "60px" },
+  { name: "Owner Name", selector: (row) => row.owner_name || "—", sortable: true },
+  { name: "Email", selector: (row) => row.email || "—", sortable: true },
+  { name: "Category Name", selector: (row) => row.Category?.name || "-" },
+  { name: "Phone", selector: (row) => row.phone || "—", sortable: true },
+  { name: "State", selector: (row) => row.State?.name || "—", sortable: true },
+  { name: "City", selector: (row) => row.City?.name || "—", sortable: true },
+
+  // Conditional Assign Package column
+  ...(role !== "3" || permissions.includes("allot_package_extension")
+    ? [
+        {
+          name: "Assign Package",
+          cell: (row) => (
+            <button
+              className="btn btn-success btn-sm"
+              onClick={() => openAssignPackage(row.id)}
+              title="Assign Package"
+            >
+              <i className="fa-solid fa-box"></i>
+            </button>
+          ),
+          width: "120px",
+        },
+      ]
+    : []),
+];
 
   return (
     <div className="page-content">

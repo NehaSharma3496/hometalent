@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { GetAllLeads } from "../../../Services/admin/Admin";
+import { GetAllLeads,GetEmployeePermission } from "../../../Services/admin/Admin";
 import { Link,useNavigate } from "react-router-dom";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
@@ -19,6 +19,31 @@ export default function AllLeads() {
   const [totalRows, setTotalRows] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [fullText, setFullText] = useState("");
+
+
+  const role = localStorage.getItem("role");
+
+  const [permissions, setPermissions] = useState([]);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      if (role !== "3") return;
+
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      try {
+        const res = await GetEmployeePermission(token, userId);
+        if (res?.status && Array.isArray(res.data)) {
+          setPermissions(res.data.map((p) => p.slug));
+        }
+      } catch (err) {
+        console.error("Error fetching permissions:", err);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
 
   const fetchAllLeads = async (page, limit) => {
     setLoading(true);
@@ -240,10 +265,15 @@ export default function AllLeads() {
             <h2 className="add-page-heading">All Leads</h2>
           </div>
 
-          <button className="btn btn-success me-2 mt-4" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i>
-            Download Excel
-          </button>
+          <div className="col-md-6 text-end">
+  {(role !== "3" || permissions.includes("download_excel")) && (
+    <button className="btn btn-success me-2" onClick={exportToExcel}>
+      <i className="fa-solid fa-file-excel me-1"></i>
+      Download Excel
+    </button>
+  )}
+</div>
+
         </div>
       </div>
 

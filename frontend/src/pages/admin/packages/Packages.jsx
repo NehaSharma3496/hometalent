@@ -19,27 +19,27 @@ export default function Packages() {
   const [totalRows, setTotalRows] = useState(0);
 
   const [permissions, setPermissions] = useState([]);
-  const role=localStorage.getItem("role");
+  const role = localStorage.getItem("role");
 
-useEffect(() => {
-  const fetchPermissions = async () => {
-    if (role !== "3") return;
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      if (role !== "3") return;
 
-    const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
 
-    try {
-      const res = await GetEmployeePermission(token, userId);
-      if (res?.status && Array.isArray(res.data)) {
-        setPermissions(res.data.map(p => p.slug));
+      try {
+        const res = await GetEmployeePermission(token, userId);
+        if (res?.status && Array.isArray(res.data)) {
+          setPermissions(res.data.map((p) => p.slug));
+        }
+      } catch (err) {
+        console.error("Error fetching permissions:", err);
       }
-    } catch (err) {
-      console.error("Error fetching permissions:", err);
-    }
-  };
+    };
 
-  fetchPermissions();
-}, []);
+    fetchPermissions();
+  }, []);
 
   const fetchPackages = async (page, limit) => {
     setLoading(true);
@@ -340,25 +340,29 @@ useEffect(() => {
           </div>
         </div>
 
-      <div className="col-md-6 text-end mt-2">
-  <button className="btn btn-success me-2" onClick={exportToExcel}>
-    <i className="fa-solid fa-file-excel me-2"></i>
-    Download Excel
-  </button>
-
-  {role === "3" ? (
-    permissions.includes("package_creation") && (
-      <Link to="/admin/addpackage" className="btn btn-primary me-2">
-        + Add Package
-      </Link>
-    )
-  ) : (
-    <Link to="/admin/addpackage" className="btn btn-primary me-2">
-      + Add Package
-    </Link>
+        <div className="col-md-6 text-end mt-2">
+          <div className="col-md-6 text-end">
+  {(role !== "3" || permissions.includes("download_excel")) && (
+    <button className="btn btn-success me-2" onClick={exportToExcel}>
+      <i className="fa-solid fa-file-excel me-1"></i>
+      Download Excel
+    </button>
   )}
 </div>
 
+
+          {role === "3" ? (
+            permissions.includes("package_creation") && (
+              <Link to="/admin/addpackage" className="btn btn-primary me-2">
+                + Add Package
+              </Link>
+            )
+          ) : (
+            <Link to="/admin/addpackage" className="btn btn-primary me-2">
+              + Add Package
+            </Link>
+          )}
+        </div>
       </div>
 
       <div className="card table-padding">

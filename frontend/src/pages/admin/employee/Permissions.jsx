@@ -52,19 +52,31 @@ export default function Permissions() {
   };
 
   // submit updated permissions
-  const handleSubmit = async () => {
-    try {
-      const payload = {
-        user_id: id,
-        permission_ids: userPermissions, // array of selected IDs
-      };
-      await AssignPermission(payload);
+const handleSubmit = async () => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to update the permissions?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Yes, update it",
+    cancelButtonText: "Cancel",
+  });
 
-      Swal.fire("Success", "Permissions updated successfully", "success");
-    } catch (err) {
-      Swal.fire("Error", err?.message || "Failed to update", "error");
-    }
-  };
+  if (!result.isConfirmed) return; // अगर cancel दबाया तो exit
+
+  try {
+    const payload = {
+      user_id: id,
+      permission_ids: userPermissions, // array of selected IDs
+    };
+    await AssignPermission(payload);
+
+    Swal.fire("Success", "Permissions updated successfully", "success");
+  } catch (err) {
+    Swal.fire("Error", err?.message || "Failed to update", "error");
+  }
+};
+
 
   return (
     <div className="page-content">

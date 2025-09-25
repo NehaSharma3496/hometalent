@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { GetAllContactUs } from "../../../Services/admin/Admin"; // adjust path if different
-import { Link,useNavigate } from "react-router-dom";
+import { GetAllContactUs,GetEmployeePermission } from "../../../Services/admin/Admin"; // adjust path if different
+import { Link, useNavigate } from "react-router-dom";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 import { Modal, Button } from "react-bootstrap";
-
 
 export default function AllEnquiries() {
   const [contacts, setContacts] = useState([]);
@@ -22,11 +21,36 @@ export default function AllEnquiries() {
   const [showModal, setShowModal] = useState(false);
   const [fullText, setFullText] = useState("");
 
+
+const role = localStorage.getItem("role");
+
+  const [permissions, setPermissions] = useState([]);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      if (role !== "3") return;
+
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      try {
+        const res = await GetEmployeePermission(token, userId);
+        if (res?.status && Array.isArray(res.data)) {
+          setPermissions(res.data.map((p) => p.slug));
+        }
+      } catch (err) {
+        console.error("Error fetching permissions:", err);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
+
+
   const handleReadMore = (text) => {
     setFullText(text);
     setShowModal(true);
   };
-
 
   const fetchAllContactUs = async (page, limit) => {
     setLoading(true);
@@ -132,13 +156,13 @@ export default function AllEnquiries() {
 
   const filteredContacts = searchText
     ? allContacts.filter((entry) => {
-      const lowerSearch = searchText.toLowerCase();
-      return (
-        entry.name?.toLowerCase().includes(lowerSearch) ||
-        entry.email?.toLowerCase().includes(lowerSearch) ||
-        entry.phone?.toLowerCase().includes(lowerSearch)
-      );
-    })
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          entry.name?.toLowerCase().includes(lowerSearch) ||
+          entry.email?.toLowerCase().includes(lowerSearch) ||
+          entry.phone?.toLowerCase().includes(lowerSearch)
+        );
+      })
     : contacts;
 
   useEffect(() => {
@@ -166,14 +190,12 @@ export default function AllEnquiries() {
       selector: (row) => row?.name || "—",
       sortable: true,
       width: "150px",
-
     },
     {
       name: "Email",
       selector: (row) => row?.email || "—",
       sortable: true,
       width: "300px",
-
     },
     {
       name: "Phone",
@@ -190,13 +212,13 @@ export default function AllEnquiries() {
       sortable: true,
       cell: (row) => {
         if (!row?.message) return "—";
-    
+
         const maxLength = 50; // number of letters to show
         const shortText =
           row.message.length > maxLength
             ? row.message.substring(0, maxLength) + "..."
             : row.message;
-    
+
         return (
           <div>
             {row.message.length > maxLength ? (
@@ -223,8 +245,7 @@ export default function AllEnquiries() {
         );
       },
     },
-    
-    
+
     {
       name: "Date",
       selector: (row) => {
@@ -245,23 +266,24 @@ export default function AllEnquiries() {
           <div className="add-page-heading-div d-flex align-items-center mb-2 mb-md-0">
             <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
             <h2 className="add-page-heading ">All Enquiries</h2>
           </div>
 
-          <div className="text-end">
-            <button className="btn btn-success mt-3" onClick={exportToExcel}>
-              <i className="fa-solid fa-file-excel me-1"></i>
-              Download Excel
-            </button>
-          </div>
+          <div className="col-md-6 text-end">
+  {(role !== "3" || permissions.includes("download_excel")) && (
+    <button className="btn btn-success me-2" onClick={exportToExcel}>
+      <i className="fa-solid fa-file-excel me-1"></i>
+      Download Excel
+    </button>
+  )}
+</div>
+
         </div>
       </div>
-
-
 
       <div className="card table-padding">
         <div
@@ -303,12 +325,13 @@ export default function AllEnquiries() {
             <Modal.Header closeButton>
               <Modal.Title>Full Message</Modal.Title>
             </Modal.Header>
-            <Modal.Body style={{
-              maxHeight: "400px", 
-              overflowY: "auto",
-              wordWrap: "break-word",
-              whiteSpace: "pre-wrap" 
-            }}
+            <Modal.Body
+              style={{
+                maxHeight: "400px",
+                overflowY: "auto",
+                wordWrap: "break-word",
+                whiteSpace: "pre-wrap",
+              }}
             >
               {fullText}
             </Modal.Body>
@@ -318,7 +341,6 @@ export default function AllEnquiries() {
               </Button>
             </Modal.Footer>
           </Modal>
-
         </div>
       </div>
     </div>
