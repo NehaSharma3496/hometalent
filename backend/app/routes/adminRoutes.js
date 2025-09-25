@@ -83,6 +83,7 @@ router.get('/feedback', adminController.getAllFeedBack);
 router.post('/sendotp', adminController.sendotp);
 router.get('/insertcategoryimages', adminController.insertcategoryimages);
 router.get('/getVendorsByPackageStatus', adminController.getVendorsByPackageStatus);
+router.get('/settings', adminController.settings);
 
 
 module.exports = router;

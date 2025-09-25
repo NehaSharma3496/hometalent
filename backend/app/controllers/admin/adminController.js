@@ -13,7 +13,8 @@ const {
   Notification,
   FeedBack,
   City,
-  State
+  State,
+  Setting
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 const socketManager = require('../../socket/socketManager');
@@ -1947,6 +1948,15 @@ console.log("vendors", vendors);
   }
 };
 
+exports.settings = async (req, res) => {
+  try {
+    const settings = await Setting.findAll();
+    return res.json({ status: true, data:settings});
+  } catch (error) {
+    console.error(error);
+    return res.json({ status: false, msg: "Server error", error: error.message });
+  }
+};
 
 
 

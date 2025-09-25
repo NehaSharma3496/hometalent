@@ -18,6 +18,7 @@ const FeedBack = require('./FeedBack');
 const Report = require('./report');
 const Permission = require('./Permission');
 const UserPermission = require('./UserPermission');
+const Setting = require('./Setting');
 const models = {
     User: User,
     Role: Role,
@@ -38,7 +39,8 @@ const models = {
     FeedBack: FeedBack,
     Report: Report,
     Permission: Permission,
-    UserPermission: UserPermission
+    UserPermission: UserPermission,
+    Setting
 };
 
 Object.keys(models).forEach(modelName => {
