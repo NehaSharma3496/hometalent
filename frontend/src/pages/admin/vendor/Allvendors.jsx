@@ -31,8 +31,59 @@ export default function Allvendors() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [packageFilter, setPackageFilter] = useState("");
-  const login_id=localStorage.getItem("userId");
-  console.log("login_id",login_id);
+  
+  // New filter states
+  const [cityFilter, setCityFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [availableCities, setAvailableCities] = useState([]);
+  const [availableCategories, setAvailableCategories] = useState([]);
+  
+  const login_id = localStorage.getItem("userId");
+
+  // Extract unique cities and categories from vendors data
+  useEffect(() => {
+    if (allVendors?.length > 0) {
+      // Extract cities
+      const cities = [];
+      const citySet = new Set();
+      
+      allVendors.forEach(vendor => {
+        if (vendor.City?.name && !citySet.has(vendor.City.name)) {
+          citySet.add(vendor.City.name);
+          cities.push({
+            id: vendor.City.id,
+            name: vendor.City.name
+          });
+        }
+      });
+      
+      // Sort cities alphabetically and set default top cities
+      const sortedCities = cities.sort((a, b) => a.name.localeCompare(b.name));
+      setAvailableCities(sortedCities);
+
+      // Extract categories
+      const categories = [];
+      const categorySet = new Set();
+      
+      allVendors.forEach(vendor => {
+        if (vendor.category_names) {
+          const vendorCategories = Array.isArray(vendor.category_names) 
+            ? vendor.category_names 
+            : [vendor.category_names];
+          
+          vendorCategories.forEach(category => {
+            if (category && !categorySet.has(category)) {
+              categorySet.add(category);
+              categories.push(category);
+            }
+          });
+        }
+      });
+      
+      const sortedCategories = categories.sort((a, b) => a.localeCompare(b));
+      setAvailableCategories(sortedCategories);
+    }
+  }, [allVendors]);
 
   // 🔹 Utility function to get package status for a vendor (Date-based, not time-based)
   const getVendorPackageStatus = (vendorId) => {
@@ -243,11 +294,24 @@ export default function Allvendors() {
     }
   }, [allVendors]);
 
-  // 🔹 MAIN FILTERING LOGIC - Fixed with Date-based Package Status
+  // Clear all filters function
+  const clearAllFilters = () => {
+    setSearchText("");
+    setStartDate("");
+    setEndDate("");
+    setPackageFilter("");
+    setCityFilter("");
+    setCategoryFilter("");
+  };
+
+  // Check if any filter is active
+  const hasActiveFilters = searchText || startDate || endDate || packageFilter || cityFilter || categoryFilter;
+
+  // 🔹 MAIN FILTERING LOGIC - Updated with City and Category filters
   const filteredVendors = allVendors.filter((v) => {
     const lowerSearch = searchText.toLowerCase();
 
-    // 🔹 Text Filter
+    // 🔹 Text Filter - Including City, State, and Category search
     const matchesText =
       !searchText ||
       v.owner_name?.toLowerCase().includes(lowerSearch) ||
@@ -270,14 +334,29 @@ export default function Allvendors() {
       (!fromDate || createdDate >= fromDate) &&
       (!toDate || createdDate <= toDate);
 
-    // 🔹 Package Status Filter - Fixed with Date-based logic
+    // 🔹 Package Status Filter
     let matchesPackage = true;
     if (packageFilter) {
       const vendorPkgStatus = getVendorPackageStatus(v.id);
       matchesPackage = vendorPkgStatus === packageFilter;
     }
 
-    return matchesText && matchesDate && matchesPackage;
+    // 🔹 City Filter
+    let matchesCity = true;
+    if (cityFilter) {
+      matchesCity = v.City?.name === cityFilter;
+    }
+
+    // 🔹 Category Filter
+    let matchesCategory = true;
+    if (categoryFilter) {
+      const vendorCategories = Array.isArray(v.category_names) 
+        ? v.category_names 
+        : [v.category_names];
+      matchesCategory = vendorCategories.includes(categoryFilter);
+    }
+
+    return matchesText && matchesDate && matchesPackage && matchesCity && matchesCategory;
   });
 
   const exportToExcel = async () => {
@@ -636,78 +715,139 @@ export default function Allvendors() {
       </div>
 
       <div className="card table-padding">
-        <div className="card-header d-flex flex-wrap gap-3">
-          {/* Search Bar */}
-          <div className="col-md-4">
-            <div className="d-flex align-items-center border rounded px-2">
-              <i className="ri-search-line me-2 text-muted" />
-              <input
-                type="text"
-                className="form-control border-0 shadow-none"
-                placeholder="Search by Owner Name, Email, Phone..."
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-              {searchText && (
-                <button
-                  className="btn btn-sm btn-light border-0"
-                  onClick={() => setSearchText("")}
-                >
-                  <i className="ri-close-line" />
-                </button>
-              )}
+        <div className="card-header">
+          {/* First Row - Search Bar */}
+          <div className="row mb-3">
+            <div className="col-md-3">
+              <div className="d-flex align-items-center border rounded px-2">
+                <i className="ri-search-line me-2 text-muted" />
+                <input
+                  type="text"
+                  className="form-control border-0 shadow-none"
+                  placeholder="Search by Name, Email, Phone, City..."
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                />
+                {searchText && (
+                  <button
+                    className="btn btn-sm btn-light border-0"
+                    onClick={() => setSearchText("")}
+                  >
+                    <i className="ri-close-line" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Date Filter */}
-          <div className="d-flex align-items-center gap-2">
-            <input
-              type={startDate ? "date" : "text"}
-              className="form-control form-control-sm shadow-sm border rounded"
-              placeholder="From"
-              value={startDate}
-              onFocus={(e) => (e.target.type = "date")}
-              onBlur={(e) => !startDate && (e.target.type = "text")}
-              onChange={(e) => setStartDate(e.target.value)}
-              max={endDate || undefined}
-            />
+          {/* Second Row - All Other Filters */}
+          <div className="row align-items-center">
+            {/* Date Filters */}
+            <div className="col-md-2">
+              <input
+                type={startDate ? "date" : "text"}
+                className="form-control form-control-sm shadow-sm border rounded"
+                placeholder="From Date"
+                value={startDate}
+                onFocus={(e) => (e.target.type = "date")}
+                onBlur={(e) => !startDate && (e.target.type = "text")}
+                onChange={(e) => setStartDate(e.target.value)}
+                max={endDate || undefined}
+              />
+            </div>
 
-            <input
-              type={endDate ? "date" : "text"}
-              className="form-control form-control-sm shadow-sm border rounded"
-              placeholder="To"
-              value={endDate}
-              onFocus={(e) => (e.target.type = "date")}
-              onBlur={(e) => !endDate && (e.target.type = "text")}
-              onChange={(e) => setEndDate(e.target.value)}
-              min={startDate || undefined}
-            />
+            <div className="col-md-2">
+              <input
+                type={endDate ? "date" : "text"}
+                className="form-control form-control-sm shadow-sm border rounded"
+                placeholder="To Date"
+                value={endDate}
+                onFocus={(e) => (e.target.type = "date")}
+                onBlur={(e) => !endDate && (e.target.type = "text")}
+                onChange={(e) => setEndDate(e.target.value)}
+                min={startDate || undefined}
+              />
+            </div>
 
-            {(startDate || endDate) && (
-              <button
-                className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 rounded"
-                style={{ height: "31px", lineHeight: "1", padding: "0 10px" }}
-                onClick={() => {
-                  setStartDate("");
-                  setEndDate("");
-                }}
+            {/* City Filter */}
+            <div className="col-md-2">
+              <select
+                className="form-select form-select-sm shadow-sm border rounded"
+                value={cityFilter}
+                onChange={(e) => setCityFilter(e.target.value)}
               >
-                <i className="fas fa-times"></i>
-                <span className="d-none d-md-inline">Clear</span>
-              </button>
-            )}
+                <option value="">All Cities</option>
+                {availableCities.slice(0, 6).map((city) => (
+                  <option key={city.id} value={city.name}>
+                    {city.name}
+                  </option>
+                ))}
+                {availableCities.length > 6 && (
+                  <>
+                    <option disabled>──────────</option>
+                    {availableCities.slice(6).map((city) => (
+                      <option key={city.id} value={city.name}>
+                        {city.name}
+                      </option>
+                    ))}
+                  </>
+                )}
+              </select>
+            </div>
 
-            <select
-              className="form-select form-select-sm shadow-sm border rounded"
-              value={packageFilter}
-              onChange={(e) => setPackageFilter(e.target.value)}
-              style={{ width: "150px" }}
-            >
-              <option value="">All Packages</option>
-              <option value="Active">Active</option>
-              <option value="Expired">Expired</option>
-              <option value="N/A">N/A</option>
-            </select>
+            {/* Category Filter */}
+            <div className="col-md-2">
+              <select
+                className="form-select form-select-sm shadow-sm border rounded"
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="">All Categories</option>
+                {availableCategories.slice(0, 6).map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+                {availableCategories.length > 6 && (
+                  <>
+                    <option disabled>──────────</option>
+                    {availableCategories.slice(6).map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </>
+                )}
+              </select>
+            </div>
+
+            {/* Package Status Filter */}
+            <div className="col-md-2">
+              <select
+                className="form-select form-select-sm shadow-sm border rounded"
+                value={packageFilter}
+                onChange={(e) => setPackageFilter(e.target.value)}
+              >
+                <option value="">All Packages</option>
+                <option value="Active">Active</option>
+                <option value="Expired">Expired</option>
+                <option value="N/A">N/A</option>
+              </select>
+            </div>
+
+            {/* Clear All Filters Button */}
+            <div className="col-md-2">
+              {hasActiveFilters && (
+                <button
+                  className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 rounded w-100"
+                  onClick={clearAllFilters}
+                  title="Clear All Filters"
+                >
+                  <i className="fas fa-times"></i>
+                  <span>Clear All</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

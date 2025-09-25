@@ -93,12 +93,12 @@ export default function AllBlog() {
     {
       name: "Title",
       selector: (row) => row.title || "-",
-      width: "250px",
+      width: "100px",
     },
     {
       name: "Short Description",
       selector: (row) => row.short_description || "-",
-      width: "450px",
+      width: "250px",
       wrap: true,
     },
     {

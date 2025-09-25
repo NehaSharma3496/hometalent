@@ -1,48 +1,56 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import MenuItems from "../admincomponents/MenuItems.jsx";
+import MenuItems from "./MenuItems.jsx";
 import { GetVendorDetails } from "../../Services/vendor/Vendor.js";
+import { GetEmployeePermission } from "../../Services/admin/Admin.js";
 import { useNotifications } from "../../contexts/NotificationContext.js";
 import { image_baseurl } from "../../Utils/config.js";
 
 export default function AdminHeader() {
-  const role = localStorage.getItem("role");
-  const MenuData = MenuItems[role] || [];
-  const navigate = useNavigate();
+  const role = localStorage.getItem("role"); // 1=Admin, 2=Vendor, 3=Employee
   const vendorId = localStorage.getItem("userId");
+  const vendor_id = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
   const [profileImage, setProfileImage] = useState(null);
   const [sidebarToggled, setSidebarToggled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
+  const [permissions, setPermissions] = useState([]);
 
   // ✅ Context
-  const {
-    notifications,
-    unreadCount,
-    markAsRead,
-    markAllAsRead,
-    clearNotifications,
-  } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } =
+    useNotifications();
 
-  const userType = role === "1" ? "admin" : role === "2" ? "vendor" : "client";
+  const userType =
+    role === "1" ? "admin" : role === "2" ? "vendor" : "employee";
 
-  // --- LocalStorage sync ---
+  // --- fetch employee permissions if role = 3 ---
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      try {
+        const res = await GetEmployeePermission(token, vendor_id);
+        if (res?.status && Array.isArray(res.data)) {
+          setPermissions(res.data.map((p) => p.slug));
+        }
+      } catch (err) {
+        console.error("Permission fetch error:", err);
+      }
+    };
+    if (role === "3") {
+      fetchPermissions();
+    }
+  }, [role]);
+
+  // --- LocalStorage sync for notifications ---
   useEffect(() => {
     if (notifications && notifications.length > 0) {
-      // Get previously stored notifications
       const stored = JSON.parse(localStorage.getItem("notifications")) || [];
-
-      // Merge current notifications with stored, remove duplicates by id
       const merged = [...stored, ...notifications].filter(
         (v, i, a) => a.findIndex((n) => n.id === v.id) === i
       );
-
-      // Limit to 20 latest notifications
       const latest20 = merged.slice(-20);
-
       localStorage.setItem("notifications", JSON.stringify(latest20));
     }
   }, [notifications]);
@@ -54,10 +62,9 @@ export default function AdminHeader() {
 
   const handleNotificationClick = (notificationId) => {
     markAsRead(notificationId);
-    // You can navigate to detail if needed
-    // e.g., navigate(`/notification/${notificationId}`);
   };
 
+  // --- role wise config ---
   const RoleConfig = {
     1: {
       changePassword: "/admin/forgotpassword/changepassword",
@@ -65,6 +72,10 @@ export default function AdminHeader() {
     },
     2: {
       profileLink: "/vendor/myprofile",
+      changePassword: "/admin/forgotpassword/changepassword",
+      defaultImage: "/assets/images/admin/user-img.png",
+    },
+    3: {
       changePassword: "/admin/forgotpassword/changepassword",
       defaultImage: "/assets/images/admin/user-img.png",
     },
@@ -113,20 +124,17 @@ export default function AdminHeader() {
     navigate("/");
   };
 
+  // --- fetch vendor profile image if vendor role ---
   useEffect(() => {
     const fetchVendorProfileImage = async () => {
       try {
         const result = await GetVendorDetails(token, vendorId);
         const imageUrl = result?.data?.user?.image;
-
-        if (imageUrl) {
-          setProfileImage(imageUrl);
-        }
+        if (imageUrl) setProfileImage(imageUrl);
       } catch (error) {
         console.error("Error fetching vendor profile image:", error);
       }
     };
-
     if (role === "2") {
       fetchVendorProfileImage();
     }
@@ -137,24 +145,18 @@ export default function AdminHeader() {
   const displayedNotifications =
     notifications.length > 0 ? notifications : storedNotifications;
 
+  // --- close sidebar when clicking a link on mobile ---
   useEffect(() => {
-    if (window.innerWidth > 1024) return; // sirf mobile/tablet pe chale
+    if (window.innerWidth > 1024) return;
 
     const links = document.querySelectorAll(".sidebar-link");
-
     const handleClick = () => {
-      document.body.classList.toggle("sidebar-toggle"); // add/remove dono karega
+      document.body.classList.toggle("sidebar-toggle");
     };
 
-    links.forEach((link) => {
-      link.addEventListener("click", handleClick);
-    });
-
-    return () => {
-      links.forEach((link) => {
-        link.removeEventListener("click", handleClick);
-      });
-    };
+    links.forEach((link) => link.addEventListener("click", handleClick));
+    return () =>
+      links.forEach((link) => link.removeEventListener("click", handleClick));
   }, []);
 
   const sidebarRef = useRef(null);
@@ -177,6 +179,40 @@ export default function AdminHeader() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+ const getFilteredMenu = () => {
+  const menus = MenuItems[role] || [];
+
+  if (role === "3") {
+    const filterWithPermissions = (items) => {
+      return items
+        .map((item) => {
+          const hasParentPermission = !item.permission || permissions.includes(item.permission);
+
+          if (!hasParentPermission) {
+            // Agar parent ka permission nahi hai → parent + children dono ignore
+            return null;
+          }
+
+          if (item.children) {
+            // Parent dikhega → children ko check karo
+            const filteredChildren = filterWithPermissions(item.children);
+            return { ...item, children: filteredChildren };
+          } else {
+            return item;
+          }
+        })
+        .filter(Boolean);
+    };
+
+    return filterWithPermissions(menus);
+  }
+
+  return menus;
+};
+
+
+  const MenuData = getFilteredMenu();
 
   return (
     <>
@@ -229,7 +265,6 @@ export default function AdminHeader() {
 
                       {/* Dropdown */}
                       <div className="card shadow border-0 rounded-3 dropdrow-style">
-                        {/* Header */}
                         <div className="card-header bg-white d-flex justify-content-between align-items-center">
                           <h6 className="mb-0 fw-semibold text-primary d-flex align-items-center">
                             <i className="fa-solid fa-bell me-2 text-warning"></i>
@@ -243,8 +278,6 @@ export default function AdminHeader() {
                           </button>
                         </div>
 
-                        {/* Notification List */}
-                        {/* Notification List */}
                         <div
                           className="card-body p-2"
                           style={{ maxHeight: "300px", overflowY: "auto" }}
@@ -291,7 +324,6 @@ export default function AdminHeader() {
                           )}
                         </div>
 
-                        {/* Footer */}
                         <div className="card-footer bg-white text-center">
                           <button
                             className="btn btn-sm btn-success w-100 fw-semibold"
@@ -329,7 +361,7 @@ export default function AdminHeader() {
                         onError={(e) => {
                           e.target.onerror = null;
                           e.target.src =
-                            "https://cdn-icons-png.flaticon.com/512/149/149071.png"; // fallback
+                            "https://cdn-icons-png.flaticon.com/512/149/149071.png";
                         }}
                       />
 
@@ -340,7 +372,7 @@ export default function AdminHeader() {
                       className="dropdown-menu"
                       aria-labelledby="profile-dropdown"
                     >
-                      {role == "2" && (
+                      {role === "2" && (
                         <li>
                           <Link
                             className="dropdown-item"
