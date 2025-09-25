@@ -21,6 +21,9 @@ export default function RejectedVendors() {
   const [allRejectedVendors, setAllRejectedVendors] = useState([]);
   const navigate = useNavigate();
 
+
+  const login_id = localStorage.getItem("userId");
+
   const fetchRejectedVendors = async (page, limit) => {
     setLoading(true);
     try {
@@ -153,35 +156,39 @@ export default function RejectedVendors() {
     }
   };
 
-  const handleApproveVendor = async (vendorId, status) => {
-    try {
-      const confirm = await Swal.fire({
-        title: "Approve Vendor?",
-        text: "Are you sure you want to approve this vendor?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#6c757d",
-        confirmButtonText: "Yes, approve!",
-      });
+ const handleApproveVendor = async (vendorId, status) => {
+  try {
+    const confirm = await Swal.fire({
+      title: "Approve Vendor?",
+      text: "Are you sure you want to approve this vendor?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Yes, approve!",
+    });
 
-      if (!confirm.isConfirmed) return;
+    if (!confirm.isConfirmed) return;
 
-      const token = localStorage.getItem("token");
-      const response = await GetApproveVendor(vendorId, status, token);
+    const token = localStorage.getItem("token");
+    const login_id = localStorage.getItem("userId"); // 🔹 yaha login_id le rahe hain
 
-      if (response.status === true || response.status === "true") {
-        await Swal.fire("Success", response.message, "success");
-        fetchRejectedVendors(currentPage, perPage);
-        fetchAllRejectedVendors();
-      } else {
-        throw new Error(response.message || "Failed to update approval");
-      }
-    } catch (err) {
-      console.error(err);
-      await Swal.fire("Error!", "Something went wrong.", "error");
+    // API call with login_id
+    const response = await GetApproveVendor(vendorId, status, token, login_id);
+
+    if (response.status === true || response.status === "true") {
+      await Swal.fire("Success", response.message, "success");
+      fetchRejectedVendors(currentPage, perPage);
+      fetchAllRejectedVendors();
+    } else {
+      throw new Error(response.message || "Failed to update approval");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    await Swal.fire("Error!", "Something went wrong.", "error");
+  }
+};
+
 
   const filteredRejectedVendors = searchText
     ? allRejectedVendors.filter((vendor) => {

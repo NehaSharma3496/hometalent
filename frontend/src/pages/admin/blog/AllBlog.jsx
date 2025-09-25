@@ -117,13 +117,13 @@ export default function AllBlog() {
             <i className="fa fa-edit me-1" />
             Update
           </button>
-          <button
+          {/* <button
             className="btn btn-sm btn-danger"
             onClick={() => handleDelete(row.id)}
           >
             <i className="fa fa-trash me-1" />
             Delete
-          </button>
+          </button> */}
         </div>
       ),
       ignoreRowClick: true,

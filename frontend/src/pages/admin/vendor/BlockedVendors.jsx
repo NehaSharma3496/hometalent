@@ -21,6 +21,8 @@ export default function BlockedVendors() {
   const [totalRows, setTotalRows] = useState(0);
     const navigate = useNavigate();
 
+  const login_id = localStorage.getItem("userId");
+
 
   const fetchBlockedVendors = async (page, limit) => {
     setLoading(true);
@@ -76,7 +78,7 @@ export default function BlockedVendors() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await UpdateVendorStatus(vendorId, newStatus, token);
+      const res = await UpdateVendorStatus(vendorId, newStatus, token,login_id);
       if (res?.status === true || res?.status === "true") {
         await Swal.fire("Success", "Vendor status updated.", "success");
         fetchBlockedVendors(currentPage, perPage);
