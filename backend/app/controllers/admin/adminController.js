@@ -413,7 +413,7 @@ exports.approveVendor = async (req, res) => {
 
     await commonEmail(vendor.email, subject, message);
       let type = `Registration Request ${action}`;
-      let nmessage = `Vendor ${vendor.owner_name || vendor.profile_name} Registration Request ${action} by ${loginuser,profile_name}.`;
+      let nmessage = `Vendor ${vendor.owner_name || vendor.profile_name} Registration Request ${action} by ${loginuser.profile_name}.`;
       if(loginuser.role_id == 3){
         socketManager.approvevendor(type, nmessage, { vendor_id: vendor_id, login_id:login_id });
         await Notification.create({
@@ -1240,7 +1240,7 @@ exports.extendVendorPackage = async (req, res) => {
        const yy = String(new_end_date.getFullYear());
        const formatted = `${dd}/${mm}/${yy}`;
 
-      socketManager.vendorPackageExtended(sub.vendor_id, loginuser.role_id, vendor.owner_name || vendor.profile_name, loginuser,profile_name, {
+      socketManager.vendorPackageExtended(sub.vendor_id, loginuser.role_id, vendor.owner_name || vendor.profile_name, loginuser.profile_name, {
         id: sub.id,
         vendor_id: sub.vendor_id,
         package_name: pkg.name,
