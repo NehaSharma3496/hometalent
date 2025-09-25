@@ -9,4 +9,5 @@ export const Doamin_url = `${window.location.origin}/`;
 // export const soket_url = `${window.location.origin}:1001/`;
 // export const base_url = `${window.location.origin}/backend/`
 export const base_url = `https://hometalent4u.in/backend/`;
+export const socket_url = `https://hometalent4u.in:1001/`;
 export const image_baseurl = `${window.location.origin}/backend/`;
