@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { AddAdminBlog } from "../../../Services/admin/Admin";
 import "react-quill/dist/quill.snow.css";
-const login_id = localStorage.getItem("userId");
 
 
 const ReactQuill = lazy(() => import("react-quill"));
@@ -14,7 +13,8 @@ export default function AddBlog() {
   const [shortDescription, setShortDescription] = useState("");
   const [longDescription, setLongDescription] = useState("");
   const [image, setImage] = useState(null);
-
+  const login_id = localStorage.getItem("userId");
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 

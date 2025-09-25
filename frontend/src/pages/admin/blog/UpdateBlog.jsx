@@ -6,8 +6,6 @@ import {
   GetSingleAdminBlog,
 } from "../../../Services/admin/Admin";
 import "react-quill/dist/quill.snow.css";
-const login_id = localStorage.getItem("userId");
-
 
 const ReactQuill = lazy(() => import("react-quill"));
 
@@ -19,6 +17,7 @@ export default function UpdateBlog() {
   const [image, setImage] = useState(null);
   const { blogId } = useParams();
   const [existingImageUrl, setExistingImageUrl] = useState("");
+  const login_id = localStorage.getItem("userId");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -103,9 +102,9 @@ export default function UpdateBlog() {
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-           <button
+            <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>

@@ -50,7 +50,7 @@ export async function GetBlockedVendore(token, page = 1, limit = 10) {
   }
 }
 
-export async function GetApproveVendor(vendorId, approval, token) {
+export async function GetApproveVendor(vendorId, approval, token,login_id) {
   try {
     const res = await axios.post(
       `${Config.base_url}admin/vendors/approve`,
