@@ -190,19 +190,21 @@ exports.listSponsoredVendors = async (req, res) => {
         "phone",
         "status",
         "category_id" // make sure to include this to use in FIND_IN_SET
+      ],
+      include: [
+        {
+          model: City,
+          attributes: ["id", "name"]
+        },
+          {
+          model: State,
+          attributes: ["id", "name"]
+        }
       ]
     },
     {
       model: Category,
       as: "category",
-      attributes: ["id", "name"]
-    },
-     {
-      model: City,
-      attributes: ["id", "name"]
-    },
-      {
-      model: State,
       attributes: ["id", "name"]
     }
 
