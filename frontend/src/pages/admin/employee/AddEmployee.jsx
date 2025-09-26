@@ -79,13 +79,13 @@ export default function AddEmployee() {
           navigate("/admin/employeelist");
         });
       } else {
-        Swal.fire("Error", res?.data?.msg || "Something went wrong", "error");
+        Swal.fire("Error", res?.msg || "Something went wrong", "error");
       }
     } catch (err) {
       console.error("API ERROR:", err);
       Swal.fire(
         "Error",
-        err?.response?.data?.msg || "Something went wrong",
+        err?.res?.msg || "Something went wrong",
         "error"
       );
     } finally {
