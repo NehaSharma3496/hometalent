@@ -15,6 +15,7 @@ export default function Permissions() {
 
   const [permissions, setPermissions] = useState([]);
   const [userPermissions, setUserPermissions] = useState([]);
+  const [originalPermissions, setOriginalPermissions] = useState([]); // ✅ original snapshot
   const [loading, setLoading] = useState(true);
 
   // fetch all + employee permissions
@@ -29,6 +30,7 @@ export default function Permissions() {
         // ✅ pick only IDs from employee permissions data
         const empIds = emp?.data?.map((p) => Number(p.id)) || [];
         setUserPermissions(empIds);
+        setOriginalPermissions(empIds); // ✅ save snapshot for comparison
 
         console.log("Employee permissions from API:", emp?.data);
         console.log("Normalized IDs:", empIds);
@@ -51,8 +53,22 @@ export default function Permissions() {
     }
   };
 
+  // compare two arrays (order independent)
+  const arraysEqual = (a, b) => {
+    if (a.length !== b.length) return false;
+    const sortedA = [...a].sort();
+    const sortedB = [...b].sort();
+    return JSON.stringify(sortedA) === JSON.stringify(sortedB);
+  };
+
   // submit updated permissions
   const handleSubmit = async () => {
+    // ✅ check if any changes are made
+    if (arraysEqual(userPermissions, originalPermissions)) {
+      Swal.fire("No changes", "No changes were made to permissions", "info");
+      return;
+    }
+
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "Do you want to update the permissions?",
@@ -62,7 +78,7 @@ export default function Permissions() {
       cancelButtonText: "Cancel",
     });
 
-    if (!result.isConfirmed) return; // अगर cancel दबाया तो exit
+    if (!result.isConfirmed) return;
 
     try {
       const payload = {
@@ -71,6 +87,7 @@ export default function Permissions() {
       };
       await AssignPermission(payload);
 
+      setOriginalPermissions(userPermissions); // ✅ update snapshot
       Swal.fire("Success", "Permissions updated successfully", "success");
     } catch (err) {
       Swal.fire("Error", err?.message || "Failed to update", "error");
