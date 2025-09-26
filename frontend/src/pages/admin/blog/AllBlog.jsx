@@ -131,31 +131,36 @@ export default function AllBlog() {
       selector: (row) => new Date(row.createdAt).toLocaleDateString() || "-",
       width: "180px",
     },
-    {
-      name: "Actions",
-      cell: (row) => (
-        <div className="d-flex gap-2">
-          <button
-            className="btn btn-sm btn-primary"
-            onClick={() => navigate(`/admin/updatepackage/${row.id}`)}
-          >
-            <i className="fa fa-edit me-1" />
-            Update
-          </button>
-          {/* <button
-            className="btn btn-sm btn-danger"
-            onClick={() => handleDelete(row.id)}
-          >
-            <i className="fa fa-trash me-1" />
-            Delete
-          </button> */}
-        </div>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-      width: "250px",
-    },
+    ...(role !== "3" || permissions.includes("blogs_edit_create")
+  ? [
+      {
+        name: "Actions",
+        cell: (row) => (
+          <div className="d-flex gap-2">
+            <button
+              className="btn btn-sm btn-primary"
+              onClick={() => navigate(`/admin/updatepackage/${row.id}`)}
+            >
+              <i className="fa fa-edit me-1" />
+              Update
+            </button>
+            {/* <button
+              className="btn btn-sm btn-danger"
+              onClick={() => handleDelete(row.id)}
+            >
+              <i className="fa fa-trash me-1" />
+              Delete
+            </button> */}
+          </div>
+        ),
+        ignoreRowClick: true,
+        allowOverflow: true,
+        button: true,
+        width: "250px",
+      },
+    ]
+  : []),
+
     {
       name: "Active Status",
       cell: (row) => (
