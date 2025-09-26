@@ -934,7 +934,7 @@ export default function Allvendors() {
       {pkgModalOpen && (
         <div
           className="modal fade show"
-          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+          style={{ display: "block", background: "rgba(0,0,0,0.5) ", zIndex: 0 }}
           onClick={() => setPkgModalOpen(false)}
         >
           <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
@@ -1014,6 +1014,7 @@ export default function Allvendors() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

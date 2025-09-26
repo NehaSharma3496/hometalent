@@ -6259,7 +6259,10 @@ fieldset:disabled .btn {
     background-clip: padding-box;
     border: var(--bs-modal-border-width) solid var(--bs-modal-border-color);
     border-radius: var(--bs-modal-border-radius);
-    outline: 0
+    outline: 0;
+    z-index: -99 !important;
+
+
 }
 
 .modal-backdrop {
