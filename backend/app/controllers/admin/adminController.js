@@ -348,6 +348,7 @@ exports.updateVendorStatus = async (req, res) => {
 
     data.status = status;
     await data.save();
+     if(loginuser.role_id == 3){
     let action;
       if(status == 1){
         action = "Activated";
@@ -356,7 +357,7 @@ exports.updateVendorStatus = async (req, res) => {
       }
       let type = `Status ${action}`;
       let nmessage = `Vendor ${vendor.owner_name || vendor.profile_name} Account Status ${action} by ${loginuser.profile_name}`;
-      if(loginuser.role_id == 3){
+     
         socketManager.updatevendorstatus(type, nmessage, { vendor_id: vendor_id, login_id:login_id });
         await Notification.create({
           user_id: login_id,
