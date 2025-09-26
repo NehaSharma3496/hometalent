@@ -219,6 +219,20 @@ exports.listSponsoredVendors = async (req, res) => {
     const sponsoredVendorIds = sponsoredRows.map((r) => r.vendor_id);
 
     const activeVendors = await User.findAll({
+      include: [
+        {
+          model: City,
+          attributes: ["id", "name"]
+        },
+          {
+          model: State,
+          attributes: ["id", "name"]
+        },
+        {
+          model: Category,
+          attributes: ["id", "name"]
+        }
+      ],
       where: {
         [Op.and]: [
       {
@@ -246,7 +260,7 @@ exports.listSponsoredVendors = async (req, res) => {
 
     const totalPages = Math.ceil(count / limit);
 
-    res.json({
+    return res.json({
       status: true,
       sponsored: sponsoredRows,
       remaining_active: activeVendors,
@@ -260,7 +274,7 @@ exports.listSponsoredVendors = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.status(500).json({ status: false, msg: error.message });
   }
 };
 
@@ -279,7 +293,7 @@ exports.listBlockedVendors = async (req, res) => {
 
     const totalPages = Math.ceil(count / limit);
 
-    res.json({
+    return res.json({
       status: true,
       data: vendors,
       pagination: {
@@ -292,7 +306,7 @@ exports.listBlockedVendors = async (req, res) => {
       },
     });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
