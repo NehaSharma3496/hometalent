@@ -317,9 +317,9 @@ exports.updateVendorStatus = async (req, res) => {
     const loginuser = await User.findOne({ where: { id: login_id, role_id: {
             [Op.or]: [1, 3]
           } } });
-    if (!vendor) {
-      return res.json({ status: false, msg: "Vendor not found" });
-    }
+    // if (!vendor) {
+    //   return res.json({ status: false, msg: "Vendor not found" });
+    // }
     if (![0, 1, 2].includes(Number(status))) {
       return res
         .status(400)
