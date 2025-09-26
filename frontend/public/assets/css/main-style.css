@@ -15669,7 +15669,7 @@ p {
   line-height: 1.6;
   margin-bottom: 0px;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 17px;
 }
 
 svg {
@@ -32631,7 +32631,8 @@ tr:last-child td {
   font-size: 18px;
   font-weight: 700;
   color: var(--primary-title);
-  margin-bottom: 2px;
+  margin-bottom: 10px;
+  /* margin-top: 8px; */
 }
 
 .hotel-content .area-name:hover {
@@ -37366,6 +37367,19 @@ input[type="date"]:focus {
   line-height: 1.5rem;
   /* line height 24px (16px font size ke liye) */
 }
+.catagory-style{
+   display: -webkit-box;
+  -webkit-line-clamp: 2;
+  /* maximum 2 line dikhani */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  /* min-height: 3rem; */
+  /* 2 line ke barabar height */
+  line-height: 1.5rem;
+  font-size: 17px;
+  font-weight: 700;
+  /* line height 24px (16px font size ke liye) */
+}
 
 .snippet-blog img {
 
@@ -37374,3 +37388,4 @@ input[type="date"]:focus {
   object-fit: cover;
 
 }
+

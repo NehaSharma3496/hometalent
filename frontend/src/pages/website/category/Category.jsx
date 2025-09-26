@@ -214,7 +214,7 @@ const Category = () => {
                           </div>
 
                           <div className="hotel-content">
-                            <h4 className="area-name">
+                            <h4 className="catagory-style">
                               <Link
                                 to="/categorydetail"
                                 state={{ vendorId: item.id }}
@@ -223,16 +223,15 @@ const Category = () => {
                               </Link>
                             </h4>
 
-                            {/* Category Name */}
                             {(item.category_name ||
                               (item.category_names &&
                                 item.category_names[0])) && (
-                              <p className="pera mb-2">
+                              <p className="pera">
                                 {item.category_name || item.category_names[0]}
                               </p>
                             )}
 
-                            <div className="location mb-2">
+                            <div className="location">
                               <i className="ri-map-pin-line" />
                               <div className="name text-capitalize">
                                 {city.find(
@@ -242,7 +241,7 @@ const Category = () => {
                               </div>
                             </div>
 
-                            <h1 className="area-name truncate-2-lines mb-3">
+                            <h1 className="area-name truncate-2-lines Anuj">
                               <Link
                                 to="/categorydetail"
                                 state={{ vendorId: item.id }}
