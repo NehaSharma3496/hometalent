@@ -1,9 +1,14 @@
-import React, { createContext, useContext, useReducer, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  useState,
+} from "react";
 
 import io from "socket.io-client";
 
 import * as Config from "../Utils/config.js";
-
 const NotificationContext = createContext();
 
 const initialState = {
@@ -60,6 +65,7 @@ const notificationReducer = (state, action) => {
 
         notifications: state.notifications.map((notif) => ({
           ...notif,
+
           isRead: true,
         })),
 
@@ -77,14 +83,39 @@ const notificationReducer = (state, action) => {
 export const NotificationProvider = ({ children, userType, userId }) => {
   const [state, dispatch] = useReducer(notificationReducer, initialState);
 
+  // const [socketUrl, setSocketUrl] = useState(null);
+
+  // // Fetch socket_url from API
+
+  // useEffect(() => {
+  //   const fetchConfig = async () => {
+  //     try {
+  //       const response = await fetch(`${Config.base_url}admin/settings`); // replace with your real API endpoint
+
+  //       const data = await response.json();
+
+  //       console.log("response", response);
+  //       console.log("data", data);
+
+  //       setSocketUrl(data.data.socket_url);
+  //       console.log("Socket", data.data[0].socket_url);
+  //     } catch (error) {
+  //       console.error("Failed to fetch socket_url:", error);
+  //     }
+  //   };
+
+  //   fetchConfig();
+  // }, []);
+
+  // Connect to socket after we have socket_url
+
   useEffect(() => {
     if (!userId || !userType) return;
 
-    // Connect to Socket.IO server
 
-    // const socket = io(`http://147.93.102.146:8888/`);
-    // const socket = io(`${Config.base_url}`);
-    const socket = io(Config.socket_url);
+    
+    // const socket = io(socketUrl);
+    const socket = io(`${Config.socket_url}`)
 
     socket.on("connect", () => {
       console.log("Connected to Socket.IO server");
@@ -93,11 +124,11 @@ export const NotificationProvider = ({ children, userType, userId }) => {
 
       // Identify user type
 
-      if (userType == "admin") {
+      if (userType === "admin") {
         socket.emit("admin-connect", userId);
-      } else if (userType == "vendor") {
+      } else if (userType === "vendor") {
         socket.emit("vendor-connect", userId);
-      } else if (userType == "client") {
+      } else if (userType === "client") {
         socket.emit("client-connect", userId);
       }
     });
@@ -107,8 +138,6 @@ export const NotificationProvider = ({ children, userType, userId }) => {
 
       dispatch({ type: "SET_CONNECTION_STATUS", payload: false });
     });
-
-    // Listen for notifications
 
     socket.on("notification", (data) => {
       console.log("Received notification:", data);
@@ -122,6 +151,8 @@ export const NotificationProvider = ({ children, userType, userId }) => {
       socket.disconnect();
     };
   }, [userType, userId]);
+
+  // Expose functions
 
   const markAsRead = (notificationId) => {
     dispatch({ type: "MARK_AS_READ", payload: notificationId });
