@@ -52,31 +52,30 @@ export default function Permissions() {
   };
 
   // submit updated permissions
-const handleSubmit = async () => {
-  const result = await Swal.fire({
-    title: "Are you sure?",
-    text: "Do you want to update the permissions?",
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonText: "Yes, update it",
-    cancelButtonText: "Cancel",
-  });
+  const handleSubmit = async () => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to update the permissions?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, update it",
+      cancelButtonText: "Cancel",
+    });
 
-  if (!result.isConfirmed) return; // अगर cancel दबाया तो exit
+    if (!result.isConfirmed) return; // अगर cancel दबाया तो exit
 
-  try {
-    const payload = {
-      user_id: id,
-      permission_ids: userPermissions, // array of selected IDs
-    };
-    await AssignPermission(payload);
+    try {
+      const payload = {
+        user_id: id,
+        permission_ids: userPermissions, // array of selected IDs
+      };
+      await AssignPermission(payload);
 
-    Swal.fire("Success", "Permissions updated successfully", "success");
-  } catch (err) {
-    Swal.fire("Error", err?.message || "Failed to update", "error");
-  }
-};
-
+      Swal.fire("Success", "Permissions updated successfully", "success");
+    } catch (err) {
+      Swal.fire("Error", err?.message || "Failed to update", "error");
+    }
+  };
 
   return (
     <div className="page-content">
@@ -110,13 +109,7 @@ const handleSubmit = async () => {
             <div className="row">
               {permissions?.map((perm) => (
                 <div key={perm.id} className="col-md-4 mb-3">
-                  <div
-                    className={`d-flex align-items-center justify-content-between border rounded px-3 py-2 shadow-sm ${
-                      userPermissions.includes(Number(perm.id))
-                        ? "bg-success bg-opacity-10 border-success"
-                        : "bg-light"
-                    }`}
-                  >
+                  <div className="d-flex align-items-center justify-content-between border rounded px-3 py-2 shadow-sm bg-light">
                     <label
                       className="fw-semibold mb-0"
                       htmlFor={`perm-${perm.id}`}

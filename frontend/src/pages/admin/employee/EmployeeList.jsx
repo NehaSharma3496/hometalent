@@ -18,6 +18,8 @@ export default function EmployeeList() {
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
   const [allemployee, setAllEmployee] = useState([]);
+   const login_id = localStorage.getItem("userId");
+
 
   const fetchEmployee = async (page, limit) => {
     setLoading(true);
@@ -96,7 +98,7 @@ export default function EmployeeList() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await UpdateVendorStatus(vendorId, newStatus, token);
+      const res = await UpdateVendorStatus(vendorId, newStatus, token,login_id);
       if (res?.status === true || res?.status === "true") {
         await Swal.fire("Success", "Employee status updated.", "success");
         fetchEmployee(currentPage, perPage);
