@@ -180,37 +180,37 @@ export default function AdminHeader() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
- const getFilteredMenu = () => {
-  const menus = MenuItems[role] || [];
+  const getFilteredMenu = () => {
+    const menus = MenuItems[role] || [];
 
-  if (role === "3") {
-    const filterWithPermissions = (items) => {
-      return items
-        .map((item) => {
-          const hasParentPermission = !item.permission || permissions.includes(item.permission);
+    if (role === "3") {
+      const filterWithPermissions = (items) => {
+        return items
+          .map((item) => {
+            const hasParentPermission =
+              !item.permission || permissions.includes(item.permission);
 
-          if (!hasParentPermission) {
-            // Agar parent ka permission nahi hai → parent + children dono ignore
-            return null;
-          }
+            if (!hasParentPermission) {
+              // Agar parent ka permission nahi hai → parent + children dono ignore
+              return null;
+            }
 
-          if (item.children) {
-            // Parent dikhega → children ko check karo
-            const filteredChildren = filterWithPermissions(item.children);
-            return { ...item, children: filteredChildren };
-          } else {
-            return item;
-          }
-        })
-        .filter(Boolean);
-    };
+            if (item.children) {
+              // Parent dikhega → children ko check karo
+              const filteredChildren = filterWithPermissions(item.children);
+              return { ...item, children: filteredChildren };
+            } else {
+              return item;
+            }
+          })
+          .filter(Boolean);
+      };
 
-    return filterWithPermissions(menus);
-  }
+      return filterWithPermissions(menus);
+    }
 
-  return menus;
-};
-
+    return menus;
+  };
 
   const MenuData = getFilteredMenu();
 
@@ -242,17 +242,20 @@ export default function AdminHeader() {
               <div className="right-header">
                 <div className="position-relative">
                   {/* 🔔 Notification Button */}
-                  <button
-                    className="btn btn-light border-0 shadow-sm rounded-circle mt-1  position-relative"
-                    onClick={() => setIsOpen(!isOpen)}
-                  >
-                    <i className="fa-solid fa-bell text-primary fs-6"></i>
-                    {unreadCount > 0 && (
-                      <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        {unreadCount}
-                      </span>
-                    )}
-                  </button>
+                  {/* 🔔 Notification Button (hide for role 3) */}
+                  {role !== "3" && (
+                    <button
+                      className="btn btn-light border-0 shadow-sm rounded-circle mt-1  position-relative"
+                      onClick={() => setIsOpen(!isOpen)}
+                    >
+                      <i className="fa-solid fa-bell text-primary fs-6"></i>
+                      {unreadCount > 0 && (
+                        <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </button>
+                  )}
 
                   {isOpen && (
                     <>

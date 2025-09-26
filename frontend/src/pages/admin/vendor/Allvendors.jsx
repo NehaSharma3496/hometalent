@@ -233,18 +233,24 @@ export default function Allvendors() {
 
       setPkgModalOpen(true);
     } catch (e) {
-      Swal.fire("Error", "Failed to load packages or history", "error");
+      Swal.fire({
+        title: "Error",
+        text: "Failed to load packages or history",
+        icon: "error",
+        zIndex: 9999, // 👈 ye line add karni hai
+      });
     }
   };
 
   const submitAssignPackage = async () => {
     try {
       if (!assignVendorId || !selectedPkgId) {
-        return Swal.fire(
-          "Select Package",
-          "Please select a package",
-          "warning"
-        );
+        return Swal.fire({
+          title: "Select Package",
+          text: "Please select a package",
+          icon: "warning",
+          zIndex: 9999, // 👈 yaha add karo
+        });
       }
 
       const token = localStorage.getItem("token");
@@ -256,20 +262,32 @@ export default function Allvendors() {
       );
 
       if (res?.status) {
-        await Swal.fire("Success", res.msg || "Package assigned", "success");
+        await Swal.fire({
+          title: "Success",
+          text: res.msg || "Package assigned",
+          icon: "success",
+          zIndex: 9999, // 👈 ensure swal modal ke upar hi rahe
+        });
+
         setPkgModalOpen(false);
         fetchVendors(currentPage, perPage);
         // 🔹 Refresh package history after assignment
         await fetchVendorPackageHistory(assignVendorId);
       } else {
-        Swal.fire("Error", res?.msg || "Unable to assign package", "error");
+        Swal.fire({
+          title: "Error",
+          text: res?.msg || "Unable to assign package",
+          icon: "error",
+          zIndex: 9999, // 👈 swal hamesha modal ke upar rahega
+        });
       }
     } catch (e) {
-      Swal.fire(
-        "Error",
-        e?.msg || e?.message || "Unable to assign package",
-        "error"
-      );
+      Swal.fire({
+        title: "Error",
+        text: e?.msg || e?.message || "Unable to assign package",
+        icon: "error",
+        zIndex: 9999, // 👈 Swal modal ke upar rahe
+      });
     }
   };
 
@@ -787,138 +805,110 @@ export default function Allvendors() {
 
       <div className="card table-padding">
         <div className="card-header">
-          {/* First Row - Search Bar */}
-          <div className="row mb-3">
-            <div className="col-md-3">
-              <div className="d-flex align-items-center border rounded px-2">
-                <i className="ri-search-line me-2 text-muted" />
-                <input
-                  type="text"
-                  className="form-control border-0 shadow-none"
-                  placeholder="Search by Name, Email, Phone, City..."
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                />
-                {searchText && (
-                  <button
-                    className="btn btn-sm btn-light border-0"
-                    onClick={() => setSearchText("")}
-                  >
-                    <i className="ri-close-line" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Second Row - All Other Filters */}
-          <div className="row align-items-center">
-            {/* Date Filters */}
-            <div className="col-md-2">
+          <div className="d-flex align-items-center flex-wrap gap-2">
+            {/* Search Bar */}
+            <div
+              className="d-flex align-items-center border rounded px-2"
+              style={{ width: "190px" }} // 👈 search chhota kar diya
+            >
+              <i className="ri-search-line me-2 text-muted" />
               <input
-                type={startDate ? "date" : "text"}
-                className="form-control form-control-sm shadow-sm border rounded"
-                placeholder="From Date"
-                value={startDate}
-                onFocus={(e) => (e.target.type = "date")}
-                onBlur={(e) => !startDate && (e.target.type = "text")}
-                onChange={(e) => setStartDate(e.target.value)}
-                max={endDate || undefined}
+                type="text"
+                className="form-control border-0 shadow-none"
+                placeholder="Search..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
               />
-            </div>
-
-            <div className="col-md-2">
-              <input
-                type={endDate ? "date" : "text"}
-                className="form-control form-control-sm shadow-sm border rounded"
-                placeholder="To Date"
-                value={endDate}
-                onFocus={(e) => (e.target.type = "date")}
-                onBlur={(e) => !endDate && (e.target.type = "text")}
-                onChange={(e) => setEndDate(e.target.value)}
-                min={startDate || undefined}
-              />
-            </div>
-
-            {/* City Filter */}
-            <div className="col-md-2">
-              <select
-                className="form-select form-select-sm shadow-sm border rounded"
-                value={cityFilter}
-                onChange={(e) => setCityFilter(e.target.value)}
-              >
-                <option value="">All Cities</option>
-                {availableCities.slice(0, 6).map((city) => (
-                  <option key={city.id} value={city.name}>
-                    {city.name}
-                  </option>
-                ))}
-                {availableCities.length > 6 && (
-                  <>
-                    <option disabled>──────────</option>
-                    {availableCities.slice(6).map((city) => (
-                      <option key={city.id} value={city.name}>
-                        {city.name}
-                      </option>
-                    ))}
-                  </>
-                )}
-              </select>
-            </div>
-
-            {/* Category Filter */}
-            <div className="col-md-2">
-              <select
-                className="form-select form-select-sm shadow-sm border rounded"
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-              >
-                <option value="">All Categories</option>
-                {availableCategories.slice(0, 6).map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-                {availableCategories.length > 6 && (
-                  <>
-                    <option disabled>──────────</option>
-                    {availableCategories.slice(6).map((category) => (
-                      <option key={category} value={category}>
-                        {category}
-                      </option>
-                    ))}
-                  </>
-                )}
-              </select>
-            </div>
-
-            {/* Package Status Filter */}
-            <div className="col-md-2">
-              <select
-                className="form-select form-select-sm shadow-sm border rounded"
-                value={packageFilter}
-                onChange={(e) => setPackageFilter(e.target.value)}
-              >
-                <option value="">All Packages</option>
-                <option value="Active">Active</option>
-                <option value="Expired">Expired</option>
-                <option value="N/A">N/A</option>
-              </select>
-            </div>
-
-            {/* Clear All Filters Button */}
-            <div className="col-md-2">
-              {hasActiveFilters && (
+              {searchText && (
                 <button
-                  className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 rounded w-100"
-                  onClick={clearAllFilters}
-                  title="Clear All Filters"
+                  className="btn btn-sm btn-light border-0"
+                  onClick={() => setSearchText("")}
                 >
-                  <i className="fas fa-times"></i>
-                  <span>Clear All</span>
+                  <i className="ri-close-line" />
                 </button>
               )}
             </div>
+
+            {/* From Date */}
+            <input
+              type={startDate ? "date" : "text"}
+              className="form-control form-control-sm shadow-sm border rounded"
+              placeholder="From Date"
+              value={startDate}
+              onFocus={(e) => (e.target.type = "date")}
+              onBlur={(e) => !startDate && (e.target.type = "text")}
+              onChange={(e) => setStartDate(e.target.value)}
+              max={endDate || undefined}
+              style={{ width: "140px" }}
+            />
+
+            {/* To Date */}
+            <input
+              type={endDate ? "date" : "text"}
+              className="form-control form-control-sm shadow-sm border rounded"
+              placeholder="To Date"
+              value={endDate}
+              onFocus={(e) => (e.target.type = "date")}
+              onBlur={(e) => !endDate && (e.target.type = "text")}
+              onChange={(e) => setEndDate(e.target.value)}
+              min={startDate || undefined}
+              style={{ width: "140px" }}
+            />
+
+            {/* City Filter */}
+            <select
+              className="form-select form-select-sm shadow-sm border rounded"
+              value={cityFilter}
+              onChange={(e) => setCityFilter(e.target.value)}
+              style={{ width: "140px" }}
+            >
+              <option value="">All Cities</option>
+              {availableCities.map((city) => (
+                <option key={city.id} value={city.name}>
+                  {city.name}
+                </option>
+              ))}
+            </select>
+
+            {/* Category Filter */}
+            <select
+              className="form-select form-select-sm shadow-sm border rounded"
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              style={{ width: "150px" }}
+            >
+              <option value="">All Categories</option>
+              {availableCategories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+
+            {/* Package Status Filter */}
+            <select
+              className="form-select form-select-sm shadow-sm border rounded"
+              value={packageFilter}
+              onChange={(e) => setPackageFilter(e.target.value)}
+              style={{ width: "130px" }}
+            >
+              <option value="">All Packages</option>
+              <option value="Active">Active</option>
+              <option value="Expired">Expired</option>
+              <option value="N/A">N/A</option>
+            </select>
+
+            {/* Clear All Button */}
+            {hasActiveFilters && (
+              <button
+                className="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center rounded"
+                onClick={clearAllFilters}
+                title="Clear All Filters"
+                style={{ width: "32px", height: "32px" }}
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            )}
           </div>
         </div>
 

@@ -341,15 +341,12 @@ export default function Packages() {
         </div>
 
         <div className="col-md-6 text-end mt-2">
-          <div className="col-md-6 text-end">
-  {(role !== "3" || permissions.includes("download_excel")) && (
-    <button className="btn btn-success me-2" onClick={exportToExcel}>
-      <i className="fa-solid fa-file-excel me-1"></i>
-      Download Excel
-    </button>
-  )}
-</div>
-
+          {(role !== "3" || permissions.includes("download_excel")) && (
+            <button className="btn btn-success me-2" onClick={exportToExcel}>
+              <i className="fa-solid fa-file-excel me-1"></i>
+              Download Excel
+            </button>
+          )}
 
           {role === "3" ? (
             permissions.includes("package_creation") && (

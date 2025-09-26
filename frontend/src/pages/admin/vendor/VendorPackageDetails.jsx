@@ -396,14 +396,14 @@ export default function VendorPackageDetails() {
           </div>
         </div>
         <div className="col-md-6 text-end">
-          <div className=" text-end">
+         
             {(role !== "3" || permissions.includes("download_excel")) && (
               <button className="btn btn-success me-2" onClick={exportToExcel}>
                 <i className="fa-solid fa-file-excel me-1"></i>
                 Download Excel
               </button>
             )}
-          </div>
+          
 
           <button
             className="btn btn-primary btn-sm"
