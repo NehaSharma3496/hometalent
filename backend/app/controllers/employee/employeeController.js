@@ -101,7 +101,7 @@ exports.updateEmployee = async (req, res) => {
 
     let updatedData = { profile_name, email, phone };
 
-    if (password) {
+    if(password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       updatedData.password = hashedPassword;
       updatedData.show_password = password;
