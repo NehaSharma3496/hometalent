@@ -22238,7 +22238,7 @@ button.applyBtn.btn.btn-sm.btn-primary {
 }
 
 .hero-caption-three .title {
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
   color: #fff;
   text-align: center;
   text-shadow: 0px 10px 10px rgba(0, 0, 0, 0.5);
@@ -22253,6 +22253,7 @@ button.applyBtn.btn.btn-sm.btn-primary {
 @media (max-width: 1199px) {
   .hero-caption-three .title {
     font-size: 34px;
+    margin-top: 10px;
   }
 }
 
