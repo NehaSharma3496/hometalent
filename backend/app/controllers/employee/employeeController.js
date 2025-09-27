@@ -123,10 +123,8 @@ exports.updateEmployee = async (req, res) => {
 exports.getEmployees = async (req, res) => {
   try {
     // Extract page & limit from request (query or body)
-    let { page, limit } = req.body; // you can also use req.body if needed
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 10; // default 10 records per page
-
+     const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
     // Fetch employees with pagination
