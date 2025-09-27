@@ -272,6 +272,7 @@ export const MenuItems = {
           icon: "fa-solid fa-star",
           label: "Sponsored Vendors",
           link: "/admin/vendor/sponsoredvendors",
+          permission: "admin_gallery_2",
         },
         {
           icon: "fa-solid fa-user-slash",
@@ -356,6 +357,7 @@ export const MenuItems = {
           icon: "fa-solid fa-comment-dots",
           label: "All Feedback",
           link: "/admin/enquiries/allfeedback",
+          permission: "admin_gallery_1",
         },
       ],
     },

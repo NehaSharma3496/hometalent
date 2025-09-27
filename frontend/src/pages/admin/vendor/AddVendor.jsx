@@ -11,7 +11,6 @@ import {
 } from "../../../Services/vendor/Vendor";
 import { VerifyOtp } from "../../../Services/webService/Web";
 
-
 export default function AddVendor() {
   const navigate = useNavigate();
   const login_id = localStorage.getItem("userId");
@@ -62,7 +61,7 @@ export default function AddVendor() {
     website_link: "",
     image: null,
     terms: false,
-    login_id : login_id,
+    login_id: login_id,
   };
 
   const [otpTimer, setOtpTimer] = useState(0);
@@ -228,8 +227,9 @@ export default function AddVendor() {
       <div className="input-group mb-2">
         <input
           type="text"
-          className={`form-control ${touched.phone && errors.phone ? "is-invalid" : ""
-            }`}
+          className={`form-control ${
+            touched.phone && errors.phone ? "is-invalid" : ""
+          }`}
           value={values.phone || ""}
           onChange={(e) =>
             handlePhoneInput(e, setFieldValue, setFieldTouched, touched)
@@ -271,10 +271,10 @@ export default function AddVendor() {
                 {phoneVerificationState.loading
                   ? "Sending..."
                   : !isOtpSent
-                    ? "Send OTP"
-                    : otpTimer > 0
-                      ? `Resend OTP in ${otpTimer}s`
-                      : "Resend OTP"}
+                  ? "Send OTP"
+                  : otpTimer > 0
+                  ? `Resend OTP in ${otpTimer}s`
+                  : "Resend OTP"}
               </button>
             </>
           )}
@@ -454,7 +454,8 @@ export default function AddVendor() {
       name: "image",
       label: (
         <>
-          Image{" "}<i
+          Profile Image{" "}
+          <i
             className="ri-eye-fill"
             style={{
               marginLeft: "8px",
@@ -481,29 +482,26 @@ export default function AddVendor() {
                 confirmButtonText: "Got it!",
                 width: 400,
                 customClass: {
-                  popup: "custom-swal-popup"
+                  popup: "custom-swal-popup",
                 },
                 didOpen: () => {
-
                   document.documentElement.style.overflow = "hidden";
                   document.body.style.overflow = "hidden";
                 },
                 willClose: () => {
-
                   document.documentElement.style.overflow = "";
                   document.body.style.overflow = "";
-                }
+                },
               })
             }
           ></i>
           <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
             (Image size should be 736x400 for better experience)
           </span>
-
         </>
       ),
       type: "file",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-7 mb-3",
       accept: "image/*",
       multiple: false,
     },

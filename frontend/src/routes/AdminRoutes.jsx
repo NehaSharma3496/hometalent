@@ -44,6 +44,7 @@ import EmployeeList from "../pages/admin/employee/EmployeeList";
 import AddEmployee from "../pages/admin/employee/AddEmployee";
 import UpdateEmployee from "../pages/admin/employee/UpdateEmployee";
 import Permissions from "../pages/admin/employee/Permissions";
+import EmployeeProfile from "../pages/admin/employee/EmployeeProfile";
 
 const AdminRoutes = (
   <Route path="/admin" element={<AdminLayout />}>
@@ -104,6 +105,7 @@ const AdminRoutes = (
     <Route path="addemployee" element={<AddEmployee/>}/>
     <Route path="updateemployee" element={<UpdateEmployee/>}/>
     <Route path="permissions" element={<Permissions/>}/>
+    <Route path="employeeprofile" element={<EmployeeProfile/>}/>
   </Route>
 );
 

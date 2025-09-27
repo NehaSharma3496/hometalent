@@ -67,6 +67,7 @@ export default function AdminHeader() {
   // --- role wise config ---
   const RoleConfig = {
     1: {
+      profileLink: "/vendor/myprofile",
       changePassword: "/admin/forgotpassword/changepassword",
       defaultImage: "/assets/images/admin/user-img.png",
     },
@@ -76,6 +77,7 @@ export default function AdminHeader() {
       defaultImage: "/assets/images/admin/user-img.png",
     },
     3: {
+      profileLink: "/admin/employeeprofile",
       changePassword: "/admin/forgotpassword/changepassword",
       defaultImage: "/assets/images/admin/user-img.png",
     },
@@ -375,16 +377,14 @@ export default function AdminHeader() {
                       className="dropdown-menu"
                       aria-labelledby="profile-dropdown"
                     >
-                      {role === "2" && (
-                        <li>
-                          <Link
-                            className="dropdown-item"
-                            to={currentRole.profileLink}
-                          >
-                            <i className="fa-light fa-user"></i> My Profile
-                          </Link>
-                        </li>
-                      )}
+                      <li>
+                        <Link
+                          className="dropdown-item"
+                          to={currentRole.profileLink}
+                        >
+                          <i className="fa-light fa-user"></i> My Profile
+                        </Link>
+                      </li>
 
                       <li>
                         <Link

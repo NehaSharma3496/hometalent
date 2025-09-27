@@ -11,6 +11,8 @@ export default function MyProfile() {
   const [showImage, setShowImage] = useState(false);
   const navigate = useNavigate();
 
+  const role = localStorage.getItem("role");
+
   const fetchVendor = async () => {
     try {
       const res = await GetVendorDetails(token, vendorId);
@@ -93,18 +95,20 @@ export default function MyProfile() {
           <div className="add-page-heading-div">
             <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
             <h5 className="add-page-heading mb-0">My Profile</h5>
           </div>
         </div>
-        <div className="col-md-6 text-md-end">
-          <Link to="/vendor/updateprofile" className="btn btn-primary btn-sm">
-            <i className="fa fa-edit me-1"></i> Update Profile
-          </Link>
-        </div>
+        {role !== "1" && (
+          <div className="col-md-6 text-md-end">
+            <Link to="/vendor/updateprofile" className="btn btn-primary btn-sm">
+              <i className="fa fa-edit me-1"></i> Update Profile
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="card border-0 shadow-lg rounded-4 overflow-hidden">
@@ -113,15 +117,19 @@ export default function MyProfile() {
             <div className="col-auto">
               <div className="position-relative">
                 <img
-                  src={ `${image_baseurl}${vendor.image}` }
-                  alt="Vendor"
+                  src={
+                    role === "1"
+                      ? "https://cdn-icons-png.flaticon.com/512/149/149071.png" // 🔹 Admin avatar
+                      : `${image_baseurl}${vendor.image}` // 🔹 Vendor image
+                  }
+                  alt="Profile"
                   className="rounded-circle border border-3 border-white shadow"
                   style={{
                     width: "100px",
                     height: "100px",
                     objectFit: "cover",
                   }}
-                  onClick={() => setShowImage(true)}
+                  onClick={() => role !== "1" && setShowImage(true)} // 🔹 Admin ke liye zoom disable
                 />
               </div>
             </div>
@@ -147,35 +155,36 @@ export default function MyProfile() {
             </Link>
           </div> */}
 
-          <div className="position-absolute top-0 end-0 p-3 d-flex flex-column gap-2">
-            <Link
-              to="/vendor/mypackages"
-             className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
-              state={{ vendorId: vendorId }}
-            >
-              <i className="fas fa-box-open me-1"></i>
-              My Packages
-            </Link>
+          {/* Right side buttons (Only show if role !== 1) */}
+          {role !== "1" && (
+            <div className="position-absolute top-0 end-0 p-3 d-flex flex-column gap-2">
+              <Link
+                to="/vendor/mypackages"
+                className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
+                state={{ vendorId: vendorId }}
+              >
+                <i className="fas fa-box-open me-1"></i>
+                My Packages
+              </Link>
 
-            <Link
-              to={`/vendor/gallery`}
-              className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
-            >
-              <i className="fas fa-images"></i>
-              <span>Gallery</span>
-            </Link>
+              <Link
+                to={`/vendor/gallery`}
+                className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
+              >
+                <i className="fas fa-images"></i>
+                <span>Gallery</span>
+              </Link>
 
-            <Link
-              to={`/vendor/leads/all`}
-              className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
-              state={{ vendorId: vendorId }}
-            >
-              <i className="fas fa-user-friends"></i>
-              <span>Leads</span>
-            </Link>
-          </div>
-
-
+              <Link
+                to={`/vendor/leads/all`}
+                className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
+                state={{ vendorId: vendorId }}
+              >
+                <i className="fas fa-user-friends"></i>
+                <span>Leads</span>
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="card-body p-4">

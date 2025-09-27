@@ -308,7 +308,7 @@ export default function UpdateVendor() {
       name: "image",
       label: (
         <>
-          Image{" "}<i
+        Profile Image{" "}<i
             className="ri-eye-fill"
             style={{
               marginLeft: "8px",
@@ -357,7 +357,7 @@ export default function UpdateVendor() {
         </>
       ),
       type: "file",
-      colClass: "col-md-6 mb-3",
+      colClass: "col-md-7 mb-3",
       accept: "image/*",
       multiple: false,
     },

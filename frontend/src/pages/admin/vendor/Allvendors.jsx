@@ -643,21 +643,23 @@ export default function Allvendors() {
           {row.approval_status !== 0 && (
             <>
               {/* Gallery */}
-              <button
-                className="btn btn-sm d-flex align-items-center justify-content-center"
-                style={{
-                  width: "35px",
-                  height: "35px",
-                  backgroundColor: "#a3d2f2",
-                  borderColor: "#a3d2f2",
-                }}
-                onClick={() =>
-                  navigate(`/admin/galleryUpdates/vendorgallery/${row.id}`)
-                }
-                title="View Gallery"
-              >
-                <i className="fa-solid fa-images"></i>
-              </button>
+              {role !== "3" && (
+                <button
+                  className="btn btn-sm d-flex align-items-center justify-content-center"
+                  style={{
+                    width: "35px",
+                    height: "35px",
+                    backgroundColor: "#a3d2f2",
+                    borderColor: "#a3d2f2",
+                  }}
+                  onClick={() =>
+                    navigate(`/admin/galleryUpdates/vendorgallery/${row.id}`)
+                  }
+                  title="View Gallery"
+                >
+                  <i className="fa-solid fa-images"></i>
+                </button>
+              )}
 
               {/* Edit - conditional */}
               {(role !== "3" || permissions.includes("add_edit_vendor")) && (
@@ -934,7 +936,11 @@ export default function Allvendors() {
       {pkgModalOpen && (
         <div
           className="modal fade show"
-          style={{ display: "block", background: "rgba(0,0,0,0.5) ", zIndex: 0 }}
+          style={{
+            display: "block",
+            background: "rgba(0,0,0,0.5) ",
+            zIndex: 0,
+          }}
           onClick={() => setPkgModalOpen(false)}
         >
           <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
@@ -1014,7 +1020,6 @@ export default function Allvendors() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

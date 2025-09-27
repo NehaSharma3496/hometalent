@@ -50,14 +50,14 @@ export async function GetBlockedVendore(token, page = 1, limit = 10) {
   }
 }
 
-export async function GetApproveVendor(vendorId, approval, token,login_id) {
+export async function GetApproveVendor(vendorId, approval, token, login_id) {
   try {
     const res = await axios.post(
       `${Config.base_url}admin/vendors/approve`,
       {
         vendor_id: vendorId,
         approval: approval,
-        login_id: login_id
+        login_id: login_id,
       },
       {
         headers: {
@@ -186,7 +186,12 @@ export async function GetPendingVendoreList(token, page = 1, limit = 10) {
   }
 }
 
-export async function UpdateVendorStatus(vendorId, vendorStatus, token, login_id) {
+export async function UpdateVendorStatus(
+  vendorId,
+  vendorStatus,
+  token,
+  login_id
+) {
   try {
     const res = await axios.post(
       `${Config.base_url}admin/vendors/update-status`,
@@ -363,11 +368,16 @@ export async function showPackage(token, page = 1, limit = 10) {
   }
 }
 
-export async function AssignPackageToVendor(token, vendorId, packageId,login_id) {
+export async function AssignPackageToVendor(
+  token,
+  vendorId,
+  packageId,
+  login_id
+) {
   try {
     const res = await axios.post(
       `${Config.base_url}admin/package/assign`,
-      { vendor_id: vendorId, package_id: packageId ,login_id},
+      { vendor_id: vendorId, package_id: packageId, login_id },
       {
         headers: {
           Authorization: `${token}`,
@@ -652,11 +662,13 @@ export async function GetProfileUpdateRequestsBlogs(token, request_id) {
   }
 }
 
-export async function UpdateBlogStatus(blogId, blogStatus, token) {
+export async function UpdateBlogStatus(blogId, blogStatus, token, login_id) {
+  console.log("blog_id:", blogId);
+
   try {
     const res = await axios.post(
       `${Config.base_url}admin/vendors/update-status`,
-      { blog_id: blogId, status: blogStatus },
+      { blog_id: blogId, status: blogStatus, login_id: login_id },
       {
         headers: {
           Authorization: `${token}`,
@@ -671,11 +683,17 @@ export async function UpdateBlogStatus(blogId, blogStatus, token) {
   }
 }
 
-export async function UpdateReviewStatus(reviewId, reviewStatus, token) {
+export async function UpdateReviewStatus(
+  reviewId,
+  reviewStatus,
+  token,
+  login_id
+) {
+  console.log("Login Id", login_id);
   try {
     const res = await axios.post(
       `${Config.base_url}admin/vendors/update-status`,
-      { review_id: reviewId, status: reviewStatus },
+      { review_id: reviewId, status: reviewStatus, login_id },
       {
         headers: {
           Authorization: `${token}`,

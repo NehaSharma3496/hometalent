@@ -3,7 +3,7 @@ import {
   GetAllAdminBlog,
   DeleteAdminBlog,
   UpdateBlogStatus,
-  GetEmployeePermission
+  GetEmployeePermission,
 } from "../../../Services/admin/Admin";
 import { Link, useNavigate } from "react-router-dom";
 import DataTable from "react-data-table-component";
@@ -18,6 +18,8 @@ export default function AllBlog() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const navigate = useNavigate();
+  const login_id = localStorage.getItem("userId");
+  // const login_id = Number(localStorage.getItem("userId"));
 
   const role = localStorage.getItem("role");
 
@@ -71,10 +73,10 @@ export default function AllBlog() {
   const exportToExcel = () => {
     const exportData = filteredBlogs.map((blog, index) => ({
       "S.No": index + 1,
-      Title: blog.title||"N/A",
-      "Short Description": blog.short_description||"N/A",
+      Title: blog.title || "N/A",
+      "Short Description": blog.short_description || "N/A",
       Status: blog.status === 1 ? "Active" : "Inactive",
-      Date: new Date(blog.createdAt).toLocaleDateString()||"N/A",
+      Date: new Date(blog.createdAt).toLocaleDateString() || "N/A",
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -132,34 +134,34 @@ export default function AllBlog() {
       width: "180px",
     },
     ...(role !== "3" || permissions.includes("blogs_edit_create")
-  ? [
-      {
-        name: "Actions",
-        cell: (row) => (
-          <div className="d-flex gap-2">
-            <button
-              className="btn btn-sm btn-primary"
-              onClick={() => navigate(`/admin/updatepackage/${row.id}`)}
-            >
-              <i className="fa fa-edit me-1" />
-              Update
-            </button>
-            {/* <button
+      ? [
+          {
+            name: "Actions",
+            cell: (row) => (
+              <div className="d-flex gap-2">
+                <button
+                  className="btn btn-sm btn-primary"
+                  onClick={() => navigate(`/admin/updatepackage/${row.id}`)}
+                >
+                  <i className="fa fa-edit me-1" />
+                  Update
+                </button>
+                {/* <button
               className="btn btn-sm btn-danger"
               onClick={() => handleDelete(row.id)}
             >
               <i className="fa fa-trash me-1" />
               Delete
             </button> */}
-          </div>
-        ),
-        ignoreRowClick: true,
-        allowOverflow: true,
-        button: true,
-        width: "250px",
-      },
-    ]
-  : []),
+              </div>
+            ),
+            ignoreRowClick: true,
+            allowOverflow: true,
+            button: true,
+            width: "250px",
+          },
+        ]
+      : []),
 
     {
       name: "Active Status",
@@ -171,7 +173,10 @@ export default function AllBlog() {
             role="switch"
             id={`toggle-blog-${row.id}`}
             checked={row.status === 1}
+            disabled={role === "3"} // 👈 yaha disable kar diya
             onChange={async (e) => {
+              if (role === "3") return; // safety check
+
               const newStatus = e.target.checked ? 1 : 0;
 
               const confirm = await Swal.fire({
@@ -188,14 +193,17 @@ export default function AllBlog() {
               if (!confirm.isConfirmed) return;
 
               try {
-                const res = await UpdateBlogStatus(row.id, newStatus, token);
+                const res = await UpdateBlogStatus(
+                  row.id,
+                  newStatus,
+                  token,
+                  login_id
+                );
                 if (res?.status) {
                   Swal.fire("Success", "Blog status updated.", "success");
                   fetchBlogs();
                 } else {
-                  throw new Error(
-                    res?.message || "Failed to update blog status."
-                  );
+                  throw new Error(res?.msg || "Failed to update blog status.");
                 }
               } catch (err) {
                 console.error(err);
@@ -219,24 +227,23 @@ export default function AllBlog() {
       <div className="row align-items-center mb-3">
         <div className="col-md-12 d-flex justify-content-between align-items-center">
           <div className="add-page-heading-div d-flex align-items-center">
-             <button
+            <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
             <h2 className="add-page-heading ">All Blogs</h2>
           </div>
 
-       <div className="col-md-6 text-end">
-  {(role !== "3" || permissions.includes("download_excel")) && (
-    <button className="btn btn-success me-2" onClick={exportToExcel}>
-      <i className="fa-solid fa-file-excel me-1"></i>
-      Download Excel
-    </button>
-  )}
-</div>
-
+          <div className="col-md-6 text-end">
+            {(role !== "3" || permissions.includes("download_excel")) && (
+              <button className="btn btn-success me-2" onClick={exportToExcel}>
+                <i className="fa-solid fa-file-excel me-1"></i>
+                Download Excel
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
