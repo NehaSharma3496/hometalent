@@ -31,6 +31,8 @@ const token=localStorage.getItem("token");
     email: Yup.string()
       .required("Email is required")
       .email("Please enter a valid email address"),
+          password: Yup.string().required("Password is required"),
+      
   });
 
   const fields = [
@@ -56,6 +58,12 @@ const token=localStorage.getItem("token");
       colClass: "col-md-4 mb-3",
       required: true,
     },
+       {
+      name: "password",
+      label: "Password*",
+      type: "password",
+      colClass: "col-md-4",
+    },
   ];
 
  const onSubmit = async (values) => {
@@ -65,6 +73,7 @@ const token=localStorage.getItem("token");
     formData.append("profile_name", values.profile_name);
     formData.append("phone", values.phone);
     formData.append("email", values.email);
+    formData.append("password",values.password);
 
     const res = await UpdateEmpoyee(formData,vendor_id);
 
@@ -102,6 +111,7 @@ const token=localStorage.getItem("token");
           profile_name: vendor.profile_name || "",
           phone: vendor.phone || "",
           email: vendor.email || "",
+          // password:vendor.password||"",
         });
       } catch (err) {
         console.log("Init fetch error", err);

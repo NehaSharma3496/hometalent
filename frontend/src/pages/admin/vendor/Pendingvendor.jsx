@@ -4,7 +4,7 @@ import {
   GetPendingVendoreList,
   GetCategories,
   GetApproveVendor,
-  GetEmployeePermission
+  GetEmployeePermission,
 } from "../../../Services/admin/Admin";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
@@ -23,8 +23,9 @@ export default function PendingVendor() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
+  const login_id=localStorage.getItem("userId");
 
-const role = localStorage.getItem("role");
+  const role = localStorage.getItem("role");
 
   const [permissions, setPermissions] = useState([]);
 
@@ -48,7 +49,6 @@ const role = localStorage.getItem("role");
     fetchPermissions();
   }, []);
 
-
   const handleApproveVendor = async (vendorId, status) => {
     try {
       const isApprove = status === 1;
@@ -68,12 +68,12 @@ const role = localStorage.getItem("role");
       if (!confirm.isConfirmed) return;
 
       const token = localStorage.getItem("token");
-      const response = await GetApproveVendor(vendorId, status, token);
+      const response = await GetApproveVendor(vendorId, status, token,login_id);
 
       if (response.status === true || response.status === "true") {
         await Swal.fire(
           "Success",
-          response.message ||
+          response.msg ||
             (isApprove ? "Vendor approved." : "Vendor rejected."),
           "success"
         );
@@ -81,7 +81,7 @@ const role = localStorage.getItem("role");
       } else {
         await Swal.fire(
           "Failed",
-          response.message || "Something went wrong!",
+          response.msg || "Something went wrong!",
           "error"
         );
       }
@@ -320,12 +320,15 @@ const role = localStorage.getItem("role");
         </button>
       ),
     },
-    {
+  ];
+
+  // 🔹 Approve/Reject column सिर्फ़ तब add होगा जब role !== "3" या फिर approve_reject permission हो
+  if (role !== "3" || permissions.includes("approve_reject")) {
+    columns.push({
       name: "Status",
       cell: (row) => {
         const status = row.approval_status;
 
-        // Set button label and color
         const getStatusLabel = () => {
           if (status === 1) return "Approved";
           if (status === 2) return "Rejected";
@@ -335,7 +338,7 @@ const role = localStorage.getItem("role");
         const getButtonClass = () => {
           if (status === 1) return "btn-success";
           if (status === 2) return "btn-danger";
-          return "btn-warning dropdown-toggle"; // dropdown only for pending
+          return "btn-warning dropdown-toggle";
         };
 
         return (
@@ -389,17 +392,17 @@ const role = localStorage.getItem("role");
       },
       sortable: false,
       width: "180px",
-    },
-  ];
+    });
+  }
 
   return (
     <div className="page-content">
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-           <button
+            <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
@@ -407,15 +410,14 @@ const role = localStorage.getItem("role");
           </div>
         </div>
 
-       <div className="col-md-6 text-end">
-  {(role !== "3" || permissions.includes("download_excel")) && (
-    <button className="btn btn-success me-2" onClick={exportToExcel}>
-      <i className="fa-solid fa-file-excel me-1"></i>
-      Download Excel
-    </button>
-  )}
-</div>
-
+        <div className="col-md-6 text-end">
+          {(role !== "3" || permissions.includes("download_excel")) && (
+            <button className="btn btn-success me-2" onClick={exportToExcel}>
+              <i className="fa-solid fa-file-excel me-1"></i>
+              Download Excel
+            </button>
+          )}
+        </div>
       </div>
       <div className="card  table-padding">
         <div className="col-md-4">

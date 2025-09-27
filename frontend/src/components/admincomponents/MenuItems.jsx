@@ -316,24 +316,24 @@ export const MenuItems = {
         },
       ],
     },
-    {
-      icon: "fa-solid fa-credit-card",
-      label: "Payments",
-      link: "/admin/payments/packages",
-      children: [
-        {
-          icon: "fa-solid fa-box",
-          label: "Subscription Packages",
-          link: "/admin/payments/packages",
-        },
-        {
-          icon: "fa-solid fa-plus",
-          label: "Add packages",
-          link: "addpackage",
-          permission: "package_creation",
-        },
-      ],
-    },
+    // {
+    //   icon: "fa-solid fa-credit-card",
+    //   label: "Payments",
+    //   link: "/admin/payments/packages",
+    //   children: [
+    //     {
+    //       icon: "fa-solid fa-box",
+    //       label: "Subscription Packages",
+    //       link: "/admin/payments/packages",
+    //     },
+    //     {
+    //       icon: "fa-solid fa-plus",
+    //       label: "Add packages",
+    //       link: "addpackage",
+    //       permission: "package_creation",
+    //     },
+    //   ],
+    // },
     {
       icon: "fa-solid fa-envelope",
       label: "Enquiries & Leads",
