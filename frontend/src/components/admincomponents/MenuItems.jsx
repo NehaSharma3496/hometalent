@@ -31,11 +31,30 @@ export const MenuItems = {
           link: "/admin/vendor/activevendors",
           permission: "vendor_active",
         },
+          {
+          icon: "fa-solid fa-user-slash",
+          label: "Inactive Vendors",
+          link: "/admin/vendor/blockedvendors",
+          permission: "vendor_inactive",
+        },
         {
           icon: "fa-solid fa-user-shield",
           label: "Approved Vendors",
           link: "/admin/vendor/approvevendors",
           permission: "vendor_approved",
+        },
+          {
+          icon: "fa-solid fa-hourglass-half",
+          label: "Pending Vendors",
+          link: "/admin/vendor/pendingvendors",
+          permission: "vendor_pending",
+        },
+         
+        {
+          icon: "fa-solid fa-user-xmark",
+          label: "Rejected Vendors",
+          link: "/admin/vendor/rejectedvendors",
+          permission: "vendor_rejected",
         },
         {
           icon: "fa-solid fa-star",
@@ -43,24 +62,8 @@ export const MenuItems = {
           link: "/admin/vendor/sponsoredvendors",
           permission: "vendor_sponsored",
         },
-        {
-          icon: "fa-solid fa-user-slash",
-          label: "Inactive Vendors",
-          link: "/admin/vendor/blockedvendors",
-          permission: "vendor_inactive",
-        },
-        {
-          icon: "fa-solid fa-hourglass-half",
-          label: "Pending Vendors",
-          link: "/admin/vendor/pendingvendors",
-          permission: "vendor_pending",
-        },
-        {
-          icon: "fa-solid fa-user-xmark",
-          label: "Rejected Vendors",
-          link: "/admin/vendor/rejectedvendors",
-          permission: "vendor_rejected",
-        },
+      
+     
       ],
     },
     {
@@ -264,20 +267,14 @@ export const MenuItems = {
           link: "/admin/vendor/activevendors",
         },
         {
-          icon: "fa-solid fa-user-shield",
-          label: "Approved Vendors",
-          link: "/admin/vendor/approvevendors",
-        },
-        {
-          icon: "fa-solid fa-star",
-          label: "Sponsored Vendors",
-          link: "/admin/vendor/sponsoredvendors",
-          permission: "admin_gallery_2",
-        },
-        {
           icon: "fa-solid fa-user-slash",
           label: "Inactive Vendors",
           link: "/admin/vendor/blockedvendors",
+        },
+        {
+          icon: "fa-solid fa-user-shield",
+          label: "Approved Vendors",
+          link: "/admin/vendor/approvevendors",
         },
         {
           icon: "fa-solid fa-hourglass-half",
@@ -288,6 +285,12 @@ export const MenuItems = {
           icon: "fa-solid fa-user-xmark",
           label: "Rejected Vendors",
           link: "/admin/vendor/rejectedvendors",
+        },
+        {
+          icon: "fa-solid fa-star",
+          label: "Sponsored Vendors",
+          link: "/admin/vendor/sponsoredvendors",
+          permission: "admin_gallery_2",
         },
       ],
     },

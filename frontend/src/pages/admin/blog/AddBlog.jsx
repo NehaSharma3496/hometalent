@@ -4,7 +4,6 @@ import Swal from "sweetalert2";
 import { AddAdminBlog } from "../../../Services/admin/Admin";
 import "react-quill/dist/quill.snow.css";
 
-
 const ReactQuill = lazy(() => import("react-quill"));
 
 export default function AddBlog() {
@@ -14,7 +13,7 @@ export default function AddBlog() {
   const [longDescription, setLongDescription] = useState("");
   const [image, setImage] = useState(null);
   const login_id = localStorage.getItem("userId");
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -49,32 +48,37 @@ export default function AddBlog() {
     formData.append("image", image);
     formData.append("login_id", login_id);
 
-    try {
-      const response = await AddAdminBlog(token, formData);
-      if (response && response.status === true) {
-        Swal.fire(
-          "Success",
-          response.msg || "Blog added successfully!",
-          "success"
-        );
-        navigate("/admin/blog/allblogs");
-      } else {
-        Swal.fire("Failed", response?.msg || "Something went wrong", "error");
-      }
-    } catch (error) {
-      Swal.fire("Error", error?.response?.data?.msg || "Server error", "error");
-    }
-  };
+   try {
+  const response = await AddAdminBlog(token, formData);
+  if (response && response.status === true) {
+    Swal.fire(
+      "Success",
+      response.msg || "Blog added successfully!",
+      "success"
+    );
+    navigate("/admin/blog/allblogs");
+  } else {
+    Swal.fire("Failed", response?.msg || "Something went wrong", "error");
+  }
+} catch (error) {
+  console.error(error);
+  Swal.fire(
+    "Error",
+    error?.response?.data?.msg || "Server error",
+    "error"
+  );
+}
 
+  };
   return (
     <div className="page-content">
       {/* Header Section with Back Button and Title */}
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-             <button
+            <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>

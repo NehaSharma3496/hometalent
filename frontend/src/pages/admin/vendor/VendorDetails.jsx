@@ -10,7 +10,7 @@ export default function VendorDetails() {
   const vendorId = location.state?.vendorId;
   const [showImage, setShowImage] = useState(false);
   const navigate = useNavigate();
-
+const role=localStorage.getItem("role");
   const fetchVendor = async () => {
     try {
       const res = await GetVendorDetails(token, vendorId);
@@ -159,22 +159,26 @@ export default function VendorDetails() {
               Vendor Packages
             </Link>
 
-            <Link
-              to={`/admin/galleryUpdates/vendorgallery/${vendorId}`}
-              className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
-            >
-              <i className="fas fa-images"></i>
-              <span>Gallery</span>
-            </Link>
+         {role !== "3" && (
+              <>
+                <Link
+                  to={`/admin/galleryUpdates/vendorgallery/${vendorId}`}
+                  className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
+                >
+                  <i className="fas fa-images"></i>
+                  <span>Gallery</span>
+                </Link>
 
-            <Link
-              to={`/admin/review/vendorallleads/${vendorId}`}
-              className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
-              state={{ vendorId: vendorId }}
-            >
-              <i className="fas fa-user-friends"></i>
-              <span>Leads</span>
-            </Link>
+                <Link
+                  to={`/admin/review/vendorallleads/${vendorId}`}
+                  className="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center justify-content-start gap-1"
+                  state={{ vendorId: vendorId }}
+                >
+                  <i className="fas fa-user-friends"></i>
+                  <span>Leads</span>
+                </Link>
+              </>
+            )}
           </div>
         </div>
 

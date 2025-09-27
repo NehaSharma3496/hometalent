@@ -111,7 +111,7 @@ const token=localStorage.getItem("token");
           profile_name: vendor.profile_name || "",
           phone: vendor.phone || "",
           email: vendor.email || "",
-          // password:vendor.password||"",
+          password:vendor.show_password||"",
         });
       } catch (err) {
         console.log("Init fetch error", err);
