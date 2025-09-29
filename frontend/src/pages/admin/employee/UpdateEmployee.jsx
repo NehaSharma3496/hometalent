@@ -63,6 +63,7 @@ const token=localStorage.getItem("token");
       label: "Password*",
       type: "password",
       colClass: "col-md-4",
+      
     },
   ];
 

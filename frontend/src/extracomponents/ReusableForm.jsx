@@ -1,20 +1,48 @@
-import React from "react";
+import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage, FormikConsumer } from "formik";
 import Select from "react-select";
+import { Eye, EyeOff } from "lucide-react"; // optional icons
+
+const PasswordField = ({ field }) => {
+  const [showPassword, setShowPassword] = useState(false);
+
+  return (
+    <Field name={field.name}>
+      {({ field: formikField }) => (
+        <div className="input-group">
+          <input
+            {...formikField}
+            type={showPassword ? "text" : "password"}
+            placeholder={field.placeholder}
+            className="form-control contact-input"
+            id={field.name}
+            autoComplete={field.autoComplete}
+          />
+          <button
+            type="button"
+            className="btn btn-secondary "
+            onClick={() => setShowPassword((prev) => !prev)}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+      )}
+    </Field>
+  );
+};
+
 
 const renderField = (field, formikProps, values) => {
   const { errors, touched, setFieldValue, setFieldTouched } = formikProps;
-  
-  // Handle custom components (like phone verification)
+
   if (field.type === "custom" && field.customComponent) {
-    // Pass all necessary formik props to custom component
     return field.customComponent({
       values,
       errors,
       touched,
       setFieldValue,
       setFieldTouched,
-      ...formikProps
+      ...formikProps,
     });
   }
 
@@ -119,21 +147,12 @@ const renderField = (field, formikProps, values) => {
           className="form-control contact-input"
           id={field.name}
           placeholder={field.placeholder}
-           disabled={field.disabled}
+          disabled={field.disabled}
         />
       );
 
     case "password":
-      return (
-        <Field
-          type="password"
-          name={field.name}
-          placeholder={field.placeholder}
-          className="form-control contact-input"
-          id={field.name}
-          autoComplete={field.autoComplete}
-        />
-      );
+      return <PasswordField field={field} />; // 👈 use custom password field
 
     case "file":
       return (
@@ -152,7 +171,7 @@ const renderField = (field, formikProps, values) => {
                   field.multiple !== false ? files : files[0]
                 );
               }}
-               disabled={field.disabled}
+              disabled={field.disabled}
             />
           )}
         </Field>
@@ -169,26 +188,20 @@ const renderField = (field, formikProps, values) => {
               className="form-control contact-input"
               autoComplete={field.autoComplete}
               maxLength={field.maxLength}
-              // Handle onChange for special cases
               onChange={(e) => {
                 let value = e.target.value;
-
-                // Special handling for numeric fields
                 if (field.numeric) {
                   value = value.replace(/[^0-9]/g, "");
                   if (field.maxLength) {
                     value = value.slice(0, field.maxLength);
                   }
                 }
-
                 form.setFieldValue(field.name, value);
-
-                // Call custom onChange if provided
                 if (field.onChange) {
                   field.onChange(e, form.setFieldValue);
                 }
               }}
-               disabled={field.disabled}
+              disabled={field.disabled}
             />
           )}
         </Field>
@@ -208,7 +221,6 @@ const ReusableForm = ({
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={onSubmit}
-      // Enable reinitialize to handle dynamic initial values
       enableReinitialize={true}
     >
       {({ handleSubmit, validateForm, setTouched, ...formikProps }) => (
@@ -236,7 +248,6 @@ const ReusableForm = ({
                   });
                 }
               }, 100);
-
               return;
             }
             handleSubmit(e);
@@ -248,7 +259,6 @@ const ReusableForm = ({
                 !field.showWhen || field.showWhen(formikConsumerProps.values) ? (
                   <div className={field.colClass || "col-12"}>
                     <div className="form-group">
-                      {/* Don't show label for custom components as they handle their own labels */}
                       {field.type !== "checkbox" &&
                         field.type !== "radio" &&
                         field.type !== "custom" && (
@@ -259,8 +269,11 @@ const ReusableForm = ({
                             {field.label}
                           </label>
                         )}
-                      {renderField(field, formikConsumerProps, formikConsumerProps.values)}
-                      {/* Only show ErrorMessage for non-custom components */}
+                      {renderField(
+                        field,
+                        formikConsumerProps,
+                        formikConsumerProps.values
+                      )}
                       {field.type !== "custom" && (
                         <ErrorMessage
                           name={field.name}
