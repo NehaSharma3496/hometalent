@@ -15,7 +15,7 @@ exports.listAdminNotifications = async (req, res) => {
 
     return res.json({ status: true, data: rows, meta: { page, limit, total: count } });
   } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -23,7 +23,7 @@ exports.listVendorNotifications = async (req, res) => {
   try {
     const vendor_id = parseInt(req.params.vendor_id, 10) || parseInt(req.query.vendor_id, 10);
     if (!vendor_id) {
-      return res.status(400).json({ status: false, msg: 'vendor_id is required' });
+      return res.json({ status: false, msg: 'vendor_id is required' });
     }
 
     const page = parseInt(req.query.page || '1', 10);
@@ -39,7 +39,7 @@ exports.listVendorNotifications = async (req, res) => {
 
     res.json({ status: true, data: rows, meta: { page, limit, total: count } });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    res.json({ status: false, msg: error.message });
   }
 };
 
@@ -48,12 +48,12 @@ exports.markAsRead = async (req, res) => {
     const { id } = req.params;
     const notif = await Notification.findByPk(id);
     if (!notif) {
-      return res.status(404).json({ status: false, msg: 'Notification not found' });
+      return res.json({ status: false, msg: 'Notification not found' });
     }
     notif.is_read = true;
     await notif.save();
     res.json({ status: true, data: notif });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    res.json({ status: false, msg: error.message });
   }
 }; 
