@@ -108,9 +108,9 @@ export default function ApprovedVendors() {
         "S.No": index + 1,
         "Owner Name": row.owner_name || "N/A",
         Email: row.email || "N/A",
-        Categories: Array.isArray(row.category_names)
-          ? row.category_names.join(", ")
-          : row.category_names || "N/A",
+        Categories: Array.isArray(row.Category?.name)
+          ? row.Category?.name.join(", ")
+          : row.Category?.name || "N/A",
         Phone: row.phone || "N/A",
         "Price Range": row.price_range || "N/A",
         Experience: row.experience_since || "N/A",
@@ -135,9 +135,9 @@ export default function ApprovedVendors() {
       vendor.phone?.toLowerCase().includes(lowerSearch) ||
       vendor.price_range?.toLowerCase().includes(lowerSearch) ||
       vendor.experience_since?.toLowerCase().includes(lowerSearch) ||
-      (Array.isArray(vendor.category_names)
-        ? vendor.category_names.join(", ").toLowerCase().includes(lowerSearch)
-        : vendor.category_names?.toLowerCase().includes(lowerSearch))
+      (Array.isArray(vendor.Category?.name)
+        ? vendor.Category?.name.join(", ").toLowerCase().includes(lowerSearch)
+        : vendor.Category?.name?.toLowerCase().includes(lowerSearch))
     );
   });
 
@@ -198,13 +198,11 @@ export default function ApprovedVendors() {
       width: "230px",
     },
     {
-      name: "Categories",
-      selector: (row) =>
-        Array.isArray(row.category_names)
-          ? row.category_names.join(", ")
-          : row.category_names || "—",
-      sortable: false,
-    },
+    name: "Category",
+    selector: (row) => row.Category?.name || "—", // ✅ JSON se category dikhayega
+    sortable: true,
+    width: "180px",
+  },
 
     { name: "Phone", selector: (row) => row.phone || "—", sortable: true },
     {
