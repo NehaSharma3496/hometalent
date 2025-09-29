@@ -1887,12 +1887,13 @@ exports.getVendorsByPackageStatus = async (req, res) => {
     }
 
     const baseWhere = { role_id: 2, approval_status: 1 };
+    const nbaseWhere = { role_id: 2 };
     let vendors;
 
     if(status === "unsubscribed") {
       // Vendors with NO subscriptions
       vendors = await User.findAll({
-        where: baseWhere,
+        where: nbaseWhere,
         include: [
           {
             model: VendorPackageSubscription,
