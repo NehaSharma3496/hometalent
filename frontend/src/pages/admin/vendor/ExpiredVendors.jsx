@@ -27,6 +27,7 @@ export default function ExpiredVendors() {
   const [vendorPackageHistory, setVendorPackageHistory] = useState({});
 
   const token = localStorage.getItem("token");
+  const login_id = localStorage.getItem("userId");
 
   const role = localStorage.getItem("role");
 
@@ -161,7 +162,8 @@ export default function ExpiredVendors() {
       const res = await AssignPackageToVendor(
         token,
         assignVendorId,
-        selectedPkgId
+        selectedPkgId,
+        login_id
       );
       if (res?.status) {
         await Swal.fire("Success", res.msg || "Package assigned", "success");
@@ -315,11 +317,11 @@ export default function ExpiredVendors() {
               </div>
 
               <div className="modal-body">
-                {pkgOptions.length === 0 ? (
+                {pkgOptions?.length === 0 ? (
                   <p>No active packages found.</p>
                 ) : (
                   <div className="list-group">
-                    {pkgOptions.map((p) => (
+                    {pkgOptions?.map((p) => (
                       <label
                         key={p.id}
                         className="list-group-item d-flex justify-content-between align-items-center"
@@ -335,13 +337,15 @@ export default function ExpiredVendors() {
                           <span className="fw-semibold">{p.name}</span>
                           <div className="small text-muted">
                             ₹{p.price} •{" "}
-                            {p.validity_in_months
+                            {p.validity_in_months && p.validity_in_months > 0
                               ? `${p.validity_in_months} months`
+                              : p.days && p.days > 0
+                              ? `${p.days} days`
                               : "N/A"}
                           </div>
                         </div>
 
-                        <div>
+                        {/* <div>
                           <span
                             className={`badge ${
                               vendorPackageHistory[assignVendorId]?.[p.id] ===
@@ -352,7 +356,7 @@ export default function ExpiredVendors() {
                           >
                             {vendorPackageHistory[assignVendorId]?.[p.id] || ""}
                           </span>
-                        </div>
+                        </div> */}
                       </label>
                     ))}
                   </div>

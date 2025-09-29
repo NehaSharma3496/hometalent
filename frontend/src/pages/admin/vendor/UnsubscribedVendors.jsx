@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Link ,useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   GetVendorsByPackageStatus,
   showPackage,
   AssignPackageToVendor,
-  GetEmployeePermission
+  GetEmployeePermission,
 } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
@@ -28,6 +28,8 @@ export default function UnsubscribedVendors() {
   const token = localStorage.getItem("token");
 
   const role = localStorage.getItem("role");
+
+  const login_id = localStorage.getItem("userId");
 
   const [permissions, setPermissions] = useState([]);
 
@@ -83,7 +85,6 @@ export default function UnsubscribedVendors() {
     }
   }, [pkgModalOpen]);
 
-
   // Pagination
   const handlePageChange = (page) => setCurrentPage(page);
   const handlePerRowsChange = (newPerPage) => {
@@ -121,7 +122,9 @@ export default function UnsubscribedVendors() {
   const openAssignPackage = async (vendorId) => {
     try {
       const res = await showPackage(token, 1, 100);
-      const activePkgs = (res?.data || []).filter((p) => Number(p.status) === 1);
+      const activePkgs = (res?.data || []).filter(
+        (p) => Number(p.status) === 1
+      );
       setPkgOptions(activePkgs);
       setAssignVendorId(vendorId);
       setSelectedPkgId(null);
@@ -137,7 +140,12 @@ export default function UnsubscribedVendors() {
       return Swal.fire("Select Package", "Please select a package", "warning");
 
     try {
-      const res = await AssignPackageToVendor(token, assignVendorId, selectedPkgId);
+      const res = await AssignPackageToVendor(
+        token,
+        assignVendorId,
+        selectedPkgId,
+        login_id
+      );
       if (res?.status) {
         await Swal.fire("Success", res.msg || "Package assigned", "success");
         setPkgModalOpen(false);
@@ -163,34 +171,42 @@ export default function UnsubscribedVendors() {
     );
   });
 
-const columns = [
-  { name: "S.No", selector: (row, index) => index + 1, width: "60px" },
-  { name: "Owner Name", selector: (row) => row.owner_name || "—", sortable: true },
-  { name: "Email", selector: (row) => row.email || "—", sortable: true },
-  { name: "Category Name", selector: (row) => row.Category?.name || "-" },
-  { name: "Phone", selector: (row) => row.phone || "—", sortable: true },
-  { name: "State", selector: (row) => row.State?.name || "—", sortable: true },
-  { name: "City", selector: (row) => row.City?.name || "—", sortable: true },
+  const columns = [
+    { name: "S.No", selector: (row, index) => index + 1, width: "60px" },
+    {
+      name: "Owner Name",
+      selector: (row) => row.owner_name || "—",
+      sortable: true,
+    },
+    { name: "Email", selector: (row) => row.email || "—", sortable: true },
+    { name: "Category Name", selector: (row) => row.Category?.name || "-" },
+    { name: "Phone", selector: (row) => row.phone || "—", sortable: true },
+    {
+      name: "State",
+      selector: (row) => row.State?.name || "—",
+      sortable: true,
+    },
+    { name: "City", selector: (row) => row.City?.name || "—", sortable: true },
 
-  // Conditional Assign Package column
-  ...(role !== "3" || permissions.includes("allot_package_extension")
-    ? [
-        {
-          name: "Assign Package",
-          cell: (row) => (
-            <button
-              className="btn btn-success btn-sm"
-              onClick={() => openAssignPackage(row.id)}
-              title="Assign Package"
-            >
-              <i className="fa-solid fa-box"></i>
-            </button>
-          ),
-          width: "120px",
-        },
-      ]
-    : []),
-];
+    // Conditional Assign Package column
+    ...(role !== "3" || permissions.includes("allot_package_extension")
+      ? [
+          {
+            name: "Assign Package",
+            cell: (row) => (
+              <button
+                className="btn btn-success btn-sm"
+                onClick={() => openAssignPackage(row.id)}
+                title="Assign Package"
+              >
+                <i className="fa-solid fa-box"></i>
+              </button>
+            ),
+            width: "120px",
+          },
+        ]
+      : []),
+  ];
 
   return (
     <div className="page-content">
@@ -199,7 +215,7 @@ const columns = [
           <div className="add-page-heading-div">
             <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
@@ -291,8 +307,10 @@ const columns = [
                           <span className="fw-semibold">{p.name}</span>
                           <div className="small text-muted">
                             ₹{p.price} •{" "}
-                            {p.validity_in_months
+                            {p.validity_in_months && p.validity_in_months > 0
                               ? `${p.validity_in_months} months`
+                              : p.days && p.days > 0
+                              ? `${p.days} days`
                               : "N/A"}
                           </div>
                         </div>
@@ -320,7 +338,6 @@ const columns = [
           </div>
         </div>
       )}
-
     </div>
   );
 }

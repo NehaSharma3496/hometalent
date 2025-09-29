@@ -981,17 +981,14 @@ export default function Allvendors() {
                               : "N/A"}
                           </div>
                         </div>
-                        <div>
-                          <span
-                            className={`badge ${
-                              vendorPackageStatus[p.id] === "Active"
-                                ? "bg-success"
-                                : "bg-secondary"
-                            }`}
-                          >
-                            {vendorPackageStatus[p.id] || ""}
-                          </span>
-                        </div>
+                       <div>
+  {vendorPackageStatus[p.id] === "Active" && (
+    <span className="badge bg-success">
+      {vendorPackageStatus[p.id]}
+    </span>
+  )}
+</div>
+
                       </label>
                     ))}
                   </div>
