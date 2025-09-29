@@ -62,7 +62,7 @@ exports.getBlogs = async (req, res) => {
 exports.getBlogById = async (req, res) => {
   try {
     const blog = await Blog.findByPk(req.params.id);
-    if (!blog) return res.status(404).json({ status: false, msg: 'Blog not found' });
+    if (!blog) return res.json({ status: false, msg: 'Blog not found' });
     return res.json({ status: true, data: blog });
   } catch (error) {
     return res.json({ status: false, msg: error.message });
@@ -74,7 +74,7 @@ exports.updateBlog = async (req, res) => {
     const { title,short_description, long_description, login_id } = req.body;
 
     const blog = await Blog.findByPk(req.params.id);
-    if (!blog) return res.status(404).json({ status: false, msg: 'Blog not found' });
+    if (!blog) return res.json({ status: false, msg: 'Blog not found' });
     
     const imageFile = req.files?.image?.[0];
     const baseUrl = `${req.protocol}://${req.get('host')}`;
