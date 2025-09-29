@@ -277,23 +277,21 @@ exports.reset_password = async (req, res) => {
     const { oldPassword, newPassword, user_id } = req.body;
 
     if (!oldPassword || !newPassword) {
-      return res.status(400).json({
+      return res.json({
         status: false,
         message: "Both old and new passwords are required.",
       });
     }
 
     const user = await User.findByPk(user_id);
-    if (!user) {
+    if (!user) { 
       return res
-        .status(404)
         .json({ status: false, message: "User not found." });
     }
 
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) {
       return res
-        .status(400)
         .json({ status: false, message: "Old password is incorrect." });
     }
 
@@ -303,10 +301,9 @@ exports.reset_password = async (req, res) => {
     await user.save();
 
     return res
-      .status(200)
       .json({ status: true, message: "Password updated successfully." });
   } catch (err) {
     console.error("Reset password error:", err);
-    return res.status(500).json({ status: false, message: "Server error." });
+    return res.json({ status: false, message: "Server error." });
   }
 };

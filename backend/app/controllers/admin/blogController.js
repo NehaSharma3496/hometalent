@@ -8,7 +8,7 @@ exports.createBlog = async (req, res) => {
     const { title, short_description, long_description, login_id } = req.body;
 
     if (!title || !short_description || !long_description) {
-      return res.status(400).json({ status: false, msg: 'All fields are required' });
+      return res.json({ status: false, msg: 'All fields are required' });
     }
 
     const imageFile = req.files?.image?.[0];
@@ -46,7 +46,7 @@ exports.createBlog = async (req, res) => {
 
     return res.json({ status: true, msg: 'Blog created successfully', data: blog });
   } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -55,17 +55,17 @@ exports.getBlogs = async (req, res) => {
     const blogs = await Blog.findAll({ order: [['createdAt', 'DESC']] });
     return res.json({ status: true, data: blogs });
   } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
 exports.getBlogById = async (req, res) => {
   try {
     const blog = await Blog.findByPk(req.params.id);
-    if (!blog) return res.status(404).json({ status: false, msg: 'Blog not found' });
+    if (!blog) return res.json({ status: false, msg: 'Blog not found' });
     return res.json({ status: true, data: blog });
   } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -74,7 +74,7 @@ exports.updateBlog = async (req, res) => {
     const { title,short_description, long_description, login_id } = req.body;
 
     const blog = await Blog.findByPk(req.params.id);
-    if (!blog) return res.status(404).json({ status: false, msg: 'Blog not found' });
+    if (!blog) return res.json({ status: false, msg: 'Blog not found' });
     
     const imageFile = req.files?.image?.[0];
     const baseUrl = `${req.protocol}://${req.get('host')}`;
@@ -110,18 +110,18 @@ exports.updateBlog = async (req, res) => {
 
     return res.json({ status: true, msg: 'Blog updated successfully', data: blog });
   } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
 exports.deleteBlog = async (req, res) => {
   try {
     const blog = await Blog.findByPk(req.params.id);
-    if (!blog) return res.status(404).json({ status: false, msg: 'Blog not found' });
+    if (!blog) return res.json({ status: false, msg: 'Blog not found' });
 
     await blog.destroy();
     return res.json({ status: true, msg: 'Blog deleted successfully' });
   } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
