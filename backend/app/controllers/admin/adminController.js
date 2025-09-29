@@ -105,6 +105,7 @@ exports.listPendingVendors = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const { count, rows: vendors } = await User.findAndCountAll({
+      include : [ { model : Category, attributes: ['id', 'name'] } ], 
       where: { role_id: 2, approval_status: 0 },
       order: [["createdAt", "DESC"]],
       limit,
@@ -113,7 +114,7 @@ exports.listPendingVendors = async (req, res) => {
 
     const totalPages = Math.ceil(count / limit);
 
-    res.json({
+    return res.json({
       status: true,
       data: vendors,
       pagination: {
@@ -126,7 +127,7 @@ exports.listPendingVendors = async (req, res) => {
       },
     });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -137,6 +138,7 @@ exports.listRejectedVendors = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const { count, rows: vendors } = await User.findAndCountAll({
+      include : [ { model : Category, attributes: ['id', 'name'] } ],
       where: { role_id: 2, approval_status: 2 },
       order: [["createdAt", "DESC"]],
       limit,
@@ -145,7 +147,7 @@ exports.listRejectedVendors = async (req, res) => {
 
     const totalPages = Math.ceil(count / limit);
 
-    res.json({
+    return res.json({
       status: true,
       data: vendors,
       pagination: {
@@ -158,7 +160,7 @@ exports.listRejectedVendors = async (req, res) => {
       },
     });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -285,6 +287,7 @@ exports.listapprovedVendors = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const { count, rows: vendors } = await User.findAndCountAll({
+      include : [ { model : Category, attributes: ['id', 'name'] } ],
       where: { role_id: 2, approval_status: 1 },
       order: [["createdAt", "DESC"]],
       limit,
@@ -293,7 +296,7 @@ exports.listapprovedVendors = async (req, res) => {
 
     const totalPages = Math.ceil(count / limit);
 
-    res.json({
+    return res.json({
       status: true,
       data: vendors,
       pagination: {
@@ -306,7 +309,7 @@ exports.listapprovedVendors = async (req, res) => {
       },
     });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
