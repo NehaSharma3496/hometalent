@@ -31,7 +31,7 @@ export const MenuItems = {
           link: "/admin/vendor/activevendors",
           permission: "vendor_active",
         },
-          {
+        {
           icon: "fa-solid fa-user-slash",
           label: "Inactive Vendors",
           link: "/admin/vendor/blockedvendors",
@@ -43,13 +43,13 @@ export const MenuItems = {
           link: "/admin/vendor/approvevendors",
           permission: "vendor_approved",
         },
-          {
+        {
           icon: "fa-solid fa-hourglass-half",
           label: "Pending Vendors",
           link: "/admin/vendor/pendingvendors",
           permission: "vendor_pending",
         },
-         
+
         {
           icon: "fa-solid fa-user-xmark",
           label: "Rejected Vendors",
@@ -62,8 +62,6 @@ export const MenuItems = {
           link: "/admin/vendor/sponsoredvendors",
           permission: "vendor_sponsored",
         },
-      
-     
       ],
     },
     {
@@ -342,19 +340,17 @@ export const MenuItems = {
       icon: "fa-solid fa-envelope",
       label: "Enquiries & Leads",
       link: "/admin/enquiries/allleads",
-
+      permission: "enquiries_leads",
       children: [
         {
           icon: "fa-solid fa-list",
           label: "All Leads",
           link: "/admin/enquiries/allleads",
-          permission: "enquiries_leads",
         },
         {
           icon: "fa-solid fa-envelope-open-text",
           label: "All Enquiries",
           link: "/admin/enquiries/AllEnquiries",
-          permission: "enquiries_leads",
         },
         {
           icon: "fa-solid fa-comment-dots",

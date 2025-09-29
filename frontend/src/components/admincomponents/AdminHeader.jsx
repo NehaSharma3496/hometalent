@@ -189,19 +189,21 @@ export default function AdminHeader() {
       const filterWithPermissions = (items) => {
         return items
           .map((item) => {
-            const hasParentPermission =
-              !item.permission || permissions.includes(item.permission);
-
-            if (!hasParentPermission) {
-              // Agar parent ka permission nahi hai → parent + children dono ignore
-              return null;
-            }
-
+            // If item has children, check children permissions
             if (item.children) {
-              // Parent dikhega → children ko check karo
               const filteredChildren = filterWithPermissions(item.children);
+
+              // Show parent if it has permission OR any child is visible
+              const hasParentPermission =
+                !item.permission || permissions.includes(item.permission);
+              if (!hasParentPermission && filteredChildren.length === 0)
+                return null;
+
               return { ...item, children: filteredChildren };
             } else {
+              // Leaf node → check permission
+              if (item.permission && !permissions.includes(item.permission))
+                return null;
               return item;
             }
           })
