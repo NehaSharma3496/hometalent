@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { GetVendoreList,GetEmployeePermission } from "../../../Services/admin/Admin";
+import { GetVendoreList,GetEmployeePermission,GetApprovedVendor } from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
@@ -45,12 +45,9 @@ export default function ApprovedVendors() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await GetVendoreList(token, page, limit);
+      const res = await GetApprovedVendor(token, page, limit);
       if (res?.data && res?.pagination) {
-        const approved = res.data?.filter(
-          (vendor) => vendor.approval_status === 1
-        );
-        setApprovedVendors(approved || []);
+        setApprovedVendors(res?.data);
 
         setTotalRows(res.pagination.total_records);
       } else {
@@ -87,7 +84,7 @@ export default function ApprovedVendors() {
       let totalPages = 1;
 
       while (page <= totalPages) {
-        const res = await GetVendoreList(token, page, limit);
+        const res = await GetApprovedVendor(token, page, limit);
         const { data, pagination } = res || {};
         if (data?.length) {
           const approvedOnly = data.filter(
@@ -156,7 +153,7 @@ export default function ApprovedVendors() {
       let totalPages = 1;
 
       while (page <= totalPages) {
-        const res = await GetVendoreList(token, page, limit);
+        const res = await GetApprovedVendor(token, page, limit);
         const { data, pagination } = res || {};
         if (data?.length) {
           const approvedOnly = data.filter(

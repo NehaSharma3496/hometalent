@@ -20,17 +20,20 @@ const PasswordField = ({ field }) => {
           />
           <button
             type="button"
-            className="btn btn-secondary "
+            className="btn border  "
             onClick={() => setShowPassword((prev) => !prev)}
           >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            {showPassword ? (
+              <EyeOff size={18} className="icon-top-margin" />
+            ) : (
+              <Eye size={18} className="icon-top-margin" />
+            )}
           </button>
         </div>
       )}
     </Field>
   );
 };
-
 
 const renderField = (field, formikProps, values) => {
   const { errors, touched, setFieldValue, setFieldTouched } = formikProps;
@@ -256,7 +259,8 @@ const ReusableForm = ({
           {fields.map((field) => (
             <FormikConsumer key={field.name}>
               {(formikConsumerProps) =>
-                !field.showWhen || field.showWhen(formikConsumerProps.values) ? (
+                !field.showWhen ||
+                field.showWhen(formikConsumerProps.values) ? (
                   <div className={field.colClass || "col-12"}>
                     <div className="form-group">
                       {field.type !== "checkbox" &&

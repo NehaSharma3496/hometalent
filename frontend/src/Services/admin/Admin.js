@@ -554,6 +554,19 @@ export async function GetRejectedVendor(token) {
   }
 }
 
+export async function GetApprovedVendor(token) {
+  try {
+    const res = await axios.get(`${Config.base_url}admin/vendors/approved`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return res?.data;
+  } catch (err) {
+    return err;
+  }
+}
+
 export async function AddAdminBlog(token, data) {
   try {
     const response = await axios.post(`${Config.base_url}blogs`, data, {

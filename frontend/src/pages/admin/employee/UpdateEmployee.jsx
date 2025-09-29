@@ -3,9 +3,7 @@ import ReusableForm from "../../../extracomponents/ReusableForm";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import {
-  GetVendorDetails,
-} from "../../../Services/vendor/Vendor";
+import { GetVendorDetails } from "../../../Services/vendor/Vendor";
 import { UpdateEmpoyee } from "../../../Services/admin/Admin";
 
 export default function UpdateEmployee() {
@@ -13,8 +11,8 @@ export default function UpdateEmployee() {
   const navigate = useNavigate();
   const location = useLocation();
   const vendorId = location.state?.vendorId;
-  const vendor_id=location.state?.vendorId;
-const token=localStorage.getItem("token");
+  const vendor_id = location.state?.vendorId;
+  const token = localStorage.getItem("token");
 
   const validationSchema = Yup.object().shape({
     profile_name: Yup.string()
@@ -31,8 +29,7 @@ const token=localStorage.getItem("token");
     email: Yup.string()
       .required("Email is required")
       .email("Please enter a valid email address"),
-          password: Yup.string().required("Password is required"),
-      
+    password: Yup.string().required("Password is required"),
   });
 
   const fields = [
@@ -58,46 +55,54 @@ const token=localStorage.getItem("token");
       colClass: "col-md-4 mb-3",
       required: true,
     },
-       {
+    {
       name: "password",
       label: "Password*",
       type: "password",
       colClass: "col-md-4",
-      
     },
   ];
 
- const onSubmit = async (values) => {
-  try {
-    const formData = new FormData();
-    formData.append("vendor_id", vendorId);
-    formData.append("profile_name", values.profile_name);
-    formData.append("phone", values.phone);
-    formData.append("email", values.email);
-    formData.append("password",values.password);
+  const onSubmit = async (values) => {
+    // Check if any values changed
+    const isChanged = Object.keys(values).some(
+      (key) => values[key] !== initialValues[key]
+    );
 
-    const res = await UpdateEmpoyee(formData,vendor_id);
-
-    if (res?.status) {
-      Swal.fire("Success", res.msg || "Profile update submitted!", "success");
-      navigate(-1); // optional: go back after success
-    } else {
-      Swal.fire("Error", res?.msg || "Something went wrong", "error");
+    if (!isChanged) {
+      Swal.fire("Info", "No changes were made to update.", "info");
+      return;
     }
-  } catch (err) {
-    console.error("Full error object:", err);
-    let errorMessage = "Failed to submit";
-    if (err?.response?.data?.msg) {
-      errorMessage = err.response.data.msg;
-    } else if (err?.response?.data?.message) {
-      errorMessage = err.response.data.message;
-    } else if (err?.message) {
-      errorMessage = err.message;
-    }
-    Swal.fire("Error", errorMessage, "error");
-  }
-};
 
+    try {
+      const formData = new FormData();
+      formData.append("vendor_id", vendorId);
+      formData.append("profile_name", values.profile_name);
+      formData.append("phone", values.phone);
+      formData.append("email", values.email);
+      formData.append("password", values.password);
+
+      const res = await UpdateEmpoyee(formData, vendor_id);
+
+      if (res?.status) {
+        Swal.fire("Success", res.msg || "Profile update submitted!", "success");
+        navigate(-1); // optional: go back after success
+      } else {
+        Swal.fire("Error", res?.msg || "Something went wrong", "error");
+      }
+    } catch (err) {
+      console.error("Full error object:", err);
+      let errorMessage = "Failed to submit";
+      if (err?.response?.data?.msg) {
+        errorMessage = err.response.data.msg;
+      } else if (err?.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
+      Swal.fire("Error", errorMessage, "error");
+    }
+  };
 
   useEffect(() => {
     const fetchInitial = async () => {
@@ -112,7 +117,7 @@ const token=localStorage.getItem("token");
           profile_name: vendor.profile_name || "",
           phone: vendor.phone || "",
           email: vendor.email || "",
-          password:vendor.show_password||"",
+          password: vendor.show_password || "",
         });
       } catch (err) {
         console.log("Init fetch error", err);
