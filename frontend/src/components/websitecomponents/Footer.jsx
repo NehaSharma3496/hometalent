@@ -14,7 +14,10 @@ const Footer = () => {
                     <h4 className="title">GET IN TOUCH</h4>
                     <ul className="listing">
                       <li className="single-lsit">
-                        <a href="https://www.google.com/maps/place/Indore,+Madhya+Pradesh,+India" target="_blank">
+                        <a
+                          href="https://www.google.com/maps/place/Indore,+Madhya+Pradesh,+India"
+                          target="_blank"
+                        >
                           <div className="d-flex gap-12 align-items-center">
                             <img
                               src="../assets/images/footer/map.png"
@@ -27,7 +30,7 @@ const Footer = () => {
                         </a>
                       </li>
                       <li className="single-lsit">
-                         <a href="Mob:+919893545348">
+                        <a href="Mob:+919893545348">
                           <div className="d-flex gap-12 align-items-center">
                             <img
                               src="../assets/images/footer/phone.png"
@@ -35,12 +38,12 @@ const Footer = () => {
                               width="20"
                               height="20"
                             />
-                           (+91) 9893545348
+                            (+91) 9893545348
                           </div>
                         </a>
                       </li>
                       <li className="single-lsit">
-                          <a href="mailto:info@hometalent4u.com">
+                        <a href="mailto:info@hometalent4u.com">
                           <div className="d-flex gap-12 align-items-center">
                             <img
                               src="../assets/images/footer/email.png"
@@ -48,7 +51,7 @@ const Footer = () => {
                               width="20"
                               height="20"
                             />
-                           info@hometalent4u.com
+                            contact@hometalent4u.in
                           </div>
                         </a>
                       </li>
@@ -82,7 +85,7 @@ const Footer = () => {
                       <li className="single-lsit">
                         <Link to="/feedback">Feedback</Link>
                       </li>
-                        <li className="single-lsit">
+                      <li className="single-lsit">
                         <Link to="/registration">Vendor Registration</Link>
                       </li>
                     </ul>
@@ -148,9 +151,10 @@ const Footer = () => {
               <div className="col-lg-12">
                 <div className="d-flex justify-content-between gap-14 flex-wrap">
                   <p className="pera">
-                    Copyright © <span className="current-year">2025</span>{" "}
-                    HomeTalent4u All Rights Reserved
+                    Copyright © {new Date().getFullYear()} HomeTalent4u All
+                    Rights Reserved
                   </p>
+
                   <div className="footer-menu d-flex gap-20">
                     <Link to="/termscondition">
                       <p className="pera">Terms and conditions</p>
