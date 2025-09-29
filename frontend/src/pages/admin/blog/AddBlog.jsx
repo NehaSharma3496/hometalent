@@ -59,7 +59,7 @@ export default function AddBlog() {
     );
     navigate("/admin/blog/allblogs");
   } else {
-    Swal.fire("Failed", response?.data?.msg || "Something went wrong", "error");
+    Swal.fire("Failed", response?.msg || "Something went wrong", "error");
   }
 } catch (error) {
   Swal.fire(
