@@ -981,14 +981,13 @@ export default function Allvendors() {
                               : "N/A"}
                           </div>
                         </div>
-                       <div>
-  {vendorPackageStatus[p.id] === "Active" && (
-    <span className="badge bg-success">
-      {vendorPackageStatus[p.id]}
-    </span>
-  )}
-</div>
-
+                        <div>
+                          {vendorPackageStatus[p.id] === "Active" && (
+                            <span className="badge bg-success">
+                              {vendorPackageStatus[p.id]}
+                            </span>
+                          )}
+                        </div>
                       </label>
                     ))}
                   </div>
