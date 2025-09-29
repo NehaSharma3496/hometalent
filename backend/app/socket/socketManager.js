@@ -217,7 +217,7 @@ class SocketManager {
     });
 
     // Notify admins
-    if(role_id == 2){
+    if(role_id == 1){
       this.notifyAdmins('plan_subscribed', {
       message: `New Subscription:${planName} plan subscribed by Vendor(${vendorName}).`,
       subscription: subscriptionData
