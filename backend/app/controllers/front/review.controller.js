@@ -62,14 +62,40 @@ exports.approveOrRejectReview = async (req, res) => {
 // Get all reviews (admin view)
 exports.getAllReviews = async (req, res) => {
   try {
-    const reviews = await Review.findAll({ order: [['createdAt', 'DESC']]
-      , include: [{ model: User, as: 'User', attributes: ['owner_name'] }]
-     });
-    return res.status(200).json({ status: true, data: reviews });
+    // Get page & limit from request query, set defaults
+    let { page, limit } = req.query;
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 10;
+
+    const offset = (page - 1) * limit;
+
+    // Fetch reviews with pagination
+    const { count, rows: reviews } = await Review.findAndCountAll({
+      order: [['createdAt', 'DESC']],
+      include: [{ model: User, as: 'User', attributes: ['owner_name'] }],
+      limit,
+      offset,
+    });
+
+    return res.status(200).json({
+      status: true,
+      data: reviews,
+      pagination: {
+        totalRecords: count,
+        currentPage: page,
+        totalPages: Math.ceil(count / limit),
+        pageSize: limit,
+      },
+    });
   } catch (error) {
-    return res.status(500).json({ status: false, message: 'Error fetching reviews', error: error.message });
+    return res.status(500).json({
+      status: false,
+      message: 'Error fetching reviews',
+      error: error.message,
+    });
   }
 };
+
 
 // Get only active and approved reviews (public view)
 exports.getActiveApprovedReviews = async (req, res) => {
@@ -117,13 +143,40 @@ exports.createReport = async (req, res) => {
 
 exports.getAllReports = async (req, res) => {
   try {
-    const reports = await Report.findAll({ order: [['createdAt', 'DESC']],
-       include: [{ model: User, as: 'User', attributes: ['owner_name'] }]  });
-    return res.status(200).json({ status: true, data: reports });
+    // Get page & limit from request query, set defaults
+    let { page, limit } = req.query;
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 10;
+
+    const offset = (page - 1) * limit;
+
+    // Fetch reports with pagination
+    const { count, rows: reports } = await Report.findAndCountAll({
+      order: [['createdAt', 'DESC']],
+      include: [{ model: User, as: 'User', attributes: ['owner_name'] }],
+      limit,
+      offset,
+    });
+
+    return res.status(200).json({
+      status: true,
+      data: reports,
+      pagination: {
+        totalRecords: count,
+        currentPage: page,
+        totalPages: Math.ceil(count / limit),
+        pageSize: limit,
+      },
+    });
   } catch (error) {
-    return res.status(500).json({ status: false, message: 'Error fetching reports', error: error.message });
-  } 
+    return res.status(500).json({
+      status: false,
+      message: 'Error fetching reports',
+      error: error.message,
+    });
+  }
 };
+
 
 function generateOtp() {
   return Math.floor(1000 + Math.random() * 9000); // ensures 4 digits
