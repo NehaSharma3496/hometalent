@@ -22,7 +22,6 @@ export default function Allvendors() {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
-  const [totalRows, setTotalRows] = useState(0);
   const [pkgModalOpen, setPkgModalOpen] = useState(false);
   const [pkgOptions, setPkgOptions] = useState([]);
   const [selectedPkgId, setSelectedPkgId] = useState(null);
@@ -36,6 +35,7 @@ export default function Allvendors() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [availableCities, setAvailableCities] = useState([]);
   const [availableCategories, setAvailableCategories] = useState([]);
+  const [historyLoaded, setHistoryLoaded] = useState(false); // 🔹 Track if history is loaded
 
   const login_id = localStorage.getItem("userId");
   const role = localStorage.getItem("role");
@@ -78,7 +78,6 @@ export default function Allvendors() {
         }
       });
 
-      // Sort cities alphabetically and set default top cities
       const sortedCities = cities.sort((a, b) => a.name.localeCompare(b.name));
       setAvailableCities(sortedCities);
 
@@ -106,14 +105,13 @@ export default function Allvendors() {
     }
   }, [allVendors]);
 
-  // 🔹 Utility function to get package status for a vendor (Date-based, not time-based)
+  // 🔹 Utility function to get package status for a vendor
   const getVendorPackageStatus = (vendorId) => {
     const packages = vendorPackageHistory[vendorId];
     if (!packages || !Array.isArray(packages) || packages.length === 0) {
       return "N/A";
     }
 
-    // Get today's date only (without time)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -122,19 +120,15 @@ export default function Allvendors() {
 
     packages.forEach((pkg) => {
       if (pkg.payment_status === "completed") {
-        // Parse dates and remove time component
         const startDate = new Date(pkg.start_date);
         startDate.setHours(0, 0, 0, 0);
 
         const endDate = new Date(pkg.end_date);
         endDate.setHours(0, 0, 0, 0);
 
-        // Active: today >= startDate AND today <= endDate
         if (today >= startDate && today <= endDate) {
           hasActive = true;
-        }
-        // Expired: today > endDate
-        else if (today > endDate) {
+        } else if (today > endDate) {
           hasExpired = true;
         }
       }
@@ -145,26 +139,9 @@ export default function Allvendors() {
     return "N/A";
   };
 
-  const fetchVendors = async (page, limit) => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const res = await GetVendoreList(token, page, limit);
-      if (res?.data && res?.pagination) {
-        setVendors(res.data);
-        setTotalRows(res.pagination.total_records);
-      } else {
-        throw new Error("Invalid response format");
-      }
-    } catch (err) {
-      console.error("Error fetching vendors:", err);
-      Swal.fire("Error", "Could not load vendor list", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const fetchAllVendors = async () => {
+    setLoading(true);
+    setHistoryLoaded(false); // Reset history loaded state
     try {
       const token = localStorage.getItem("token");
       let fullList = [];
@@ -186,24 +163,17 @@ export default function Allvendors() {
       }
 
       setAllVendors(fullList);
+      setVendors(fullList); // 🔹 Set vendors to fullList initially
     } catch (err) {
       console.error("Error fetching all vendors:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchVendors(currentPage, perPage);
     fetchAllVendors();
-  }, [currentPage, perPage]);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  const handlePerRowsChange = (newPerPage) => {
-    setPerPage(newPerPage);
-    setCurrentPage(1);
-  };
+  }, []);
 
   const openAssignPackage = async (vendorId) => {
     try {
@@ -221,7 +191,6 @@ export default function Allvendors() {
       const historyRes = await getVendorPackageHistory(token, vendorId);
       let statusObj = {};
       if (historyRes.status && historyRes.data.length > 0) {
-        // Get today's date only (without time)
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -246,7 +215,7 @@ export default function Allvendors() {
         title: "Error",
         text: "Failed to load packages or history",
         icon: "error",
-        zIndex: 9999, // 👈 ye line add karni hai
+        zIndex: 9999,
       });
     }
   };
@@ -258,7 +227,7 @@ export default function Allvendors() {
           title: "Select Package",
           text: "Please select a package",
           icon: "warning",
-          zIndex: 9999, // 👈 yaha add karo
+          zIndex: 9999,
         });
       }
 
@@ -275,11 +244,11 @@ export default function Allvendors() {
           title: "Success",
           text: res.msg || "Package assigned",
           icon: "success",
-          zIndex: 9999, // 👈 ensure swal modal ke upar hi rahe
+          zIndex: 9999,
         });
 
         setPkgModalOpen(false);
-        fetchVendors(currentPage, perPage);
+        fetchAllVendors(); // 🔹 Refresh all vendors
         // 🔹 Refresh package history after assignment
         await fetchVendorPackageHistory(assignVendorId);
       } else {
@@ -287,7 +256,7 @@ export default function Allvendors() {
           title: "Error",
           text: res?.msg || "Unable to assign package",
           icon: "error",
-          zIndex: 9999, // 👈 swal hamesha modal ke upar rahega
+          zIndex: 9999,
         });
       }
     } catch (e) {
@@ -295,7 +264,7 @@ export default function Allvendors() {
         title: "Error",
         text: e?.msg || e?.message || "Unable to assign package",
         icon: "error",
-        zIndex: 9999, // 👈 Swal modal ke upar rahe
+        zIndex: 9999,
       });
     }
   };
@@ -313,14 +282,14 @@ export default function Allvendors() {
       } else {
         setVendorPackageHistory((prev) => ({
           ...prev,
-          [vendorId]: [], // Empty array for no history
+          [vendorId]: [],
         }));
       }
     } catch (err) {
       console.error("Error fetching vendor package history:", err);
       setVendorPackageHistory((prev) => ({
         ...prev,
-        [vendorId]: [], // Empty array on error
+        [vendorId]: [],
       }));
     }
   };
@@ -328,14 +297,18 @@ export default function Allvendors() {
   // 🔹 Fetch package history for all vendors
   useEffect(() => {
     const loadAllHistories = async () => {
-      for (let vendor of allVendors) {
-        await fetchVendorPackageHistory(vendor.id);
-      }
+      if (!allVendors?.length) return;
+      
+      setHistoryLoaded(false);
+      const historyPromises = allVendors.map(vendor => 
+        fetchVendorPackageHistory(vendor.id)
+      );
+      
+      await Promise.all(historyPromises);
+      setHistoryLoaded(true);
     };
 
-    if (allVendors?.length > 0) {
-      loadAllHistories();
-    }
+    loadAllHistories();
   }, [allVendors]);
 
   // Clear all filters function
@@ -357,11 +330,11 @@ export default function Allvendors() {
     cityFilter ||
     categoryFilter;
 
-  // 🔹 MAIN FILTERING LOGIC - Updated with City and Category filters
+  // 🔹 MAIN FILTERING LOGIC
   const filteredVendors = allVendors.filter((v) => {
     const lowerSearch = searchText.toLowerCase();
 
-    // 🔹 Text Filter - Including City, State, and Category search
+    // 🔹 Text Filter
     const matchesText =
       !searchText ||
       v.owner_name?.toLowerCase().includes(lowerSearch) ||
@@ -384,9 +357,9 @@ export default function Allvendors() {
       (!fromDate || createdDate >= fromDate) &&
       (!toDate || createdDate <= toDate);
 
-    // 🔹 Package Status Filter
+    // 🔹 Package Status Filter - Only apply if history is loaded
     let matchesPackage = true;
-    if (packageFilter) {
+    if (packageFilter && historyLoaded) {
       const vendorPkgStatus = getVendorPackageStatus(v.id);
       matchesPackage = vendorPkgStatus === packageFilter;
     }
@@ -414,6 +387,21 @@ export default function Allvendors() {
       matchesCategory
     );
   });
+
+  // 🔹 Paginate filtered vendors
+  const paginatedVendors = filteredVendors.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
+  );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
 
   const exportToExcel = async () => {
     try {
@@ -485,7 +473,6 @@ export default function Allvendors() {
       );
       if (response.status === true || response.status === "true") {
         await Swal.fire("Success", response.message, "success");
-        fetchVendors(currentPage, perPage);
         fetchAllVendors();
       } else {
         throw new Error(response.message || "Failed to update approval");
@@ -523,7 +510,6 @@ export default function Allvendors() {
       );
       if (res?.status === true || res?.status === "true") {
         await Swal.fire("Success", "Vendor status updated.", "success");
-        fetchVendors(currentPage, perPage);
         fetchAllVendors();
       } else {
         throw new Error(res?.message || "Failed to update status");
@@ -588,7 +574,6 @@ export default function Allvendors() {
       width: "150px",
     },
 
-    // ✅ Active/Deactive column conditionally
     ...(role !== "3" || permissions.includes("active_deactive")
       ? [
           {
@@ -633,7 +618,6 @@ export default function Allvendors() {
       name: "Action",
       cell: (row) => (
         <div className="d-flex align-items-center gap-2">
-          {/* View button */}
           <button
             className="btn btn-warning btn-sm d-flex align-items-center justify-content-center"
             style={{ width: "35px", height: "35px" }}
@@ -647,7 +631,6 @@ export default function Allvendors() {
 
           {row.approval_status !== 0 && (
             <>
-              {/* Gallery */}
               {role !== "3" && (
                 <button
                   className="btn btn-sm d-flex align-items-center justify-content-center"
@@ -666,7 +649,6 @@ export default function Allvendors() {
                 </button>
               )}
 
-              {/* Edit - conditional */}
               {(role !== "3" || permissions.includes("add_edit_vendor")) && (
                 <button
                   className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
@@ -682,7 +664,6 @@ export default function Allvendors() {
                 </button>
               )}
 
-              {/* ✅ Assign Package - conditional */}
               {(role !== "3" ||
                 permissions.includes("allot_package_extension")) && (
                 <button
@@ -701,7 +682,6 @@ export default function Allvendors() {
       width: "180px",
     },
 
-    // ✅ Approval Status column - already conditional
     ...(role !== "3" || permissions.includes("approve_reject")
       ? [
           {
@@ -794,14 +774,12 @@ export default function Allvendors() {
           </div>
         </div>
         <div className="col-md-6 text-end mt-2">
-          {/* Download Excel - role 3 और permission check */}
           {(role !== "3" || permissions.includes("download_excel")) && (
             <button className="btn btn-success me-2" onClick={exportToExcel}>
               <i className="fa-solid fa-file-excel me-1"></i>Download Excel
             </button>
           )}
 
-          {/* Add Vendor button - sirf tab dikhana jab permission ho */}
           {role !== "3" || permissions.includes("add_edit_vendor") ? (
             <Link to="/admin/vendor/addvendors" className="btn btn-primary">
               + Add Vendor
@@ -813,10 +791,9 @@ export default function Allvendors() {
       <div className="card table-padding">
         <div className="card-header">
           <div className="d-flex align-items-center flex-wrap gap-2">
-            {/* Search Bar */}
             <div
               className="d-flex align-items-center border rounded px-2"
-              style={{ width: "190px" }} // 👈 search chhota kar diya
+              style={{ width: "190px" }}
             >
               <i className="ri-search-line me-2 text-muted" />
               <input
@@ -836,7 +813,6 @@ export default function Allvendors() {
               )}
             </div>
 
-            {/* From Date */}
             <input
               type={startDate ? "date" : "text"}
               className="form-control form-control-sm shadow-sm border rounded"
@@ -849,7 +825,6 @@ export default function Allvendors() {
               style={{ width: "140px" }}
             />
 
-            {/* To Date */}
             <input
               type={endDate ? "date" : "text"}
               className="form-control form-control-sm shadow-sm border rounded"
@@ -862,7 +837,6 @@ export default function Allvendors() {
               style={{ width: "140px" }}
             />
 
-            {/* City Filter */}
             <select
               className="form-select form-select-sm shadow-sm border rounded"
               value={cityFilter}
@@ -877,7 +851,6 @@ export default function Allvendors() {
               ))}
             </select>
 
-            {/* Category Filter */}
             <select
               className="form-select form-select-sm shadow-sm border rounded"
               value={categoryFilter}
@@ -892,7 +865,6 @@ export default function Allvendors() {
               ))}
             </select>
 
-            {/* Package Status Filter */}
             <select
               className="form-select form-select-sm shadow-sm border rounded"
               value={packageFilter}
@@ -905,7 +877,6 @@ export default function Allvendors() {
               <option value="N/A">N/A</option>
             </select>
 
-            {/* Clear All Button */}
             {hasActiveFilters && (
               <button
                 className="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center rounded"
@@ -923,10 +894,11 @@ export default function Allvendors() {
           <div className="card-body">
             <Datatable
               columns={columns}
-              data={filteredVendors}
+              data={paginatedVendors}
               progressPending={loading}
               pagination
-              paginationTotalRows={totalRows}
+              paginationServer
+              paginationTotalRows={filteredVendors.length}
               paginationPerPage={perPage}
               onChangeRowsPerPage={handlePerRowsChange}
               onChangePage={handlePageChange}
