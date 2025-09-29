@@ -278,6 +278,38 @@ exports.listSponsoredVendors = async (req, res) => {
   }
 };
 
+exports.listapprovedVendors = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const { count, rows: vendors } = await User.findAndCountAll({
+      where: { role_id: 2, approval_status: 1 },
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset,
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    res.json({
+      status: true,
+      data: vendors,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1,
+      },
+    });
+  } catch (error) {
+    res.json({ status: false, msg: error.message });
+  }
+};
+
 exports.listBlockedVendors = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;

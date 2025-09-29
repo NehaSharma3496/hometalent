@@ -177,7 +177,6 @@ exports.getAllReports = async (req, res) => {
   }
 };
 
-
 function generateOtp() {
   return Math.floor(1000 + Math.random() * 9000); // ensures 4 digits
 }
