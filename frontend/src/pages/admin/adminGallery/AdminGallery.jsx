@@ -3,7 +3,7 @@ import {
   GetAdminGallery,
   RemoveGalleryItem,
 } from "../../../Services/vendor/Vendor";
-import { Link,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { image_baseurl } from "../../../Utils/config";
 
@@ -17,15 +17,20 @@ const AdminGallery = () => {
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
+  const role = localStorage.getItem("role");
 
-  const fetchGallery = async () => {
-    try {
-      const response = await GetAdminGallery(token, userId);
-      setGallery(response.data || []);
-    } catch (error) {
-      console.error("Error fetching gallery:", error);
-    }
-  };
+ const fetchGallery = async () => {
+  try {
+    // 🔹 role 3 हो तो userId = 1 fix कर दो
+    const finalUserId = role === "3" ? 1 : userId;
+
+    const response = await GetAdminGallery(token, finalUserId);
+    setGallery(response.data || []);
+  } catch (error) {
+    console.error("Error fetching gallery:", error);
+  }
+};
+
 
   useEffect(() => {
     if (userId) fetchGallery();
@@ -62,8 +67,9 @@ const AdminGallery = () => {
     const idsToDelete = isBulk ? selectedItems : [id];
 
     const confirm = await Swal.fire({
-      title: `Are you sure you want to delete ${isBulk ? idsToDelete.length : 1
-        } image(s)?`,
+      title: `Are you sure you want to delete ${
+        isBulk ? idsToDelete.length : 1
+      } image(s)?`,
       text: "This will permanently delete the selected image(s)(s).",
       icon: "warning",
       showCancelButton: true,
@@ -131,21 +137,22 @@ const AdminGallery = () => {
         {/* Left side */}
         <div className="add-page-heading-div d-flex align-items-center">
           <button
-              className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
-            >
-              <i className="fa-sharp fa-regular fa-arrow-left"></i>
-            </button>
+            className="btn btn-link p-0"
+            onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
+          >
+            <i className="fa-sharp fa-regular fa-arrow-left"></i>
+          </button>
           <h5 className="add-page-heading mb-0">Gallery</h5>
         </div>
 
-        <Link to="/admin/uploadgallery" className="btn btn-primary shadow-sm Addimage">
+        <Link
+          to="/admin/uploadgallery"
+          className="btn btn-primary shadow-sm Addimage"
+        >
           <i className="ri-upload-cloud-line me-1"></i>
           Add Image / Video
         </Link>
-
       </div>
-
 
       <div className="card shadow-sm border-0 mb-2 p-3">
         <ul className="nav nav-tabs">
@@ -214,7 +221,10 @@ const AdminGallery = () => {
                       className="card-img-top rounded-top-4"
                       style={{ height: "250px", objectFit: "cover" }}
                     >
-                      <source src={`${image_baseurl}${item.file_path}` } type="video/mp4" />
+                      <source
+                        src={`${image_baseurl}${item.file_path}`}
+                        type="video/mp4"
+                      />
                       Your browser does not support the video tag.
                     </video>
                   )}
@@ -224,7 +234,7 @@ const AdminGallery = () => {
                       <input
                         type="checkbox"
                         className="form-check-input me-2 mb-1"
-                        style={{ width: "1.2rem", height: "1.4rem" }} 
+                        style={{ width: "1.2rem", height: "1.4rem" }}
                         checked={selectedItems.includes(item.id)}
                         onChange={() => toggleSelect(item.id)}
                       />
@@ -238,8 +248,6 @@ const AdminGallery = () => {
                         Delete
                       </button>
                     </div>
-
-
                   </div>
                 </div>
               </div>

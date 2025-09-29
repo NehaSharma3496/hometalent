@@ -541,9 +541,9 @@ export async function UpdatePackageStatus(token, data) {
   }
 }
 
-export async function GetRejectedVendor(token) {
+export async function GetRejectedVendor(token, page = 1, limit = 10) {
   try {
-    const res = await axios.get(`${Config.base_url}admin/vendors/rejected`, {
+    const res = await axios.get(`${Config.base_url}admin/vendors/rejected?page=${page}&limit=${limit}`, {
       headers: {
         Authorization: `${token}`,
       },
@@ -554,9 +554,9 @@ export async function GetRejectedVendor(token) {
   }
 }
 
-export async function GetApprovedVendor(token) {
+export async function GetApprovedVendor(token, page = 1, limit = 10) {
   try {
-    const res = await axios.get(`${Config.base_url}admin/vendors/approved`, {
+    const res = await axios.get(`${Config.base_url}admin/vendors/approved?page=${page}&limit=${limit}`, {
       headers: {
         Authorization: `${token}`,
       },

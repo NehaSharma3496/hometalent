@@ -7,6 +7,7 @@ const UploadGallery = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
+  const role = localStorage.getItem("role");
 
   const [images, setImages] = useState([]);
   const [videos, setVideos] = useState([]);
@@ -28,7 +29,10 @@ const UploadGallery = () => {
     }
 
     const formData = new FormData();
-    formData.append("user_id", userId);
+
+    // 🔹 अगर role 3 है तो user_id = 1, वरना actual userId
+    const finalUserId = role === "3" ? 1 : userId;
+    formData.append("user_id", finalUserId);
 
     images.forEach((img) => formData.append("images[]", img));
     videos.forEach((vid) => formData.append("videos[]", vid));
@@ -58,9 +62,9 @@ const UploadGallery = () => {
       <div className="row align-items-center mb-3">
         <div className="col-md-6 mb-4">
           <div className="add-page-heading-div">
-             <button
+            <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>

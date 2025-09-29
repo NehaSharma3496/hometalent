@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { GetVendoreList,GetEmployeePermission,GetApprovedVendor } from "../../../Services/admin/Admin";
+import {
+  GetEmployeePermission,
+  GetApprovedVendor,
+} from "../../../Services/admin/Admin";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function ApprovedVendors() {
   const [approvedVendors, setApprovedVendors] = useState([]);
@@ -14,10 +17,9 @@ export default function ApprovedVendors() {
   const [perPage, setPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
   const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-
-    const role = localStorage.getItem("role");
+  const role = localStorage.getItem("role");
 
   const [permissions, setPermissions] = useState([]);
 
@@ -112,7 +114,7 @@ export default function ApprovedVendors() {
         Phone: row.phone || "N/A",
         "Price Range": row.price_range || "N/A",
         Experience: row.experience_since || "N/A",
-          Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
+        Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -130,12 +132,12 @@ export default function ApprovedVendors() {
     return (
       vendor.owner_name?.toLowerCase().includes(lowerSearch) ||
       vendor.email?.toLowerCase().includes(lowerSearch) ||
-      vendor.phone?.toLowerCase().includes(lowerSearch)||
+      vendor.phone?.toLowerCase().includes(lowerSearch) ||
       vendor.price_range?.toLowerCase().includes(lowerSearch) ||
       vendor.experience_since?.toLowerCase().includes(lowerSearch) ||
-       (Array.isArray(vendor.category_names)
-            ? vendor.category_names.join(", ").toLowerCase().includes(lowerSearch)
-            : vendor.category_names?.toLowerCase().includes(lowerSearch))
+      (Array.isArray(vendor.category_names)
+        ? vendor.category_names.join(", ").toLowerCase().includes(lowerSearch)
+        : vendor.category_names?.toLowerCase().includes(lowerSearch))
     );
   });
 
@@ -197,11 +199,19 @@ export default function ApprovedVendors() {
     },
     {
       name: "Categories",
-      selector: (row) => row.category_names.join(", ") || "—",
+      selector: (row) =>
+        Array.isArray(row.category_names)
+          ? row.category_names.join(", ")
+          : row.category_names || "—",
       sortable: false,
     },
+
     { name: "Phone", selector: (row) => row.phone || "—", sortable: true },
-    { name: "Price Range", selector: (row) => row.price_range || "—", sortable: true },
+    {
+      name: "Price Range",
+      selector: (row) => row.price_range || "—",
+      sortable: true,
+    },
     {
       name: "Experience",
       selector: (row) => row.experience_since || "—",
@@ -216,7 +226,7 @@ export default function ApprovedVendors() {
           <div className="add-page-heading-div">
             <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
@@ -224,14 +234,13 @@ export default function ApprovedVendors() {
           </div>
         </div>
         <div className="col-md-6 text-end">
-  {(role !== "3" || permissions.includes("download_excel")) && (
-    <button className="btn btn-success me-2" onClick={exportToExcel}>
-      <i className="fa-solid fa-file-excel me-1"></i>
-      Download Excel
-    </button>
-  )}
-</div>
-
+          {(role !== "3" || permissions.includes("download_excel")) && (
+            <button className="btn btn-success me-2" onClick={exportToExcel}>
+              <i className="fa-solid fa-file-excel me-1"></i>
+              Download Excel
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="card table-padding">
