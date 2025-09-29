@@ -1524,10 +1524,11 @@ exports.getDashboardCounts = async (req, res) => {
     }
 
     const baseWhere = { role_id: 2, approval_status: 1 };
+    const nbaseWhere = { role_id: 2 };
 
 // 1️⃣ Vendors with NO subscription
 const noSubscription = await User.count({
-  where: baseWhere,
+  where: nbaseWhere,
   include: [
     {
       model: VendorPackageSubscription,
