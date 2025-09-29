@@ -930,10 +930,6 @@ export default function Allvendors() {
               paginationPerPage={perPage}
               onChangeRowsPerPage={handlePerRowsChange}
               onChangePage={handlePageChange}
-              paginationComponentOptions={{
-                rowsPerPageText: "Rows per page:",
-                rangeSeparatorText: "of",
-              }}
             />
           </div>
         </div>

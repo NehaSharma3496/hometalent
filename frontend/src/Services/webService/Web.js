@@ -153,9 +153,9 @@ export async function Submitotp(data) {
   }
 }
 
-export async function GetReport(token) {
+export async function GetReport(token, page = 1, limit = 10) {
   try {
-    const response = await axios.get(`${Config.base_url}reports`, {
+    const response = await axios.get(`${Config.base_url}reports?page=${page}&limit=${limit}`, {
       headers: {
         Authorization: `${token}`,
       },

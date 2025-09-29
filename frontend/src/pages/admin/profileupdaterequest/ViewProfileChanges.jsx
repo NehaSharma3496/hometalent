@@ -12,6 +12,7 @@ import {
   GetStates,
   GetCities,
 } from "../../../Services/vendor/Vendor";
+import { image_baseurl } from "../../../Utils/config";
 
 export default function ViewProfileChanges() {
   const { state } = useLocation();
@@ -218,6 +219,50 @@ export default function ViewProfileChanges() {
   //   },
   // ];
 
+  // const columns = [
+  //   {
+  //     name: "Field",
+  //     selector: (row) => row.field,
+  //     sortable: true,
+  //   },
+  //   {
+  //     name: "Current Value",
+  //     selector: (row) => row.oldVal,
+  //     cell: (row) =>
+  //       row.field.toLowerCase().includes("image") ? (
+  //         row.oldVal !== "-" ? (
+  //           <a href={row.oldVal} target="_blank" rel="noopener noreferrer">
+  //             <img
+  //               src={row.oldVal}
+  //               alt="Old"
+  //               style={{ width: "50px", height: "50px", objectFit: "cover" }}
+  //             />
+  //           </a>
+  //         ) : (
+  //           "-"
+  //         )
+  //       ) : (
+  //         row.oldVal
+  //       ),
+  //   },
+  //   {
+  //     name: "Requested Change",
+  //     selector: (row) => row.newVal,
+  //     cell: (row) =>
+  //       row.field.toLowerCase().includes("image") ? (
+  //         <a href={row.newVal} target="_blank" rel="noopener noreferrer">
+  //           <img
+  //             src={row.newVal}
+  //             alt="New"
+  //             style={{ width: "50px", height: "50px", objectFit: "cover" }}
+  //           />
+  //         </a>
+  //       ) : (
+  //         <span className="text-warning fw-bold">{row.newVal}</span>
+  //       ),
+  //   },
+  // ];
+
   const columns = [
     {
       name: "Field",
@@ -230,9 +275,13 @@ export default function ViewProfileChanges() {
       cell: (row) =>
         row.field.toLowerCase().includes("image") ? (
           row.oldVal !== "-" ? (
-            <a href={row.oldVal} target="_blank" rel="noopener noreferrer">
+            <a
+              href={image_baseurl + row.oldVal}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <img
-                src={row.oldVal}
+                src={image_baseurl + row.oldVal}
                 alt="Old"
                 style={{ width: "50px", height: "50px", objectFit: "cover" }}
               />
@@ -249,9 +298,13 @@ export default function ViewProfileChanges() {
       selector: (row) => row.newVal,
       cell: (row) =>
         row.field.toLowerCase().includes("image") ? (
-          <a href={row.newVal} target="_blank" rel="noopener noreferrer">
+          <a
+            href={image_baseurl + row.newVal}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <img
-              src={row.newVal}
+              src={image_baseurl + row.newVal}
               alt="New"
               style={{ width: "50px", height: "50px", objectFit: "cover" }}
             />
@@ -267,9 +320,9 @@ export default function ViewProfileChanges() {
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-             <button
+            <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>

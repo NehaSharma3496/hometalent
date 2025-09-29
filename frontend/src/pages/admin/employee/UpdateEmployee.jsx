@@ -38,7 +38,7 @@ const token=localStorage.getItem("token");
   const fields = [
     {
       name: "profile_name",
-      label: "Profile Name",
+      label: "Name",
       type: "text",
       colClass: "col-md-4 mb-3",
       required: true,

@@ -43,7 +43,7 @@ export default function EmployeeProfile() {
   }
 
   const profileFields = [
-    { label: "Profile Name", value: employee.profile_name, icon: "fas fa-user" },
+    { label: "Name", value: employee.profile_name, icon: "fas fa-user" },
     { label: "Email", value: employee.email, icon: "fas fa-envelope" },
     { label: "Phone", value: employee.phone, icon: "fas fa-phone" },
   ];
@@ -87,7 +87,7 @@ export default function EmployeeProfile() {
           </div>
           <div className="col ms-3">
             <h3 className="mb-1 fs-4 fw-bold">{employee.profile_name}</h3>
-            <span className="badge bg-primary">{employee.profile_name}</span>
+            {/* <span className="badge bg-primary">{employee.profile_name}</span> */}
           </div>
         </div>
 

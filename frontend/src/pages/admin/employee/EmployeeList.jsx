@@ -166,7 +166,7 @@ export default function EmployeeList() {
           v.phone?.toLowerCase().includes(lowerSearch)
         );
       })
-    : employee;
+    : allemployee;
 
   const columns = [
     {
@@ -292,7 +292,7 @@ export default function EmployeeList() {
               columns={columns}
               data={filteredEmployee}
               pagination
-              paginationServer
+              // paginationServer
               paginationTotalRows={totalRows}
               paginationPerPage={perPage}
               onChangeRowsPerPage={handlePerRowsChange}

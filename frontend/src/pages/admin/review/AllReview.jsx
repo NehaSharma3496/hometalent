@@ -1,54 +1,79 @@
 import React, { useState, useEffect } from "react";
-import Swal from "sweetalert2";
-import { Link, useNavigate } from "react-router-dom";
-import Datatable from "react-data-table-component";
+import { useNavigate } from "react-router-dom";
 import {
   ApproveReview,
   UpdateReviewStatus,
   GetAllReview,
 } from "../../../Services/admin/Admin";
+import Datatable from "react-data-table-component";
+import * as XLSX from "xlsx";
+import Swal from "sweetalert2";
 import { Modal, Button } from "react-bootstrap";
+import { GetEmployeePermission } from "../../../Services/admin/Admin";
 
 export default function AllReviews() {
+  const navigate = useNavigate();
+
   const [reviews, setReviews] = useState([]);
+  const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [fullText, setFullText] = useState("");
-  const [currentPage, setCurrentPage] = useState(1); // ✅ current page
-  const [perPage, setPerPage] = useState(10); // ✅ rows per page
-  const [totalRows, setTotalRows] = useState(0); // ✅ total rows
-
-  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+  const [allReview, setAllReview] = useState([]);
   const role = localStorage.getItem("role");
   const login_id = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
+  const [fullText, setFullText] = useState("");
+
+  const [permissions, setPermissions] = useState([]);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      if (role !== "3") return;
+
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      try {
+        const res = await GetEmployeePermission(token, userId);
+        if (res?.status && Array.isArray(res.data)) {
+          setPermissions(res.data.map((p) => p.slug));
+        }
+      } catch (err) {
+        console.error("Error fetching permissions:", err);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
+
+  const fetchReview = async (page, limit) => {
+    setLoading(true);
+    try {
+      const res = await GetAllReview(token, page, limit);
+      if (res?.data && res?.pagination) {
+        setReviews(res.data);
+        setTotalRows(res.pagination.total_records);
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (err) {
+      console.error("Error fetching review:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleReadMore = (text) => {
     setFullText(text);
     setShowModal(true);
   };
 
-  const fetchReviews = async (page = 1, limit = 10) => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const res = await GetAllReview(token, page, limit);
-
-      if (res?.data && res?.pagination) {
-        setReviews(res.data);
-        setTotalRows(res.pagination.total_records);
-      } else {
-        setReviews([]);
-        setTotalRows(0);
-      }
-    } catch (err) {
-      Swal.fire("Error", "Failed to load reviews", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchReviews(currentPage, perPage);
+    fetchReview(currentPage, perPage);
+    fetchAllReview();
   }, [currentPage, perPage]);
 
   const handlePageChange = (page) => {
@@ -77,7 +102,8 @@ export default function AllReviews() {
 
       if (response?.status === true) {
         Swal.fire("Success", "Review status updated", "success");
-        fetchReviews(currentPage, perPage);
+        fetchReview(currentPage, perPage);
+        fetchAllReview();
       } else {
         throw new Error(response.message);
       }
@@ -110,7 +136,8 @@ export default function AllReviews() {
 
       if (res?.status === true) {
         Swal.fire("Success", "Review status updated", "success");
-        fetchReviews(currentPage, perPage);
+        fetchReview(currentPage, perPage);
+        fetchAllReview();
       } else {
         throw new Error(res.message);
       }
@@ -118,6 +145,101 @@ export default function AllReviews() {
       Swal.fire("Error", err.message || "Update failed", "error");
     }
   };
+
+  const fetchAllReview = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      let fullList = [];
+      let page = 1;
+      const limit = 100;
+      let totalPages = 1;
+
+      while (page <= totalPages) {
+        const res = await GetAllReview(token, page, limit);
+        const { data, pagination } = res || {};
+        if (data?.length) fullList = [...fullList, ...data];
+
+        if (pagination) {
+          totalPages = Math.ceil(pagination.total_records / limit);
+        } else {
+          break;
+        }
+
+        page++;
+      }
+
+      setAllReview(fullList);
+    } catch (err) {
+      console.error("Error fetching all review:", err);
+    }
+  };
+
+  const exportToExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      let allReview = [];
+      let page = 1;
+      const limit = 1000000;
+      let totalPages = 1;
+
+      while (page <= totalPages) {
+        const res = await GetAllReview(token, page, limit);
+        const { data, pagination } = res || {};
+
+        if (data?.length) allReview = [...allReview, ...data];
+
+        if (pagination) {
+          totalPages = Math.ceil(pagination.total_records / limit);
+        } else {
+          break;
+        }
+
+        page++;
+      }
+
+      const exportData = allReview?.map((row, index) => {
+        return {
+          "S.No": index + 1,
+          Name: row.name || "N/A",
+          Email: row.email || "N/A",
+          "Phone Number": row.phone || "N/A",
+          Ratings: row.rating || "N/A",
+          "Owner Name": row.User?.owner_name || "N/A",
+          Review: row.message || "N/A",
+          "Approval Status":
+            row.approve_status === 1
+              ? "Approved"
+              : row.approve_status === 0
+              ? "Rejected"
+              : "Pending",
+          "Active Status": row.status === 1 ? "Active" : "Inactive",
+          Date: new Date(row.createdAt).toLocaleDateString() || "N/A",
+        };
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "All Review");
+      XLSX.writeFile(workbook, "All_Review_List.xlsx");
+    } catch (err) {
+      console.error("Error exporting review:", err);
+      Swal.fire("Error", "Failed to export all review", "error");
+    }
+  };
+
+  const filteredReview = searchText
+    ? allReview?.filter((v) => {
+        const lowerSearch = searchText.toLowerCase();
+
+        return (
+          v.User.owner_name?.toLowerCase().includes(lowerSearch) ||
+          v.email?.toLowerCase().includes(lowerSearch) ||
+          v.phone?.toLowerCase().includes(lowerSearch) ||
+          v.name?.toLowerCase().includes(lowerSearch)
+        );
+      })
+    : allReview;
 
   let columns = [
     {
@@ -168,6 +290,7 @@ export default function AllReviews() {
                 textDecoration: "underline",
                 cursor: "pointer",
                 fontWeight: "500",
+                width: "200px",
               }}
               onClick={() => handleReadMore(row.message)}
             >
@@ -178,13 +301,15 @@ export default function AllReviews() {
           row.message
         );
       },
+      width: "250px",
     },
   ];
 
+  // ✅ Only add Approval & Active for non-role 3
   if (role !== "3") {
     columns.push(
       {
-        name: "Approval",
+        name: "Approval Status",
         cell: (row) => {
           if (row.approve_status === 1) {
             return <span className="badge bg-success fs-6">Approved</span>;
@@ -246,55 +371,79 @@ export default function AllReviews() {
   });
 
   return (
-    <div className="page-content">
-      <div className="row align-items-center mb-3">
+    <div className="page-content table-padding ">
+      <div className="row align-items-center mb-3  ">
         <div className="col-md-6">
           <div className="add-page-heading-div">
-            <button
-              className="btn btn-link p-0"
-              onClick={() => navigate(-1)}
-            >
+            <button className="btn btn-link p-0" onClick={() => navigate(-1)}>
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
-            <h2 className="add-page-heading">All Reviews</h2>
+            <h2 className="add-page-heading">All Review</h2>
           </div>
         </div>
-      </div>
-
-      <div className="card">
-        <div className="card-body">
-          <Datatable
-            columns={columns}
-            data={reviews}
-            progressPending={loading}
-            pagination
-            paginationServer
-            paginationTotalRows={totalRows}
-            paginationPerPage={perPage}
-            onChangeRowsPerPage={handlePerRowsChange}
-            onChangePage={handlePageChange}
-          />
+        <div className="col-md-6 text-end">
+          {(role !== "3" || permissions.includes("download_excel")) && (
+            <button className="btn btn-success me-2" onClick={exportToExcel}>
+              <i className="fa-solid fa-file-excel me-1"></i>
+              Download Excel
+            </button>
+          )}
         </div>
-        <Modal show={showModal} onHide={() => setShowModal(false)}>
-          <Modal.Header closeButton>
-            <Modal.Title>Full Message</Modal.Title>
-          </Modal.Header>
-          <Modal.Body
-            style={{
-              maxHeight: "400px",
-              overflowY: "auto",
-              wordWrap: "break-word",
-              whiteSpace: "pre-wrap",
-            }}
-          >
-            {fullText}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
-              Close
-            </Button>
-          </Modal.Footer>
-        </Modal>
+      </div>
+      <div className="card table-padding-inside">
+        <div className="col-md-4">
+          <div className="d-flex align-items-center border rounded px-2">
+            <i className="ri-search-line me-2 text-muted" />
+            <input
+              type="text"
+              className="form-control border-0 shadow-none"
+              placeholder="Search ..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+            {searchText && (
+              <button
+                className="btn btn-sm btn-light border-0"
+                onClick={() => setSearchText("")}
+              >
+                <i className="ri-close-line" />
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-md-12">
+            <Datatable
+              columns={columns}
+              data={filteredReview}
+              pagination
+              paginationTotalRows={totalRows}
+              paginationPerPage={perPage}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
+            />
+          </div>
+          <Modal show={showModal} onHide={() => setShowModal(false)}>
+            <Modal.Header closeButton>
+              <Modal.Title>Full Message</Modal.Title>
+            </Modal.Header>
+            <Modal.Body
+              style={{
+                maxHeight: "400px",
+                overflowY: "auto",
+                wordWrap: "break-word",
+                whiteSpace: "pre-wrap",
+              }}
+            >
+              {fullText}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowModal(false)}>
+                Close
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        </div>
       </div>
     </div>
   );

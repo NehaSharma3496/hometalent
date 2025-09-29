@@ -8,6 +8,8 @@ export default function CategoryList() {
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     fetchCategories();
@@ -27,7 +29,7 @@ export default function CategoryList() {
   const categoryColumns = [
     {
       name: "S.No",
-      selector: (row, index) => index + 1,
+      selector: (row, index) => (currentPage - 1) * rowsPerPage + index + 1,
       sortable: false,
     },
     { name: "Category Name", selector: (row) => row.name, sortable: true },
@@ -57,7 +59,7 @@ export default function CategoryList() {
           <div className="add-page-heading-div d-flex align-items-center">
             <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
@@ -69,7 +71,15 @@ export default function CategoryList() {
       <div className="card table-padding">
         <div className="row">
           <div className="col-md-12">
-            <DataTable columns={categoryColumns} data={categories} pagination />
+            <DataTable
+              columns={categoryColumns}
+              data={categories}
+              pagination
+              // paginationServer
+              paginationTotalRows={categories.length}
+              onChangePage={(page) => setCurrentPage(page)}
+              onChangeRowsPerPage={(newPerPage) => setRowsPerPage(newPerPage)}
+            />
           </div>
         </div>
       </div>

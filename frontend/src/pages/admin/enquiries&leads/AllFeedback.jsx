@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { GetAllFeedBack,GetEmployeePermission } from "../../../Services/admin/Admin";
-import { Link,useNavigate } from "react-router-dom";
+import {
+  GetAllFeedBack,
+  GetEmployeePermission,
+} from "../../../Services/admin/Admin";
+import { Link, useNavigate } from "react-router-dom";
 import Datatable from "react-data-table-component";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 import { Modal, Button } from "react-bootstrap";
-
 
 export default function AllFeedback() {
   const [feedback, setFeedback] = useState([]);
@@ -50,7 +52,6 @@ export default function AllFeedback() {
     setFullText(text);
     setShowModal(true);
   };
-
 
   const fetchAllFeedback = async (page, limit) => {
     setLoading(true);
@@ -154,13 +155,13 @@ export default function AllFeedback() {
 
   const filteredFeedback = searchText
     ? allFeedback.filter((entry) => {
-      const lowerSearch = searchText.toLowerCase();
-      return (
-        entry.name?.toLowerCase().includes(lowerSearch) ||
-        entry.email?.toLowerCase().includes(lowerSearch) ||
-        entry.phone?.toLowerCase().includes(lowerSearch)
-      );
-    })
+        const lowerSearch = searchText.toLowerCase();
+        return (
+          entry.name?.toLowerCase().includes(lowerSearch) ||
+          entry.email?.toLowerCase().includes(lowerSearch) ||
+          entry.phone?.toLowerCase().includes(lowerSearch)
+        );
+      })
     : allFeedback;
 
   useEffect(() => {
@@ -188,14 +189,12 @@ export default function AllFeedback() {
       selector: (row) => row?.name || "—",
       sortable: true,
       width: "150px",
-
     },
     {
       name: "Email",
       selector: (row) => row?.email || "—",
       sortable: true,
       width: "300px",
-
     },
     {
       name: "Phone",
@@ -207,13 +206,13 @@ export default function AllFeedback() {
       sortable: true,
       cell: (row) => {
         if (!row?.message) return "—";
-    
+
         const maxLength = 50;
         const shortText =
           row.message.length > maxLength
             ? row.message.substring(0, maxLength) + "..."
             : row.message;
-    
+
         return (
           <div>
             {row.message.length > maxLength ? (
@@ -240,8 +239,7 @@ export default function AllFeedback() {
         );
       },
     },
-    
-    
+
     {
       name: "Date",
       selector: (row) => {
@@ -260,28 +258,25 @@ export default function AllFeedback() {
       <div className="row align-items-center mb-3">
         <div className="col-md-12 d-flex justify-content-between align-items-center flex-wrap">
           <div className="add-page-heading-div d-flex align-items-center mb-2 mb-md-0">
-      <button
+            <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)}  // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
             <h2 className="add-page-heading ">All Feedback</h2>
           </div>
 
-        <div className="col-md-6 text-end">
-  {(role !== "3" || permissions.includes("download_excel")) && (
-    <button className="btn btn-success me-2" onClick={exportToExcel}>
-      <i className="fa-solid fa-file-excel me-1"></i>
-      Download Excel
-    </button>
-  )}
-</div>
-
+          <div className="col-md-6 text-end">
+            {(role !== "3" || permissions.includes("download_excel")) && (
+              <button className="btn btn-success me-2" onClick={exportToExcel}>
+                <i className="fa-solid fa-file-excel me-1"></i>
+                Download Excel
+              </button>
+            )}
+          </div>
         </div>
       </div>
-
-
 
       <div className="card table-padding">
         <div
@@ -312,7 +307,6 @@ export default function AllFeedback() {
               data={filteredFeedback}
               progressPending={loading}
               pagination
-              paginationServer
               paginationTotalRows={totalRows}
               paginationPerPage={perPage}
               onChangeRowsPerPage={handlePerRowsChange}
@@ -323,12 +317,13 @@ export default function AllFeedback() {
             <Modal.Header closeButton>
               <Modal.Title>Full Message</Modal.Title>
             </Modal.Header>
-            <Modal.Body style={{
-              maxHeight: "400px", 
-              overflowY: "auto",
-              wordWrap: "break-word",
-              whiteSpace: "pre-wrap" 
-            }}
+            <Modal.Body
+              style={{
+                maxHeight: "400px",
+                overflowY: "auto",
+                wordWrap: "break-word",
+                whiteSpace: "pre-wrap",
+              }}
             >
               {fullText}
             </Modal.Body>
@@ -338,7 +333,6 @@ export default function AllFeedback() {
               </Button>
             </Modal.Footer>
           </Modal>
-
         </div>
       </div>
     </div>

@@ -37390,3 +37390,12 @@ input[type="date"]:focus {
 
 }
 
+.modal-content {
+
+max-height: 80vh; 
+
+overflow-y: auto; 
+
+margin-top: 15vh;
+
+}
