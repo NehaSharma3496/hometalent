@@ -346,11 +346,13 @@ export const MenuItems = {
           icon: "fa-solid fa-list",
           label: "All Leads",
           link: "/admin/enquiries/allleads",
+          permission: "enquiries_leads",
         },
         {
           icon: "fa-solid fa-envelope-open-text",
           label: "All Enquiries",
           link: "/admin/enquiries/AllEnquiries",
+          permission: "enquiries_leads",
         },
         {
           icon: "fa-solid fa-comment-dots",
@@ -388,11 +390,13 @@ export const MenuItems = {
           icon: "fa-solid fa-star-half-stroke",
           label: "All Review",
           link: "/admin/review/allreview",
+          permission: "report_rating",
         },
         {
           icon: "fa-solid fa-star-half-stroke",
           label: "All Report",
           link: "/admin/review/allreport",
+          permission: "report_rating",
         },
       ],
     },
