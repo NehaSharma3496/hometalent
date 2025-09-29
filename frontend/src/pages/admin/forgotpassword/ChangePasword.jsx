@@ -72,7 +72,7 @@ const ChangePassword = () => {
         Swal.fire({
           icon: "error",
           title: "Oops...",
-          text: error?.data?.message || "Server error",
+          text: error?.message || "Server error",
           confirmButtonText: "OK",
         });
       }

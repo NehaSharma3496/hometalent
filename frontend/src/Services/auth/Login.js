@@ -91,7 +91,7 @@ export async function ChangePasswords(token, data) {
         },
       }
     );
-    return response?.data;
+    return response;
   } catch (error) {
     return error;
   }
