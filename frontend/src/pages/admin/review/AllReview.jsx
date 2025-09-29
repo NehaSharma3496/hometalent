@@ -14,21 +14,32 @@ export default function AllReviews() {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [fullText, setFullText] = useState("");
+  const [currentPage, setCurrentPage] = useState(1); // ✅ current page
+  const [perPage, setPerPage] = useState(10); // ✅ rows per page
+  const [totalRows, setTotalRows] = useState(0); // ✅ total rows
+
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
-
   const login_id = localStorage.getItem("userId");
+
   const handleReadMore = (text) => {
     setFullText(text);
     setShowModal(true);
   };
 
-  const fetchReviews = async () => {
+  const fetchReviews = async (page = 1, limit = 10) => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await GetAllReview(token, 1, 100);
-      setReviews(res?.data || []);
+      const res = await GetAllReview(token, page, limit);
+
+      if (res?.data && res?.pagination) {
+        setReviews(res.data);
+        setTotalRows(res.pagination.total_records);
+      } else {
+        setReviews([]);
+        setTotalRows(0);
+      }
     } catch (err) {
       Swal.fire("Error", "Failed to load reviews", "error");
     } finally {
@@ -37,8 +48,17 @@ export default function AllReviews() {
   };
 
   useEffect(() => {
-    fetchReviews();
-  }, []);
+    fetchReviews(currentPage, perPage);
+  }, [currentPage, perPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
 
   const handleApprove = async (reviewId, action) => {
     try {
@@ -57,7 +77,7 @@ export default function AllReviews() {
 
       if (response?.status === true) {
         Swal.fire("Success", "Review status updated", "success");
-        fetchReviews();
+        fetchReviews(currentPage, perPage);
       } else {
         throw new Error(response.message);
       }
@@ -90,7 +110,7 @@ export default function AllReviews() {
 
       if (res?.status === true) {
         Swal.fire("Success", "Review status updated", "success");
-        fetchReviews();
+        fetchReviews(currentPage, perPage);
       } else {
         throw new Error(res.message);
       }
@@ -102,7 +122,7 @@ export default function AllReviews() {
   let columns = [
     {
       name: "S.No",
-      selector: (row, index) => index + 1,
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "60px",
     },
     {
@@ -161,7 +181,6 @@ export default function AllReviews() {
     },
   ];
 
-  // ✅ Only add Approval & Active for non-role 3
   if (role !== "3") {
     columns.push(
       {
@@ -233,7 +252,7 @@ export default function AllReviews() {
           <div className="add-page-heading-div">
             <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)}
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
@@ -249,6 +268,11 @@ export default function AllReviews() {
             data={reviews}
             progressPending={loading}
             pagination
+            paginationServer
+            paginationTotalRows={totalRows}
+            paginationPerPage={perPage}
+            onChangeRowsPerPage={handlePerRowsChange}
+            onChangePage={handlePageChange}
           />
         </div>
         <Modal show={showModal} onHide={() => setShowModal(false)}>

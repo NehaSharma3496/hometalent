@@ -196,6 +196,15 @@ export default function Allvendors() {
     fetchAllVendors();
   }, [currentPage, perPage]);
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+  };
+
   const openAssignPackage = async (vendorId) => {
     try {
       const token = localStorage.getItem("token");
@@ -289,10 +298,6 @@ export default function Allvendors() {
         zIndex: 9999, // 👈 Swal modal ke upar rahe
       });
     }
-  };
-
-  const handlePerRowsChange = (newPerPage) => {
-    setPerPage(newPerPage);
   };
 
   const fetchVendorPackageHistory = async (vendorId) => {
@@ -532,7 +537,7 @@ export default function Allvendors() {
   const columns = [
     {
       name: "S.No",
-      selector: (row, index) => index + 1,
+      selector: (row, index) => (currentPage - 1) * perPage + index + 1,
       width: "50px",
     },
     {
@@ -921,9 +926,10 @@ export default function Allvendors() {
               data={filteredVendors}
               progressPending={loading}
               pagination
+              paginationTotalRows={totalRows}
               paginationPerPage={perPage}
-              paginationRowsPerPageOptions={[10, 25, 50, 100]}
               onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
               paginationComponentOptions={{
                 rowsPerPageText: "Rows per page:",
                 rangeSeparatorText: "of",
