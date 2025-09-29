@@ -577,7 +577,6 @@ export async function AddAdminBlog(token, data) {
 
     return response?.data;
   } catch (error) {
-    console.error("Error update package:", error);
     return error;
   }
 }

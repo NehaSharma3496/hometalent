@@ -50,6 +50,7 @@ export default function AddBlog() {
 
    try {
   const response = await AddAdminBlog(token, formData);
+  console.log("Add Blog",response);
   if (response && response.status === true) {
     Swal.fire(
       "Success",
@@ -58,10 +59,9 @@ export default function AddBlog() {
     );
     navigate("/admin/blog/allblogs");
   } else {
-    Swal.fire("Failed", response?.msg || "Something went wrong", "error");
+    Swal.fire("Failed", response?.data?.msg || "Something went wrong", "error");
   }
 } catch (error) {
-  console.error(error);
   Swal.fire(
     "Error",
     error?.response?.data?.msg || "Server error",
