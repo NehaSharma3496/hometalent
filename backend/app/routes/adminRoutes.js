@@ -84,6 +84,8 @@ router.post('/sendotp', adminController.sendotp);
 router.get('/insertcategoryimages', adminController.insertcategoryimages);
 router.get('/getVendorsByPackageStatus', adminController.getVendorsByPackageStatus);
 router.get('/settings', adminController.settings);
+router.get('/vendors/approved', adminController.listapprovedVendors);
+
 
 
 module.exports = router;
