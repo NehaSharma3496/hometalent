@@ -1152,7 +1152,7 @@ exports.assignPackageToVendor = async (req, res) => {
         metadata: { subscription_id: subscription.id, package_id }
       });
       
-      if(loginuser.role_id == 2){
+      if(loginuser.role_id == 1){
         await Notification.create({
           user_id: null,
           user_type: 'admin',
