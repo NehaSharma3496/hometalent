@@ -187,13 +187,15 @@ export default function Allvendors() {
       setAssignVendorId(vendorId);
       setSelectedPkgId(null);
 
-      // Fetch package history and mark active/inactive for modal
+      // Fetch package history and mark active/expired for modal
       const historyRes = await getVendorPackageHistory(token, vendorId);
       let statusObj = {};
+
       if (historyRes.status && historyRes.data.length > 0) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
+        // Check ALL packages and determine if ANY instance is active or expired
         historyRes.data.forEach((pkg) => {
           if (pkg.payment_status === "completed") {
             const startDate = new Date(pkg.start_date);
@@ -203,12 +205,21 @@ export default function Allvendors() {
             endDate.setHours(0, 0, 0, 0);
 
             const isActive = today >= startDate && today <= endDate;
-            statusObj[pkg.package_id] = isActive ? "Active" : "-";
+            const isExpired = today > endDate;
+
+            // Priority: Active > Expired
+            // If already Active, keep it Active
+            // If not Active yet, check if Expired
+            if (isActive) {
+              statusObj[pkg.package_id] = "Active";
+            } else if (isExpired && statusObj[pkg.package_id] !== "Active") {
+              statusObj[pkg.package_id] = "Expired";
+            }
           }
         });
       }
-      setVendorPackageStatus(statusObj);
 
+      setVendorPackageStatus(statusObj);
       setPkgModalOpen(true);
     } catch (e) {
       Swal.fire({
@@ -298,12 +309,12 @@ export default function Allvendors() {
   useEffect(() => {
     const loadAllHistories = async () => {
       if (!allVendors?.length) return;
-      
+
       setHistoryLoaded(false);
-      const historyPromises = allVendors.map(vendor => 
+      const historyPromises = allVendors.map((vendor) =>
         fetchVendorPackageHistory(vendor.id)
       );
-      
+
       await Promise.all(historyPromises);
       setHistoryLoaded(true);
     };
@@ -519,6 +530,20 @@ export default function Allvendors() {
       await Swal.fire("Error", "Failed to update status.", "error");
     }
   };
+
+  useEffect(() => {
+    const html = document.documentElement;
+
+    if (pkgModalOpen) {
+      html.style.overflow = "hidden";
+    } else {
+      html.style.overflow = "auto";
+    }
+
+    return () => {
+      html.style.overflow = "auto";
+    };
+  }, [pkgModalOpen]);
 
   const columns = [
     {
@@ -955,11 +980,14 @@ export default function Allvendors() {
                               : "N/A"}
                           </div>
                         </div>
+
+                        {/* yahan status show hoga */}
                         <div>
                           {vendorPackageStatus[p.id] === "Active" && (
-                            <span className="badge bg-success">
-                              {vendorPackageStatus[p.id]}
-                            </span>
+                            <span className="badge bg-success">Active</span>
+                          )}
+                          {vendorPackageStatus[p.id] === "Expired" && (
+                            <span className="badge bg-danger">Expired</span>
                           )}
                         </div>
                       </label>

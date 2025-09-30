@@ -24,7 +24,7 @@ export default function ExpiredVendors() {
   const [pkgOptions, setPkgOptions] = useState([]);
   const [selectedPkgId, setSelectedPkgId] = useState(null);
   const [assignVendorId, setAssignVendorId] = useState(null);
-  const [vendorPackageHistory, setVendorPackageHistory] = useState({});
+  const [vendorPackageStatus, setVendorPackageStatus] = useState({});
 
   const token = localStorage.getItem("token");
   const login_id = localStorage.getItem("userId");
@@ -66,25 +66,6 @@ export default function ExpiredVendors() {
       const { data, count } = res || {};
       setVendors(data || []);
       setTotalRows(count || 0);
-
-      // Fetch package histories for these vendors
-      for (let vendor of data || []) {
-        const historyRes = await getVendorPackageHistory(token, vendor.id);
-        const historyObj = {};
-        (historyRes.data || []).forEach((pkg) => {
-          const now = new Date();
-          const start = new Date(pkg.start_date);
-          const end = new Date(pkg.end_date);
-          historyObj[pkg.package_id] =
-            pkg.payment_status === "completed" && now >= start && now <= end
-              ? "Active"
-              : "-";
-        });
-        setVendorPackageHistory((prev) => ({
-          ...prev,
-          [vendor.id]: historyObj,
-        }));
-      }
     } catch (err) {
       console.error("Error fetching vendors:", err);
     } finally {
@@ -110,6 +91,20 @@ export default function ExpiredVendors() {
     setPerPage(newPerPage);
     setCurrentPage(1);
   };
+
+  useEffect(() => {
+    const html = document.documentElement;
+
+    if (pkgModalOpen) {
+      html.style.overflow = "hidden";
+    } else {
+      html.style.overflow = "auto";
+    }
+
+    return () => {
+      html.style.overflow = "auto";
+    };
+  }, [pkgModalOpen]);
 
   // Export to Excel
   const exportToExcel = () => {
@@ -137,7 +132,7 @@ export default function ExpiredVendors() {
     }
   };
 
-  // Open Assign Package Modal
+  // Open Assign Package Modal - FIXED VERSION
   const openAssignPackage = async (vendorId) => {
     try {
       const res = await showPackage(token, 1, 100);
@@ -147,6 +142,40 @@ export default function ExpiredVendors() {
       setPkgOptions(activePkgs);
       setAssignVendorId(vendorId);
       setSelectedPkgId(null);
+
+      // Fetch package history and mark active/expired for modal
+      const historyRes = await getVendorPackageHistory(token, vendorId);
+      let statusObj = {};
+      
+      if (historyRes.status && historyRes.data.length > 0) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Check ALL packages and determine if ANY instance is active or expired
+        historyRes.data.forEach((pkg) => {
+          if (pkg.payment_status === "completed") {
+            const startDate = new Date(pkg.start_date);
+            startDate.setHours(0, 0, 0, 0);
+
+            const endDate = new Date(pkg.end_date);
+            endDate.setHours(0, 0, 0, 0);
+
+            const isActive = today >= startDate && today <= endDate;
+            const isExpired = today > endDate;
+
+            // Priority: Active > Expired
+            // If already Active, keep it Active
+            // If not Active yet, check if Expired
+            if (isActive) {
+              statusObj[pkg.package_id] = "Active";
+            } else if (isExpired && statusObj[pkg.package_id] !== "Active") {
+              statusObj[pkg.package_id] = "Expired";
+            }
+          }
+        });
+      }
+      
+      setVendorPackageStatus(statusObj);
       setPkgModalOpen(true);
     } catch (err) {
       Swal.fire("Error", "Failed to load packages", "error");
@@ -167,8 +196,8 @@ export default function ExpiredVendors() {
       );
       if (res?.status) {
         await Swal.fire("Success", res.msg || "Package assigned", "success");
-        setPkgModalOpen(false); // Close modal after success
-        fetchVendors(currentPage, perPage); // Refresh vendor list
+        setPkgModalOpen(false);
+        fetchVendors(currentPage, perPage);
       } else {
         Swal.fire("Error", res?.msg || "Unable to assign package", "error");
       }
@@ -217,7 +246,6 @@ export default function ExpiredVendors() {
     },
     { name: "City", selector: (row) => row.City?.name || "—", sortable: true },
 
-    // ✅ Conditional Assign Package column
     ...(role !== "3" || permissions.includes("allot_package_extension")
       ? [
           {
@@ -244,7 +272,7 @@ export default function ExpiredVendors() {
           <div className="add-page-heading-div">
             <button
               className="btn btn-link p-0"
-              onClick={() => navigate(-1)} // 🔹 पिछली history में वापस जाएगा
+              onClick={() => navigate(-1)}
             >
               <i className="fa-sharp fa-regular fa-arrow-left"></i>
             </button>
@@ -324,7 +352,7 @@ export default function ExpiredVendors() {
                     {pkgOptions?.map((p) => (
                       <label
                         key={p.id}
-                        className="list-group-item d-flex justify-content-between align-items-center"
+                        className="list-group-item d-flex justify-content-between align-items-center fs-6"
                       >
                         <div>
                           <input
@@ -334,8 +362,8 @@ export default function ExpiredVendors() {
                             checked={selectedPkgId === p.id}
                             onChange={() => setSelectedPkgId(p.id)}
                           />
-                          <span className="fw-semibold">{p.name}</span>
-                          <div className="small text-muted">
+                          <span className="fw-semibold fs-6">{p.name}</span>
+                          <div className="small text-muted fs-6">
                             ₹{p.price} •{" "}
                             {p.validity_in_months && p.validity_in_months > 0
                               ? `${p.validity_in_months} months`
@@ -345,18 +373,15 @@ export default function ExpiredVendors() {
                           </div>
                         </div>
 
-                        {/* <div>
-                          <span
-                            className={`badge ${
-                              vendorPackageHistory[assignVendorId]?.[p.id] ===
-                              "Active"
-                                ? "bg-success"
-                                : "bg-secondary"
-                            }`}
-                          >
-                            {vendorPackageHistory[assignVendorId]?.[p.id] || ""}
-                          </span>
-                        </div> */}
+                        {/* Package status display */}
+                        <div>
+                          {vendorPackageStatus[p.id] === "Active" && (
+                            <span className="badge bg-success">Active</span>
+                          )}
+                          {vendorPackageStatus[p.id] === "Expired" && (
+                            <span className="badge bg-danger">Expired</span>
+                          )}
+                        </div>
                       </label>
                     ))}
                   </div>

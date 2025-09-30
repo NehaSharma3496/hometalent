@@ -74,6 +74,28 @@ export default function UnsubscribedVendors() {
   };
 
   useEffect(() => {
+
+const html = document.documentElement;
+
+if (pkgModalOpen) {
+
+html.style.overflow = "hidden";
+
+} else {
+
+html.style.overflow = "auto";
+
+}
+
+return () => {
+
+html.style.overflow = "auto";
+
+};
+
+}, [pkgModalOpen]);
+
+  useEffect(() => {
     fetchVendors(currentPage, perPage);
   }, [currentPage, perPage]);
 
