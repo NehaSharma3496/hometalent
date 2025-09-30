@@ -74,26 +74,18 @@ export default function UnsubscribedVendors() {
   };
 
   useEffect(() => {
+    const html = document.documentElement;
 
-const html = document.documentElement;
+    if (pkgModalOpen) {
+      html.style.overflow = "hidden";
+    } else {
+      html.style.overflow = "auto";
+    }
 
-if (pkgModalOpen) {
-
-html.style.overflow = "hidden";
-
-} else {
-
-html.style.overflow = "auto";
-
-}
-
-return () => {
-
-html.style.overflow = "auto";
-
-};
-
-}, [pkgModalOpen]);
+    return () => {
+      html.style.overflow = "auto";
+    };
+  }, [pkgModalOpen]);
 
   useEffect(() => {
     fetchVendors(currentPage, perPage);
@@ -245,9 +237,12 @@ html.style.overflow = "auto";
           </div>
         </div>
         <div className="col-md-6 text-end">
-          <button className="btn btn-success me-2" onClick={exportToExcel}>
-            <i className="fa-solid fa-file-excel me-1"></i>Download Excel
-          </button>
+          {(role !== "3" || permissions.includes("download_excel")) && (
+            <button className="btn btn-success me-2" onClick={exportToExcel}>
+              <i className="fa-solid fa-file-excel me-1"></i>
+              Download Excel
+            </button>
+          )}
         </div>
       </div>
 
