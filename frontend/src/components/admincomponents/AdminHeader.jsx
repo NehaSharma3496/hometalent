@@ -147,6 +147,9 @@ export default function AdminHeader() {
   const displayedNotifications =
     notifications.length > 0 ? notifications : storedNotifications;
 
+  // ✅ Latest notifications ko upar dikhane ke liye reverse karo
+  const sortedNotifications = [...displayedNotifications].reverse();
+
   // --- close sidebar when clicking a link on mobile ---
   useEffect(() => {
     if (window.innerWidth > 1024) return;
@@ -289,12 +292,12 @@ export default function AdminHeader() {
                           className="card-body p-2"
                           style={{ maxHeight: "300px", overflowY: "auto" }}
                         >
-                          {displayedNotifications.length === 0 ? (
+                          {sortedNotifications.length === 0 ? (
                             <p className="text-center text-muted m-0">
                               No notifications
                             </p>
                           ) : (
-                            displayedNotifications.map((notification) => (
+                            sortedNotifications.map((notification) => (
                               <div
                                 key={notification.id}
                                 className={`p-2 mb-1 rounded ${
