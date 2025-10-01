@@ -43,7 +43,7 @@ const Footer = () => {
                         </a>
                       </li>
                       <li className="single-lsit">
-                        <a href="mailto:info@hometalent4u.com">
+                        <a href="mailto:contact@hometalent4u.in">
                           <div className="d-flex gap-12 align-items-center">
                             <img
                               src="../assets/images/footer/email.png"

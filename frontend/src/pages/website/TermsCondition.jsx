@@ -315,7 +315,7 @@ const TermsCondition = () => {
                   Indore, Madhya Pradesh, India
                   <br />
                   Email:{" "}
-                  <a href="mailto:support@hometalent4u.in">
+                  <a href="mailto:contact@hometalent4u.in">
                     contact@hometalent4u.in
                   </a>
                 </p>
