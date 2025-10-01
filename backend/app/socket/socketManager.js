@@ -219,12 +219,12 @@ class SocketManager {
     // Notify admins
     if(role_id == 1){
       this.notifyAdmins('plan_subscribed', {
-      message: `New Subscription:${planName} plan subscribed by Vendor(${vendorName}).`,
-      subscription: subscriptionData
-    });
+       message: `New Subscription:${planName} plan subscribed by Vendor(${vendorName}).`,
+       subscription: subscriptionData
+      });
     }else{
       this.notifyAdmins('plan_subscribed', {
-        message: `New Subscription:${planName} assigned to Vendor(${vendorName}) by (${empname}).`,
+        message: `New Subscription:${planName} assigned by (${empname}) to Vendor(${planName}).`,
         subscription: subscriptionData
       });
     }
@@ -299,7 +299,6 @@ class SocketManager {
   }
 
   vendorPackageExtended(vendorId, role_id, vendorname, empname, packageData) {
-
     if(role_id == 3){
       this.notifyAdmins("plan_extend", {
       message: `${empname} has successfully extended the plan ${packageData.package_name} for the vendor ${vendorname}`,

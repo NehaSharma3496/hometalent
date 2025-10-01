@@ -12,7 +12,7 @@ const mediaFilter = (req, file, cb) => {
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error("Only image and video files are allowed."), false);
+    cb(new Error("Only image and video files are allowed."), false); 
   }
 };
 
