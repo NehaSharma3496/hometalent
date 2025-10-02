@@ -6288,9 +6288,9 @@ div#searchs ul li:not(:last-child) {
 }
 
 .news-content .title {
-    min-height: 48px;
+    min-height: 58px;
     /* height to keep titles aligned */
-    max-height: 48px;
+    max-height: 58px;
     overflow: hidden;
     text-overflow: ellipsis;
 }

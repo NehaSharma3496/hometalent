@@ -72,8 +72,10 @@ const BlogDetail = () => {
                   style={{
                     width: "100%",
                     height: "400px", // fixed height
-                    objectFit: "cover", // crop karega maintain karte hue
+                    objectFit: "contain", // crop karega maintain karte hue
                     borderRadius: "8px",
+                    backgroundColor: "#e9e4e4ff",
+                  
                   }}
                 />
               </div>

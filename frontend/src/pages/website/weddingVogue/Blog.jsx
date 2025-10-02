@@ -38,13 +38,20 @@ const Blog = () => {
           <div className="row g-4">
             {blog?.length > 0 ? (
               blog.map((item, index) => (
-                <div key={index} className="col-xl-4 col-lg-4 col-sm-6 mb-4">
+                <div key={index} className="col-xl-4 col-lg-4 col-sm-6 mb-4 ">
                   <article className="news-card-two">
                     <figure className="news-banner-two imgEffect">
                       <Link to={`/blogdetail/${item.id}`}>
                         <img
                           src={`${image_baseurl}${item.image}`}
                           alt={item?.title || "Blog"}
+                          style={{
+                            width: "100%",
+                            height: "250px",  
+                            objectFit: "contain",
+                            borderRadius: "8px",
+                            backgroundColor: "#e9e4e4ff",
+                          }}
                         />
                       </Link>
                     </figure>
