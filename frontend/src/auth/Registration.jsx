@@ -83,8 +83,8 @@ const Registration = () => {
       .required("Owner Name is required"),
 
     profileName: Yup.string().matches(
-      /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
-      "Only alphabets are allowed"
+      /^(?!.*  )(?!^\s)(?!.*\s$).+$/,
+      "Only spaces are not allowed"
     ),
 
     state: Yup.string().required("State is required"),
@@ -277,8 +277,9 @@ const Registration = () => {
       <div className="input-group mb-2">
         <input
           type="text"
-          className={`form-control contact-input ${touched.phone && errors.phone ? "is-invalid" : ""
-            }`}
+          className={`form-control contact-input ${
+            touched.phone && errors.phone ? "is-invalid" : ""
+          }`}
           value={values.phone || ""}
           onChange={(e) =>
             handlePhoneInput(e, setFieldValue, setFieldTouched, touched)
@@ -322,10 +323,10 @@ const Registration = () => {
                 {phoneVerificationState.loading
                   ? "Sending..."
                   : !isOtpSent
-                    ? "Send OTP"
-                    : otpTimer > 0
-                      ? `Resend OTP in ${otpTimer}s`
-                      : "Resend OTP"}
+                  ? "Send OTP"
+                  : otpTimer > 0
+                  ? `Resend OTP in ${otpTimer}s`
+                  : "Resend OTP"}
               </button>
             </>
           )}
@@ -507,7 +508,8 @@ const Registration = () => {
       name: "image",
       label: (
         <>
-         Profile Image{" "}<i
+          Profile Image{" "}
+          <i
             className="ri-eye-fill"
             style={{
               marginLeft: "8px",
@@ -534,27 +536,22 @@ const Registration = () => {
                 confirmButtonText: "Got it!",
                 width: 400,
                 customClass: {
-                  popup: "custom-swal-popup"
+                  popup: "custom-swal-popup",
                 },
                 didOpen: () => {
-                 
                   document.documentElement.style.overflow = "hidden";
                   document.body.style.overflow = "hidden";
                 },
                 willClose: () => {
-                  
                   document.documentElement.style.overflow = "";
                   document.body.style.overflow = "";
-                }
+                },
               })
-
-
             }
           ></i>
           <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
             (Image size should be 736x400 for better experience)
           </span>
-
         </>
       ),
       type: "file",

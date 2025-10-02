@@ -26,19 +26,19 @@ const Blog = () => {
 
   const breadcrumbLinks = [
     { label: "Home", to: "/" },
-    { label: "Blog", to: "#" },
+    { label: "Blogs", to: "#" },
   ];
 
   return (
     <div>
       {/* {loading} */}
-      <Breadcrumbs title="Blog" links={breadcrumbLinks} />
+      <Breadcrumbs title="Blogs" links={breadcrumbLinks} />
       <section className="news-area top-bottom-padding2 fix-section">
         <div className="container ">
           <div className="row g-4">
             {blog?.length > 0 ? (
               blog.map((item, index) => (
-                <div key={index} className="col-xl-4 col-lg-4 col-sm-6">
+                <div key={index} className="col-xl-4 col-lg-4 col-sm-6 mb-4">
                   <article className="news-card-two">
                     <figure className="news-banner-two imgEffect">
                       <Link to={`/blogdetail/${item.id}`}>

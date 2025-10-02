@@ -416,7 +416,7 @@ const Home = () => {
                 <div className="hero-caption-one  bg-white radius-10 p-30">
                   <h4 className="blue-title pb-4">Why HomeTalent4u?</h4>
                   <p className="pera mb-1">
-                    HomeTalent4U is a digital Platform dedicated to supporting
+                    HomeTalent4u is a digital Platform dedicated to supporting
                     homegrown talent. Whether you make artisanal crafts, bake
                     delicious treats, offer tutoring, or provide any service
                     from home, we give you the tools and exposure you need to
@@ -574,9 +574,9 @@ const Home = () => {
             <div className="row justify-content-center">
               <div className="col-xl-7 col-lg-7">
                 <div className="section-title text-center mx-605 mx-auto position-relative mb-60">
-                  <h4 className="blue-title pb-2 mt-4">Blog & HomeTalent4U</h4>
+                  <h4 className="blue-title pb-2 mt-4">Blogs & HomeTalent4u</h4>
                   <span className="highlights">
-                    At HomeTalent4U, we share tips, stories, and insights to
+                    At HomeTalent4u, we share tips, stories, and insights to
                     help you grow your creativity into success.
                   </span>
                 </div>
@@ -620,7 +620,7 @@ const Home = () => {
                           </div>
                           <span className="px-5">|</span>
                           <div className="category-name">
-                            <span className=" text-primary">HomeTalent4U</span>
+                            <span className=" text-primary">HomeTalent4u</span>
                           </div>
                         </div>
                         <h4 className="title mb-2">

@@ -22,7 +22,7 @@ const About = () => {
               <div className="section-title ">
                 <h4 className="title mb-3">Our Story</h4>
                 <span className="highlights">
-                  HomeTalent4U was born from a simple belief: everyone deserves
+                  HomeTalent4u was born from a simple belief: everyone deserves
                   a platform to showcase their skills and creativity, no matter
                   where they work from. We noticed that countless talented
                   individuals were crafting unique products or offering valuable
@@ -46,7 +46,7 @@ const About = () => {
                 <div>
                   <h6 className="title fs-4">What We Do </h6>
                   <p className="pera ">
-                    HomeTalent4U is a digital Platform dedicated to supporting
+                    HomeTalent4u is a digital Platform dedicated to supporting
                     homegrown talent. Whether you make artisanal crafts, bake
                     delicious treats, offer tutoring, or provide any service
                     from home, we give you the tools and exposure you need to
@@ -164,7 +164,7 @@ const About = () => {
 
               <div class="news-details-quote mt-0">
                 <h4 class="title">Ready to discover something unique or share your talent with the world?</h4>
-                <button onClick={() => navigate("/registration")} class="btn-primary">Join HomeTalent4U Today</button>
+                <button onClick={() => navigate("/registration")} class="btn-primary">Join HomeTalent4u Today</button>
               </div>
             </div>
           </div>
@@ -179,7 +179,7 @@ const About = () => {
                   <h4 className="blue-title pb-4">Join Us
                   </h4>
                   <p className="pera mb-1">
-                    Whether you’re a maker, a service provider, or a supporter of local talent, HomeTalent4U invites you to be part of our growing community. Explore, connect, and help us celebrate the incredible skills found in homes across the country.
+                    Whether you’re a maker, a service provider, or a supporter of local talent, HomeTalent4u invites you to be part of our growing community. Explore, connect, and help us celebrate the incredible skills found in homes across the country.
 
                   </p>
 

@@ -53,12 +53,12 @@ const BlogDetail = () => {
 
   const breadcrumbLinks = [
     { label: "Home", to: "/" },
-    { label: "Blog", to: "#" },
+    { label: "Blogs", to: "#" },
   ];
 
   return (
     <div>
-      <Breadcrumbs title="Blog" links={breadcrumbLinks} />
+      <Breadcrumbs title="Blogs" links={breadcrumbLinks} />
 
       <section className="destination-details-section top-bottom-padding2">
         <div className="container">

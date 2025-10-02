@@ -35,15 +35,10 @@ export default function UpdateVendor() {
         "Only alphabets are allowed"
       ),
 
-    profile_name: Yup.string()
-
-      .min(2, "Profile Name must be at least 2 characters")
-      .max(50, "Profile Name must not exceed 50 characters")
-      .matches(
-        /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
-        "Only alphabets are allowed"
-      ),
-
+     profileName: Yup.string().matches(
+          /^(?!.*  )(?!^\s)(?!.*\s$).+$/,
+          "Only spaces are not allowed"
+        ),
     phone: Yup.string()
       .required("Phone number is required")
       .matches(/^[6-9]\d{9}$/, "Please enter a valid 10-digit Indian mobile number"),

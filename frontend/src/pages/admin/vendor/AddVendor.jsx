@@ -84,9 +84,9 @@ export default function AddVendor() {
       .required("Owner Name is required"),
 
     profileName: Yup.string().matches(
-      /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
-      "Only alphabets are allowed "
-    ),
+         /^(?!.*  )(?!^\s)(?!.*\s$).+$/,
+         "Only spaces are not allowed"
+       ),
 
     state: Yup.string().required("State is required"),
     city: Yup.string().required("City is required"),

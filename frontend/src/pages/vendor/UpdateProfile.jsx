@@ -29,8 +29,10 @@ export default function UpdateProfile() {
       .matches(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, "Only alphabets are allowed")
       .required("Owner Name is required"),
 
-    profile_name: Yup.string()
-      .matches(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, "Only alphabets are allowed"),
+    profileName: Yup.string().matches(
+      /^(?!.*  )(?!^\s)(?!.*\s$).+$/,
+      "Only spaces are not allowed"
+    ),
 
     phone: Yup.string()
       .required("Phone number is required")
@@ -55,21 +57,23 @@ export default function UpdateProfile() {
     //   .required("Price Range is required")
     //   .min(3, "Please provide a meaningful price range"),
 
-    category_id: Yup.string()
-      .required("Category is required"),
+    category_id: Yup.string().required("Category is required"),
 
     // Conditional validation for other_category
-    other_category: Yup.string().when('category_id', {
+    other_category: Yup.string().when("category_id", {
       is: (categoryId) => {
         // Check if the selected category is "Other"
-        const selectedCategory = categoryData?.find(cat => cat.value === categoryId);
-        return selectedCategory?.label?.toLowerCase() === 'other';
+        const selectedCategory = categoryData?.find(
+          (cat) => cat.value === categoryId
+        );
+        return selectedCategory?.label?.toLowerCase() === "other";
       },
-      then: (schema) => schema
-        .required("Category Name is required")
-        .min(2, "Category Name must be at least 2 characters")
-        .max(50, "Category Name must not exceed 50 characters"),
-      otherwise: (schema) => schema.notRequired()
+      then: (schema) =>
+        schema
+          .required("Category Name is required")
+          .min(2, "Category Name must be at least 2 characters")
+          .max(50, "Category Name must not exceed 50 characters"),
+      otherwise: (schema) => schema.notRequired(),
     }),
 
     // experience_since: Yup.string()
@@ -296,7 +300,8 @@ export default function UpdateProfile() {
       name: "image",
       label: (
         <>
-         Profile Image{" "}<i
+          Profile Image{" "}
+          <i
             className="ri-eye-fill"
             style={{
               marginLeft: "8px",
@@ -323,25 +328,22 @@ export default function UpdateProfile() {
                 confirmButtonText: "Got it!",
                 width: 400,
                 customClass: {
-                  popup: "custom-swal-popup"
+                  popup: "custom-swal-popup",
                 },
                 didOpen: () => {
-
                   document.documentElement.style.overflow = "hidden";
                   document.body.style.overflow = "hidden";
                 },
                 willClose: () => {
-
                   document.documentElement.style.overflow = "";
                   document.body.style.overflow = "";
-                }
+                },
               })
             }
           ></i>
           <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
             (Image size should be 736x400 for better experience)
           </span>
-
         </>
       ),
       type: "file",

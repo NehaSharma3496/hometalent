@@ -18,8 +18,8 @@ async function seedAll() {
 
   // ✅ Categories
   const categories = [
-    'Fabric Painting', 'Canvas Painting', 'Mehandi Art', 'Catering',
-    'Cook or Chef on call', 'Bakery item', 'Food(Namkeen,Sweets, snacks)',
+    'Fabric Painting', 'Canvas Painting', 'Mehendi Art', 'Catering',
+    'Cook or Chef on call', 'Bakery item', 'Food(Namkeen/Sweets/Snacks)',
     'Gift & Packaging', 'Anchor', 'Clothes', 'Jewellery', 'Beauty services or Home Salon',
     'Music artist', 'Household Goods', 'Cosmetics', 'Dance Tutor or Choreographer',
     'Yoga Instructor', 'Academic Tutor', 'Music teacher', 'Art & Craft Teacher',
