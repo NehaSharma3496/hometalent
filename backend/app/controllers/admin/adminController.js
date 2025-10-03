@@ -436,14 +436,14 @@ exports.approveVendor = async (req, res) => {
     let action;
 
     // Send email with login credentials
-    if(approval == 2){
+    if(approval == 1){
          subject = "Vendor Profile Rejected";
          action = "Approved";
     }else{
          subject = "Vendor Approved - Login Details";
          action = "Rejected";
-
     }
+
     if(approval == 2){
         message = `
           <p>Hi ${vendor.owner_name || vendor.profile_name || "Vendor"},</p>
@@ -788,19 +788,21 @@ exports.processProfileUpdateRequest = async (req, res) => {
         processed_at: request.processed_at
       }, request.vendor_id, action, loginuser.role_id, userAfter.owner_name || userAfter.profile_name, loginuser.profile_name);
       
-      // if(loginuser.role_id ==3){
-
-      // }
+  
+      if(loginuser.role_id == 3){
+         await Notification.create({
+          user_id: admin_id,
+          user_type: 'admin',
+          type: 'profile_update_processed',
+          title: 'Profile Update',
+          message: `Vendor ${request.vendor.owner_name || request.vendor.profile_name}'s Update Request ${action === "approve" ? "Approved" : "Rejected"} by ${loginuser.profile_name}`,
+          metadata: { request_id: request.id, vendor_id: request.vendor_id }
+        });
+      }
+    
       // Persist admin notification
       // try {
-      //   await Notification.create({
-      //     user_id: null,
-      //     user_type: 'admin',
-      //     type: 'profile_update_processed',
-      //     title: 'Profile Update',
-      //     message: `Vendor profile update request approved`,
-      //     metadata: { request_id: request.id, vendor_id: request.vendor_id }
-      //   });
+       
       // } catch (e) { console.error('Failed to persist admin profile processed notification:', e.message); }
 
       // Persist vendor notification (approved)
@@ -840,8 +842,7 @@ exports.processProfileUpdateRequest = async (req, res) => {
       `;
 
       await commonEmail(request.vendor.email, subject, message);
-
-      // Send socket notification
+      
       socketManager.profileUpdateProcessed({
         id: request.id,
         vendor_id: request.vendor_id,
@@ -849,8 +850,19 @@ exports.processProfileUpdateRequest = async (req, res) => {
         status: request.status,
         admin_remarks: request.admin_remarks,
         processed_at: request.processed_at
-      }, request.vendor_id, action);
+      }, request.vendor_id, action, loginuser.role_id, request.vendor.owner_name || request.vendor.profile_name, loginuser.profile_name);
 
+      if(loginuser.role_id == 3){
+         await Notification.create({
+          user_id: admin_id, 
+          user_type: 'admin',
+          type: 'profile_update_processed',
+          title: 'Profile Update',
+          message: `Vendor ${request.vendor.owner_name || request.vendor.profile_name}'s Update Request ${action === "approve" ? "Approved" : "Rejected"} by ${loginuser.profile_name}`,
+          metadata: { request_id: request.id, vendor_id: request.vendor_id }
+        });
+      }
+      
       // Persist admin notification
       // try {
       //   await Notification.create({
@@ -876,7 +888,7 @@ exports.processProfileUpdateRequest = async (req, res) => {
       } catch (e) { console.error('Failed to persist vendor profile processed notification:', e.message); }
     }
 
-    res.json({ 
+    return res.json({ 
       status: true, 
       msg: `Profile update request ${action}d successfully`,
       data: {
@@ -887,7 +899,7 @@ exports.processProfileUpdateRequest = async (req, res) => {
     });
 
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1165,12 +1177,13 @@ exports.assignPackageToVendor = async (req, res) => {
           metadata: { subscription_id: subscription.id, package_id }
         });
       }else{
+        
         await Notification.create({
           user_id: login_id,
           user_type: 'admin',
           type: 'package_assigned',
           title: 'Package Assigned',
-          message: `New Subscription:${planName} assigned by (${loginuser.profile_name}) to Vendor(${vendorName}).`,
+          message: `New Subscription:${pkg.name} assigned by (${loginuser.profile_name}) to Vendor(${vendor.owner_name || vendor.profile_name}).`,
           metadata: { subscription_id: subscription.id, package_id }
         });
       }
@@ -1313,6 +1326,17 @@ exports.extendVendorPackage = async (req, res) => {
         message: `Package ${pkg.name} has been extended by ${extra_days} days. New expiry date: ${formatted}.`,
         metadata: { subscription_id: sub.id, package_id: pkg.id, extra_days, new_end_date: formatted }
       });
+
+      if(loginuser.role_id == 3){
+        await Notification.create({
+          user_id: login_id,
+          user_type: 'admin',
+          type: 'package_extended',
+          title: 'Package Extended',
+          message: `${loginuser.profile_name} has successfully extended the plan ${pkg.name} for the vendor ${vendor.owner_name || vendor.profile_name}`,
+          metadata: { subscription_id: sub.id, package_id: pkg.id, extra_days, new_end_date: formatted }
+        });
+      }
 
 
     return res.json({
