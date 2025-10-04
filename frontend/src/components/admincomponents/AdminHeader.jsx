@@ -147,8 +147,10 @@ export default function AdminHeader() {
   const displayedNotifications =
     notifications.length > 0 ? notifications : storedNotifications;
 
-  // ✅ Latest notifications ko upar dikhane ke liye reverse karo
-  const sortedNotifications = [...displayedNotifications].reverse();
+  // ✅ Latest notifications ko upar dikhane ke liye timestamp se sort karo (descending)
+  const sortedNotifications = [...displayedNotifications].sort((a, b) => {
+    return new Date(b.timestamp) - new Date(a.timestamp);
+  });
 
   // --- close sidebar when clicking a link on mobile ---
   useEffect(() => {
@@ -248,7 +250,6 @@ export default function AdminHeader() {
             <div className="col-3">
               <div className="right-header">
                 <div className="position-relative">
-                  {/* 🔔 Notification Button */}
                   {/* 🔔 Notification Button (hide for role 3) */}
                   {role !== "3" && (
                     <button
