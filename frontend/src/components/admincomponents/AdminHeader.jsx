@@ -8,7 +8,7 @@ import { useNotifications } from "../../contexts/NotificationContext.js";
 import { image_baseurl } from "../../Utils/config.js";
 
 export default function AdminHeader() {
-  const role = localStorage.getItem("role"); // 1=Admin, 2=Vendor, 3=Employee
+  const role = localStorage.getItem("role"); 
   const vendorId = localStorage.getItem("userId");
   const vendor_id = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
