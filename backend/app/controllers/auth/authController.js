@@ -213,10 +213,10 @@ exports.forgotPassword = async (req, res) => {
     // });
 
     const resetLink = `${url}/${token}`;
-    const subject = "Reset Your HomeTalent Password";
+    const subject = "Reset Your HomeTalent4u Password";
 
     const message = `
-  <h3>Click the link below to reset your HomeTalent password:</h3>
+  <h3>Click the link below to reset your HomeTalent4u password:</h3>
   <p>
   <a href="${resetLink}" target="_blank" 
      style="display: inline-block; padding: 10px 20px; 
@@ -226,6 +226,7 @@ exports.forgotPassword = async (req, res) => {
     Click Here
   </a>
 </p>
+<p>Thank you,<br/>Team HomeTalent4u</p>
   <br/>
 `;
 

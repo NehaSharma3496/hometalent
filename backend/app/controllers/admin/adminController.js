@@ -437,10 +437,10 @@ exports.approveVendor = async (req, res) => {
 
     // Send email with login credentials
     if(approval == 1){
-         subject = "Vendor Profile Rejected";
+         subject = "Vendor Approved - Login Details";
          action = "Approved";
     }else{
-         subject = "Vendor Approved - Login Details";
+         subject = "Vendor Profile Rejected";
          action = "Rejected";
     }
 
@@ -449,7 +449,7 @@ exports.approveVendor = async (req, res) => {
           <p>Hi ${vendor.owner_name || vendor.profile_name || "Vendor"},</p>
           <p>Your Vendor profile has been rejected by admin.</p>
           <p>Please contact to your service provider.</p>
-          <p>Thank you,<br/>Team HomeTalent</p>
+          <p>Thank you,<br/>Team HomeTalent4u</p>
         `;
     }else{
        message = `
@@ -459,7 +459,7 @@ exports.approveVendor = async (req, res) => {
         <p><strong>Login Mobile:</strong> ${vendor.phone}</p>
         <p><strong>Password:</strong> ${vendor.show_password}</p>
         <p>Click here to login: <a href="${req.headers.origin}/login">Login</a></p> 
-        <p>Thank you,<br/>Team HomeTalent</p>
+        <p>Thank you,<br/>Team HomeTalent4u</p>
       `;
      
     }
@@ -773,7 +773,7 @@ exports.processProfileUpdateRequest = async (req, res) => {
         <p>Hi ${request.vendor.owner_name || request.vendor.profile_name || 'Vendor'},</p>
         <p>Your profile update request has been approved by admin.</p>
         ${remarks ? `<p><strong>Admin Remarks:</strong> ${remarks}</p>` : ''}
-        <p>Thank you,<br/>Team HomeTalent</p>
+        <p>Thank you,<br/>Team HomeTalent4u</p>
       `;
 
       await commonEmail(request.vendor.email, subject, message);
@@ -838,7 +838,7 @@ exports.processProfileUpdateRequest = async (req, res) => {
         <p>Your profile update request has been rejected by admin.</p>
         ${remarks ? `<p><strong>Reason:</strong> ${remarks}</p>` : ''}
         <p>Please review your request and submit again if needed.</p>
-        <p>Thank you,<br/>Team HomeTalent</p>
+        <p>Thank you,<br/>Team HomeTalent4u</p>
       `;
 
       await commonEmail(request.vendor.email, subject, message);

@@ -51,7 +51,8 @@ exports.submitLead = async (req, res) => {
     if (vendor) {
       // Email vendor details to client
       const subject = 'Vendor Details for Your Query';
-      const text = `Thank you for your query. Here are the vendor details you selected:\n\nName: ${vendor.owner_name} (${vendor.profile_name})\nEmail: ${vendor.email}\nContact: ${vendor.phone}`;
+      const text = `<p>Thank you for your query. Here are the vendor details you selected:\n\nName: ${vendor.owner_name} (${vendor.profile_name})\nEmail: ${vendor.email}\nContact: ${vendor.phone}</p>
+      <p>Thank you,<br/>Team HomeTalent4u</p>`;
       await commonEmail(email, subject, text);
     }
 
