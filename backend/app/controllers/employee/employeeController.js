@@ -108,12 +108,13 @@ exports.updateEmployee = async (req, res) => {
     }
 
     await employee.update(updatedData);
-
+  
     return res.json({
       status: true,
       msg: "Employee updated successfully",
       data: employee,
     });
+    
   } catch (error) {
     console.error("Error in updateEmployee:", error);
     return res.json({ status: false, msg: error.message });

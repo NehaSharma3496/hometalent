@@ -276,7 +276,7 @@ exports.listSponsoredVendors = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -506,7 +506,7 @@ exports.active_vendors = async (req, res) => {
 
     const totalPages = Math.ceil(count / limit);
 
-    res.json({
+    return res.json({
       status: true,
       data: vendors,
       pagination: {
@@ -519,7 +519,7 @@ exports.active_vendors = async (req, res) => {
       },
     });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -528,13 +528,13 @@ exports.updateSponsorRanks = async (req, res) => {
     const { vendors } = req.body;
 
     if (!Array.isArray(vendors) || vendors.length === 0) {
-      return res.status(400).json({ status: false, msg: "vendors array is required" });
+      return res.json({ status: false, msg: "vendors array is required" });
     }
 
     // Validate all entries
     for (const v of vendors) {
       if (!v.vendor_id || !v.category_id || typeof v.sponsor_rank !== 'number') {
-        return res.status(400).json({ status: false, msg: "Each item must include vendor_id, category_id, and sponsor_rank" });
+        return res.json({ status: false, msg: "Each item must include vendor_id, category_id, and sponsor_rank" });
       }
     }
 
@@ -557,10 +557,10 @@ exports.updateSponsorRanks = async (req, res) => {
       // });
     }
 
-    res.json({ status: true, msg: "Category-specific sponsor ranks updated successfully" });
+    return res.json({ status: true, msg: "Category-specific sponsor ranks updated successfully" });
 
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -595,7 +595,7 @@ exports.getPendingProfileUpdateRequests = async (req, res) => {
 
     const totalPages = Math.ceil(count / limit);
 
-    res.json({
+    return res.json({
       status: true,
       data: requests,
       pagination: {
@@ -608,7 +608,7 @@ exports.getPendingProfileUpdateRequests = async (req, res) => {
       },
     });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -668,12 +668,12 @@ exports.getProfileUpdateRequestDetails = async (req, res) => {
     // console.log("Request Data:", request.request_data);
     // console.log("Vendor ID:", request.vendor_id);
 
-    res.json({
+    return res.json({
       status: true,
       data: request,
     });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -933,7 +933,7 @@ exports.getAllProfileUpdateRequests = async (req, res) => {
       ],
     });
 
-    res.json({
+    return res.json({
       status: true,
       data: {
         requests: requests.rows,
@@ -943,7 +943,7 @@ exports.getAllProfileUpdateRequests = async (req, res) => {
       },
     });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -984,7 +984,7 @@ exports.createPackage = async (req, res) => {
     
     return res.json({ status: true, data: pkg });
   } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1002,7 +1002,7 @@ exports.getAllPackages = async (req, res) => {
 
     const totalPages = Math.ceil(count / limit);
 
-    res.json({
+    return res.json({
       status: true,
       data: pkgs,
       pagination: {
@@ -1015,7 +1015,7 @@ exports.getAllPackages = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1023,10 +1023,10 @@ exports.getPackageById = async (req, res) => {
   try {
     const pkg = await Package.findByPk(req.params.id);
     if (!pkg)
-      return res.status(404).json({ status: false, msg: "Package not found" });
-    res.json({ status: true, data: pkg });
+      return res.json({ status: false, msg: "Package not found" });
+    return res.json({ status: true, data: pkg });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1037,7 +1037,7 @@ exports.updatePackage = async (req, res) => {
       req.body;
     const pkg = await Package.findByPk(id);
     if (!pkg)
-      return res.status(404).json({ status: false, msg: "Package not found" });
+      return res.json({ status: false, msg: "Package not found" });
     await pkg.update({
       name,
       description,
@@ -1046,9 +1046,9 @@ exports.updatePackage = async (req, res) => {
       features,
       status,
     });
-    res.json({ status: true, data: pkg });
+    return res.json({ status: true, data: pkg });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1057,11 +1057,11 @@ exports.deletePackage = async (req, res) => {
     const { id } = req.params;
     const pkg = await Package.findByPk(id);
     if (!pkg)
-      return res.status(404).json({ status: false, msg: "Package not found" });
+      return res.json({ status: false, msg: "Package not found" });
     await pkg.destroy();
-    res.json({ status: true, msg: "Package deleted" });
+      return res.json({ status: true, msg: "Package deleted" });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1177,7 +1177,6 @@ exports.assignPackageToVendor = async (req, res) => {
           metadata: { subscription_id: subscription.id, package_id }
         });
       }else{
-        
         await Notification.create({
           user_id: login_id,
           user_type: 'admin',
@@ -1217,7 +1216,7 @@ exports.updatePackageStatus = async (req, res) => {
     }
     pkg.status = status;
     await pkg.save();
-    res.json({
+    return res.json({
       status: true,
       msg: `Package ${status == 1 ? "activated" : "inactivated"} successfully`,
     });
@@ -1250,9 +1249,9 @@ exports.getExpiredVendors = async (req, res) => {
       end_date: sub.end_date,
       ...((sub.vendor && sub.vendor.dataValues) || {}),
     }));
-    res.json({ status: true, data: expiredVendors });
+    return res.json({ status: true, data: expiredVendors });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1345,7 +1344,7 @@ exports.extendVendorPackage = async (req, res) => {
       data: sub,
     });
   } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1370,7 +1369,7 @@ exports.getAllLeads = async (req, res) => {
 
     const totalPages = Math.ceil(count / limit);
 
-    res.json({
+    return res.json({
       status: true,
       data: leads,
       pagination: {
@@ -1383,7 +1382,7 @@ exports.getAllLeads = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1404,9 +1403,9 @@ exports.getAllSponsoredVendorsWithCategories = async (req, res) => {
         ["sponsor_rank", "ASC"],
       ],
     });
-    res.json({ status: true, data: sponsored });
+    return res.json({ status: true, data: sponsored });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1421,7 +1420,7 @@ exports.getAllContactUs = async (req, res) => {
       offset,
     });
     const totalPages = Math.ceil(count / limit);
-    res.json({
+    return res.json({
       status: true,
       data: rows,
       pagination: {
@@ -1434,7 +1433,7 @@ exports.getAllContactUs = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1682,7 +1681,7 @@ const expiredTotal = onlyExpired.length;
       },
     });
   } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1691,7 +1690,7 @@ exports.getprofileRequestdata = async (req, res) => {
     const { request_id } = req.body;
 
     if (!request_id){
-      return res.status(400).json({ status: false, msg: 'request_id is required' });
+      return res.json({ status: false, msg: 'request_id is required' });
     }
 
     let lastLog = await Log.findOne({
@@ -1712,7 +1711,7 @@ exports.getprofileRequestdata = async (req, res) => {
     lastLog.details = details;
 
     if (!lastLog) {
-      return res.status(404).json({ status: false, msg: 'No data found for this request_id' });
+      return res.json({ status: false, msg: 'No data found for this request_id' });
     }
 
     return res.json({
@@ -1721,7 +1720,7 @@ exports.getprofileRequestdata = async (req, res) => {
     });
 
   } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1730,7 +1729,7 @@ exports.packageextendhistory = async (req, res) => {
     const { vendor_id } = req.body;
 
     if (!vendor_id) {
-      return res.status(400).json({ status: false, msg: "vendor_id is required" });
+      return res.json({ status: false, msg: "vendor_id is required" });
     }
 
     const history = await Log.findAll({
@@ -1760,7 +1759,7 @@ exports.packageextendhistory = async (req, res) => {
 
     return res.json({ status: true, data: history });
   } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 }
 
@@ -1848,9 +1847,9 @@ exports.notifyExpiredPlans = async (req, res) => {
       notifyCount++;
     }
 
-    res.json({ status: true, msg: 'Expiry notifications processed', count: notifyCount });
+    return res.json({ status: true, msg: 'Expiry notifications processed', count: notifyCount });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1880,7 +1879,7 @@ exports.insertcategoryimages = async (req, res) => {
 
     return res.json({ status: true, msg: "done" });
   } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   } 
 }
 
@@ -1895,7 +1894,7 @@ exports.getAllFeedBack = async (req, res) => {
       offset,
     });
     const totalPages = Math.ceil(count / limit);
-    res.json({
+    return res.json({
       status: true,
       data: rows,
       pagination: {
@@ -1908,7 +1907,7 @@ exports.getAllFeedBack = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1936,7 +1935,7 @@ exports.sendotp = async (req, res) => {
     const text = await response.text();
     return res.json({ status: true, msg: "otp send successfully", otp: otp });
   } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -1945,7 +1944,7 @@ exports.getVendorsByPackageStatus = async (req, res) => {
     const { status } = req.query;
 
     if (!["active", "expired", "unsubscribed"].includes(status)) {
-      return res.status(400).json({ status: false, msg: "Invalid status parameter" });
+      return res.json({ status: false, msg: "Invalid status parameter" });
     }
 
     const baseWhere = { role_id: 2, approval_status: 1 };
@@ -2025,7 +2024,7 @@ console.log("vendors", vendors);
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ status: false, msg: "Server error", error: error.message });
+    return res.json({ status: false, msg: "Server error", error: error.message });
   }
 };
 

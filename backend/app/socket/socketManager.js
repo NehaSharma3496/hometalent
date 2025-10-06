@@ -224,7 +224,7 @@ class SocketManager {
       });
     }else{
       this.notifyAdmins('plan_subscribed', {
-        message: `New Subscription:${planName} assigned by (${empname}) to Vendor(${planName}).`,
+        message: `New Subscription:${planName} assigned by (${empname}) to Vendor(${vendorName}).`,
         subscription: subscriptionData
       });
     }

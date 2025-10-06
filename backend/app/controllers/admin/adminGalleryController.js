@@ -10,14 +10,14 @@ exports.uploadAdminGalleryFiles = async (req, res) => {
     const { admin_id } = req.body;
     
     if (!admin_id) {
-      return res.status(400).json({ 
+      return res.json({ 
         status: false, 
         msg: 'admin_id is required' 
       });
     }
     
     if (!req.files || (!req.files.images && !req.files.videos)) {
-      return res.status(400).json({ 
+      return res.json({ 
         status: false, 
         msg: 'No files uploaded' 
       });
@@ -61,7 +61,7 @@ exports.uploadAdminGalleryFiles = async (req, res) => {
       }
     }
 
-    res.json({ 
+    return res.json({ 
       status: true, 
       msg: `${uploadedFiles.length} files uploaded successfully to admin gallery.`,
       data: {
@@ -76,7 +76,7 @@ exports.uploadAdminGalleryFiles = async (req, res) => {
     });
 
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -118,7 +118,7 @@ exports.removeAdminGalleryItem = async (req, res) => {
     const { gallery_id } = req.params;
     
     if (!admin_id) {
-      return res.status(400).json({ 
+      return res.json({ 
         status: false, 
         msg: 'admin_id is required' 
       });
@@ -129,7 +129,7 @@ exports.removeAdminGalleryItem = async (req, res) => {
     });
 
     if (!galleryItem) {
-      return res.status(404).json({ 
+      return res.json({ 
         status: false, 
         msg: 'Gallery item not found' 
       });
@@ -143,13 +143,13 @@ exports.removeAdminGalleryItem = async (req, res) => {
 
     await galleryItem.destroy();
 
-    res.json({ 
+    return res.json({ 
       status: true, 
       msg: 'Admin gallery item removed successfully' 
     });
 
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -159,14 +159,14 @@ exports.updateAdminGalleryOrder = async (req, res) => {
     const { admin_id, items } = req.body; // Array of {id, sort_order}
     
     if (!admin_id) {
-      return res.status(400).json({ 
+      return res.json({ 
         status: false, 
         msg: 'admin_id is required' 
       });
     }
 
     if (!Array.isArray(items)) {
-      return res.status(400).json({ 
+      return res.json({ 
         status: false, 
         msg: 'Items array is required' 
       });
@@ -179,13 +179,13 @@ exports.updateAdminGalleryOrder = async (req, res) => {
       );
     }
 
-    res.json({ 
+    return res.json({ 
       status: true, 
       msg: 'Admin gallery order updated successfully' 
     });
 
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -299,7 +299,7 @@ exports.getPendingGalleryRequests = async (req, res) => {
       ]
     });
 
-    res.json({ 
+    return res.json({ 
       status: true, 
       data: {
         gallery: gallery.rows,
@@ -310,7 +310,7 @@ exports.getPendingGalleryRequests = async (req, res) => {
     });
 
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -321,14 +321,14 @@ exports.processGalleryRequest = async (req, res) => {
 
     // ✅ Validate inputs
     if (!gallery_ids || !Array.isArray(gallery_ids) || gallery_ids.length === 0 || !action || !admin_id) {
-      return res.status(400).json({
+      return res.json({
         status: false,
         msg: 'gallery_ids (array), action, and admin_id are required'
       });
     }
 
     if (!['approve', 'reject'].includes(action)) {
-      return res.status(400).json({
+      return res.json({
         status: false,
         msg: 'Action must be either "approve" or "reject"'
       });
@@ -340,7 +340,7 @@ exports.processGalleryRequest = async (req, res) => {
     });
 
     if (!galleryItems.length) {
-      return res.status(404).json({
+      return res.json({
         status: false,
         msg: 'No matching gallery items found'
       });
@@ -376,7 +376,7 @@ exports.processGalleryRequest = async (req, res) => {
       });
     } catch (e) { console.error('Failed to notify/persist vendor notification for gallery process:', e.message); }
 
-    res.json({
+    return res.json({
       status: true,
       msg: `Gallery items ${action}d successfully`,
       updated_count: galleryItems.length,
@@ -388,7 +388,7 @@ exports.processGalleryRequest = async (req, res) => {
     });
 
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -399,7 +399,7 @@ exports.getUserCompleteProfile = async (req, res) => {
     const { user_id } = req.params;
     
     if (!user_id) {
-      return res.status(400).json({ 
+      return res.json({ 
         status: false, 
         msg: 'user_id is required' 
       });
@@ -425,7 +425,7 @@ exports.getUserCompleteProfile = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ 
+      return res.json({ 
         status: false, 
         msg: 'User not found' 
       });
@@ -499,7 +499,7 @@ exports.getUserCompleteProfile = async (req, res) => {
       }
     }
 
-    res.json({ 
+    return res.json({ 
       status: true, 
       data: {
         user,
@@ -510,7 +510,7 @@ exports.getUserCompleteProfile = async (req, res) => {
     });
 
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 }; 
 
@@ -519,7 +519,7 @@ exports.uploadFromVendorToAdmin = async (req, res) => {
     const { id, admin_id, file_path, file_type, file_name, file_size, source_vendor_id } = req.body;
 
     if (!admin_id || !file_path || !file_type) {
-      return res.status(400).json({ status: false, msg: "Missing required fields" });
+      return res.json({ status: false, msg: "Missing required fields" });
     }
     
     // Copy vendor's file into admin's gallery
@@ -546,7 +546,7 @@ exports.uploadFromVendorToAdmin = async (req, res) => {
       data: galleryItem,
     });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    res.json({ status: false, msg: error.message });
   }
 };
 
@@ -556,7 +556,7 @@ exports.removeFromAdminGallery = async (req, res) => {
     const { id, added_in_admin } = req.body;
 
     if (!id || !added_in_admin) {
-      return res.status(400).json({ status: false, msg: "Missing id or added_in_admin" });
+      return res.json({ status: false, msg: "Missing id or added_in_admin" });
     }
     
     await Gallery.update(
@@ -571,12 +571,12 @@ exports.removeFromAdminGallery = async (req, res) => {
     });
 
     if (!deleted) {
-      return res.status(404).json({ status: false, msg: "File not found or not owned by admin" });
+      return res.json({ status: false, msg: "File not found or not owned by admin" });
     }
 
     return res.json({ status: true, msg: "File removed from Admin Gallery" });
   } catch (error) {
-    return res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
