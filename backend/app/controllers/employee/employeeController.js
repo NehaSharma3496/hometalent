@@ -60,7 +60,7 @@ exports.addEmployee = async (req, res) => {
         <p><strong>Login Mobile:</strong> ${phone}</p>
         <p><strong>Password:</strong> ${password}</p>
         <p>Click here to login: <a href="${req.headers.origin}/login">Login</a></p> 
-        <p>Thank you,<br/>Team HomeTalent</p>
+        <p>Thank you,<br/>Team HomeTalent4u</p>
       `;
     await commonEmail(email, subject, message);
     return res.json({
