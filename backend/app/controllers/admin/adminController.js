@@ -1099,14 +1099,14 @@ exports.assignPackageToVendor = async (req, res) => {
     
     const isFreshVendor = completedCount === 0;
     const isFreePackage = Number(pkg.price) === 0;
-    console.log("!isFreshVendor && isFreePackage", !isFreshVendor && isFreePackage);
+    // console.log("!isFreshVendor && isFreePackage", !isFreshVendor && isFreePackage);
     
-    if (!isFreshVendor && isFreePackage) {
-      return res.json({
-        status: false,
-        msg: 'Plan already assigned to this vendor'
-      });
-    }
+    // if (!isFreshVendor && isFreePackage) {
+    //   return res.json({
+    //     status: false,
+    //     msg: 'Plan already assigned to this vendor'
+    //   });
+    // }
 
     const now = new Date();
     // Find latest running subscription

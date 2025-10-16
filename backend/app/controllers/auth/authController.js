@@ -1,5 +1,5 @@
 // Login method
-const { User, Role, Notification } = require("../../models");
+const { User, Role, Notification, Gallery } = require("../../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { commonEmail } = require("../../helper/commonEmail");
@@ -51,6 +51,7 @@ exports.createUser = async (req, res) => {
     const baseUrl = `${req.protocol}://${req.get("host")}`;
     const image = imageFile ? `media/${imageFile.filename}` : null;
     const video = videoFile ? `media/${videoFile.filename}` : null;
+    
 
     var password = generateRandomPassword();
     const existingUser = await User.findOne({
@@ -128,6 +129,49 @@ exports.createUser = async (req, res) => {
           "Failed to persist admin notification for vendor registration:",
           e.message
         );
+      }
+    }
+     
+    const galleryImages = galleryFiles
+    .filter(f => f.mimetype.startsWith("image/"))
+    .map(f => `media/${f.filename}`);
+
+    const galleryVideos = galleryFiles
+    .filter(f => f.mimetype.startsWith("video/"))
+    .map(f => `media/${f.filename}`);
+
+     if (galleryImages.length > 0) {
+      for (const file of galleryImages) {
+        const imagePath = `media/${file.filename}`;
+
+        const galleryItem = await Gallery.create({
+          user_id,
+          file_name: file.originalname,
+          file_type: 'image',
+          file_path: imagePath,
+          file_size: file.size,
+          status: 'pending'
+        });
+
+        uploadedFiles.push(galleryItem);
+      }
+    }
+
+    // ✅ Handle gallery videos
+    if (galleryVideos.length > 0) {
+      for (const file of galleryVideos) {
+        const videoPath = `media/${file.filename}`;
+
+        const galleryItem = await Gallery.create({
+          user_id,
+          file_name: file.originalname,
+          file_type: 'video',
+          file_path: videoPath,
+          file_size: file.size,
+          status: 'pending'
+        });
+
+        uploadedFiles.push(galleryItem);
       }
     }
 
