@@ -14,7 +14,8 @@ const {
   FeedBack,
   City,
   State,
-  Setting
+  Setting,
+  Gallery
 } = require("../../models"); // adjust path as needed
 const { commonEmail } = require("../../helper/commonEmail");
 const socketManager = require('../../socket/socketManager');
@@ -110,6 +111,56 @@ exports.listPendingVendors = async (req, res) => {
       order: [["createdAt", "DESC"]],
       limit,
       offset,
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    return res.json({
+      status: true,
+      data: vendors,
+      pagination: {
+        current_page: page,
+        total_pages: totalPages,
+        total_records: count,
+        limit,
+        has_next: page < totalPages,
+        has_prev: page > 1,
+      },
+    });
+  } catch (error) {
+    return res.json({ status: false, msg: error.message });
+  }
+};
+
+exports.listpendinggalleryvendors = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    // Only vendors (role_id = 2) who are approved (approval_status = 1)
+    // and have at least one pending gallery image (Gallery.approval_status = 0)
+    const { count, rows: vendors } = await User.findAndCountAll({
+      where: {
+        role_id: 2,
+        approval_status: 1
+      },
+      include: [
+        {
+          model: Gallery,
+          as: 'gallery',
+          required: true,                 // inner join: must have at least one matching gallery row
+          where: { status: 'pending' },  // only pending gallery images
+          attributes: ["id"]
+        },
+        { model : Category, attributes: ['id', 'name'] },
+        { model: City, attributes: ["id", "name"], required: false },
+        { model: State, attributes: ["id", "name"], required: false }
+      ],
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset,
+      distinct: true // ensure count counts distinct users, not joined rows
     });
 
     const totalPages = Math.ceil(count / limit);
