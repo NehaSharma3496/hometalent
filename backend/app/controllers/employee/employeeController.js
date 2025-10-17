@@ -60,7 +60,7 @@ exports.addEmployee = async (req, res) => {
         <p><strong>Login Mobile:</strong> ${phone}</p>
         <p><strong>Password:</strong> ${password}</p>
         <p>Click here to login: <a href="${req.headers.origin}/login">Login</a></p> 
-        <p>Thank you,<br/>Team HomeTalent</p>
+        <p>Thank you,<br/>Team HomeTalent4u</p>
       `;
     await commonEmail(email, subject, message);
     return res.json({
@@ -108,12 +108,13 @@ exports.updateEmployee = async (req, res) => {
     }
 
     await employee.update(updatedData);
-
+  
     return res.json({
       status: true,
       msg: "Employee updated successfully",
       data: employee,
     });
+    
   } catch (error) {
     console.error("Error in updateEmployee:", error);
     return res.json({ status: false, msg: error.message });

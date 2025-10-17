@@ -1,5 +1,5 @@
 // Login method
-const { User, Role, Notification } = require("../../models");
+const { User, Role, Notification, Gallery } = require("../../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { commonEmail } = require("../../helper/commonEmail");
@@ -47,10 +47,11 @@ exports.createUser = async (req, res) => {
     // ✅ Access image and video from req.files
     const imageFile = req.files?.image?.[0];
     const videoFile = req.files?.video?.[0];
-
+    const galleryFiles = req.files?.gallery || [];
     const baseUrl = `${req.protocol}://${req.get("host")}`;
     const image = imageFile ? `media/${imageFile.filename}` : null;
     const video = videoFile ? `media/${videoFile.filename}` : null;
+    
 
     var password = generateRandomPassword();
     const existingUser = await User.findOne({
@@ -130,6 +131,51 @@ exports.createUser = async (req, res) => {
         );
       }
     }
+     
+    const galleryImages = galleryFiles
+    .filter(f => f.mimetype.startsWith("image/"))
+    .map(f => f);
+
+    const galleryVideos = galleryFiles
+    .filter(f => f.mimetype.startsWith("video/"))
+    .map(f => f);
+
+     if (galleryImages.length > 0) {
+      for (const gfile of galleryImages) {
+        console.log("Processing gallery image:", gfile);
+        
+        const imagePath = `media/${gfile.filename}`;
+
+        const galleryItem = await Gallery.create({ 
+          user_id :  user.id,
+          file_name: gfile.originalname,
+          file_type: 'image',
+          file_path: imagePath,
+          file_size: gfile.size,
+          status: 'pending'
+        });
+
+        //uploadedFiles.push(galleryItem);
+      }
+    }
+
+    // ✅ Handle gallery videos
+    if (galleryVideos.length > 0) {
+      for (const gfile of galleryVideos) {
+        const videoPath = `media/${gfile.filename}`;
+
+        const galleryItem = await Gallery.create({
+          user_id :  user.id,
+          file_name: gfile.originalname,
+          file_type: 'video',
+          file_path: videoPath,
+          file_size: gfile.size,
+          status: 'pending'
+        });
+
+        //uploadedFiles.push(galleryItem);
+      }
+    }
 
     return res.json({
       status: true,
@@ -175,14 +221,14 @@ exports.login = async (req, res) => {
       { expiresIn: "24h" }
     );
 
-    res.json({
+    return res.json({
       status: true,
       msg: "Login successful",
       token,
       user,
     });
   } catch (error) {
-    res.json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -213,10 +259,10 @@ exports.forgotPassword = async (req, res) => {
     // });
 
     const resetLink = `${url}/${token}`;
-    const subject = "Reset Your HomeTalent Password";
+    const subject = "Reset Your HomeTalent4u Password";
 
     const message = `
-  <h3>Click the link below to reset your HomeTalent password:</h3>
+  <h3>Click the link below to reset your HomeTalent4u password:</h3>
   <p>
   <a href="${resetLink}" target="_blank" 
      style="display: inline-block; padding: 10px 20px; 
@@ -226,6 +272,7 @@ exports.forgotPassword = async (req, res) => {
     Click Here
   </a>
 </p>
+<p>Thank you,<br/>Team HomeTalent4u</p>
   <br/>
 `;
 

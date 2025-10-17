@@ -6,7 +6,7 @@ exports.submitContactUs = async (req, res) => {
   try {
     const { name, email, phone, subject, message } = req.body;
     if (!name || !email || !subject || !message) {
-      return res.status(400).json({ status: false, msg: 'name, email, subject, and message are required' });
+      return res.json({ status: false, msg: 'name, email, subject, and message are required' });
     }
     const contact = await ContactUs.create({ name, email, phone, subject, message });
     
@@ -32,9 +32,9 @@ exports.submitContactUs = async (req, res) => {
       });
     } catch (e) { console.error('Failed to persist admin contact notification:', e.message); }
     
-    res.json({ status: true, msg: 'Contact request submitted successfully', data: contact });
+    return res.json({ status: true, msg: 'Contact request submitted successfully', data: contact });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
 
@@ -42,7 +42,7 @@ exports.submitLead = async (req, res) => {
   try {
     const { vendor_id, name, phone, email, query } = req.body;
     if (!vendor_id || !name || !phone) {
-      return res.status(400).json({ status: false, msg: 'vendor_id, name, phone are required' });
+      return res.json({ status: false, msg: 'vendor_id, name, phone are required' });
     }
     // Store the lead
     const lead = await ClientLead.create({ vendor_id, name, phone, email, query });
@@ -51,7 +51,8 @@ exports.submitLead = async (req, res) => {
     if (vendor) {
       // Email vendor details to client
       const subject = 'Vendor Details for Your Query';
-      const text = `Thank you for your query. Here are the vendor details you selected:\n\nName: ${vendor.owner_name} (${vendor.profile_name})\nEmail: ${vendor.email}\nContact: ${vendor.phone}`;
+      const text = `<p>Thank you for your query. Here are the vendor details you selected:\n\nName: ${vendor.owner_name} (${vendor.profile_name})\nEmail: ${vendor.email}\nContact: ${vendor.phone}</p>
+      <p>Thank you,<br/>Team HomeTalent4u</p>`;
       await commonEmail(email, subject, text);
     }
 
@@ -85,9 +86,9 @@ exports.submitLead = async (req, res) => {
       });
     } catch (e) { console.error('Failed to persist lead notifications:', e.message); }
 
-    res.json({ status: true, msg: 'Lead submitted and vendor details sent to your email.' });
+    return res.json({ status: true, msg: 'Lead submitted and vendor details sent to your email.' });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 } 
 
@@ -96,7 +97,7 @@ exports.submitFeedback = async (req, res) => {
   try {
     const { name, email, phone, message } = req.body;
     if (!name || !email || !message) {
-      return res.status(400).json({ status: false, msg: 'name, email, and message are required' });
+      return res.json({ status: false, msg: 'name, email, and message are required' });
     }
     const feedback = await FeedBack.create({ name, email, phone, message });
 
@@ -121,8 +122,8 @@ exports.submitFeedback = async (req, res) => {
       });
     } catch (e) { console.error('Failed to persist admin feedback notification:', e.message); }
 
-    res.json({ status: true, msg: 'Feedback request submitted successfully', data: feedback });
+    return res.json({ status: true, msg: 'Feedback request submitted successfully', data: feedback });
   } catch (error) {
-    res.status(500).json({ status: false, msg: error.message });
+    return res.json({ status: false, msg: error.message });
   }
 };
