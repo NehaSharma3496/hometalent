@@ -571,9 +571,35 @@ const CategoryDetail = () => {
                           {vendorData?.user?.profile_name && (
                             <>({vendorData.user.profile_name})</>
                           )}
-                          {reviewcount !== null &&
+                          {/* {reviewcount !== null &&
                             reviewcount !== undefined &&
                             reviewcount !== "" && (
+                              <div
+                                className="d-flex align-items-center justify-content-center"
+                                style={{
+                                  backgroundColor: "#2278b6",
+                                  padding: "4px 10px",
+                                  marginLeft: "190px",
+                                  fontSize: "14px",
+                                  color: "#fff",
+                                  fontWeight: "600",
+                                }}
+                              >
+                                <i
+                                  className="ri-star-fill"
+                                  style={{
+                                    color: "#FFD700",
+                                    fontSize: "18px",
+                                    marginRight: "6px",
+                                  }}
+                                />
+                                {parseFloat(reviewcount).toFixed(1)}
+                              </div>
+                            )} */}
+                          {reviewcount !== null &&
+                            reviewcount !== undefined &&
+                            reviewcount !== "" &&
+                            parseFloat(reviewcount) > 0 && (
                               <div
                                 className="d-flex align-items-center justify-content-center"
                                 style={{
