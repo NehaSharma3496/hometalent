@@ -47,7 +47,7 @@ exports.createUser = async (req, res) => {
     // ✅ Access image and video from req.files
     const imageFile = req.files?.image?.[0];
     const videoFile = req.files?.video?.[0];
-
+    const galleryFiles = req.files?.gallery || [];
     const baseUrl = `${req.protocol}://${req.get("host")}`;
     const image = imageFile ? `media/${imageFile.filename}` : null;
     const video = videoFile ? `media/${videoFile.filename}` : null;
@@ -134,44 +134,46 @@ exports.createUser = async (req, res) => {
      
     const galleryImages = galleryFiles
     .filter(f => f.mimetype.startsWith("image/"))
-    .map(f => `media/${f.filename}`);
+    .map(f => f);
 
     const galleryVideos = galleryFiles
     .filter(f => f.mimetype.startsWith("video/"))
-    .map(f => `media/${f.filename}`);
+    .map(f => f);
 
      if (galleryImages.length > 0) {
-      for (const file of galleryImages) {
-        const imagePath = `media/${file.filename}`;
+      for (const gfile of galleryImages) {
+        console.log("Processing gallery image:", gfile);
+        
+        const imagePath = `media/${gfile.filename}`;
 
-        const galleryItem = await Gallery.create({
-          user_id,
-          file_name: file.originalname,
+        const galleryItem = await Gallery.create({ 
+          user_id :  user.id,
+          file_name: gfile.originalname,
           file_type: 'image',
           file_path: imagePath,
-          file_size: file.size,
+          file_size: gfile.size,
           status: 'pending'
         });
 
-        uploadedFiles.push(galleryItem);
+        //uploadedFiles.push(galleryItem);
       }
     }
 
     // ✅ Handle gallery videos
     if (galleryVideos.length > 0) {
-      for (const file of galleryVideos) {
-        const videoPath = `media/${file.filename}`;
+      for (const gfile of galleryVideos) {
+        const videoPath = `media/${gfile.filename}`;
 
         const galleryItem = await Gallery.create({
-          user_id,
-          file_name: file.originalname,
+          user_id :  user.id,
+          file_name: gfile.originalname,
           file_type: 'video',
           file_path: videoPath,
-          file_size: file.size,
+          file_size: gfile.size,
           status: 'pending'
         });
 
-        uploadedFiles.push(galleryItem);
+        //uploadedFiles.push(galleryItem);
       }
     }
 
