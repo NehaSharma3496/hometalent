@@ -119,9 +119,9 @@ export default function AllGalleryRequest() {
     {
       name: "Category",
       selector: (row) =>
-        Array.isArray(row.category_names)
-          ? row.category_names.join(", ")
-          : row.category_names || "—",
+        Array.isArray(row.Category.name)
+          ? row.Category.name.join(", ")
+          : row.Category.name || "—",
       width: "200px",
     },
     {
