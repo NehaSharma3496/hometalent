@@ -45,6 +45,7 @@ import AddEmployee from "../pages/admin/employee/AddEmployee";
 import UpdateEmployee from "../pages/admin/employee/UpdateEmployee";
 import Permissions from "../pages/admin/employee/Permissions";
 import EmployeeProfile from "../pages/admin/employee/EmployeeProfile";
+import AllGalleryRequest from "../pages/admin/galleryUpdateRequest/AllGalleryRequest";
 
 const AdminRoutes = (
   <Route path="/admin" element={<AdminLayout />}>
@@ -106,6 +107,7 @@ const AdminRoutes = (
     <Route path="updateemployee" element={<UpdateEmployee/>}/>
     <Route path="permissions" element={<Permissions/>}/>
     <Route path="employeeprofile" element={<EmployeeProfile/>}/>
+    <Route path="galleryrequest" element={<AllGalleryRequest/>}/>
   </Route>
 );
 

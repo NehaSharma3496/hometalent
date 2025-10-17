@@ -88,6 +88,12 @@ export const MenuItems = {
           link: "/admin/adminGallery",
           permission: "admin_gallery",
         },
+         {
+          icon: "fa-solid fa-photo-film",
+          label: "Gallery Requests",
+          link: "/admin/galleryrequest",
+          permission: "gallery_request",
+        },
       ],
     },
     {

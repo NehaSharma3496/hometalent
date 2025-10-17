@@ -559,6 +559,37 @@ const Registration = () => {
       accept: "image/*",
       multiple: false,
     },
+    {
+      name: "gallery_images",
+      label: (
+        <>
+          Gallery Images{" "}
+          <span style={{ fontWeight: "normal", color: "#6c757d" }}>
+            (Optional, up to 30 images)
+          </span>
+        </>
+      ),
+      type: "file",
+      colClass: "col-md-6 mb-3",
+      accept: "image/*",
+      multiple: true,
+    },
+
+    {
+      name: "gallery_videos",
+      label: (
+        <>
+          Gallery Videos{" "}
+          <span style={{ fontWeight: "normal", color: "#6c757d" }}>
+            (Optional, up to 2 videos)
+          </span>
+        </>
+      ),
+      type: "file",
+      colClass: "col-md-6 mb-3",
+      accept: "video/*",
+      multiple: true,
+    },
 
     {
       name: "terms",
@@ -576,164 +607,17 @@ const Registration = () => {
     },
   ];
 
-  // Enhanced fields array with custom phone field
-  // const fields = [
-  //   {
-  //     name: "ownerName",
-  //     label: "Profile Name*",
-  //     type: "text",
-  //     colClass: "col-md-4 mb-3",
-  //   },
-
-  //   {
-  //     name: "profileName",
-  //     label: "Owner Name",
-  //     type: "text",
-  //     colClass: "col-md-4 mb-3",
-  //   },
-
-  //   {
-  //     name: "state",
-  //     label: "State*",
-  //     type: "select",
-  //     options: statesData,
-  //     onChange: (e) => setSelectedStateId(e.target.value),
-  //     colClass: "col-md-4 mb-3",
-  //   },
-  //   {
-  //     name: "city",
-  //     label: "City*",
-  //     type: "select",
-  //     options: cityData,
-  //     colClass: "col-md-4 mb-3",
-  //   },
-  //   {
-  //     name: "pin",
-  //     label: "Pin Code*",
-  //     type: "text",
-  //     colClass: "col-md-4 mb-3",
-  //     maxLength: 6,
-  //     numeric: true,
-  //   },
-  //   {
-  //     name: "phone",
-  //     label: "Phone No*",
-  //     type: "custom",
-  //     colClass: "col-md-4 mb-3",
-  //     customComponent: CustomPhoneComponent,
-  //   },
-  //   {
-  //     name: "email",
-  //     label: "Email*",
-  //     type: "email",
-  //     colClass: "col-md-4 mb-3",
-  //   },
-  //   {
-  //     name: "priceRange",
-  //     label: "Estimated Price Range",
-  //     type: "text",
-  //     colClass: "col-md-4 mb-3",
-  //   },
-  //   {
-  //     name: "category",
-  //     label: "Category*",
-  //     type: "select",
-  //     colClass: "col-md-6 mb-3",
-  //     options: categoryData,
-  //   },
-  //   {
-  //     name: "otherCategory",
-  //     label: "Category Name*",
-  //     type: "text",
-  //     colClass: "col-md-6 mb-3",
-  //     showWhen: (values) => {
-  //       const selected = categoryData?.find(
-  //         (cat) => cat.value === values.category
-  //       );
-  //       return selected?.label?.toLowerCase() === "other";
-  //     },
-  //     placeholder: "Enter category name",
-  //   },
-  //   {
-  //     name: "experience",
-  //     label: "Experience Since",
-  //     type: "text",
-  //     colClass: "col-md-4 mb-3",
-  //   },
-  //   // {
-  //   //   name: "shortDesc",
-  //   //   label: "Short Description",
-  //   //   type: "text",
-  //   //   colClass: "col-12 mb-3",
-  //   // },
-  //   {
-  //     name: "longDesc",
-  //     label: "Large Description*",
-  //     type: "textarea",
-  //     colClass: "col-12 mb-3",
-  //   },
-  //   {
-  //     name: "facebook_link",
-  //     label: "Facebook Link",
-  //     type: "text",
-  //     colClass: "col-md-6 mb-3",
-  //   },
-  //   {
-  //     name: "instagram_link",
-  //     label: "Instagram Link",
-  //     type: "text",
-  //     colClass: "col-md-6 mb-3",
-  //   },
-  //   {
-  //     name: "twitter_link",
-  //     label: "Twitter Link",
-  //     type: "text",
-  //     colClass: "col-md-6 mb-3",
-  //   },
-  //   {
-  //     name: "linkedin_link",
-  //     label: "LinkedIn Link",
-  //     type: "text",
-  //     colClass: "col-md-6 mb-3",
-  //   },
-  //   {
-  //     name: "youtube_link",
-  //     label: "YouTube Link",
-  //     type: "text",
-  //     colClass: "col-md-6 mb-3",
-  //   },
-  //   {
-  //     name: "website_link",
-  //     label: "Website Link",
-  //     type: "text",
-  //     colClass: "col-md-6 mb-3",
-  //   },
-  //   {
-  //     name: "image",
-  //     label: "Image",
-  //     type: "file",
-  //     colClass: "col-md-6 mb-3",
-  //     accept: "image/*",
-  //     multiple: false,
-  //   },
-  //   {
-  //     name: "terms",
-  //     label: (
-  //       <>
-  //         I accept{" "}
-  //         <Link to="/termscondition" target="_blank" rel="noopener noreferrer">
-  //           Terms & Conditions
-  //         </Link>
-  //         *
-  //       </>
-  //     ),
-  //     type: "checkbox",
-  //     colClass: "col-md-12 mb-3",
-  //   },
-  // ];
-
   const onSubmit = async (values) => {
-    // Check if phone is verified before submission
+    if (values.gallery_images && values.gallery_images.length > 30) {
+      Swal.fire("Error", "You can upload a maximum of 30 images", "error");
+      return;
+    }
+
+    if (values.gallery_videos && values.gallery_videos.length > 2) {
+      Swal.fire("Error", "You can upload a maximum of 2 videos", "error");
+      return;
+    }
+
     if (!phoneVerificationState.isVerified) {
       Swal.fire(
         "Error",
@@ -780,6 +664,17 @@ const Registration = () => {
         formData.append("category_name", values.otherCategory || "");
       } else {
         formData.append("category_id", values.category);
+      }
+      if (values.gallery_images && values.gallery_images.length > 0) {
+        for (let img of values.gallery_images) {
+          formData.append("gallery", img);
+        }
+      }
+
+      if (values.gallery_videos && values.gallery_videos.length > 0) {
+        for (let vid of values.gallery_videos) {
+          formData.append("gallery", vid);
+        }
       }
 
       if (values.image) {

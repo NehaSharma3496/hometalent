@@ -84,9 +84,9 @@ export default function AddVendor() {
       .required("Owner Name is required"),
 
     profileName: Yup.string().matches(
-         /^(?!.*  )(?!^\s)(?!.*\s$).+$/,
-         "Only spaces are not allowed"
-       ),
+      /^(?!.*  )(?!^\s)(?!.*\s$).+$/,
+      "Only spaces are not allowed"
+    ),
 
     state: Yup.string().required("State is required"),
     city: Yup.string().required("City is required"),
@@ -505,6 +505,35 @@ export default function AddVendor() {
       accept: "image/*",
       multiple: false,
     },
+
+    {
+      name: "gallery_images",
+      label: (
+        <>
+          Gallery Images{" "}
+          <span style={{ fontWeight: "normal", color: "#6c757d" }}></span>
+        </>
+      ),
+      type: "file",
+      colClass: "col-md-6 mb-3",
+      accept: "image/*",
+      multiple: true,
+    },
+
+    {
+      name: "gallery_videos",
+      label: (
+        <>
+          Gallery Videos{" "}
+          <span style={{ fontWeight: "normal", color: "#6c757d" }}></span>
+        </>
+      ),
+      type: "file",
+      colClass: "col-md-6 mb-3",
+      accept: "video/*",
+      multiple: true,
+    },
+
     {
       name: "terms",
       label: (
@@ -528,6 +557,16 @@ export default function AddVendor() {
         "Please verify your phone number before submitting",
         "error"
       );
+      return;
+    }
+    // 🖼️ Optional validation for file count & type (no size limit)
+    if (values.gallery_images && values.gallery_images.length > 30) {
+      Swal.fire("Error", "You can upload a maximum of 30 images", "error");
+      return;
+    }
+
+    if (values.gallery_videos && values.gallery_videos.length > 2) {
+      Swal.fire("Error", "You can upload a maximum of 2 videos", "error");
       return;
     }
 
@@ -561,6 +600,18 @@ export default function AddVendor() {
         formData.append("category_name", values.otherCategory || "");
       } else {
         formData.append("category_id", values.category);
+      }
+
+      if (values.gallery_images && values.gallery_images.length > 0) {
+        for (let img of values.gallery_images) {
+          formData.append("gallery", img);
+        }
+      }
+
+      if (values.gallery_videos && values.gallery_videos.length > 0) {
+        for (let vid of values.gallery_videos) {
+          formData.append("gallery", vid);
+        }
       }
 
       if (values.image) {

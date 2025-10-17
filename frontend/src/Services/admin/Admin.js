@@ -942,3 +942,19 @@ export async function AssignPermission(data) {
     throw error?.response?.data || error;
   }
 }
+
+export async function GetGalleryRequest(token, page = 1, limit = 10) {
+  try {
+    const response = await axios.get(
+      `${Config.base_url}admin/vendors/pending_gallery_vendors?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
