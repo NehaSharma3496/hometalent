@@ -511,7 +511,8 @@ export default function AddVendor() {
       label: (
         <>
           Gallery Images{" "}
-          <span style={{ fontWeight: "normal", color: "#6c757d" }}></span>
+          
+          <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>  (Up to 30 images)</span>
         </>
       ),
       type: "file",
@@ -525,7 +526,7 @@ export default function AddVendor() {
       label: (
         <>
           Gallery Videos{" "}
-          <span style={{ fontWeight: "normal", color: "#6c757d" }}></span>
+          <span style={{ fontWeight: "normal", color: "#fd0000ff" }}> (Up to 20 MB)</span>
         </>
       ),
       type: "file",

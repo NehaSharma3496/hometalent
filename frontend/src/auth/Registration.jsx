@@ -564,8 +564,8 @@ const Registration = () => {
       label: (
         <>
           Gallery Images{" "}
-          <span style={{ fontWeight: "normal", color: "#6c757d" }}>
-            (Optional, up to 30 images)
+          <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
+            (Up to 30 images)
           </span>
         </>
       ),
@@ -580,8 +580,8 @@ const Registration = () => {
       label: (
         <>
           Gallery Videos{" "}
-          <span style={{ fontWeight: "normal", color: "#6c757d" }}>
-            (Optional, up to 2 videos)
+          <span style={{ fontWeight: "normal", color: "#fd0000ff" }}>
+            (Up to 20 MB)
           </span>
         </>
       ),

@@ -160,63 +160,75 @@ const VendorPackages = () => {
     }
   };
 
-  const AddSubscribeplan = async (pkg) => {
-    try {
-      const confirm = await Swal.fire({
-        title: "Are you sure?",
-        text: `Subscribe to ${pkg.name} for ₹${pkg.price}?`,
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Yes, proceed",
-      });
+ const AddSubscribeplan = async (pkg) => {
+  try {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: `Subscribe to ${pkg.name} for ₹${pkg.price}?`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, proceed",
+    });
 
-      if (!confirm.isConfirmed) return;
-      console.log("pkg.price", Number(pkg.price));
+    if (!confirm.isConfirmed) return;
 
-      // If price is 0, attempt free self-subscription (backend validates "fresh vendor" rule)
-      if (Number(pkg.price) === 0) {
-        const token = localStorage.getItem("token");
-        const res = await subscribeToPackage(
-          { vendor_id: vendorId, package_id: pkg.id },
-          token
-        );
-        console.log("res", res);
-        if (res?.status) {
-          await Swal.fire(
-            "Success",
-            res?.msg || "Subscribed to free package",
-            "success"
-          );
-          fetchSubscribedPackages();
-          return;
-        } else {
-          await Swal.fire("Error", res?.msg || "Something went wrong", "error");
-          return;
-        }
-        // if backend declines (not fresh), fallthrough to payment flow
-      }
+    // 🔹 Check if already subscribed to a free package
+    const alreadyFreeSubscribed = subscribedPackageIds.some(
+      (item) =>
+        item?.Package?.price === 0 && item?.payment_status === "completed"
+    );
 
-      const response = await paymentService.createPaymentOrder(
-        vendorId,
-        pkg.id
-      );
-      if (response.status && response.data?.payment_url) {
-        Swal.fire("Success", response.msg || "Success", "success");
-        navigate("/vendor/payment", {
-          state: { orderData: response.data, package: pkg },
-        });
-      } else {
-        Swal.fire("Error", response.msg || "Something went wrong.", "error");
-      }
-    } catch (error) {
-      console.error("Subscription error:", error);
+    // 🔹 If trying to subscribe to another free package
+    if (Number(pkg.price) === 0 && alreadyFreeSubscribed) {
       Swal.fire(
-        "Error",
-        error?.response?.data?.msg || error?.message || "Something went wrong.",
-        "error"
+        "Not Allowed",
+        "You have already used a free package. You cannot subscribe to another free package.",
+        "warning"
       );
+      return;
     }
-  };
+
+    // 🔹 If price = 0 and vendor is allowed to subscribe
+    if (Number(pkg.price) === 0) {
+      const res = await subscribeToPackage(
+        { vendor_id: vendorId, package_id: pkg.id },
+        token
+      );
+
+      if (res?.status) {
+        Swal.fire(
+          "Success",
+          res?.msg || "Subscribed to free package successfully.",
+          "success"
+        );
+        fetchSubscribedPackages();
+        return;
+      } else {
+        Swal.fire("Error", res?.msg || "Something went wrong.", "error");
+        return;
+      }
+    }
+
+    // 🔹 Paid plan → go to payment flow
+    const response = await paymentService.createPaymentOrder(vendorId, pkg.id);
+    if (response.status && response.data?.payment_url) {
+      Swal.fire("Redirecting", response.msg || "Success", "success");
+      navigate("/vendor/payment", {
+        state: { orderData: response.data, package: pkg },
+      });
+    } else {
+      Swal.fire("Error", response.msg || "Something went wrong.", "error");
+    }
+  } catch (error) {
+    console.error("Subscription error:", error);
+    Swal.fire(
+      "Error",
+      error?.response?.data?.msg || error?.message || "Something went wrong.",
+      "error"
+    );
+  }
+};
+
 
   const handleView = (pkg) => {
     Swal.fire({
@@ -311,30 +323,39 @@ const VendorPackages = () => {
       width: "150px",
     },
 
-    {
-      name: "Status",
-      cell: (row) => {
-        const today = new Date();
+  {
+  name: "Status",
+  cell: (row) => {
+    const today = new Date();
 
-        const isSubscribed = subscribedPackageIds.some(
-          (item) =>
-            item?.package_id === row.id &&
-            item?.payment_status === "completed" &&
-            new Date(item?.end_date) >= today
-        );
+    const isSubscribed = subscribedPackageIds.some((item) => {
+      const isSamePkg = item?.package_id === row.id;
+      const isCompleted = item?.payment_status === "completed";
+      const endDateValid =
+        new Date(item?.end_date) >= today || Number(row.price) === 0;
 
-        return (
-          <div
-            className="d-flex justify-content-center align-items-center"
-            style={{ height: "40px", width: "100%" }}
-          >
-            <span className="fs-6">{isSubscribed ? "Active" : "-"}</span>
-          </div>
-        );
-      },
-      sortable: false,
-      width: "155px",
-    },
+      return isSamePkg && isCompleted && endDateValid;
+    });
+
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        // style={{ height: "40px", width: "100%" }}
+      >
+        <span
+          className={`fs-6 fw-semibold ${
+            isSubscribed ? "text-success" : "text-muted"
+          }`}
+        >
+          {isSubscribed ? "Active" : "-"}
+        </span>
+      </div>
+    );
+  },
+  sortable: false,
+  width: "155px",
+},
+
   ];
 
   return (
