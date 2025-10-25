@@ -613,10 +613,10 @@ const Registration = () => {
       return;
     }
 
-    if (values.gallery_videos && values.gallery_videos.length > 2) {
-      Swal.fire("Error", "You can upload a maximum of 2 videos", "error");
-      return;
-    }
+    // if (values.gallery_videos && values.gallery_videos.length > 2) {
+    //   Swal.fire("Error", "You can upload a maximum of 2 videos", "error");
+    //   return;
+    // }
 
     if (!phoneVerificationState.isVerified) {
       Swal.fire(
