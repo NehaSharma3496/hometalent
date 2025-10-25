@@ -44,15 +44,60 @@ const upload = multer({
 }).any();
 
 // ✅ Custom size validation
+// const checkFileSizes = (req, res, next) => {
+//   if (!req.files || req.files.length === 0) return next();
+
+//   const maxImageSize = 5 * 1024 * 1024;   // 5MB per image
+//   const maxTotalVideoSize = 20 * 1024 * 1024; // 20MB total for all videos
+
+//   let totalVideoSize = 0;
+
+//   for (const file of req.files) {
+//     const isImage = file.mimetype.startsWith("image/");
+//     const isVideo = file.mimetype.startsWith("video/");
+
+//     if (isImage && file.size > maxImageSize) {
+//       return res.status(400).json({
+//         status: false,
+//         msg: `Image "${file.originalname}" exceeds 5MB limit.`,
+//       });
+//     }
+
+//     if (isVideo) {
+//       totalVideoSize += file.size;
+//     }
+//   }
+
+//   if (totalVideoSize > maxTotalVideoSize) {
+//     return res.status(400).json({
+//       status: false,
+//       msg: `Total video upload size exceeds 20MB limit (currently ${(totalVideoSize / 1024 / 1024).toFixed(2)}MB).`,
+//     });
+//   }
+
+//   next();
+// };
+
+// ✅ checkFileSizes updated to handle new structure
 const checkFileSizes = (req, res, next) => {
-  if (!req.files || req.files.length === 0) return next();
+  if (!req.files) return next();
+
+  // Agar req.files ek object hai (organized structure)
+  const allFiles = Array.isArray(req.files)
+    ? req.files
+    : [
+        ...(req.files.images || []),
+        ...(req.files.videos || []),
+      ];
+
+  if (allFiles.length === 0) return next();
 
   const maxImageSize = 5 * 1024 * 1024;   // 5MB per image
-  const maxTotalVideoSize = 20 * 1024 * 1024; // 20MB total for all videos
+  const maxTotalVideoSize = 20 * 1024 * 1024; // 20MB total
 
   let totalVideoSize = 0;
 
-  for (const file of req.files) {
+  for (const file of allFiles) {
     const isImage = file.mimetype.startsWith("image/");
     const isVideo = file.mimetype.startsWith("video/");
 
@@ -76,7 +121,8 @@ const checkFileSizes = (req, res, next) => {
   }
 
   next();
-};
+}; 
+
 
 // ✅ Main middleware handler
 const galleryUploadHandler = (req, res, next) => {
